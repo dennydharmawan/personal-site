@@ -223,7 +223,7 @@ function AnimatedHeader() {
         transition={spring}
       >
         <motion.a
-          className="inline-flex min-h-10 items-center gap-2.5 whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
+          className="inline-flex min-h-10 items-center whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
           href="#top"
           aria-label="Denny Dharmawan home"
           onClick={(event) => smoothScrollToHash(event, '#top', shouldReduceMotion)}
@@ -231,7 +231,8 @@ function AnimatedHeader() {
         >
           <span
             aria-hidden="true"
-            className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
+            style={{ height: '2rem', marginRight: '0.625rem', width: '2rem' }}
           >
             DD
           </span>

@@ -1,5 +1,6 @@
 ---
 import PortfolioHome from "@/components/portfolio-home";
+import interLatinUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
 ---
 
@@ -8,6 +9,13 @@ import "@/styles/global.css";
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
+		<link
+			rel="preload"
+			href={interLatinUrl}
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<meta
