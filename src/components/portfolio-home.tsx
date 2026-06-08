@@ -5,16 +5,23 @@ import {
   ArrowRight,
   BriefcaseBusiness,
   CheckCircle2,
-  Code2,
   Download,
-  ExternalLink,
   FileText,
   Gauge,
   Mail,
   ShieldCheck
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { SiMysql, SiNextdotjs, SiNodedotjs, SiReact, SiRedis, SiTypescript } from 'react-icons/si';
+import { FaLinkedinIn } from 'react-icons/fa';
+import {
+  SiGithub,
+  SiMysql,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiReact,
+  SiRedis,
+  SiTypescript
+} from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -25,9 +32,9 @@ const navItems = [
 ];
 
 const proofItems = [
-  { label: 'Years experience', value: '7+' },
-  { label: 'Faster execution after refactoring legacy modules', value: '37%' },
-  { label: 'Digital banking and internal platforms', value: 'Fintech' },
+  { label: 'Years across fintech and enterprise systems', value: '7+' },
+  { label: 'Faster execution after legacy refactoring', value: '37%' },
+  { label: 'Internal platforms, RBAC, audit workflows', value: 'Fintech' },
   { label: 'React, Next.js, Node.js, TypeScript', value: 'JS' }
 ];
 
@@ -42,15 +49,15 @@ const coreStack: { icon: IconType; iconClass: string; name: string }[] = [
 
 const focusItems = [
   {
-    body: 'Internal platforms with clear workflows and role-aware actions.',
+    body: 'Internal operations platforms where ownership, status, and next action are easy to see.',
     icon: BriefcaseBusiness
   },
   {
-    body: 'Auditability, permission visibility, and data integrity by design.',
+    body: 'Access-control workflows with clear permissions, review history, and audit trails.',
     icon: ShieldCheck
   },
   {
-    body: 'Performance, scalability, and operational reliability across delivery.',
+    body: 'Reliable delivery across APIs, data models, monitoring, and performance improvements.',
     icon: Gauge
   }
 ];
@@ -58,74 +65,85 @@ const focusItems = [
 const projects = [
   {
     bullets: [
-      'Models approval states as explicit queue phases instead of hidden app behavior',
-      'Makes role-aware decisions clear before someone clicks a risky action',
-      'Keeps review history audit-ready without exposing private operational data'
+      'Turns approval status, ownership, and next action into a clear review queue',
+      'Makes role-aware decisions visible before someone takes a sensitive action',
+      'Keeps reviewer history and decision context audit-ready without exposing private data'
     ],
-    demonstrates: 'Workflow modeling, product judgment, and audit-aware implementation',
     icon: BriefcaseBusiness,
-    impact: 'Designed around clearer queues, safer actions, and maintainable workflow state.',
+    impact: 'Shows how I translate operational rules into safer, easier-to-review software.',
     preview: '/portfolio-previews/approval-workflow.png',
     role: 'Full-stack product engineering',
     stack: ['React', 'Node.js', 'TypeScript', 'MySQL'],
     summary:
-      'A public-safe workflow for reviewing operational records, surfacing status, and keeping approval decisions traceable.',
-    title: 'Approval Workflow Prototype'
+      'A public-safe approval experience for reviewing operational records, surfacing status, and keeping decisions traceable.',
+    title: 'Approval Workflow System'
   },
   {
     bullets: [
-      'Turns scattered assignments, follow-ups, and reporting into one operating surface',
-      'Designs for agents, team leads, managers, and admins without splitting the workflow',
-      'Uses status and ownership signals to reduce ambiguity in daily operations'
+      'Consolidates assignments, follow-ups, and reporting into one operating surface',
+      'Supports agents, leads, managers, and admins without fragmenting the workflow',
+      'Uses status, ownership, and aging signals to reduce ambiguity in daily operations'
     ],
-    demonstrates: 'Operational UX, dashboard systems, and cross-role visibility',
     icon: Gauge,
-    impact: 'Focuses on reducing ambiguity for agents, team leads, managers, and admins.',
+    impact: 'Demonstrates how I design internal tools for repeated daily use, not one-time demos.',
     preview: '/portfolio-previews/operations-platform.png',
     role: 'Workflow and systems design',
     stack: ['Next.js', 'Express', 'Sequelize', 'Redis'],
     summary:
-      'A dashboard-style system for assignments, follow-ups, reporting, and team visibility across internal operations.',
-    title: 'Operations Platform Prototype'
+      'A dashboard-style platform for assignments, follow-ups, reporting, and team visibility across internal operations.',
+    title: 'Operations Platform'
   },
   {
     bullets: [
       'Shows roles, requests, protected areas, and access history in one reviewable flow',
-      'Separates permission review from implementation details so decisions stay readable',
+      'Separates permission review from technical implementation so decisions stay readable',
       'Keeps access changes traceable for audits, support, and safer maintenance'
     ],
-    demonstrates: 'Security UX, RBAC structure, and protected-route thinking',
     icon: ShieldCheck,
-    impact:
-      'Built around auditability, permission visibility, and reusable protected-route patterns.',
+    impact: 'Connects secure product flows with maintainable implementation patterns.',
     preview: '/portfolio-previews/access-management.png',
     role: 'Full-stack implementation',
     stack: ['Next.js', 'SSO', 'RBAC', 'Redis'],
     summary:
-      'A secure permissions experience for reviewing roles, requests, protected areas, and access history.',
-    title: 'Access Management Prototype'
+      'A permissions experience for reviewing roles, requests, protected areas, and access history.',
+    title: 'Access Management System'
   }
 ];
 
 const experiences = [
   {
-    company: 'Krom Bank',
-    details:
+    bullets: [
       'Build and maintain full-stack internal fintech platforms across React, Next.js, Node.js, Express, TypeScript, MySQL, Sequelize, Redis, and Mantine UI.',
+      'Own internal operations tools end to end, from data modeling and UI workflows to backend implementation, monitoring, and integrations.',
+      'Design secure access-management workflows covering RBAC, auditability, access review, and safer operational actions.',
+      'Improve reliability through monitoring dashboards, error tracing, CI/CD fixes, infrastructure migration support, and reusable rollout helpers.',
+      'Reduced average execution time by 37% by refactoring legacy modules, improving structure, and optimizing slow APIs with caching.',
+      'Author RFCs and technical documentation for approval workflows, API practices, shared engineering workflows, and onboarding.'
+    ],
+    company: 'Krom Bank',
+    current: true,
     period: 'Jan 2023 - Present',
     role: 'Senior Full-Stack Engineer'
   },
   {
+    bullets: [
+      'Built and maintained backend services for Jenius and Flexi Cash using Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.',
+      'Contributed APIs, data flows, and service integrations for loan application, funding, and lending business processes.',
+      'Supported partner integration flows with external retail partners for digital lending distribution.',
+      'Improved backend reliability, maintainability, and troubleshooting practices across lending-related services.'
+    ],
     company: 'Jenius / Bank BTPN',
-    details:
-      'Worked on digital banking and lending services using Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.',
     period: 'Dec 2019 - Jan 2022',
     role: 'Back End Engineer'
   },
   {
+    bullets: [
+      'Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia.',
+      'Translated business requirements into ERP customizations, integrations, and operational fixes.',
+      'Built and supported integrations across data warehouse, enterprise portal, and POS printer-related systems.',
+      'Trained professionals from multiple companies in Dynamics AX customization and implementation practices.'
+    ],
     company: 'Iverson Technology',
-    details:
-      'Delivered Microsoft Dynamics AX customizations, integrations, and operational system support for enterprise clients.',
     period: 'Dec 2017 - Dec 2019',
     role: 'Technical Consultant'
   }
@@ -133,23 +151,28 @@ const experiences = [
 
 const strengths = [
   {
-    items: ['React and Next.js', 'TypeScript', 'Component systems', 'Responsive interfaces'],
+    items: ['React and Next.js', 'TypeScript', 'Component systems', 'Operational interfaces'],
     title: 'Frontend Engineering'
   },
   {
-    items: ['Node.js and Express', 'API design', 'Data models', 'Caching and integrations'],
+    items: [
+      'Node.js and Express',
+      'GraphQL and REST APIs',
+      'Data models',
+      'Caching and integrations'
+    ],
     title: 'Backend Engineering'
   },
   {
-    items: ['Access control', 'Auditability', 'Monitoring awareness', 'Operational clarity'],
+    items: ['RBAC workflows', 'Auditability', 'Monitoring and tracing', 'Safer rollouts'],
     title: 'Fintech Reliability'
   },
   {
     items: [
       'Requirements shaping',
-      'Architecture planning',
-      'Documentation',
-      'Implementation plans'
+      'RFCs and implementation plans',
+      'Cross-team documentation',
+      'Spec-driven development'
     ],
     title: 'System Design'
   }
@@ -183,11 +206,52 @@ function scrollToTarget(
   });
 }
 
-function SectionLabel({ children }: { children: ReactNode }) {
+function SectionLabel({
+  children,
+  tone = 'light'
+}: {
+  children: ReactNode;
+  tone?: 'light' | 'dark';
+}) {
   return (
-    <p className="w-fit rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium uppercase text-indigo-700 shadow-sm shadow-indigo-200/60">
-      {children}
-    </p>
+    <div
+      className={`flex w-fit items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] ${
+        tone === 'dark' ? 'text-indigo-200' : 'text-indigo-700'
+      }`}
+    >
+      <span className={`h-px w-7 ${tone === 'dark' ? 'bg-indigo-600' : 'bg-indigo-300'}`} />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function FooterLinkArrow() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="-ml-1 h-4 w-5 shrink-0 overflow-visible text-current"
+      fill="none"
+      viewBox="0 0 20 16"
+    >
+      <line
+        className="origin-[5px_8px] scale-x-0 opacity-0 transition-[scale,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100"
+        x1="5"
+        x2="15"
+        y1="8"
+        y2="8"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.5"
+      />
+      <path
+        className="transition-transform duration-300 ease-out group-hover:translate-x-1.5"
+        d="M5 4L9 8L5 12"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.5"
+      />
+    </svg>
   );
 }
 
@@ -209,25 +273,44 @@ function AnimatedHeader() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
       <motion.div
         className="pointer-events-auto border-b backdrop-blur"
-        initial={false}
+        initial={shouldReduceMotion ? false : { opacity: 0 }}
         animate={{
           backgroundColor: isNavCompact ? 'rgba(255,255,255,0.86)' : 'rgba(255,255,255,0)',
-          borderColor: isNavCompact ? 'rgba(226,232,240,0.9)' : 'rgba(226,232,240,0)'
+          borderColor: isNavCompact ? 'rgba(226,232,240,0.9)' : 'rgba(226,232,240,0)',
+          opacity: 1
         }}
-        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: easeOut }}
+        transition={
+          shouldReduceMotion
+            ? { duration: 0 }
+            : {
+                backgroundColor: { duration: 0.28, ease: easeOut },
+                borderColor: { duration: 0.28, ease: easeOut },
+                opacity: { duration: 0.36, ease: easeOut }
+              }
+        }
       >
         <motion.div
           className="mx-auto flex w-[min(1200px,calc(100%-2rem))] items-center justify-between gap-4 px-0 md:px-0"
-          initial={false}
-          animate={{ height: isNavCompact ? 56 : 72 }}
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: easeOut }}
+          initial={shouldReduceMotion ? false : { filter: 'blur(3px)', y: -8 }}
+          animate={{ filter: 'blur(0px)', height: isNavCompact ? 56 : 72, y: 0 }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  filter: { delay: 0.04, duration: 0.32, ease: easeOut },
+                  height: { duration: 0.28, ease: easeOut },
+                  y: { delay: 0.04, duration: 0.32, ease: easeOut }
+                }
+          }
         >
           <motion.a
             className="inline-flex min-h-10 items-center whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
-            transition={spring}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.08, ...spring }}
           >
             <span
               aria-hidden="true"
@@ -238,20 +321,28 @@ function AnimatedHeader() {
             </span>
             <span>Denny Dharmawan</span>
           </motion.a>
-          <nav
+          <motion.nav
             className="flex items-center justify-end gap-1.5"
             aria-label="Main navigation"
             onMouseLeave={() => setHoveredNavHref(null)}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.14, ...spring }}
           >
-            {navItems.map((item) => (
-              <button
+            {navItems.map((item, index) => (
+              <motion.button
                 key={item.target}
                 type="button"
                 className="relative hidden min-h-10 items-center rounded-full px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
                 onBlur={() => setHoveredNavHref(null)}
                 onFocus={() => setHoveredNavHref(item.target)}
                 onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
                 onMouseEnter={() => setHoveredNavHref(item.target)}
+                transition={
+                  shouldReduceMotion ? { duration: 0 } : { delay: 0.18 + index * 0.04, ...spring }
+                }
               >
                 <AnimatePresence initial={false} mode="popLayout">
                   {hoveredNavHref === item.target ? (
@@ -280,14 +371,24 @@ function AnimatedHeader() {
                   ) : null}
                 </AnimatePresence>
                 <span className="relative z-10">{item.label}</span>
-              </button>
+              </motion.button>
             ))}
-            <Button asChild variant="outline" size="sm" className="ml-1">
-              <a href="/resume.pdf">
-                Resume <Download data-icon="inline-end" />
-              </a>
-            </Button>
-          </nav>
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : { delay: 0.18 + navItems.length * 0.04, ...spring }
+              }
+            >
+              <Button asChild variant="outline" size="sm" className="ml-1">
+                <a href="/resume.pdf">
+                  Resume <Download data-icon="inline-end" />
+                </a>
+              </Button>
+            </motion.div>
+          </motion.nav>
         </motion.div>
       </motion.div>
     </header>
@@ -343,33 +444,28 @@ export default function PortfolioHome() {
           />
 
           <div className="relative mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 py-16 md:grid-cols-[minmax(0,1fr)_24rem] md:py-20 lg:gap-14">
-            <motion.div
-              className="grid content-start gap-7"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: 'easeOut' }}
-            >
+            <motion.div className="grid content-start gap-7">
               <motion.div
                 className="grid gap-5"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={shouldReduceMotion ? false : { filter: 'blur(3px)', opacity: 0, y: 12 }}
+                animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
                 transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
               >
-                <SectionLabel>Senior Full-Stack Engineer</SectionLabel>
+                <SectionLabel>Full-Stack Engineer</SectionLabel>
                 <h1 className="max-w-3xl text-5xl font-light leading-[1.03] text-slate-900 text-balance sm:text-6xl">
-                  Building reliable web platforms for fintech and business operations.
+                  Full-stack engineer building reliable fintech and internal operations platforms.
                 </h1>
                 <p className="max-w-2xl text-base font-light leading-7 text-slate-700 sm:text-lg">
-                  I design and build full-stack applications across the JavaScript ecosystem, with
-                  experience in digital banking, internal tools, access management, and
-                  performance-focused web systems.
+                  I build secure, scalable web systems across React, Next.js, Node.js, and
+                  TypeScript, with deep experience in digital banking, RBAC workflows, auditability,
+                  API design, and operational reliability.
                 </p>
               </motion.div>
 
               <motion.div
                 className="flex flex-wrap items-center gap-3"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={shouldReduceMotion ? false : { filter: 'blur(3px)', opacity: 0, y: 12 }}
+                animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
                 transition={{ delay: 0.18, duration: 0.42, ease: easeOut }}
               >
                 <Button
@@ -387,8 +483,8 @@ export default function PortfolioHome() {
 
               <motion.div
                 className="grid gap-4 rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/80 backdrop-blur transition-shadow duration-300 hover:shadow-xl hover:shadow-slate-300/50 sm:grid-cols-2 lg:grid-cols-4"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={shouldReduceMotion ? false : { filter: 'blur(3px)', opacity: 0, y: 14 }}
+                animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
                 transition={{ delay: 0.28, duration: 0.42, ease: easeOut }}
               >
                 {proofItems.map((item) => (
@@ -437,7 +533,7 @@ export default function PortfolioHome() {
                         Available for focused engineering conversations
                       </p>
                       <p className="mt-1 text-sm font-light text-indigo-100">
-                        Remote and onsite collaboration
+                        Fintech, internal tools, and remote-first teams
                       </p>
                     </div>
                   </div>
@@ -448,7 +544,7 @@ export default function PortfolioHome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.38, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Workflow clarity</span>
+                      <span className="font-light text-indigo-100">Execution improved</span>
                       <span className="font-medium tabular-nums text-white">37%</span>
                     </motion.div>
                     <motion.div
@@ -457,7 +553,7 @@ export default function PortfolioHome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.46, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Platform focus</span>
+                      <span className="font-light text-indigo-100">Domain focus</span>
                       <span className="font-medium text-white">Fintech</span>
                     </motion.div>
                     <motion.div
@@ -466,7 +562,7 @@ export default function PortfolioHome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.54, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Primary stack</span>
+                      <span className="font-light text-indigo-100">Primary ecosystem</span>
                       <span className="font-medium text-white">JS</span>
                     </motion.div>
                   </div>
@@ -523,12 +619,12 @@ export default function PortfolioHome() {
             >
               <SectionLabel>Selected work</SectionLabel>
               <h2 className="text-4xl font-light leading-tight text-slate-900 text-balance sm:text-5xl">
-                Portfolio prototypes that show how I think through systems.
+                Selected product systems and internal tools.
               </h2>
               <p className="max-w-2xl text-base font-light leading-7 text-slate-600 text-pretty">
-                These are public-safe demonstrations of the kind of product engineering work I do:
-                clarifying operational workflows, designing for reliability, and turning ambiguous
-                requirements into maintainable interfaces.
+                These public-safe examples show how I structure internal workflows, design for
+                auditability, connect frontend and backend concerns, and turn ambiguous requirements
+                into maintainable product surfaces.
               </p>
             </motion.div>
 
@@ -559,14 +655,6 @@ export default function PortfolioHome() {
                       </h3>
                       <p className="max-w-xl text-base font-light leading-7 text-slate-600 text-pretty">
                         {project.summary}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-indigo-100 bg-white p-5 shadow-sm shadow-slate-200/70">
-                      <p className="text-xs font-medium uppercase text-indigo-700">
-                        What this demonstrates
-                      </p>
-                      <p className="mt-2 text-sm font-light leading-6 text-slate-700">
-                        {project.demonstrates}
                       </p>
                     </div>
                     <ul className="grid gap-3">
@@ -609,10 +697,7 @@ export default function PortfolioHome() {
                       loading="lazy"
                     />
                     <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/20 bg-indigo-950/90 p-4 text-white shadow-2xl shadow-indigo-950/30 backdrop-blur">
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="text-xs font-medium uppercase text-indigo-200">
-                          Portfolio signal
-                        </p>
+                      <div className="flex justify-end">
                         <span className="rounded-full bg-fuchsia-400 px-2.5 py-1 text-xs font-medium text-indigo-950">
                           Demo
                         </span>
@@ -629,81 +714,121 @@ export default function PortfolioHome() {
         </section>
 
         <section
-          className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 py-16 md:grid-cols-[15rem_minmax(0,1fr)] md:py-20"
+          className="mx-auto w-[min(1200px,calc(100%-2rem))] py-16 md:py-20"
           data-scroll-target="experience"
         >
           <motion.div
-            className="grid content-start gap-4"
+            className="mx-auto mb-14 grid max-w-3xl justify-items-center gap-4 text-center"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.4, once: true }}
             transition={{ duration: 0.4, ease: easeOut }}
           >
             <SectionLabel>Experience</SectionLabel>
-            <h2 className="text-4xl font-light leading-tight text-slate-900">
-              Fintech, banking, and enterprise systems.
+            <h2 className="text-4xl font-light leading-tight text-slate-900 text-balance sm:text-5xl">
+              Seven years across fintech, banking, and enterprise systems.
             </h2>
+            <p className="max-w-2xl text-base font-light leading-7 text-slate-600 text-pretty">
+              My experience spans internal fintech platforms, digital lending services, ERP
+              customization, access control, APIs, integrations, monitoring, documentation, and
+              performance improvement.
+            </p>
           </motion.div>
-          <div className="grid gap-3">
+
+          <div className="relative">
+            <div className="absolute bottom-0 left-[min(21rem,43%)] top-0 hidden w-px bg-slate-200 lg:block" />
             {experiences.map((item, index) => (
               <motion.article
                 key={`${item.company}-${item.role}`}
-                className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-100/70 md:grid-cols-[9rem_minmax(0,13rem)_minmax(0,1fr)] md:gap-8"
+                className="relative grid gap-5 border-t border-slate-200 py-9 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(12rem,21rem)_3rem_minmax(0,1fr)] lg:gap-8"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ amount: 0.35, once: true }}
                 transition={{ delay: index * 0.05, duration: 0.35, ease: easeOut }}
               >
-                <div className="flex items-center gap-3 text-sm font-light text-slate-500 md:block">
-                  <span className="inline-flex size-2.5 rounded-full bg-indigo-600" />
-                  <p className="md:mt-3">{item.period}</p>
+                <div className="grid content-start gap-3">
+                  <p
+                    className={`text-lg font-medium leading-none ${
+                      item.current ? 'text-indigo-600' : 'text-slate-600'
+                    }`}
+                  >
+                    {item.period}
+                  </p>
+                  {item.current ? (
+                    <span className="w-fit rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">
+                      Current
+                    </span>
+                  ) : null}
                 </div>
-                <div>
-                  <h3 className="text-xl font-light leading-tight text-slate-900">{item.role}</h3>
-                  <p className="mt-1 text-sm font-medium text-indigo-600">{item.company}</p>
+
+                <div className="pointer-events-none absolute left-0 top-8 lg:static lg:flex lg:justify-center">
+                  <span
+                    className={`relative z-10 inline-flex size-6 rounded-full border-2 bg-white ${
+                      item.current
+                        ? 'border-indigo-600 bg-indigo-600 shadow-lg shadow-indigo-200'
+                        : 'border-slate-400'
+                    }`}
+                  />
                 </div>
-                <p className="text-sm font-light leading-6 text-slate-600">{item.details}</p>
+
+                <div className="pl-10 lg:pl-0">
+                  <div className="grid gap-2">
+                    <h3 className="text-2xl font-light leading-tight text-slate-900 text-balance">
+                      {item.role}
+                    </h3>
+                    <p className="text-sm font-medium text-indigo-600">{item.company}</p>
+                  </div>
+                  <ul className="mt-5 grid gap-3">
+                    {item.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="flex gap-3 text-sm font-light leading-6 text-slate-600"
+                      >
+                        <span className="mt-2 size-1.5 shrink-0 rounded-full bg-slate-300" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </motion.article>
             ))}
           </div>
         </section>
 
-        <section className="bg-amber-50 py-16 md:py-20" data-scroll-target="strengths">
+        <section className="bg-slate-950 py-16 md:py-20" data-scroll-target="strengths">
           <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
             <motion.div
-              className="mb-8 grid gap-4 md:grid-cols-[15rem_minmax(0,1fr)]"
+              className="mx-auto mb-12 grid max-w-3xl justify-items-center gap-4 text-center"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.4, once: true }}
               transition={{ duration: 0.4, ease: easeOut }}
             >
-              <SectionLabel>Technical strengths</SectionLabel>
-              <div className="max-w-3xl">
-                <h2 className="text-4xl font-light leading-tight text-slate-900">
-                  Full-stack delivery with product and reliability awareness.
-                </h2>
-                <p className="mt-3 text-sm font-light leading-6 text-slate-600">
-                  Practical engineering across interfaces, APIs, data models, operational workflows,
-                  and implementation planning.
-                </p>
-              </div>
+              <SectionLabel tone="dark">Technical strengths</SectionLabel>
+              <h2 className="text-4xl font-light leading-tight text-white text-balance sm:text-5xl">
+                Strong where product, platform, and reliability meet.
+              </h2>
+              <p className="max-w-2xl text-base font-light leading-7 text-slate-300 text-pretty">
+                I am strongest on teams that need someone who can connect user-facing workflows,
+                backend services, data models, access rules, monitoring, and delivery planning.
+              </p>
             </motion.div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {strengths.map((item, index) => (
                 <motion.div
                   key={item.title}
-                  className="group rounded-xl border border-amber-200 bg-white p-6 shadow-sm shadow-amber-100 transition-[border-color,box-shadow] duration-300 hover:border-indigo-200 hover:shadow-xl hover:shadow-amber-200/70"
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+                  className="group rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm shadow-slate-950/30 transition-[background-color,border-color,box-shadow] duration-300 hover:border-indigo-500 hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-950/40"
+                  initial={shouldReduceMotion ? false : { opacity: 0.35, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   whileHover={shouldReduceMotion ? undefined : { y: -5 }}
                   viewport={{ amount: 0.35, once: true }}
-                  transition={{ delay: index * 0.05, duration: 0.35, ease: easeOut }}
+                  transition={{ delay: index * 0.04, duration: 0.24, ease: easeOut }}
                 >
-                  <h3 className="text-xl font-light leading-tight text-slate-900">{item.title}</h3>
-                  <ul className="mt-4 grid gap-2 text-sm font-light leading-5 text-slate-600">
+                  <h3 className="text-xl font-light leading-tight text-white">{item.title}</h3>
+                  <ul className="mt-4 grid gap-2 text-sm font-light leading-5 text-slate-300">
                     {item.items.map((skill) => (
                       <li key={skill} className="flex gap-2">
-                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-indigo-600 transition-transform duration-200 group-hover:scale-110" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-indigo-300 transition-transform duration-200 group-hover:scale-110 group-hover:text-indigo-200" />
                         <span>{skill}</span>
                       </li>
                     ))}
@@ -714,85 +839,96 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-indigo-950 py-12 text-white md:py-14" data-scroll-target="contact">
+        <section className="bg-slate-50 py-16 md:py-20" data-scroll-target="contact">
           <motion.div
-            className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-8 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
+            className="mx-auto w-[min(1200px,calc(100%-2rem))]"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.35, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div>
-              <p className="w-fit rounded-full bg-indigo-800 px-3 py-1 text-xs font-medium uppercase text-indigo-100">
-                Contact
+            <div className="max-w-4xl">
+              <p className="flex w-fit items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-indigo-700">
+                <span className="h-px w-10 bg-indigo-300" />
+                Let&apos;s connect
               </p>
-              <h2 className="mt-4 text-4xl font-light leading-tight">
-                Let&apos;s build reliable software together.
+              <h2 className="mt-8 max-w-4xl text-5xl font-light leading-[1.05] text-slate-900 text-balance sm:text-6xl">
+                Thanks for looking.
+                <br />
+                Let&apos;s stay in touch.
               </h2>
-              <p className="mt-3 max-w-2xl text-sm font-light leading-6 text-indigo-100">
-                Open to conversations about full-stack engineering, fintech systems, internal tools,
-                and remote engineering opportunities.
+              <p className="mt-7 max-w-3xl text-base font-light leading-7 text-slate-600 text-pretty sm:text-lg">
+                If your team needs a full-stack engineer who can connect product workflows, backend
+                services, and operational reliability, I&apos;d be glad to talk.
               </p>
             </div>
-            <Button asChild size="lg" className="h-10 px-4">
-              <a className="group" href="mailto:contact@dennydharmawan.com">
-                Contact me{' '}
-                <ArrowRight
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                  data-icon="inline-end"
-                />
-              </a>
-            </Button>
-            <div className="flex flex-wrap gap-5 text-sm">
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-0 gap-y-4 text-sm font-medium text-indigo-700">
               <a
-                className="group inline-flex min-h-11 items-center gap-3 text-indigo-100 transition-[color,transform] hover:-translate-y-0.5 hover:text-white active:scale-[0.96]"
+                className="group inline-flex min-h-11 items-center gap-2 pr-8 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
                 href="mailto:contact@dennydharmawan.com"
               >
-                <span className="flex size-9 items-center justify-center rounded-full border border-indigo-700 bg-indigo-900 transition-colors group-hover:bg-indigo-800">
-                  <Mail className="size-4" />
-                </span>
-                <span>
-                  <span className="block font-medium text-white">Email</span>
-                  contact@dennydharmawan.com
-                </span>
+                <Mail className="size-5" />
+                <span>Email me</span>
+                <FooterLinkArrow />
               </a>
+              <span className="mr-8 hidden h-8 w-px bg-slate-300 sm:block" />
               <a
-                className="group inline-flex min-h-11 items-center gap-3 text-indigo-100 transition-[color,transform] hover:-translate-y-0.5 hover:text-white active:scale-[0.96]"
+                className="group inline-flex min-h-11 items-center gap-2 pr-8 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
                 href="https://www.linkedin.com/in/ddharmawan"
                 target="_blank"
                 rel="noreferrer"
               >
-                <span className="flex size-9 items-center justify-center rounded-full border border-indigo-700 bg-indigo-900 transition-colors group-hover:bg-indigo-800">
-                  <ExternalLink className="size-4" />
-                </span>
-                <span>
-                  <span className="block font-medium text-white">LinkedIn</span>
-                  /in/ddharmawan
-                </span>
+                <FaLinkedinIn className="size-5" />
+                <span>LinkedIn</span>
+                <FooterLinkArrow />
               </a>
+              <span className="mr-8 hidden h-8 w-px bg-slate-300 sm:block" />
+              <a
+                className="group inline-flex min-h-11 items-center gap-2 pr-8 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
+                href="https://github.com/dennydharmawan"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <SiGithub className="size-5" />
+                <span>GitHub</span>
+                <FooterLinkArrow />
+              </a>
+              <span className="mr-8 hidden h-8 w-px bg-slate-300 sm:block" />
+              <a
+                className="group inline-flex min-h-11 items-center gap-2 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
+                href="/resume.pdf"
+              >
+                <FileText className="size-5" />
+                <span>Resume</span>
+                <FooterLinkArrow />
+              </a>
+            </div>
+
+            <div className="mt-14 border-t border-slate-200 pt-8">
+              <div className="flex flex-col gap-6 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap items-center gap-4">
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex size-11 items-center justify-center rounded-xl bg-indigo-600 text-base font-semibold text-white shadow-lg shadow-indigo-200"
+                  >
+                    DD
+                  </span>
+                  <span className="font-medium text-slate-900">Denny Dharmawan</span>
+                  <span aria-hidden="true" className="hidden text-slate-400 sm:inline">
+                    •
+                  </span>
+                  <span>Full-Stack Engineer</span>
+                  <span aria-hidden="true" className="hidden text-slate-400 sm:inline">
+                    •
+                  </span>
+                  <span>Jakarta, Indonesia</span>
+                </div>
+                <p className="font-light">© 2026 All rights reserved.</p>
+              </div>
             </div>
           </motion.div>
         </section>
-
-        <div className="mx-auto flex w-[min(1200px,calc(100%-2rem))] flex-wrap items-center justify-between gap-4 py-6 text-sm font-light text-slate-500">
-          <p>Denny Dharmawan</p>
-          <div className="flex gap-4">
-            <a
-              className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700"
-              href="https://github.com/dennydharmawan"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Code2 className="size-4" /> GitHub
-            </a>
-            <a
-              className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700"
-              href="/resume.pdf"
-            >
-              <FileText className="size-4" /> Resume
-            </a>
-          </div>
-        </div>
       </main>
     </div>
   );
