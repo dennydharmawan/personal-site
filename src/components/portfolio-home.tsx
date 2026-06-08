@@ -32,10 +32,10 @@ const navItems = [
 ];
 
 const proofItems = [
-  { label: 'Years across fintech and enterprise systems', value: '7+' },
-  { label: 'Faster execution after legacy refactoring', value: '37%' },
-  { label: 'Internal platforms, RBAC, audit workflows', value: 'Fintech' },
-  { label: 'React, Next.js, Node.js, TypeScript', value: 'JS' }
+  { label: 'Years across banking and fintech systems', value: '7+' },
+  { label: 'Faster legacy workflow execution', value: '37%' },
+  { label: 'Approval, access, and audit workflows', value: 'RBAC' },
+  { label: 'React, Next.js, Node.js, TypeScript', value: 'JS/TS' }
 ];
 
 const coreStack: { icon: IconType; iconClass: string; name: string }[] = [
@@ -215,11 +215,11 @@ function SectionLabel({
 }) {
   return (
     <div
-      className={`flex w-fit items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] ${
-        tone === 'dark' ? 'text-indigo-200' : 'text-indigo-700'
+      className={`flex w-fit items-center gap-3 text-sm font-medium ${
+        tone === 'dark' ? 'text-sky-200' : 'text-indigo-700'
       }`}
     >
-      <span className={`h-px w-7 ${tone === 'dark' ? 'bg-indigo-600' : 'bg-indigo-300'}`} />
+      <span className={`h-px w-7 ${tone === 'dark' ? 'bg-sky-500' : 'bg-indigo-300'}`} />
       <span>{children}</span>
     </div>
   );
@@ -234,7 +234,7 @@ function FooterLinkArrow() {
       viewBox="0 0 20 16"
     >
       <line
-        className="origin-[5px_8px] scale-x-0 opacity-0 transition-[scale,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100"
+        className="origin-[5px_8px] scale-x-0 opacity-0 transition-[scale,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100 motion-reduce:transition-none motion-reduce:group-hover:scale-x-0 motion-reduce:group-hover:opacity-0"
         x1="5"
         x2="15"
         y1="8"
@@ -244,7 +244,7 @@ function FooterLinkArrow() {
         strokeWidth="2.5"
       />
       <path
-        className="transition-transform duration-300 ease-out group-hover:translate-x-1.5"
+        className="transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         d="M5 4L9 8L5 12"
         stroke="currentColor"
         strokeLinecap="round"
@@ -333,7 +333,7 @@ function AnimatedHeader() {
               <motion.button
                 key={item.target}
                 type="button"
-                className="relative hidden min-h-10 items-center rounded-full px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
+                className="relative hidden min-h-11 items-center rounded-full px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 onBlur={() => setHoveredNavHref(null)}
@@ -382,7 +382,7 @@ function AnimatedHeader() {
                   : { delay: 0.18 + navItems.length * 0.04, ...spring }
               }
             >
-              <Button asChild variant="outline" size="sm" className="ml-1">
+              <Button asChild variant="outline" size="sm" className="ml-1 min-h-11 px-3">
                 <a href="/resume.pdf">
                   Resume <Download data-icon="inline-end" />
                 </a>
@@ -424,12 +424,12 @@ export default function PortfolioHome() {
       <main data-scroll-target="top">
         <section className="relative overflow-hidden border-b border-slate-200">
           <motion.div
-            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-r from-amber-100 via-fuchsia-200 to-indigo-300"
+            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-r from-sky-100 via-white to-emerald-100"
             animate={shouldReduceMotion ? undefined : { x: [0, 28, -18, 0], y: [0, -10, 12, 0] }}
             transition={{ duration: 24, ease: 'easeInOut', repeat: Infinity }}
           />
           <motion.div
-            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-br from-orange-200/80 via-white/30 to-rose-300/70"
+            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-br from-slate-100/80 via-white/30 to-sky-200/70"
             animate={
               shouldReduceMotion
                 ? undefined
@@ -438,12 +438,12 @@ export default function PortfolioHome() {
             transition={{ duration: 20, ease: 'easeInOut', repeat: Infinity }}
           />
           <motion.div
-            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-tr from-white/80 via-transparent to-indigo-600/30"
+            className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-tr from-white/80 via-transparent to-emerald-300/25"
             animate={shouldReduceMotion ? undefined : { opacity: [0.72, 0.9, 0.76, 0.72] }}
             transition={{ duration: 16, ease: 'easeInOut', repeat: Infinity }}
           />
 
-          <div className="relative mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 py-16 md:grid-cols-[minmax(0,1fr)_24rem] md:py-20 lg:gap-14">
+          <div className="relative mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 pb-16 pt-24 md:grid-cols-[minmax(0,1fr)_24rem] md:py-20 lg:gap-14">
             <motion.div className="grid content-start gap-7">
               <motion.div
                 className="grid gap-5"
@@ -451,14 +451,14 @@ export default function PortfolioHome() {
                 animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
                 transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
               >
-                <SectionLabel>Full-Stack Engineer</SectionLabel>
+                <SectionLabel>Senior full-stack engineer</SectionLabel>
                 <h1 className="max-w-3xl text-5xl font-light leading-[1.03] text-slate-900 text-balance sm:text-6xl">
-                  Full-stack engineer building reliable fintech and internal operations platforms.
+                  I build fintech products and internal platforms.
                 </h1>
                 <p className="max-w-2xl text-base font-light leading-7 text-slate-700 sm:text-lg">
-                  I build secure, scalable web systems across React, Next.js, Node.js, and
-                  TypeScript, with deep experience in digital banking, RBAC workflows, auditability,
-                  API design, and operational reliability.
+                  7+ years across digital banking, lending, and enterprise systems. I connect React
+                  and Next.js interfaces with Node.js APIs for access control, audits, reporting,
+                  monitoring, and rollout planning.
                 </p>
               </motion.div>
 
@@ -470,10 +470,10 @@ export default function PortfolioHome() {
               >
                 <Button
                   size="lg"
-                  className="group h-10 px-4"
+                  className="group min-h-11 px-4"
                   onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
                 >
-                  View my work{' '}
+                  Review work examples{' '}
                   <ArrowRight
                     className="transition-transform duration-200 group-hover:translate-x-0.5"
                     data-icon="inline-end"
@@ -504,25 +504,25 @@ export default function PortfolioHome() {
             </motion.div>
 
             <motion.aside
-              className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-2xl shadow-slate-300/40 backdrop-blur"
+              className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur"
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
               whileHover={shouldReduceMotion ? undefined : { y: -4 }}
             >
               <div className="grid gap-5">
-                <div className="rounded-xl bg-indigo-950 p-5 text-white">
+                <div className="rounded-xl bg-slate-950 p-5 text-white">
                   <div className="flex items-start gap-3">
                     <motion.span
-                      className="mt-1.5 size-2.5 rounded-full bg-fuchsia-400"
+                      className="mt-1.5 size-2.5 rounded-full bg-emerald-400"
                       animate={
                         shouldReduceMotion
                           ? undefined
                           : {
                               boxShadow: [
-                                '0 0 0 0 rgba(232,121,249,0.35)',
-                                '0 0 0 8px rgba(232,121,249,0)',
-                                '0 0 0 0 rgba(232,121,249,0)'
+                                '0 0 0 0 rgba(52,211,153,0.34)',
+                                '0 0 0 8px rgba(52,211,153,0)',
+                                '0 0 0 0 rgba(52,211,153,0)'
                               ]
                             }
                       }
@@ -530,21 +530,21 @@ export default function PortfolioHome() {
                     />
                     <div>
                       <p className="text-sm font-medium">
-                        Available for focused engineering conversations
+                        Available for full-stack engineering roles
                       </p>
-                      <p className="mt-1 text-sm font-light text-indigo-100">
-                        Fintech, internal tools, and remote-first teams
+                      <p className="mt-1 text-sm font-light text-slate-300">
+                        Fintech, internal platforms, and remote-friendly teams
                       </p>
                     </div>
                   </div>
-                  <div className="mt-5 grid gap-2 rounded-lg border border-indigo-800 bg-indigo-900/70 p-3 text-sm">
+                  <div className="mt-5 grid gap-2 rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm">
                     <motion.div
                       className="flex items-center justify-between gap-3"
                       initial={shouldReduceMotion ? false : { opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.38, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Execution improved</span>
+                      <span className="font-light text-slate-300">Execution improved</span>
                       <span className="font-medium tabular-nums text-white">37%</span>
                     </motion.div>
                     <motion.div
@@ -553,7 +553,7 @@ export default function PortfolioHome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.46, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Domain focus</span>
+                      <span className="font-light text-slate-300">Domain focus</span>
                       <span className="font-medium text-white">Fintech</span>
                     </motion.div>
                     <motion.div
@@ -562,8 +562,8 @@ export default function PortfolioHome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.54, duration: 0.3, ease: easeOut }}
                     >
-                      <span className="font-light text-indigo-100">Primary ecosystem</span>
-                      <span className="font-medium text-white">JS</span>
+                      <span className="font-light text-slate-300">Primary stack</span>
+                      <span className="font-medium text-white">JS/TS</span>
                     </motion.div>
                   </div>
                 </div>
@@ -647,10 +647,8 @@ export default function PortfolioHome() {
                       <project.icon className="size-5" />
                     </div>
                     <div className="grid gap-3">
-                      <p className="w-fit rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium uppercase text-indigo-700">
-                        {project.role}
-                      </p>
-                      <h3 className="max-w-xl text-3xl font-light leading-tight text-slate-900 text-balance transition-colors group-hover:text-indigo-700 sm:text-4xl">
+                      <p className="text-sm font-medium text-slate-500">{project.role}</p>
+                      <h3 className="max-w-xl text-3xl font-light leading-tight text-slate-900 text-balance transition-colors group-hover:text-slate-700 sm:text-4xl">
                         {project.title}
                       </h3>
                       <p className="max-w-xl text-base font-light leading-7 text-slate-600 text-pretty">
@@ -668,20 +666,20 @@ export default function PortfolioHome() {
                         </li>
                       ))}
                     </ul>
-                    <div className="flex flex-wrap gap-2">
-                      {project.stack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-medium text-indigo-700 transition-colors group-hover:bg-indigo-200"
-                        >
-                          {tech}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-500">
+                      {project.stack.map((tech, stackIndex) => (
+                        <span key={tech} className="inline-flex items-center gap-2">
+                          {stackIndex > 0 ? (
+                            <span aria-hidden="true" className="size-1 rounded-full bg-slate-300" />
+                          ) : null}
+                          <span>{tech}</span>
                         </span>
                       ))}
                     </div>
                   </motion.div>
 
                   <motion.div
-                    className={`relative min-h-[18rem] overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-300/70 outline outline-1 outline-black/10 ${index % 2 === 1 ? 'lg:order-1' : ''}`}
+                    className={`relative min-h-[18rem] overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm outline outline-1 outline-black/10 ${index % 2 === 1 ? 'lg:order-1' : ''}`}
                     whileHover={
                       shouldReduceMotion
                         ? undefined
@@ -693,15 +691,11 @@ export default function PortfolioHome() {
                     <img
                       src={project.preview}
                       alt={`${project.title} interface preview`}
-                      className="relative aspect-[1.45/1] h-full min-h-[18rem] w-full rounded-xl object-cover object-left-top shadow-lg shadow-slate-200 transition-transform duration-500 group-hover:scale-[1.025]"
+                      className="relative aspect-[1.45/1] h-full min-h-[18rem] w-full rounded-xl object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.025]"
                       loading="lazy"
                     />
                     <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/20 bg-indigo-950/90 p-4 text-white shadow-2xl shadow-indigo-950/30 backdrop-blur">
-                      <div className="flex justify-end">
-                        <span className="rounded-full bg-fuchsia-400 px-2.5 py-1 text-xs font-medium text-indigo-950">
-                          Demo
-                        </span>
-                      </div>
+                      <p className="text-xs font-medium text-indigo-200">Public demo</p>
                       <p className="mt-2 text-sm font-light leading-6 text-indigo-50">
                         {project.impact}
                       </p>
@@ -755,9 +749,7 @@ export default function PortfolioHome() {
                     {item.period}
                   </p>
                   {item.current ? (
-                    <span className="w-fit rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">
-                      Current
-                    </span>
+                    <span className="w-fit text-sm font-medium text-indigo-700">Current</span>
                   ) : null}
                 </div>
 
@@ -817,7 +809,7 @@ export default function PortfolioHome() {
               {strengths.map((item, index) => (
                 <motion.div
                   key={item.title}
-                  className="group rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm shadow-slate-950/30 transition-[background-color,border-color,box-shadow] duration-300 hover:border-indigo-500 hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-950/40"
+                  className="group rounded-xl border border-slate-800 bg-slate-900 p-6 transition-[background-color,border-color] duration-300 hover:border-sky-500 hover:bg-slate-800"
                   initial={shouldReduceMotion ? false : { opacity: 0.35, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   whileHover={shouldReduceMotion ? undefined : { y: -5 }}
@@ -828,7 +820,7 @@ export default function PortfolioHome() {
                   <ul className="mt-4 grid gap-2 text-sm font-light leading-5 text-slate-300">
                     {item.items.map((skill) => (
                       <li key={skill} className="flex gap-2">
-                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-indigo-300 transition-transform duration-200 group-hover:scale-110 group-hover:text-indigo-200" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-sky-300 transition-transform duration-200 group-hover:scale-110 group-hover:text-sky-200" />
                         <span>{skill}</span>
                       </li>
                     ))}
@@ -839,7 +831,7 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-slate-50 py-16 md:py-20" data-scroll-target="contact">
+        <footer className="bg-slate-50 py-16 md:py-20" data-scroll-target="contact">
           <motion.div
             className="mx-auto w-[min(1200px,calc(100%-2rem))]"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
@@ -848,10 +840,7 @@ export default function PortfolioHome() {
             transition={{ duration: 0.42, ease: easeOut }}
           >
             <div className="max-w-4xl">
-              <p className="flex w-fit items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-indigo-700">
-                <span className="h-px w-10 bg-indigo-300" />
-                Let&apos;s connect
-              </p>
+              <SectionLabel>Let&apos;s connect</SectionLabel>
               <h2 className="mt-8 max-w-4xl text-5xl font-light leading-[1.05] text-slate-900 text-balance sm:text-6xl">
                 Thanks for looking.
                 <br />
@@ -877,7 +866,7 @@ export default function PortfolioHome() {
                 className="group inline-flex min-h-11 items-center gap-2 pr-8 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
                 href="https://www.linkedin.com/in/ddharmawan"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 <FaLinkedinIn className="size-5" />
                 <span>LinkedIn</span>
@@ -888,7 +877,7 @@ export default function PortfolioHome() {
                 className="group inline-flex min-h-11 items-center gap-2 pr-8 transition-colors duration-200 hover:text-indigo-500 active:scale-[0.96]"
                 href="https://github.com/dennydharmawan"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 <SiGithub className="size-5" />
                 <span>GitHub</span>
@@ -928,7 +917,7 @@ export default function PortfolioHome() {
               </div>
             </div>
           </motion.div>
-        </section>
+        </footer>
       </main>
     </div>
   );
