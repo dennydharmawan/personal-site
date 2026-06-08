@@ -1,5 +1,6 @@
 ---
-
+import PortfolioHome from "@/components/portfolio-home";
+import "@/styles/global.css";
 ---
 
 <html lang="en">
@@ -9,9 +10,13 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta
+			name="description"
+			content="Denny Dharmawan is a Senior Full-Stack Engineer building reliable web platforms for fintech and business operations."
+		/>
+		<title>Denny Dharmawan | Senior Full-Stack Engineer</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<PortfolioHome client:load />
 	</body>
 </html>
