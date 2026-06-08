@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -13,21 +13,15 @@ import {
   Mail,
   ShieldCheck
 } from 'lucide-react';
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useReducedMotion,
-  useScroll
-} from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { SiMysql, SiNextdotjs, SiNodedotjs, SiReact, SiRedis, SiTypescript } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { href: '#work', label: 'Work' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#strengths', label: 'Strengths' },
-  { href: '#contact', label: 'Contact' }
+  { label: 'Work', target: 'work' },
+  { label: 'Experience', target: 'experience' },
+  { label: 'Strengths', target: 'strengths' },
+  { label: 'Contact', target: 'contact' }
 ];
 
 const proofItems = [
@@ -165,16 +159,12 @@ const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
 const anchorScrollOffset = 76;
 
-function smoothScrollToHash(
-  event: MouseEvent<HTMLAnchorElement>,
-  href: string,
+function scrollToTarget(
+  event: MouseEvent<HTMLElement>,
+  targetName: string,
   shouldReduceMotion: boolean | null
 ) {
-  if (!href.startsWith('#')) {
-    return;
-  }
-
-  const target = document.querySelector<HTMLElement>(href);
+  const target = document.querySelector<HTMLElement>(`[data-scroll-target="${targetName}"]`);
 
   if (!target) {
     return;
@@ -183,14 +173,14 @@ function smoothScrollToHash(
   event.preventDefault();
 
   const targetTop =
-    href === '#top' ? 0 : target.getBoundingClientRect().top + window.scrollY - anchorScrollOffset;
+    targetName === 'top'
+      ? 0
+      : target.getBoundingClientRect().top + window.scrollY - anchorScrollOffset;
 
   window.scrollTo({
     behavior: shouldReduceMotion ? 'auto' : 'smooth',
     top: Math.max(targetTop, 0)
   });
-
-  window.history.pushState(null, '', href);
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
@@ -203,89 +193,102 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function AnimatedHeader() {
   const shouldReduceMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const [isNavFloating, setIsNavFloating] = useState(false);
+  const [isNavCompact, setIsNavCompact] = useState(false);
   const [hoveredNavHref, setHoveredNavHref] = useState<string | null>(null);
-  const navShellClass = isNavFloating
-    ? 'mt-3 w-[min(980px,calc(100%-0rem))] rounded-full border border-white/70 bg-white/85 shadow-2xl shadow-indigo-950/10'
-    : 'mt-0 w-[min(1200px,calc(100%-0rem))] rounded-none border border-transparent bg-transparent shadow-none';
 
-  useMotionValueEvent(scrollY, 'change', (latest) => {
-    setIsNavFloating(latest > 28);
-  });
+  useEffect(() => {
+    const updateCompactState = () => setIsNavCompact(window.scrollY > 28);
+
+    updateCompactState();
+    window.addEventListener('scroll', updateCompactState, { passive: true });
+
+    return () => window.removeEventListener('scroll', updateCompactState);
+  }, []);
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-30 px-3 pt-0 md:px-4">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
       <motion.div
-        layout
-        className={`pointer-events-auto mx-auto flex min-h-16 items-center justify-between gap-4 px-4 backdrop-blur transition-[background-color,border-color,box-shadow] duration-300 md:px-6 ${navShellClass}`}
-        animate={shouldReduceMotion ? false : { scale: isNavFloating ? 0.985 : 1 }}
-        transition={spring}
+        className="pointer-events-auto border-b backdrop-blur"
+        initial={false}
+        animate={{
+          backgroundColor: isNavCompact ? 'rgba(255,255,255,0.86)' : 'rgba(255,255,255,0)',
+          borderColor: isNavCompact ? 'rgba(226,232,240,0.9)' : 'rgba(226,232,240,0)'
+        }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: easeOut }}
       >
-        <motion.a
-          className="inline-flex min-h-10 items-center whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
-          href="#top"
-          aria-label="Denny Dharmawan home"
-          onClick={(event) => smoothScrollToHash(event, '#top', shouldReduceMotion)}
-          transition={spring}
+        <motion.div
+          className="mx-auto flex w-[min(1200px,calc(100%-2rem))] items-center justify-between gap-4 px-0 md:px-0"
+          initial={false}
+          animate={{ height: isNavCompact ? 56 : 72 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: easeOut }}
         >
-          <span
-            aria-hidden="true"
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
-            style={{ height: '2rem', marginRight: '0.625rem', width: '2rem' }}
+          <motion.a
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
+            href="/"
+            aria-label="Denny Dharmawan home"
+            onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
+            transition={spring}
           >
-            DD
-          </span>
-          <span>Denny Dharmawan</span>
-        </motion.a>
-        <nav
-          className="flex items-center justify-end gap-1.5"
-          aria-label="Main navigation"
-          onMouseLeave={() => setHoveredNavHref(null)}
-        >
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              className="relative hidden min-h-10 items-center rounded-full px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
-              href={item.href}
-              onBlur={() => setHoveredNavHref(null)}
-              onFocus={() => setHoveredNavHref(item.href)}
-              onClick={(event) => smoothScrollToHash(event, item.href, shouldReduceMotion)}
-              onMouseEnter={() => setHoveredNavHref(item.href)}
+            <span
+              aria-hidden="true"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
+              style={{ height: '2rem', marginRight: '0.625rem', width: '2rem' }}
             >
-              <AnimatePresence initial={false} mode="popLayout">
-                {hoveredNavHref === item.href ? (
-                  <motion.span
-                    layoutId="nav-hover-pill"
-                    aria-hidden="true"
-                    className="absolute inset-0 rounded-full bg-white/75 ring-1 ring-slate-200/70"
-                    initial={
-                      shouldReduceMotion ? false : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }
-                    }
-                    animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
-                    exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
-                    transition={
-                      shouldReduceMotion
-                        ? { duration: 0 }
-                        : {
-                            ...spring,
-                            duration: 0.38,
-                            filter: { duration: 0.3, ease: easeOut },
-                            opacity: { duration: 0.3, ease: easeOut }
-                          }
-                    }
-                  />
-                ) : null}
-              </AnimatePresence>
-              <span className="relative z-10">{item.label}</span>
-            </a>
-          ))}
-          <Button asChild variant="outline" size="sm" className="ml-1">
-            <a href="/resume.pdf">
-              Resume <Download data-icon="inline-end" />
-            </a>
-          </Button>
-        </nav>
+              DD
+            </span>
+            <span>Denny Dharmawan</span>
+          </motion.a>
+          <nav
+            className="flex items-center justify-end gap-1.5"
+            aria-label="Main navigation"
+            onMouseLeave={() => setHoveredNavHref(null)}
+          >
+            {navItems.map((item) => (
+              <button
+                key={item.target}
+                type="button"
+                className="relative hidden min-h-10 items-center rounded-full px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
+                onBlur={() => setHoveredNavHref(null)}
+                onFocus={() => setHoveredNavHref(item.target)}
+                onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
+                onMouseEnter={() => setHoveredNavHref(item.target)}
+              >
+                <AnimatePresence initial={false} mode="popLayout">
+                  {hoveredNavHref === item.target ? (
+                    <motion.span
+                      layoutId="nav-hover-pill"
+                      aria-hidden="true"
+                      className="absolute inset-0 rounded-full bg-white/75 ring-1 ring-slate-200/70"
+                      initial={
+                        shouldReduceMotion
+                          ? false
+                          : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }
+                      }
+                      animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
+                      exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
+                      transition={
+                        shouldReduceMotion
+                          ? { duration: 0 }
+                          : {
+                              ...spring,
+                              duration: 0.38,
+                              filter: { duration: 0.3, ease: easeOut },
+                              opacity: { duration: 0.3, ease: easeOut }
+                            }
+                      }
+                    />
+                  ) : null}
+                </AnimatePresence>
+                <span className="relative z-10">{item.label}</span>
+              </button>
+            ))}
+            <Button asChild variant="outline" size="sm" className="ml-1">
+              <a href="/resume.pdf">
+                Resume <Download data-icon="inline-end" />
+              </a>
+            </Button>
+          </nav>
+        </motion.div>
       </motion.div>
     </header>
   );
@@ -294,11 +297,30 @@ function AnimatedHeader() {
 export default function PortfolioHome() {
   const shouldReduceMotion = useReducedMotion();
 
+  useEffect(() => {
+    const resetHashNavigation = () => {
+      if (window.location.hash) {
+        window.history.replaceState(
+          null,
+          '',
+          `${window.location.pathname}${window.location.search}`
+        );
+        window.scrollTo({ behavior: 'auto', left: 0, top: 0 });
+        window.setTimeout(() => window.scrollTo({ behavior: 'auto', left: 0, top: 0 }), 0);
+      }
+    };
+
+    resetHashNavigation();
+    window.addEventListener('hashchange', resetHashNavigation);
+
+    return () => window.removeEventListener('hashchange', resetHashNavigation);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <AnimatedHeader />
 
-      <main id="top">
+      <main data-scroll-target="top">
         <section className="relative overflow-hidden border-b border-slate-200">
           <motion.div
             className="absolute inset-x-0 top-0 h-[34rem] bg-gradient-to-r from-amber-100 via-fuchsia-200 to-indigo-300"
@@ -350,18 +372,16 @@ export default function PortfolioHome() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.18, duration: 0.42, ease: easeOut }}
               >
-                <Button asChild size="lg" className="h-10 px-4">
-                  <a
-                    className="group"
-                    href="#work"
-                    onClick={(event) => smoothScrollToHash(event, '#work', shouldReduceMotion)}
-                  >
-                    View my work{' '}
-                    <ArrowRight
-                      className="transition-transform duration-200 group-hover:translate-x-0.5"
-                      data-icon="inline-end"
-                    />
-                  </a>
+                <Button
+                  size="lg"
+                  className="group h-10 px-4"
+                  onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
+                >
+                  View my work{' '}
+                  <ArrowRight
+                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    data-icon="inline-end"
+                  />
                 </Button>
               </motion.div>
 
@@ -492,7 +512,7 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-slate-50 py-16 md:py-24" id="work">
+        <section className="bg-slate-50 py-16 md:py-24" data-scroll-target="work">
           <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
             <motion.div
               className="mx-auto mb-14 grid max-w-3xl justify-items-center gap-4 text-center"
@@ -610,7 +630,7 @@ export default function PortfolioHome() {
 
         <section
           className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 py-16 md:grid-cols-[15rem_minmax(0,1fr)] md:py-20"
-          id="experience"
+          data-scroll-target="experience"
         >
           <motion.div
             className="grid content-start gap-4"
@@ -648,7 +668,7 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-amber-50 py-16 md:py-20" id="strengths">
+        <section className="bg-amber-50 py-16 md:py-20" data-scroll-target="strengths">
           <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
             <motion.div
               className="mb-8 grid gap-4 md:grid-cols-[15rem_minmax(0,1fr)]"
@@ -694,7 +714,7 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-indigo-950 py-12 text-white md:py-14" id="contact">
+        <section className="bg-indigo-950 py-12 text-white md:py-14" data-scroll-target="contact">
           <motion.div
             className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-8 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
