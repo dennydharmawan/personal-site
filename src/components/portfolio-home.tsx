@@ -1,33 +1,26 @@
 import { useEffect, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
-import type { IconType } from 'react-icons';
 import {
-  ArrowRight,
   BriefcaseBusiness,
   CheckCircle2,
+  Code2,
+  Database,
   Download,
   FileText,
   Gauge,
   Mail,
+  Rocket,
   ShieldCheck
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { FaLinkedinIn } from 'react-icons/fa';
-import {
-  SiGithub,
-  SiMysql,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiReact,
-  SiRedis,
-  SiTypescript
-} from 'react-icons/si';
+import { SiGithub } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
+  { label: 'Skills', target: 'skills' },
   { label: 'Work', target: 'work' },
   { label: 'Experience', target: 'experience' },
-  { label: 'Strengths', target: 'strengths' },
   { label: 'Contact', target: 'contact' }
 ];
 
@@ -38,13 +31,25 @@ const proofItems = [
   { label: 'React, Next.js, Node.js, TypeScript', value: 'JS/TS' }
 ];
 
-const coreStack: { icon: IconType; iconClass: string; name: string }[] = [
-  { icon: SiReact, iconClass: 'text-sky-500', name: 'React' },
-  { icon: SiNextdotjs, iconClass: 'text-slate-950', name: 'Next.js' },
-  { icon: SiNodedotjs, iconClass: 'text-green-500', name: 'Node.js' },
-  { icon: SiTypescript, iconClass: 'text-blue-500', name: 'TypeScript' },
-  { icon: SiMysql, iconClass: 'text-sky-600', name: 'MySQL' },
-  { icon: SiRedis, iconClass: 'text-rose-500', name: 'Redis' }
+const skillGroups = [
+  {
+    body: 'React, Next.js, TypeScript, and component systems for clear operational interfaces.',
+    icon: Code2,
+    items: ['React', 'Next.js', 'TypeScript'],
+    title: 'Frontend development'
+  },
+  {
+    body: 'Node.js, Express, APIs, data models, and integrations that support real business flows.',
+    icon: Database,
+    items: ['Node.js', 'Express', 'GraphQL'],
+    title: 'Backend development'
+  },
+  {
+    body: 'CI/CD fixes, monitoring, rollout helpers, and reliability work that keep systems maintainable.',
+    icon: Rocket,
+    items: ['Monitoring', 'Redis', 'Rollouts'],
+    title: 'Reliability and delivery'
+  }
 ];
 
 const focusItems = [
@@ -208,16 +213,18 @@ function scrollToTarget(
 
 function SectionLabel({
   children,
+  emphasis = false,
   tone = 'light'
 }: {
   children: ReactNode;
+  emphasis?: boolean;
   tone?: 'light' | 'dark';
 }) {
   return (
     <div
-      className={`flex w-fit items-center gap-3 text-sm font-medium ${
-        tone === 'dark' ? 'text-sky-200' : 'text-indigo-700'
-      }`}
+      className={`flex w-fit items-center gap-3 font-medium ${
+        emphasis ? 'text-xs uppercase tracking-[0.16em]' : 'text-sm'
+      } ${tone === 'dark' ? 'text-sky-200' : 'text-indigo-700'}`}
     >
       <span className={`h-px w-7 ${tone === 'dark' ? 'bg-sky-500' : 'bg-indigo-300'}`} />
       <span>{children}</span>
@@ -246,6 +253,37 @@ function FooterLinkArrow() {
       <path
         className="transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         d="M5 4L9 8L5 12"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.5"
+      />
+    </svg>
+  );
+}
+
+function HeroDownArrow() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="-mr-0.5 h-4 w-5 shrink-0 overflow-visible text-current"
+      data-icon="inline-end"
+      fill="none"
+      viewBox="0 0 20 16"
+    >
+      <line
+        className="origin-[10px_3px] scale-y-0 opacity-0 transition-[scale,opacity] duration-300 ease-out group-hover:scale-y-100 group-hover:opacity-100 motion-reduce:transition-none motion-reduce:group-hover:scale-y-0 motion-reduce:group-hover:opacity-0"
+        x1="10"
+        x2="10"
+        y1="3"
+        y2="13"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.5"
+      />
+      <path
+        className="transition-transform duration-300 ease-out group-hover:translate-y-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
+        d="M6 4L10 8L14 4"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -304,7 +342,7 @@ function AnimatedHeader() {
           }
         >
           <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-base font-semibold text-slate-950 transition-colors hover:text-indigo-700"
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-indigo-700"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
@@ -315,11 +353,14 @@ function AnimatedHeader() {
             <span
               aria-hidden="true"
               className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
-              style={{ height: '2rem', marginRight: '0.625rem', width: '2rem' }}
+              style={{ height: '2rem', marginRight: '0.5rem', width: '2rem' }}
             >
               DD
             </span>
-            <span>Denny Dharmawan</span>
+            <span className="grid gap-px leading-none">
+              <span className="text-base font-semibold">Denny Dharmawan</span>
+              <span className="text-xs font-medium text-slate-500">Full-Stack Engineer</span>
+            </span>
           </motion.a>
           <motion.nav
             className="flex items-center justify-end gap-1.5"
@@ -384,7 +425,7 @@ function AnimatedHeader() {
             >
               <Button asChild variant="outline" size="sm" className="ml-1 min-h-11 px-3">
                 <a href="/resume.pdf">
-                  Resume <Download data-icon="inline-end" />
+                  Download resume <Download data-icon="inline-end" />
                 </a>
               </Button>
             </motion.div>
@@ -443,22 +484,21 @@ export default function PortfolioHome() {
             transition={{ duration: 16, ease: 'easeInOut', repeat: Infinity }}
           />
 
-          <div className="relative mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 pb-16 pt-24 md:grid-cols-[minmax(0,1fr)_24rem] md:py-20 lg:gap-14">
-            <motion.div className="grid content-start gap-7">
+          <div className="relative mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-8 pb-10 pt-24 md:grid-cols-[minmax(0,1fr)_24rem] md:pb-4 md:pt-20 lg:gap-14 lg:py-20">
+            <motion.div className="grid content-start gap-6 lg:gap-7">
               <motion.div
                 className="grid gap-5"
                 initial={shouldReduceMotion ? false : { filter: 'blur(3px)', opacity: 0, y: 12 }}
                 animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
                 transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
               >
-                <SectionLabel>Senior full-stack engineer</SectionLabel>
-                <h1 className="max-w-3xl text-5xl font-light leading-[1.03] text-slate-900 text-balance sm:text-6xl">
-                  I build fintech products and internal platforms.
+                <h1 className="max-w-3xl text-4xl font-light leading-[1.03] text-slate-900 text-balance sm:text-5xl lg:text-6xl">
+                  Building reliable web applications for{' '}
+                  <span className="text-teal-600">fintech</span> and business operations.
                 </h1>
-                <p className="max-w-2xl text-base font-light leading-7 text-slate-700 sm:text-lg">
-                  7+ years across digital banking, lending, and enterprise systems. I connect React
-                  and Next.js interfaces with Node.js APIs for access control, audits, reporting,
-                  monitoring, and rollout planning.
+                <p className="max-w-2xl text-base font-light leading-7 text-slate-700 lg:text-lg">
+                  I design and build scalable front-end and back-end systems using React, Next.js,
+                  Node.js, TypeScript, and modern web architecture.
                 </p>
               </motion.div>
 
@@ -470,47 +510,28 @@ export default function PortfolioHome() {
               >
                 <Button
                   size="lg"
-                  className="group min-h-11 px-4"
+                  className="group min-h-11 px-4 has-data-[icon=inline-end]:pr-4"
                   onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
                 >
-                  Review work examples{' '}
-                  <ArrowRight
-                    className="transition-transform duration-200 group-hover:translate-x-0.5"
-                    data-icon="inline-end"
-                  />
+                  View work examples <HeroDownArrow />
                 </Button>
-              </motion.div>
-
-              <motion.div
-                className="grid gap-4 rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/80 backdrop-blur transition-shadow duration-300 hover:shadow-xl hover:shadow-slate-300/50 sm:grid-cols-2 lg:grid-cols-4"
-                initial={shouldReduceMotion ? false : { filter: 'blur(3px)', opacity: 0, y: 14 }}
-                animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-                transition={{ delay: 0.28, duration: 0.42, ease: easeOut }}
-              >
-                {proofItems.map((item) => (
-                  <motion.div
-                    key={item.label}
-                    className="border-slate-200 sm:border-r sm:pr-5 last:border-r-0"
-                    whileHover={shouldReduceMotion ? undefined : { y: -3 }}
-                    transition={spring}
-                  >
-                    <p className="text-3xl font-light leading-none text-slate-900 tabular-nums">
-                      {item.value}
-                    </p>
-                    <p className="mt-2 text-sm font-light leading-5 text-slate-600">{item.label}</p>
-                  </motion.div>
-                ))}
+                <Button asChild variant="secondary" size="lg" className="min-h-11 px-4">
+                  <a href="mailto:contact@dennydharmawan.com">
+                    <Mail data-icon="inline-start" />
+                    contact@dennydharmawan.com
+                  </a>
+                </Button>
               </motion.div>
             </motion.div>
 
             <motion.aside
-              className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur"
+              className="self-start rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur"
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
               whileHover={shouldReduceMotion ? undefined : { y: -4 }}
             >
-              <div className="grid gap-5">
+              <div className="grid gap-4 lg:gap-5">
                 <div className="rounded-xl bg-slate-950 p-5 text-white">
                   <div className="flex items-start gap-3">
                     <motion.span
@@ -533,7 +554,7 @@ export default function PortfolioHome() {
                         Available for full-stack engineering roles
                       </p>
                       <p className="mt-1 text-sm font-light text-slate-300">
-                        Fintech, internal platforms, and remote-friendly teams
+                        Focused on fintech, internal platforms, and remote-friendly teams
                       </p>
                     </div>
                   </div>
@@ -568,30 +589,8 @@ export default function PortfolioHome() {
                   </div>
                 </div>
 
-                <div className="grid gap-4">
-                  <SectionLabel>Core Stack</SectionLabel>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                    {coreStack.map(({ icon: Icon, iconClass, name }, index) => (
-                      <motion.div
-                        key={name}
-                        className="group flex min-h-9 items-center gap-3 rounded-lg px-1 transition-colors hover:bg-indigo-50"
-                        initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.28 + index * 0.04, duration: 0.3, ease: easeOut }}
-                        whileHover={shouldReduceMotion ? undefined : { x: 2 }}
-                      >
-                        <Icon
-                          className={`size-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${iconClass}`}
-                          aria-hidden="true"
-                        />
-                        <span className="text-sm font-medium text-slate-700">{name}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid gap-4 border-t border-slate-200 pt-5">
-                  <SectionLabel>Current Focus</SectionLabel>
+                <div className="hidden gap-4 border-t border-slate-200 pt-5 xl:grid">
+                  <SectionLabel emphasis>Current Focus</SectionLabel>
                   <div className="grid gap-4">
                     {focusItems.map(({ body, icon: Icon }) => (
                       <div key={body} className="group flex gap-3">
@@ -605,6 +604,104 @@ export default function PortfolioHome() {
                 </div>
               </div>
             </motion.aside>
+          </div>
+        </section>
+
+        <section className="bg-white py-16 md:py-20" data-scroll-target="skills">
+          <div className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-12">
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-start">
+              <motion.div
+                className="grid gap-4"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ amount: 0.45, once: true }}
+                transition={{ duration: 0.35, ease: easeOut }}
+              >
+                <p className="text-sm font-semibold text-slate-950">Skills</p>
+                <h2 className="max-w-xl text-5xl font-semibold leading-[0.98] text-slate-950 text-balance sm:text-6xl">
+                  Three things I do well
+                </h2>
+              </motion.div>
+
+              <motion.p
+                className="max-w-xl text-xl font-light leading-8 text-slate-800 text-pretty lg:pt-6"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ amount: 0.45, once: true }}
+                transition={{ delay: 0.06, duration: 0.35, ease: easeOut }}
+              >
+                Product work needs precision on both sides of the stack. I connect interface
+                quality, backend behavior, and delivery reliability.
+              </motion.p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-3">
+              {skillGroups.map((group, index) => {
+                const Icon = group.icon;
+
+                return (
+                  <motion.article
+                    key={group.title}
+                    className="group grid gap-6"
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+                    viewport={{ amount: 0.3, once: true }}
+                    transition={{ delay: index * 0.06, duration: 0.36, ease: easeOut }}
+                  >
+                    <div className="relative flex aspect-[1.75/1] items-center justify-center overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(79,70,229,0.14),transparent_34%),radial-gradient(circle_at_76%_72%,rgba(20,184,166,0.16),transparent_36%)]" />
+                      <div className="absolute inset-x-8 top-8 h-px bg-slate-200" />
+                      <div className="absolute inset-x-8 bottom-8 h-px bg-slate-200" />
+                      <div className="relative flex size-20 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200 transition-transform duration-300 group-hover:scale-105">
+                        <Icon className="size-9" />
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4">
+                      <h3 className="max-w-sm text-4xl font-semibold leading-[1.05] text-slate-950 text-balance">
+                        {group.title}
+                      </h3>
+                      <p className="max-w-sm text-base font-light leading-7 text-slate-700 text-pretty">
+                        {group.body}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {group.items.map((skill) => (
+                          <span
+                            key={skill}
+                            className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+
+            <motion.div
+              className="grid gap-4 border-t border-slate-200 pt-8 sm:grid-cols-2 lg:grid-cols-4"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ amount: 0.35, once: true }}
+              transition={{ delay: 0.08, duration: 0.35, ease: easeOut }}
+            >
+              {proofItems.map((item) => (
+                <motion.div
+                  key={item.label}
+                  className="border-slate-200 sm:border-r sm:pr-5 last:border-r-0"
+                  whileHover={shouldReduceMotion ? undefined : { y: -3 }}
+                  transition={spring}
+                >
+                  <p className="text-3xl font-light leading-none text-slate-900 tabular-nums">
+                    {item.value}
+                  </p>
+                  <p className="mt-2 text-sm font-light leading-5 text-slate-600">{item.label}</p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </section>
 
@@ -839,17 +936,90 @@ export default function PortfolioHome() {
             viewport={{ amount: 0.35, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div className="max-w-4xl">
-              <SectionLabel>Let&apos;s connect</SectionLabel>
-              <h2 className="mt-8 max-w-4xl text-5xl font-light leading-[1.05] text-slate-900 text-balance sm:text-6xl">
-                Thanks for looking.
-                <br />
-                Let&apos;s stay in touch.
-              </h2>
-              <p className="mt-7 max-w-3xl text-base font-light leading-7 text-slate-600 text-pretty sm:text-lg">
-                If your team needs a full-stack engineer who can connect product workflows, backend
-                services, and operational reliability, I&apos;d be glad to talk.
-              </p>
+            <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1fr] lg:gap-16">
+              <div className="grid gap-7">
+                <div className="grid gap-5">
+                  <p className="text-sm font-semibold text-slate-950">Let&apos;s connect</p>
+                  <h2 className="max-w-xl text-5xl font-semibold leading-[1.02] text-slate-950 text-balance sm:text-6xl">
+                    Ready to build something reliable?
+                  </h2>
+                  <p className="max-w-2xl text-base font-light leading-7 text-slate-700 text-pretty sm:text-lg">
+                    If your team needs a full-stack engineer for fintech products, internal tools,
+                    or operational workflows, I&apos;d be glad to talk.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild size="lg" className="min-h-11 px-4">
+                    <a href="mailto:contact@dennydharmawan.com">
+                      <Mail data-icon="inline-start" />
+                      Start a conversation
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="min-h-11 px-4">
+                    <a href="/resume.pdf">
+                      Download resume <Download data-icon="inline-end" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+
+              <motion.div
+                className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+                transition={spring}
+              >
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(79,70,229,0.14),transparent_34%),radial-gradient(circle_at_100%_100%,rgba(20,184,166,0.16),transparent_38%)]" />
+                <div className="relative rounded-lg border border-slate-200 bg-slate-950 p-5 text-white">
+                  <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                    <div>
+                      <p className="text-sm font-medium text-white">Opportunity fit</p>
+                      <p className="mt-1 text-sm font-light text-slate-400">
+                        Product engineering, internal platforms, fintech systems
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                      Open
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-3">
+                    {[
+                      ['Frontend workflows', 'React / Next.js'],
+                      ['Backend services', 'Node.js / APIs'],
+                      ['Reliability', 'Monitoring / rollout']
+                    ].map(([label, value], index) => (
+                      <motion.div
+                        key={label}
+                        className="grid gap-2"
+                        initial={shouldReduceMotion ? false : { opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ amount: 0.35, once: true }}
+                        transition={{ delay: index * 0.06, duration: 0.3, ease: easeOut }}
+                      >
+                        <div className="flex items-center justify-between gap-4 text-sm">
+                          <span className="font-light text-slate-300">{label}</span>
+                          <span className="font-medium text-white">{value}</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                          <motion.div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-teal-300"
+                            initial={shouldReduceMotion ? false : { scaleX: 0 }}
+                            whileInView={{ scaleX: 1 }}
+                            viewport={{ amount: 0.35, once: true }}
+                            transition={{
+                              delay: 0.12 + index * 0.08,
+                              duration: 0.45,
+                              ease: easeOut
+                            }}
+                            style={{ originX: 0 }}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
             </div>
 
             <div className="mt-10 flex flex-wrap items-center gap-x-0 gap-y-4 text-sm font-medium text-indigo-700">
@@ -889,7 +1059,7 @@ export default function PortfolioHome() {
                 href="/resume.pdf"
               >
                 <FileText className="size-5" />
-                <span>Resume</span>
+                <span>Download resume</span>
                 <FooterLinkArrow />
               </a>
             </div>

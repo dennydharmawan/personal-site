@@ -66,8 +66,8 @@
     --popover-foreground: var(--color-slate-900);
     --primary: var(--color-indigo-600);
     --primary-foreground: var(--color-white);
-    --secondary: var(--color-slate-50);
-    --secondary-foreground: var(--color-slate-900);
+    --secondary: var(--color-indigo-50);
+    --secondary-foreground: var(--color-indigo-700);
     --muted: var(--color-slate-50);
     --muted-foreground: var(--color-slate-500);
     --accent: var(--color-indigo-100);
