@@ -1,0 +1,165 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[margin=0.55in,top=0.5in,bottom=0.62in]{geometry}
+\usepackage{fontspec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{needspace}
+
+\setmainfont{Arial}
+
+\definecolor{heading}{HTML}{111827}
+\definecolor{accent}{HTML}{005EA8}
+\definecolor{muted}{HTML}{4B5563}
+\definecolor{rulecolor}{HTML}{D1D5DB}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan - Page \thepage\ of \pageref{LastPage}}
+
+\titleformat{\section}
+  {\large\bfseries\color{accent}}
+  {}
+  {0pt}
+  {}
+  [\vspace{-2pt}{\color{rulecolor}\titlerule}]
+\titlespacing*{\section}{0pt}{10pt}{6pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\RaggedRight
+\setlist[itemize]{
+  leftmargin=1.1em,
+  itemsep=2.2pt,
+  topsep=3pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+\newcommand{\resumeEntry}[4]{
+  \Needspace{7\baselineskip}
+  \textbf{#1}\hfill\textbf{#4}\par
+  #2\hfill\textcolor{muted}{#3}\par
+  \vspace{2pt}
+}
+
+\newcommand{\educationEntry}[4]{
+  \Needspace{4\baselineskip}
+  \textbf{#1}\hfill\textbf{#4}\par
+  #2\hfill\textcolor{muted}{#3}\par
+  \vspace{4pt}
+}
+
+\newcommand{\skillLine}[2]{%
+  \Needspace{2\baselineskip}
+  \par\noindent\textbf{#1}\par
+  #2\par
+  \vspace{1.2pt}
+}
+
+\begin{document}
+
+\begin{flushright}
+  {\footnotesize\itshape\color{muted} Last updated in Jun 2026}
+\end{flushright}
+\vspace{5pt}
+\begin{center}
+  {\fontsize{28}{32}\selectfont\bfseries\color{accent} Denny Dharmawan\par}
+  \vspace{5pt}
+  {\normalsize\color{accent}
+    Jakarta, Indonesia \textbar{}
+    \href{mailto:denny.dharmawan91@gmail.com}{denny.dharmawan91@gmail.com} \textbar{}
+    +62 859-5961-0206\par
+    \vspace{2pt}
+    \href{https://dennydharmawan.com}{dennydharmawan.com} \textbar{}
+    \href{https://linkedin.com/in/ddharmawan}{linkedin.com/in/ddharmawan} \textbar{}
+    \href{https://github.com/dennydharmawan}{github.com/dennydharmawan}
+  }
+\end{center}
+\vspace{3pt}
+
+\section{Professional Summary}
+Experienced software engineer specializing in web development across the JavaScript ecosystem, with hands-on expertise in front-end and back-end engineering. Strong background in digital banking and fintech, building secure, scalable, and user-focused solutions where reliability, performance, and user experience are critical. Driven by continuous growth, creative problem-solving, rapid learning, persistence, and effective collaboration across teams and stakeholders.
+
+\section{Experience}
+\resumeEntry{Krom Bank}{Senior Full-Stack Engineer}{Jakarta, Indonesia}{May 2026 - Present}
+\begin{itemize}
+  \item Maintain and improve internal platforms used by business and operations teams, with focus on reliability, maintainability, and performance.
+  \item Drive engineering quality through technical documentation, reusable implementation patterns, and cross-functional delivery.
+  \item Own platform improvements across frontend, backend, service integrations, and observability.
+\end{itemize}
+
+\resumeEntry{Krom Bank}{Full-Stack Engineer}{Jakarta, Indonesia}{January 2023 - May 2026}
+\begin{itemize}
+  \item Built and maintained full-stack internal platforms using React, Next.js, Node.js, TypeScript, MySQL, Redis, and Mantine UI.
+  \item Reduced average API execution time by 37\% through legacy module refactoring and targeted caching.
+  \item Designed access-management workflows covering RBAC, access review, audit trails, and operational approval flows.
+  \item Built a shared internal library for audit logging, feature-flag management, and common utilities, standardizing behavior across internal applications.
+  \item Improved production reliability through monitoring dashboards, distributed tracing, and CI/CD improvements.
+  \item Authored RFCs and technical documentation covering API practices, onboarding, and cross-team alignment.
+  \item Won an internal AI innovation event and introduced spec-driven development practices for structured AI-assisted engineering.
+\end{itemize}
+
+\resumeEntry{PT Bank BTPN Tbk (Jenius)}{Back End Engineer}{Jakarta, Indonesia}{December 2019 - January 2022}
+\begin{itemize}
+  \item Built and maintained Flexi Cash backend services using Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.
+  \item Contributed to Flexi Cash growth from product launch to a 147\% increase in user base over three years.
+  \item Developed APIs and service integrations for loan origination, funding disbursement, and partner distribution workflows.
+  \item Built retail partner integration flows to expand digital lending distribution channels.
+\end{itemize}
+
+\resumeEntry{PT Iverson Technology}{Technical Consultant}{Jakarta, Indonesia}{Dec 2017 - Dec 2019}
+\begin{itemize}
+  \item Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia.
+  \item Translated business requirements into ERP customizations, integrations, and reporting solutions.
+  \item Built integrations across data warehouse, enterprise portal, and POS systems.
+  \item Diagnosed production issues, clarified business logic, and delivered technical solutions that matched client workflows.
+  \item Trained professionals from multiple companies in Dynamics AX customization and implementation practices.
+\end{itemize}
+
+\resumeEntry{BINUS University}{Teaching Assistant, Software Laboratory Center}{Jakarta, Indonesia}{Feb 2011 - Jul 2013}
+\begin{itemize}
+  \item Taught programming and software development courses to undergraduate students across multiple classes.
+  \item Delivered instruction in programming fundamentals, debugging, and software development concepts to hundreds of students.
+  \item Ran lab sessions, conducted code reviews, and guided students through technical exercises and project implementation.
+  \item Recognized as a top-performing instructor with technical and laboratory awards.
+\end{itemize}
+
+\section{Skills}
+\skillLine{Core Stack}{JavaScript, TypeScript, React, Next.js, Node.js, Express, GraphQL, REST APIs.}
+\skillLine{Data and Messaging}{PostgreSQL, MySQL, MongoDB, Redis, Kafka.}
+\skillLine{Infrastructure and Delivery}{Docker, Kubernetes, AWS, GCP, CI/CD, Datadog, performance optimization.}
+\skillLine{Engineering Practices}{System design, API design, service integrations, access control, RFCs, technical documentation, mentoring.}
+\skillLine{Domain}{Digital banking, fintech platforms, lending systems, internal operations, partner integrations.}
+
+\section{Education}
+\educationEntry{RWTH Aachen University}{DAAD Scholarship Study Program, Information Technology}{Aachen, Germany}{Oct 2014 - Nov 2015}
+\educationEntry{King Mongkut's University of Technology North Bangkok (KMUTNB)}{DAAD Scholarship Study Program, Information Technology}{Bangkok, Thailand}{Aug 2013 - Sep 2014}
+\educationEntry{BINUS University}{Bachelor of Science, Computer Science}{Jakarta, Indonesia}{Mar 2011 - Jun 2013}
+
+\section{Achievements}
+\begin{itemize}
+  \item Won an internal AI innovation event at Krom Bank.
+  \item Awarded a DAAD scholarship for the KMUTNB and RWTH Aachen University international engineering program.
+  \item Won a Samsung Android hackathon championship for mobile application development.
+  \item Recognized as a top-performing teaching assistant at BINUS University and received technical and laboratory-related awards.
+\end{itemize}
+
+\section{Courses}
+Advanced Figma Training Program
+
+\section{Languages}
+Indonesian (Native speaker), English (Professional working proficiency)
+
+\end{document}

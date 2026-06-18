@@ -74,7 +74,7 @@ export function ThreeDMarquee({ className, images }: { className?: string; image
         className
       )}
     >
-      <div className="flex size-full items-center justify-center">
+      <div className="flex size-full items-center justify-center [perspective:1400px]">
         <div className="size-[1720px] shrink-0 scale-50 sm:scale-75 lg:scale-100">
           <div
             className="relative right-[34%] top-[34rem] grid size-full origin-top-left grid-cols-4 gap-8"
@@ -101,13 +101,11 @@ export function ThreeDMarquee({ className, images }: { className?: string; image
                     <GridLineHorizontal className="-top-4" offset="20px" />
                     <motion.img
                       alt=""
-                      className="aspect-[970/700] rounded-lg object-cover ring ring-white/10"
+                      className="aspect-[970/700] select-none rounded-lg object-cover shadow-[0_16px_42px_rgba(0,0,0,0.18)] ring ring-white/10"
                       draggable={false}
                       height={700}
                       loading="lazy"
                       src={image}
-                      transition={{ duration: 0.28, ease: 'easeInOut' }}
-                      whileHover={{ y: -8 }}
                       width={970}
                     />
                   </div>

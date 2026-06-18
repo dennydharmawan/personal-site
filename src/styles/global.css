@@ -109,6 +109,16 @@
     cursor: pointer;
     }
 
+  @keyframes stack-marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(calc(var(--stack-marquee-distance) * -1));
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
