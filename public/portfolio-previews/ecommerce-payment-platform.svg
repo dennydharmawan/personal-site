@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2204" height="713" viewBox="0 0 2204 713" role="img" aria-labelledby="title desc">
+  <title id="title">E-commerce payment platform preview</title>
+  <desc id="desc">Dashboard mockup showing storefront products, checkout, payment integration, webhooks, and order operations.</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="sidebar" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="product" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="2204" height="713" fill="#f8fafc"/>
+  <rect x="0" y="0" width="292" height="713" fill="url(#sidebar)"/>
+  <rect x="30" y="34" width="44" height="44" rx="14" fill="#8b5cf6"/>
+  <path d="M41 57h24M45 49l4-8h7l4 8" stroke="#faf5ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="92" y="54" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="750">CommerceOS</text>
+  <text x="92" y="85" fill="#ddd6fe" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600">Storefront and payments</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="18" font-weight="650">
+    <rect x="28" y="126" width="236" height="54" rx="14" fill="#6d28d9"/>
+    <text x="82" y="160" fill="#ffffff">Overview</text>
+    <text x="82" y="226" fill="#cbd5e1">Catalog</text>
+    <text x="82" y="292" fill="#cbd5e1">Checkout</text>
+    <text x="82" y="358" fill="#cbd5e1">Payments</text>
+    <text x="82" y="424" fill="#cbd5e1">Orders</text>
+    <text x="82" y="490" fill="#cbd5e1">Webhooks</text>
+  </g>
+  <rect x="330" y="34" width="1840" height="645" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <text x="374" y="88" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="780">E-commerce Payment Platform</text>
+  <text x="374" y="124" fill="#64748b" font-family="Inter, Arial, sans-serif" font-size="18">Product browsing, checkout, payment states, webhook reconciliation, and order operations.</text>
+  <rect x="1828" y="60" width="280" height="46" rx="13" fill="#eef2ff" stroke="#c7d2fe"/>
+  <text x="1856" y="90" fill="#4338ca" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800">Payment gateway live</text>
+  <rect x="374" y="160" width="846" height="430" rx="22" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="406" y="202" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="780">Storefront</text>
+  <text x="1010" y="202" fill="#64748b" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="650">Cart total IDR 1.84m</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="406" y="234" width="232" height="282" rx="20" fill="#f8fafc" stroke="#e2e8f0"/>
+    <rect x="426" y="256" width="192" height="120" rx="18" fill="url(#product)"/>
+    <text x="426" y="414" fill="#0f172a" font-size="20" font-weight="780">Everyday Backpack</text>
+    <text x="426" y="448" fill="#64748b" font-size="16" font-weight="650">IDR 699k</text>
+    <rect x="426" y="470" width="96" height="30" rx="15" fill="#dcfce7"/><text x="446" y="491" fill="#15803d" font-size="14" font-weight="800">In stock</text>
+    <rect x="674" y="234" width="232" height="282" rx="20" fill="#f8fafc" stroke="#e2e8f0"/>
+    <rect x="694" y="256" width="192" height="120" rx="18" fill="#14b8a6"/>
+    <text x="694" y="414" fill="#0f172a" font-size="20" font-weight="780">Travel Bottle</text>
+    <text x="694" y="448" fill="#64748b" font-size="16" font-weight="650">IDR 249k</text>
+    <rect x="694" y="470" width="110" height="30" rx="15" fill="#fef3c7"/><text x="714" y="491" fill="#b45309" font-size="14" font-weight="800">Low stock</text>
+    <rect x="942" y="234" width="232" height="282" rx="20" fill="#f8fafc" stroke="#e2e8f0"/>
+    <rect x="962" y="256" width="192" height="120" rx="18" fill="#f97316"/>
+    <text x="962" y="414" fill="#0f172a" font-size="20" font-weight="780">Desk Lamp</text>
+    <text x="962" y="448" fill="#64748b" font-size="16" font-weight="650">IDR 899k</text>
+    <rect x="962" y="470" width="96" height="30" rx="15" fill="#dbeafe"/><text x="982" y="491" fill="#1d4ed8" font-size="14" font-weight="800">Promo</text>
+  </g>
+  <rect x="1250" y="160" width="858" height="198" rx="22" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="1282" y="202" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="780">Checkout and payment state</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="17" font-weight="650">
+    <rect x="1282" y="232" width="184" height="62" rx="18" fill="#f8fafc" stroke="#e2e8f0"/><text x="1312" y="268" fill="#0f172a">Cart</text>
+    <path d="M1478 263h80" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round"/>
+    <rect x="1570" y="232" width="184" height="62" rx="18" fill="#eef2ff" stroke="#c7d2fe"/><text x="1600" y="268" fill="#4338ca">Payment intent</text>
+    <path d="M1766 263h80" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round"/>
+    <rect x="1858" y="232" width="184" height="62" rx="18" fill="#dcfce7" stroke="#86efac"/><text x="1888" y="268" fill="#15803d">Captured</text>
+  </g>
+  <rect x="1250" y="390" width="858" height="200" rx="22" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="1282" y="432" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="780">Webhook events</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="17" font-weight="650">
+    <text x="1282" y="476" fill="#64748b">10:42</text><text x="1372" y="476" fill="#0f172a">payment.authorized</text><rect x="1730" y="452" width="132" height="32" rx="16" fill="#dbeafe"/><text x="1760" y="474" fill="#1d4ed8">Verified</text>
+    <line x1="1282" x2="2074" y1="500" y2="500" stroke="#e2e8f0"/>
+    <text x="1282" y="532" fill="#64748b">10:43</text><text x="1372" y="532" fill="#0f172a">order.created</text><rect x="1730" y="508" width="132" height="32" rx="16" fill="#dcfce7"/><text x="1766" y="530" fill="#15803d">Synced</text>
+    <line x1="1282" x2="2074" y1="556" y2="556" stroke="#e2e8f0"/>
+    <text x="1282" y="588" fill="#64748b">10:44</text><text x="1372" y="588" fill="#0f172a">inventory.reserved</text><rect x="1730" y="564" width="132" height="32" rx="16" fill="#dcfce7"/><text x="1766" y="586" fill="#15803d">Synced</text>
+  </g>
+  <rect x="374" y="616" width="1734" height="30" rx="15" fill="#ede9fe"/>
+  <rect x="374" y="616" width="1448" height="30" rx="15" fill="#8b5cf6"/>
+  <text x="406" y="638" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">Checkout completion 84%</text>
+</svg>
