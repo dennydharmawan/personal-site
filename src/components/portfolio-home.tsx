@@ -240,12 +240,12 @@ const experiences = [
 
 const aboutPrinciples = [
   {
-    body: 'I prefer work where requirements, product behavior, data shape, and operating constraints are clear before the system design gets complex.',
-    title: 'Clarify before building'
+    body: 'I keep up with evolving web technologies, with a strong interest in distributed systems and scalable architecture.',
+    title: 'Continuous learning'
   },
   {
-    body: 'I look for the path that keeps the workflow understandable for users, builds team alignment, and stays maintainable for the engineers who will own it later.',
-    title: 'Build for ownership'
+    body: 'I rely on clear problem-solving, persistence, and close collaboration to move work forward across teams and stakeholders.',
+    title: 'Collaborative delivery'
   }
 ];
 
@@ -637,12 +637,12 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
           transition={{ duration: 0.4, ease: easeOut }}
         >
           <h2 className="text-3xl font-semibold leading-[1.08] text-slate-950 text-balance sm:text-4xl lg:text-[2.75rem]">
-            Samples of my work.
+            Selected Work Samples
           </h2>
           <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
-            My production work for enterprise clients is covered by strict NDAs. Instead, these
-            prototypes and side projects demonstrate how I approach problem-solving and apply my
-            skills without exposing proprietary systems.
+            My work for enterprise companies is protected under strict NDAs. The prototypes and side
+            projects below demonstrate how I approach problem-solving and apply my skills without
+            exposing proprietary systems.
           </p>
         </motion.div>
 
@@ -752,9 +752,9 @@ export default function PortfolioHome() {
 
               <div className="grid gap-5 lg:justify-items-start">
                 <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                  I architect, build, and ship web solutions end-to-end, translating ambiguous
-                  problems into reliable software that scales across data models, APIs, and polished
-                  product interfaces.
+                  I'm a full-stack engineer with hands-on experience building{' '}
+                  <span className="whitespace-nowrap">large-scale</span> financial systems, where
+                  scalability, reliability, and maintainability are critical.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button
@@ -965,13 +965,14 @@ export default function PortfolioHome() {
               <div className="grid gap-4">
                 <p className="text-sm font-semibold text-slate-950">About me</p>
                 <h2 className="max-w-xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-                  How I approach product and platform engineering.
+                  Pragmatic engineering for product and platform work.
                 </h2>
                 <p className="max-w-2xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                  I work best on problems where product behavior, backend rules, infrastructure
-                  constraints, and reliability all matter. My strongest work sits between technical
-                  depth, business-aware product judgment, and team alignment: clarify the workflow
-                  and ownership first, then make the implementation durable.
+                  My background is full-stack engineering in digital banking and fintech, where UI
+                  quality, API design, data integrity, infrastructure, and reliability are part of
+                  the same customer workflow. I approach engineering pragmatically: understand the
+                  domain, clarify tradeoffs, and balance engineering quality with the speed and
+                  needs of the business.
                 </p>
               </div>
 
