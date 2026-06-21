@@ -133,7 +133,7 @@ const projects = [
     ],
     impact:
       'Planned sample for platform thinking around authentication, RBAC, protected APIs, and auditability.',
-    preview: '/portfolio-previews/multi-tenant-rbac.svg',
+    preview: '/portfolio-previews/work-sample-auth-access-device.webp',
     role: 'Authentication, RBAC, and user management',
     stack: ['Next.js', 'Node.js', 'RBAC', 'PostgreSQL'],
     summary:
@@ -148,7 +148,7 @@ const projects = [
     ],
     impact:
       'Planned sample connecting fintech operations, messaging integrations, queues, and reporting in one workflow.',
-    preview: '/portfolio-previews/loan-collection-whatsapp.svg',
+    preview: '/portfolio-previews/work-sample-loan-collection-device.webp',
     role: 'Fintech operations workflow and integration design',
     stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
     summary:
@@ -163,7 +163,7 @@ const projects = [
     ],
     impact:
       'Planned sample for full-stack product delivery across checkout UX, payment state, and order operations.',
-    preview: '/portfolio-previews/ecommerce-payment-platform.svg',
+    preview: '/portfolio-previews/work-sample-ecommerce-payment-device.webp',
     role: 'Commerce product flow and payment integration',
     stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     summary:
@@ -178,7 +178,7 @@ const projects = [
     ],
     impact:
       'Planned sample for applied AI product thinking across generation, editing, brand controls, and export flow.',
-    preview: '/portfolio-previews/ai-carousel-generator.svg',
+    preview: '/portfolio-previews/work-sample-ai-carousel-device.webp',
     role: 'AI-assisted creative tooling and frontend workflow',
     stack: ['React', 'AI API', 'Canvas UI', 'Export'],
     summary:
@@ -619,13 +619,6 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 }
 
 function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
-  const tapeText = Array.from({ length: 8 }, (_, index) => (
-    <span key={index} className="inline-flex items-center gap-5">
-      <span>Under development</span>
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-slate-950/70" />
-    </span>
-  ));
-
   return (
     <section className="bg-slate-50 py-14 md:py-20" data-scroll-target="work">
       <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
@@ -698,14 +691,15 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
                 <img
                   src={project.preview}
                   alt={`${project.title} interface preview`}
-                  className="relative aspect-[1.45/1] h-full min-h-[18rem] w-full rounded-xl object-cover object-left-top"
+                  className="relative aspect-[1.45/1] min-h-[18rem] w-full rounded-xl object-cover object-center"
                   loading="lazy"
+                  decoding="async"
                 />
                 <div
                   aria-label="Under development"
-                  className="pointer-events-none absolute left-1/2 top-[42%] z-10 flex w-[135%] -translate-x-1/2 -rotate-3 items-center overflow-hidden border-y border-lime-300 bg-lime-300 py-2 text-sm font-black uppercase tracking-[0.08em] text-slate-950 shadow-[0_10px_0_rgba(15,23,42,0.12)] sm:text-base"
+                  className="pointer-events-none absolute left-6 top-6 z-10 inline-flex rounded-full border border-white/70 bg-white/85 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-700 shadow-sm backdrop-blur"
                 >
-                  <div className="flex min-w-max gap-5 whitespace-nowrap px-5">{tapeText}</div>
+                  Under development
                 </div>
               </motion.div>
             </motion.article>
