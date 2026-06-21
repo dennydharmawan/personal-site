@@ -1,43 +1,28 @@
-# Astro Starter Kit: Minimal
+# Personal Site
+
+Astro portfolio site for Denny Dharmawan. The site is intentionally static-first
+and focuses on recruiter-readable engineering positioning, work samples,
+experience, and contact paths.
+
+## Commands
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Structure
 
-## 🚀 Project Structure
+- `src/pages/index.astro` mounts the homepage.
+- `src/components/portfolio-home.tsx` renders the homepage experience.
+- `src/components/portfolio-home-data.ts` stores homepage content data.
+- `src/components/portfolio-marquee-images.ts` generates footer marquee images.
+- `public/` contains static images, logos, resume, and favicons.
 
-Inside of your Astro project, you'll see the following folders and files:
+## Notes
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Portfolio copy should stay truthful, NDA-safe, and grounded in real systems,
+scale, reliability, delivery judgment, and cross-team work. Repo-local guidance
+lives in `AGENTS.md`, `CONTEXT.md`, and private working notes under `.ai-docs/`.

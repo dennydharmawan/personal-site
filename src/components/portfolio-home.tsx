@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
 import {
-  Bot,
-  BriefcaseBusiness,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Code2,
-  Database,
   Download,
-  Gauge,
+  Layers3,
   Mail,
-  MapPin,
-  Rocket,
   ServerCog,
-  Waypoints
+  Workflow
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { portfolioMarqueeImages } from '@/components/portfolio-marquee-images';
-import { TechStackCarousel } from '@/components/tech-stack-carousel';
-import { ThreeDMarquee } from '@/components/ui/3d-marquee';
+import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
+import {
+  aboutSystemsImage,
+  capabilityTiles,
+  experiences,
+  expertiseItems,
+  projects,
+  trustedTeams
+} from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -37,232 +37,25 @@ const footerNavItems = [
   { label: 'Contact', target: 'contact' }
 ];
 
-const footerProfileLinks = [
-  {
-    href: 'https://github.com/dennydharmawan',
-    label: 'GitHub'
-  },
+const footerSocialLinks = [
   {
     href: 'https://www.linkedin.com/in/ddharmawan',
+    icon: LuLinkedin,
     label: 'LinkedIn'
   },
   {
-    href: '/resume.pdf',
-    label: 'Resume'
+    href: 'https://www.instagram.com/naiklevel.dev/',
+    icon: LuInstagram,
+    label: 'Instagram'
+  },
+  {
+    href: 'https://github.com/dennydharmawan',
+    icon: LuGithub,
+    label: 'GitHub'
   }
 ];
 
-const footerWorkSamplePlaceholders = [
-  'Access Governance Portal',
-  'Incident Replay Workbench',
-  'Feature Flag Control Plane'
-];
-
-const capabilityItems = [
-  {
-    body: 'Build React and Next.js interfaces for complex product flows, status, and ownership.',
-    icon: Code2,
-    iconTone: 'bg-sky-50 text-sky-700 ring-sky-100',
-    signals: ['React / Next.js', 'Stateful UI', 'Responsive flows'],
-    title: 'Frontend Applications'
-  },
-  {
-    body: 'Design APIs and services around integrations, auth, and business rules that need to stay reliable.',
-    icon: ServerCog,
-    iconTone: 'bg-indigo-50 text-indigo-700 ring-indigo-100',
-    signals: ['Node / Express', 'REST / GraphQL', 'Auth flows'],
-    title: 'Backend Services & APIs'
-  },
-  {
-    body: 'Shape operational data across database design, SQL, NoSQL, caching, reporting, and service handoffs.',
-    icon: Database,
-    iconTone: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    signals: ['Database design', 'SQL / NoSQL', 'Redis'],
-    title: 'Data & System Flows'
-  },
-  {
-    body: 'Build async workflows with queues, scheduled tasks, notifications, and integrations.',
-    icon: Waypoints,
-    iconTone: 'bg-orange-50 text-orange-700 ring-orange-100',
-    signals: ['Kafka / Bull', 'Scheduled jobs', 'Integrations'],
-    title: 'Background Jobs & Messaging'
-  },
-  {
-    body: 'Build admin tools, approval flows, RBAC reviews, audit trails, and workflow tooling.',
-    icon: BriefcaseBusiness,
-    iconTone: 'bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-100',
-    signals: ['Admin tools', 'Approvals', 'RBAC'],
-    title: 'Product & Operations Tools'
-  },
-  {
-    body: 'Improve monitoring, logs, traces, error triage, rollouts, and performance visibility for high-availability systems.',
-    icon: Gauge,
-    iconTone: 'bg-cyan-50 text-cyan-700 ring-cyan-100',
-    signals: ['Datadog', 'Debugging', 'High availability'],
-    title: 'Reliability & Observability'
-  }
-];
-
-const skillGroups = [
-  {
-    body: 'Build React, Next.js, and TypeScript interfaces where complex status, ownership, and next action stay obvious.',
-    icon: Code2,
-    items: ['React', 'Next.js', 'TypeScript', 'Component systems'],
-    title: 'Frontend engineering'
-  },
-  {
-    body: 'Design Node.js services, APIs, data models, integrations, and caching around business rules that need to stay reliable.',
-    icon: Database,
-    items: ['Node.js', 'Express', 'GraphQL', 'Redis'],
-    title: 'Backend services'
-  },
-  {
-    body: 'Improve observability, access control, release workflows, and CI/CD so teams can ship changes with less operational risk.',
-    icon: Rocket,
-    items: ['Monitoring', 'RBAC', 'Rollouts', 'CI/CD'],
-    title: 'Reliability and delivery'
-  }
-];
-
-const projects = [
-  {
-    bullets: [
-      'User and team management with roles, permissions, protected resources, and admin actions',
-      'RBAC rules for product features, API routes, and sensitive operational workflows',
-      'Access requests, approvals, and audit logs for traceable permission changes'
-    ],
-    impact:
-      'Planned sample for platform thinking around authentication, RBAC, protected APIs, and auditability.',
-    preview: '/portfolio-previews/work-sample-auth-access-device.webp',
-    role: 'Authentication, RBAC, and user management',
-    stack: ['Next.js', 'Node.js', 'RBAC', 'PostgreSQL'],
-    summary:
-      'A planned platform for sign-in, user accounts, team membership, role-based permissions, access requests, and audit logs.',
-    title: 'Authentication & Access Management'
-  },
-  {
-    bullets: [
-      'Designed to turn delinquent accounts into prioritized queues with owners, due dates, and escalation state',
-      'Planned WhatsApp API messaging for reminders, promises to pay, and follow-up templates',
-      'Collection activity, customer responses, payment promises, and operational outcome tracking'
-    ],
-    impact:
-      'Planned sample connecting fintech operations, messaging integrations, queues, and reporting in one workflow.',
-    preview: '/portfolio-previews/work-sample-loan-collection-device.webp',
-    role: 'Fintech operations workflow and integration design',
-    stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
-    summary:
-      'A planned loan collection workspace for prioritizing overdue accounts, coordinating collectors, and sending WhatsApp-based follow-ups.',
-    title: 'Loan Collection System'
-  },
-  {
-    bullets: [
-      'Designed to cover catalog, cart, checkout, order status, inventory visibility, and admin operations',
-      'Planned payment intent states, callbacks, reconciliation, and customer-facing confirmation',
-      'Clear separation between storefront UX and operational payment and fulfillment workflows'
-    ],
-    impact:
-      'Planned sample for full-stack product delivery across checkout UX, payment state, and order operations.',
-    preview: '/portfolio-previews/work-sample-ecommerce-payment-device.webp',
-    role: 'Commerce product flow and payment integration',
-    stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
-    summary:
-      'A planned e-commerce platform prototype with product browsing, checkout, payment integration, and order management.',
-    title: 'E-commerce Payment Platform'
-  },
-  {
-    bullets: [
-      'Designed to generate carousel drafts from a prompt, topic outline, or reusable content structure',
-      'Planned brand presets, slide-level editing, image choices, and export-ready layouts',
-      'AI generation connected to a practical editing workflow instead of one-shot output'
-    ],
-    impact:
-      'Planned sample for applied AI product thinking across generation, editing, brand controls, and export flow.',
-    preview: '/portfolio-previews/work-sample-ai-carousel-device.webp',
-    role: 'AI-assisted creative tooling and frontend workflow',
-    stack: ['React', 'AI API', 'Canvas UI', 'Export'],
-    summary:
-      'A planned social media carousel generator that helps users turn ideas into editable, branded carousel posts with AI support.',
-    title: 'AI Carousel Generator'
-  }
-];
-
-const experiences = [
-  {
-    bullets: [
-      'Maintain and improve internal fintech platforms used by business and operations teams, with focus on reliability, maintainability, and performance.',
-      'Owned end-to-end system design and delivery for internal operations tools across data modeling, workflow UI, API integration, monitoring, and release support.',
-      'Reduced average API execution time by 37% by addressing technical debt in legacy modules, improving code structure, and adding targeted caching.',
-      'Designed access-management workflows covering RBAC, access review, audit trails, and operational approval flows.',
-      'Built shared internal libraries for audit logging, feature-flag management, and common implementation utilities that helped standardize delivery.',
-      'Drive engineering standards through RFCs, technical documentation, reusable implementation patterns, and cross-functional delivery.',
-      'Improved production reliability through monitoring dashboards, distributed tracing, CI/CD improvements, and infrastructure migration support.'
-    ],
-    company: 'Krom Bank',
-    current: true,
-    period: 'Jan 2023 - Present',
-    role: 'Senior Full-Stack Engineer',
-    roleHistory: [
-      {
-        period: 'May 2026 - Present',
-        role: 'Senior Full-Stack Engineer'
-      },
-      {
-        period: 'Jan 2023 - May 2026',
-        role: 'Full-Stack Engineer'
-      }
-    ]
-  },
-  {
-    bullets: [
-      'Built and maintained backend services for Jenius and Flexi Cash using Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.',
-      'Served on the backend team during Flexi Cash growth from launch to a 147% increase in user base over three years.',
-      'Developed APIs, data flows, and service integrations for loan origination, funding disbursement, and partner distribution workflows.',
-      'Built external retail partner integration flows to expand Flexi Cash digital lending distribution.',
-      'Improved backend maintainability through service refactoring, integration reliability improvements, and cleaner error handling.'
-    ],
-    company: 'Jenius / Bank SMBC Indonesia',
-    period: 'Dec 2019 - Jan 2022',
-    role: 'Back End Engineer'
-  },
-  {
-    bullets: [
-      'Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia.',
-      'Translated business requirements into ERP customizations, integrations, and operational fixes.',
-      'Built and supported integrations across data warehouse, enterprise portal, and POS printer-related systems.',
-      'Trained professionals from multiple companies in Dynamics AX customization and implementation practices.'
-    ],
-    company: 'Iverson Technology',
-    period: 'Dec 2017 - Dec 2019',
-    role: 'Technical Consultant'
-  }
-];
-
-const aboutPrinciples = [
-  {
-    body: 'I keep up with evolving web technologies, with a strong interest in distributed systems and scalable architecture.',
-    title: 'Continuous learning'
-  },
-  {
-    body: 'I rely on clear problem-solving, persistence, and close collaboration to move work forward across teams and stakeholders.',
-    title: 'Collaborative delivery'
-  }
-];
-
-const trustedTeams = [
-  {
-    logo: '/company-logos/bank-smbc-indonesia.svg',
-    logoClassName: 'h-9 max-w-[8.5rem]',
-    logoStyleClassName: 'grayscale opacity-[0.6] contrast-90',
-    name: 'Bank SMBC Indonesia'
-  },
-  {
-    logo: '/company-logos/krom-bank.svg',
-    logoClassName: 'h-7 max-w-[7.75rem]',
-    logoStyleClassName: 'opacity-[0.68] grayscale',
-    name: 'Krom Bank'
-  }
-];
+const trustedLogoToneClassName = 'grayscale opacity-[0.72] contrast-100';
 
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
@@ -302,36 +95,6 @@ function scrollToTarget(
   });
 }
 
-function FooterLinkArrow() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="-ml-1 h-4 w-5 shrink-0 overflow-visible text-current"
-      fill="none"
-      viewBox="0 0 20 16"
-    >
-      <line
-        className="origin-[5px_8px] scale-x-0 opacity-0 transition-[scale,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100 motion-reduce:transition-none motion-reduce:group-hover:scale-x-0 motion-reduce:group-hover:opacity-0"
-        x1="5"
-        x2="15"
-        y1="8"
-        y2="8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="2.5"
-      />
-      <path
-        className="transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-        d="M5 4L9 8L5 12"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2.5"
-      />
-    </svg>
-  );
-}
-
 function HeroPreviewBand({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
   return (
     <motion.div
@@ -363,7 +126,7 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
               <img
                 src={team.logo}
                 alt={`${team.name} logo`}
-                className={`${team.logoClassName} ${team.logoStyleClassName} w-auto object-contain`}
+                className={`${team.logoClassName} ${trustedLogoToneClassName} w-auto object-contain`}
                 decoding="async"
               />
             </span>
@@ -551,79 +314,12 @@ function usePreventHashNavigation() {
   }, []);
 }
 
-function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
-  return (
-    <section className="border-y border-slate-200 bg-white py-16 md:py-20">
-      <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
-        <motion.div
-          className="mb-12 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ amount: 0.4, once: true }}
-          transition={{ duration: 0.4, ease: easeOut }}
-        >
-          <div className="grid content-start gap-4">
-            <p className="text-sm font-semibold text-slate-950">Capabilities</p>
-            <h2 className="max-w-md text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-              What I build and how I build it.
-            </h2>
-          </div>
-          <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty lg:pt-8">
-            I work across product interfaces, APIs, data models, access control, performance,
-            monitoring, and delivery. I care about software that is clear to use, reliable to run,
-            and practical for teams to maintain.
-          </p>
-        </motion.div>
-
-        <div className="grid gap-8 md:grid-cols-3">
-          {skillGroups.map((group, index) => {
-            const Icon = group.icon;
-
-            return (
-              <motion.article
-                key={group.title}
-                className="group grid gap-5"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ amount: 0.3, once: true }}
-                transition={{ delay: index * 0.06, duration: 0.36, ease: easeOut }}
-              >
-                <div className="flex size-12 items-center justify-center rounded-xl bg-slate-950 text-white shadow-sm">
-                  <Icon className="size-6" />
-                </div>
-                <div className="grid gap-3">
-                  <h3 className="max-w-sm text-3xl font-semibold leading-[1.08] text-slate-950 text-balance">
-                    {group.title}
-                  </h3>
-                  <p className="max-w-sm text-base font-normal leading-7 text-slate-700 text-pretty">
-                    {group.body}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-x-2 gap-y-1 text-sm font-medium text-slate-500">
-                  {group.items.map((skill, skillIndex) => (
-                    <span key={skill} className="inline-flex items-center gap-2">
-                      {skillIndex > 0 ? (
-                        <span aria-hidden="true" className="size-1 rounded-full bg-slate-300" />
-                      ) : null}
-                      <span>{skill}</span>
-                    </span>
-                  ))}
-                </div>
-              </motion.article>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
   return (
     <section className="bg-slate-50 py-14 md:py-20" data-scroll-target="work">
       <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
         <motion.div
-          className="mb-12 grid max-w-3xl gap-4 md:mb-16"
+          className="mx-auto mb-12 grid max-w-3xl justify-items-center gap-4 text-center md:mb-16"
           initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ amount: 0.4, once: true }}
@@ -710,6 +406,65 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
   );
 }
 
+function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+  return (
+    <section className="border-y border-slate-200 bg-slate-50 py-16 md:py-20">
+      <div className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 lg:grid-cols-[minmax(0,0.74fr)_minmax(34rem,1fr)] lg:items-start lg:gap-16">
+        <motion.div
+          className="grid max-w-xl content-start gap-6"
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ amount: 0.35, once: true }}
+          transition={{ duration: 0.4, ease: easeOut }}
+        >
+          <h2 className="text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
+            Expertise
+          </h2>
+          <div className="grid gap-5">
+            {expertiseItems.map((item) => (
+              <div
+                key={item.title}
+                className="grid gap-2 border-t border-slate-200 pt-5 first:border-t-0 first:pt-0"
+              >
+                <h3 className="text-base font-semibold leading-6 text-slate-950">{item.title}</h3>
+                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
+                  {item.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <div className="grid gap-3 sm:min-h-[32rem] sm:grid-cols-2 sm:grid-rows-2 lg:self-end lg:gap-4">
+          {capabilityTiles.map((tile, index) => (
+            <motion.article
+              key={tile.title}
+              aria-hidden="true"
+              className={`relative min-h-[15rem] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 sm:h-full ${
+                index === 0 ? 'sm:col-start-2 sm:row-start-1' : ''
+              } ${index === 1 ? 'sm:col-start-1 sm:row-start-2' : ''} ${
+                index === 2 ? 'sm:col-start-2 sm:row-start-2' : ''
+              }`}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ amount: 0.25, once: true }}
+              transition={{ delay: index * 0.06, duration: 0.38, ease: easeOut }}
+            >
+              <img
+                src={tile.image}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 size-full object-cover object-center"
+                loading="lazy"
+              />
+            </motion.article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function PortfolioHome() {
   const shouldReduceMotion = useReducedMotion();
   const yearsExperience = getYearsExperience();
@@ -774,98 +529,6 @@ export default function PortfolioHome() {
         <WorkSamplesSection shouldReduceMotion={shouldReduceMotion} />
 
         <section
-          id="capabilities"
-          className="border-b border-slate-200 bg-white py-14 md:py-20"
-          data-scroll-target="capabilities"
-          aria-labelledby="engineering-scope-heading"
-        >
-          <div className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10">
-            <motion.div
-              className="grid max-w-3xl gap-4"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.45, once: true }}
-              transition={{ duration: 0.35, ease: easeOut }}
-            >
-              <h2
-                id="engineering-scope-heading"
-                className="max-w-xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl"
-              >
-                Systems I can design, build, and improve.
-              </h2>
-              <p className="max-w-2xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                I work across technical strategy, system design, implementation, monitoring, and
-                infrastructure for software that has to stay usable, secure, maintainable, and
-                reliable.
-              </p>
-            </motion.div>
-
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {capabilityItems.map((item, index) => (
-                <motion.article
-                  key={item.title}
-                  className="grid content-start gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ amount: 0.3, once: true }}
-                  transition={{ delay: index * 0.04, duration: 0.34, ease: easeOut }}
-                >
-                  <div className="flex items-start gap-3">
-                    <span
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ${item.iconTone}`}
-                    >
-                      <item.icon className="size-5" />
-                    </span>
-                    <div className="grid gap-2">
-                      <h3 className="text-lg font-semibold leading-6 text-slate-950">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm font-normal leading-6 text-slate-600 text-pretty">
-                        {item.body}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {item.signals.map((signal) => (
-                      <span
-                        key={signal}
-                        className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
-                      >
-                        {signal}
-                      </span>
-                    ))}
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-
-            <TechStackCarousel shouldReduceMotion={shouldReduceMotion} />
-
-            <motion.aside
-              className="grid gap-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 md:grid-cols-[auto_1fr] md:items-start"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.45, once: true }}
-              transition={{ delay: 0.08, duration: 0.35, ease: easeOut }}
-            >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-white text-indigo-700 ring-1 ring-indigo-100">
-                <Bot className="size-5" />
-              </span>
-              <div className="grid gap-1">
-                <h3 className="text-base font-semibold text-slate-950">AI-assisted Engineering</h3>
-                <p className="max-w-4xl text-sm font-normal leading-6 text-slate-700 text-pretty">
-                  Claude Code, Codex, and LLM workflows help me explore implementation paths,
-                  refactor safely, debug faster, document decisions, and move from unclear
-                  requirements to working software.
-                </p>
-              </div>
-            </motion.aside>
-          </div>
-        </section>
-
-        <CapabilitiesSection shouldReduceMotion={shouldReduceMotion} />
-
-        <section
           className="mx-auto w-[min(1200px,calc(100%-2rem))] py-16 md:py-20"
           data-scroll-target="experience"
         >
@@ -876,9 +539,8 @@ export default function PortfolioHome() {
             viewport={{ amount: 0.4, once: true }}
             transition={{ duration: 0.4, ease: easeOut }}
           >
-            <p className="text-sm font-semibold text-slate-950">Experience</p>
             <h2 className="text-4xl font-semibold leading-tight text-slate-900 text-balance sm:text-5xl">
-              Banking, fintech, and enterprise systems.
+              Experience
             </h2>
             <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
               Experience across internal fintech platforms, digital lending services, ERP
@@ -891,15 +553,15 @@ export default function PortfolioHome() {
             {experiences.map((item, index) => (
               <motion.article
                 key={`${item.company}-${item.role}`}
-                className="relative grid gap-5 border-t border-slate-200 py-9 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(12rem,21rem)_minmax(0,1fr)] lg:gap-12"
+                className="relative grid gap-5 border-t border-slate-200 py-9 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)] lg:gap-10"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ amount: 0.35, once: true }}
                 transition={{ delay: index * 0.05, duration: 0.35, ease: easeOut }}
               >
-                <div className="grid content-start gap-3">
+                <div className="grid content-start gap-3 lg:justify-items-end lg:text-right">
                   <p
-                    className={`text-lg font-medium leading-none ${
+                    className={`text-base font-medium ${
                       item.current ? 'text-indigo-600' : 'text-slate-600'
                     }`}
                   >
@@ -921,7 +583,7 @@ export default function PortfolioHome() {
                         {item.roleHistory.map((roleItem) => (
                           <div
                             key={`${item.company}-${roleItem.role}-${roleItem.period}`}
-                            className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm leading-5"
+                            className="grid items-baseline gap-x-4 gap-y-1 text-sm leading-5 sm:grid-cols-[minmax(11rem,max-content)_auto]"
                           >
                             <span className="font-medium text-slate-800">{roleItem.role}</span>
                             <span className="text-slate-500">{roleItem.period}</span>
@@ -947,87 +609,77 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-slate-50 py-16 md:py-20" data-scroll-target="about">
-          <div className="mx-auto grid w-[min(1200px,calc(100%-2rem))] items-center gap-12 lg:grid-cols-[0.9fr_1fr]">
+        <CapabilitiesSection shouldReduceMotion={shouldReduceMotion} />
+
+        <section className="overflow-hidden bg-white py-16 md:py-20" data-scroll-target="about">
+          <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
             <motion.div
-              className="grid gap-7"
+              className="relative grid min-h-[34rem] gap-10 lg:grid-cols-[minmax(0,0.52fr)_minmax(34rem,0.48fr)] lg:items-center lg:gap-12 xl:gap-16"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.4, once: true }}
+              viewport={{ amount: 0.35, once: true }}
               transition={{ duration: 0.4, ease: easeOut }}
             >
-              <div className="grid gap-4">
-                <p className="text-sm font-semibold text-slate-950">About me</p>
+              <div className="grid content-center gap-6 py-4 lg:min-h-[34rem]">
                 <h2 className="max-w-xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-                  Pragmatic engineering for product and platform work.
+                  About me
                 </h2>
-                <p className="max-w-2xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                  My background is full-stack engineering in digital banking and fintech, where UI
-                  quality, API design, data integrity, infrastructure, and reliability are part of
-                  the same customer workflow. I approach engineering pragmatically: understand the
-                  domain, clarify tradeoffs, and balance engineering quality with the speed and
-                  needs of the business.
-                </p>
-              </div>
-
-              <div className="grid gap-5 sm:grid-cols-2">
-                {aboutPrinciples.map((principle, index) => (
-                  <motion.div
-                    key={principle.title}
-                    className="grid gap-2 border-t border-slate-200 pt-4"
-                    initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ amount: 0.4, once: true }}
-                    transition={{ delay: index * 0.06, duration: 0.35, ease: easeOut }}
-                  >
-                    <h3 className="text-base font-semibold text-slate-950">{principle.title}</h3>
-                    <p className="text-sm font-normal leading-6 text-slate-700">{principle.body}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="relative min-h-[22rem] overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-indigo-200 hover:shadow-[0_20px_55px_rgba(15,23,42,0.1)]"
-              initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 18 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              whileHover={shouldReduceMotion ? undefined : { y: -3 }}
-              viewport={{ amount: 0.35, once: true }}
-              transition={{ duration: 0.42, ease: easeOut }}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(79,70,229,0.16),transparent_34%),radial-gradient(circle_at_86%_78%,rgba(20,184,166,0.16),transparent_36%)]" />
-              <div className="relative grid h-full min-h-[19rem] content-between rounded-lg border border-slate-200 bg-slate-950 p-5 text-white">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div>
-                    <p className="text-sm font-medium">Engineering loop</p>
-                    <p className="mt-1 text-sm font-normal text-slate-400">
-                      Clarify, implement, ship, observe
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-indigo-400/10 px-3 py-1 text-xs font-medium text-indigo-200">
-                    Reliable
-                  </span>
+                <div className="grid max-w-2xl gap-4 text-base font-normal leading-7 text-slate-700 text-pretty">
+                  <p>
+                    I care about writing good software, but I am equally focused on what that
+                    software needs to do for the business. Engineering quality and delivery speed
+                    are not opposites. Finding where they meet is usually the more interesting
+                    problem.
+                  </p>
+                  <p>
+                    I bring that same thinking to distributed systems and scalable architecture,
+                    where most of my deeper curiosity lives. The web moves fast, and I take keeping
+                    up with it seriously: understanding what is worth adopting, why, and how it
+                    helps teams ship better software.
+                  </p>
                 </div>
+                <a
+                  href="https://www.linkedin.com/in/ddharmawan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-indigo-700 transition-colors hover:text-indigo-900"
+                >
+                  <LuLinkedin aria-hidden="true" className="size-4" />
+                  Let&apos;s connect on LinkedIn
+                </a>
+              </div>
 
-                <div className="grid gap-3">
-                  {[
-                    'Clarify the workflow',
-                    'Define ownership and constraints',
-                    'Ship the durable implementation'
-                  ].map((item, index) => (
-                    <motion.div
-                      key={item}
-                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-3"
-                      initial={shouldReduceMotion ? false : { opacity: 0, x: -8 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ amount: 0.4, once: true }}
-                      transition={{ delay: 0.08 + index * 0.08, duration: 0.35, ease: easeOut }}
+              <div className="relative mx-auto aspect-[16/9] w-full max-w-[40rem] lg:mx-0 lg:max-w-[46rem] lg:justify-self-end">
+                <svg
+                  viewBox="0 0 160 90"
+                  role="img"
+                  aria-label="Warm working desk setup"
+                  className="size-full overflow-visible drop-shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
+                >
+                  <defs>
+                    <clipPath id="about-collage-clip" clipPathUnits="userSpaceOnUse">
+                      <path d="M16,0H76A10,10 0,0,1 86,10V24A10,10 0,0,0 96,34H144A10,10 0,0,1 154,44V74A16,16 0,0,1 138,90H86A10,10 0,0,1 76,80V72A10,10 0,0,0 66,62H10A10,10 0,0,1 0,52V16A16,16 0,0,1 16,0Z" />
+                    </clipPath>
+                  </defs>
+                  <image
+                    href={aboutSystemsImage}
+                    x="0"
+                    y="0"
+                    width="160"
+                    height="90"
+                    preserveAspectRatio="xMidYMid slice"
+                    clipPath="url(#about-collage-clip)"
+                  />
+                </svg>
+
+                <div className="absolute bottom-0 right-0 z-30 flex gap-3">
+                  {[Layers3, Workflow, ServerCog].map((Icon, index) => (
+                    <div
+                      key={index}
+                      className="flex size-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-sky-600 shadow-[0_10px_25px_rgba(14,165,233,0.12)] lg:size-14"
                     >
-                      <span className="flex size-7 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-white">
-                        {index + 1}
-                      </span>
-                      <span className="text-sm font-normal text-slate-200">{item}</span>
-                    </motion.div>
+                      <Icon aria-hidden="true" className="size-5 lg:size-6" />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1035,159 +687,118 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <footer className="bg-white" data-scroll-target="contact">
+        <footer className="border-t border-slate-200 bg-slate-50" data-scroll-target="contact">
           <motion.div
-            className="mx-auto w-[min(1200px,calc(100%-2rem))]"
+            className="mx-auto w-[min(1200px,calc(100%-2rem))] py-14 md:py-16 lg:py-20"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.08, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div className="grid max-w-4xl gap-5 py-14 text-left md:py-16">
-              <h2 className="max-w-3xl text-3xl font-semibold leading-[1.05] text-slate-950 text-balance sm:text-4xl lg:text-5xl">
-                Need an engineer who has shipped critical systems before?
-              </h2>
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,0.68fr)_minmax(12rem,0.22fr)] lg:items-start lg:gap-x-24">
+              <div className="grid max-w-xl content-start gap-7">
+                <div className="grid gap-4">
+                  <h2 className="max-w-lg text-3xl font-semibold leading-tight text-slate-950 text-balance sm:text-4xl">
+                    Thanks for looking around.
+                  </h2>
+                  <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
+                    Based in Jakarta. I build product software across frontend, backend, and
+                    operations, with a bias for systems that stay clear to use and reliable in
+                    production.
+                  </p>
+                </div>
 
-              <p className="max-w-2xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                I help teams turn business requirements into reliable software from UI to
-                infrastructure, with long-term maintainability and delivery risk in mind.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  asChild
-                  size="lg"
-                  className="h-11 gap-2 px-4 has-data-[icon=inline-start]:pl-4"
-                >
-                  <a href="mailto:contact@dennydharmawan.com">
-                    <Mail data-icon="inline-start" className="size-4" />
-                    Let&apos;s chat
-                  </a>
-                </Button>
-              </div>
-              <p className="text-sm font-normal text-slate-500">
-                Based in Jakarta, Indonesia - open to remote opportunities.
-              </p>
-            </div>
-
-            <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(99,102,241,0.22),transparent_30%),radial-gradient(circle_at_78%_22%,rgba(244,114,182,0.18),transparent_28%),radial-gradient(circle_at_54%_82%,rgba(14,165,233,0.18),transparent_34%)]" />
-              <ThreeDMarquee
-                className="relative h-[26rem] rounded-none sm:h-[32rem] lg:h-[36rem]"
-                images={portfolioMarqueeImages}
-              />
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-950 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 to-transparent" />
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
-            </div>
-
-            <div className="pb-8 pt-12">
-              <div className="grid gap-10 border-t border-slate-200 pt-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(36rem,1.2fr)] lg:items-start lg:gap-x-16 xl:gap-x-20">
-                <div className="grid content-start gap-6">
-                  <div className="grid max-w-md gap-3">
-                    <p className="text-2xl font-semibold leading-tight text-slate-950">
-                      Denny Dharmawan
-                    </p>
-                    <p className="text-base font-normal leading-7 text-slate-600 text-pretty">
-                      Full-stack engineer building product interfaces, backend services, data flows,
-                      and infrastructure for critical systems.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-2.5 text-sm">
-                    <p className="inline-flex min-h-8 items-center gap-2 font-normal text-slate-700">
-                      <MapPin aria-hidden="true" className="size-4 shrink-0 text-slate-400" />
-                      <span>Jakarta, Indonesia</span>
-                    </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
+                  >
                     <a
-                      className="inline-flex min-h-10 w-fit max-w-full items-center gap-2 break-all font-semibold text-indigo-700 transition-colors hover:text-indigo-900"
                       href="mailto:contact@dennydharmawan.com"
                       aria-label="Email contact@dennydharmawan.com"
                     >
-                      <Mail aria-hidden="true" className="size-4 shrink-0 text-indigo-500" />
-                      <span>contact@dennydharmawan.com</span>
+                      <Mail data-icon="inline-start" className="size-4 shrink-0 text-indigo-500" />
+                      <span className="truncate">contact@dennydharmawan.com</span>
                     </a>
-                  </div>
+                  </Button>
                 </div>
 
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[minmax(8rem,0.8fr)_minmax(13rem,1.2fr)_minmax(7rem,0.8fr)]">
-                  <nav className="grid content-start gap-2 text-sm font-semibold text-slate-950">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Navigate
-                    </p>
-                    {footerNavItems.map((item) => (
-                      <button
-                        key={item.target}
-                        type="button"
-                        className="inline-flex min-h-10 w-fit items-center text-left transition-colors hover:text-indigo-600"
-                        onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </nav>
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 pt-1">
+                  <p className="flex w-fit items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Find me on</span>
+                    <span aria-hidden="true" className="h-3.5 w-px shrink-0 bg-slate-300" />
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {footerSocialLinks.map((item) => {
+                      const Icon = item.icon;
 
-                  <div className="grid content-start gap-2 text-sm font-semibold text-slate-950">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Work Samples
-                    </p>
-                    <ul className="grid gap-2">
-                      {footerWorkSamplePlaceholders.map((item) => (
-                        <li
-                          key={item}
-                          className="flex min-h-10 w-fit max-w-full items-center text-left text-slate-950"
+                      return (
+                        <a
+                          key={item.href}
+                          aria-label={item.label}
+                          className="group/social relative inline-flex size-9 items-center justify-center overflow-hidden rounded-md text-slate-500 transition-[color,scale] duration-300 ease-out hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-indigo-200 active:scale-[0.96] motion-reduce:transition-none"
+                          href={item.href}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                          title={item.label}
                         >
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-0.5 scale-[0.18] rounded-md bg-slate-950 opacity-0 transition-[opacity,scale] duration-300 ease-out group-hover/social:scale-100 group-hover/social:opacity-100 group-focus-visible/social:scale-100 group-focus-visible/social:opacity-100 motion-reduce:transition-none"
+                          />
+                          <Icon
+                            aria-hidden="true"
+                            className="relative z-10 size-5 transition-[color,scale] duration-300 ease-out group-hover/social:scale-110 group-focus-visible/social:scale-110 motion-reduce:transition-none"
+                          />
+                        </a>
+                      );
+                    })}
                   </div>
-
-                  <nav className="grid content-start gap-2 text-sm font-semibold text-slate-950">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Profiles
-                    </p>
-                    {footerProfileLinks.map((item) => (
-                      <a
-                        key={item.href}
-                        className="group inline-flex min-h-10 w-fit items-center gap-2 transition-colors hover:text-indigo-600"
-                        href={item.href}
-                        target={item.href.startsWith('http') ? '_blank' : undefined}
-                        rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      >
-                        <span>{item.label}</span>
-                        <FooterLinkArrow />
-                      </a>
-                    ))}
-                  </nav>
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-col gap-4 border-t border-slate-200 pt-5 text-sm font-normal text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                <p>© 2026 Denny Dharmawan. All rights reserved.</p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                  <p>Thank you for looking around.</p>
-                  <div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="group/back min-h-10 gap-2 rounded-lg border-slate-200 bg-white px-3 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
-                      onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
+              <nav className="grid content-start gap-1.5 text-sm font-medium text-slate-600 lg:justify-self-start">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950">
+                  Navigate
+                </p>
+                {footerNavItems.map((item) => (
+                  <button
+                    key={item.target}
+                    type="button"
+                    className="inline-flex min-h-9 w-fit items-center text-left transition-colors hover:text-indigo-600"
+                    onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-5 text-sm font-normal text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+              <p>© 2026 Denny Dharmawan. All rights reserved.</p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="group/back min-h-10 gap-2 rounded-lg border-slate-200 bg-white px-3 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
+                    onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="relative inline-flex size-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-slate-700 transition-colors duration-300 group-hover/back:border-indigo-600"
                     >
                       <span
                         aria-hidden="true"
-                        className="relative inline-flex size-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-slate-700 transition-colors duration-300 group-hover/back:border-indigo-600"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="absolute inset-0 scale-0 rounded-full bg-indigo-600 transition-transform duration-300 ease-out group-hover/back:scale-100"
-                        />
-                        <ChevronUp className="relative z-10 size-3.5 transition-colors duration-300 group-hover/back:text-white" />
-                      </span>
-                      <span>Back to top</span>
-                    </Button>
-                  </div>
+                        className="absolute inset-0 scale-0 rounded-full bg-indigo-600 transition-transform duration-300 ease-out group-hover/back:scale-100"
+                      />
+                      <ChevronUp className="relative z-10 size-3.5 transition-colors duration-300 group-hover/back:text-white" />
+                    </span>
+                    <span>Back to top</span>
+                  </Button>
                 </div>
               </div>
             </div>
