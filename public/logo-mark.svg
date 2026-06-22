@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Denny Dharmawan logo</title>
+  <desc id="desc">A compact geometric mark with a forward negative-space cut in deep navy.</desc>
   <path
     fill="#0A2540"
     fill-rule="evenodd"

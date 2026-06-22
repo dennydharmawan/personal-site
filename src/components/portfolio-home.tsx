@@ -203,13 +203,13 @@ function AnimatedHeader() {
             animate={{ opacity: 1, x: 0 }}
             transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.08, ...spring }}
           >
-            <span
+            <img
               aria-hidden="true"
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-sm shadow-indigo-200"
-              style={{ height: '2rem', marginRight: '0.5rem', width: '2rem' }}
-            >
-              DD
-            </span>
+              src="/logo-mark.svg"
+              alt=""
+              className="mr-2 size-8 shrink-0"
+              decoding="async"
+            />
             <span className="grid gap-px leading-none">
               <span className="text-base font-semibold">Denny Dharmawan</span>
               <span className="text-xs font-medium text-slate-500">Full-Stack Engineer</span>
