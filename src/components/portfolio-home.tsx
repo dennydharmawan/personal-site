@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import {
   CheckCircle2,
@@ -20,6 +20,8 @@ import {
   projects,
   trustedTeams
 } from '@/components/portfolio-home-data';
+import { portfolioMarqueeImages } from '@/components/portfolio-marquee-images';
+import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -61,6 +63,7 @@ const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
 const anchorScrollOffset = 76;
 const careerStart = { monthIndex: 11, year: 2017 };
+const contactEmail = 'contact@dennydharmawan.com';
 
 function getYearsExperience(date = new Date()) {
   const completedYears = date.getFullYear() - careerStart.year;
@@ -93,6 +96,110 @@ function scrollToTarget(
     behavior: shouldReduceMotion ? 'auto' : 'smooth',
     top: Math.max(targetTop, 0)
   });
+}
+
+function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const menuRef = useRef<HTMLDivElement>(null);
+  let copyLabel = 'Copy email';
+
+  if (copyState === 'copied') {
+    copyLabel = 'Copied';
+  } else if (copyState === 'failed') {
+    copyLabel = 'Copy failed';
+  }
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const { target } = event;
+
+      if (target instanceof Node && !menuRef.current?.contains(target)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(contactEmail);
+      setCopyState('copied');
+      window.setTimeout(() => setCopyState('idle'), 1600);
+    } catch {
+      setCopyState('failed');
+      window.setTimeout(() => setCopyState('idle'), 1600);
+    }
+  };
+
+  return (
+    <div ref={menuRef} className="relative w-fit max-w-full">
+      <Button
+        type="button"
+        size="lg"
+        variant="outline"
+        className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="truncate">{contactEmail}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={`size-4 shrink-0 text-slate-400 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </Button>
+
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            role="menu"
+            className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg shadow-slate-950/10"
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -4 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.16, ease: easeOut }}
+          >
+            <button
+              type="button"
+              role="menuitem"
+              className="rounded-md px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-indigo-600 focus-visible:bg-slate-50 focus-visible:text-indigo-600 focus-visible:outline-none"
+              onClick={copyEmail}
+            >
+              {copyLabel}
+            </button>
+            <a
+              role="menuitem"
+              className="rounded-md px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-indigo-600 focus-visible:bg-slate-50 focus-visible:text-indigo-600 focus-visible:outline-none"
+              href={`mailto:${contactEmail}`}
+              onClick={() => setIsOpen(false)}
+            >
+              Send email
+            </a>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function HeroPreviewBand({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
@@ -687,7 +794,55 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <footer className="border-t border-slate-200 bg-slate-50" data-scroll-target="contact">
+        <section className="bg-slate-50 pb-12 md:pb-16 lg:pb-20" data-scroll-target="contact">
+          <motion.div
+            className="mx-auto w-[min(1200px,calc(100%-2rem))]"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ amount: 0.08, once: true }}
+            transition={{ duration: 0.42, ease: easeOut }}
+          >
+            <div className="grid max-w-4xl gap-6 pb-10 pt-16 text-left md:pb-12 md:pt-20">
+              <h2 className="max-w-3xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
+                Say hi. See where it goes.
+              </h2>
+
+              <div className="grid max-w-2xl gap-6">
+                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
+                  I&apos;m open to new opportunities. Maybe you have something in mind, maybe
+                  you&apos;re just browsing — either way, say hi. Could be the start of something
+                  good.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="h-11 gap-2 px-4 has-data-[icon=inline-start]:pl-4"
+                  >
+                    <a href={`mailto:${contactEmail}`}>
+                      <Mail data-icon="inline-start" className="size-4" />
+                      Let&apos;s chat
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(99,102,241,0.22),transparent_30%),radial-gradient(circle_at_78%_22%,rgba(244,114,182,0.18),transparent_28%),radial-gradient(circle_at_54%_82%,rgba(14,165,233,0.18),transparent_34%)]" />
+              <ThreeDMarquee
+                className="relative h-[26rem] rounded-none sm:h-[32rem] lg:h-[36rem]"
+                images={portfolioMarqueeImages}
+              />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-950 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
+            </div>
+          </motion.div>
+        </section>
+
+        <footer className="border-t border-slate-200 bg-slate-50">
           <motion.div
             className="mx-auto w-[min(1200px,calc(100%-2rem))] py-14 md:py-16 lg:py-20"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
@@ -709,26 +864,16 @@ export default function PortfolioHome() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
-                  >
-                    <a
-                      href="mailto:contact@dennydharmawan.com"
-                      aria-label="Email contact@dennydharmawan.com"
-                    >
-                      <Mail data-icon="inline-start" className="size-4 shrink-0 text-indigo-500" />
-                      <span className="truncate">contact@dennydharmawan.com</span>
-                    </a>
-                  </Button>
+                  <EmailActionMenu shouldReduceMotion={shouldReduceMotion} />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 pt-1">
                   <p className="flex w-fit items-center gap-2 text-sm font-medium text-slate-600">
                     <span>Find me on</span>
-                    <span aria-hidden="true" className="h-3.5 w-px shrink-0 bg-slate-300" />
+                    <span
+                      aria-hidden="true"
+                      className="h-px w-9 shrink-0 rounded-full bg-indigo-500/70"
+                    />
                   </p>
                   <div className="flex items-center gap-1">
                     {footerSocialLinks.map((item) => {
