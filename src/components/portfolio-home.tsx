@@ -1,15 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
-import {
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Download,
-  Layers3,
-  Mail,
-  ServerCog,
-  Workflow
-} from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp, Download, Mail } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
 import {
@@ -155,7 +146,7 @@ function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean |
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
+        className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-brand-200 hover:bg-slate-50 hover:text-brand-600"
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((current) => !current)}
@@ -182,14 +173,14 @@ function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean |
             <button
               type="button"
               role="menuitem"
-              className="rounded-md px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-indigo-600 focus-visible:bg-slate-50 focus-visible:text-indigo-600 focus-visible:outline-none"
+              className="rounded-md px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-brand-600 focus-visible:bg-slate-50 focus-visible:text-brand-600 focus-visible:outline-none"
               onClick={copyEmail}
             >
               {copyLabel}
             </button>
             <a
               role="menuitem"
-              className="rounded-md px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-indigo-600 focus-visible:bg-slate-50 focus-visible:text-indigo-600 focus-visible:outline-none"
+              className="rounded-md px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-brand-600 focus-visible:bg-slate-50 focus-visible:text-brand-600 focus-visible:outline-none"
               href={`mailto:${contactEmail}`}
               onClick={() => setIsOpen(false)}
             >
@@ -210,12 +201,22 @@ function HeroPreviewBand({ shouldReduceMotion }: { shouldReduceMotion: boolean |
       animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
       transition={{ delay: 0.18, duration: 0.48, ease: easeOut }}
     >
-      <img
-        src="/portfolio-previews/team-gaze-hero.png"
-        alt="Team collaborating around a laptop with attention directed toward the next action"
-        className="h-[12.5rem] w-full object-cover object-[25%_center] sm:h-[17rem] lg:h-[18rem]"
-        decoding="async"
-      />
+      <picture>
+        <source
+          media="(max-width: 639px)"
+          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
+        />
+        <source
+          media="(min-width: 1024px)"
+          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
+        />
+        <img
+          src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
+          alt="Team collaborating around a laptop with attention directed toward the next action"
+          className="block h-[12.5rem] w-full object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
+          decoding="async"
+        />
+      </picture>
     </motion.div>
   );
 }
@@ -302,7 +303,7 @@ function AnimatedHeader() {
           }
         >
           <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-indigo-700"
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-brand-700"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
@@ -468,7 +469,7 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
                       key={bullet}
                       className="group/bullet flex gap-3 text-sm font-normal leading-6 text-slate-700"
                     >
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-indigo-600 transition-transform duration-200 group-hover/bullet:scale-110" />
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand-600 transition-transform duration-200 group-hover/bullet:scale-110" />
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -486,11 +487,11 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
               </motion.div>
 
               <motion.div
-                className={`relative min-h-[18rem] overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm outline outline-1 outline-black/10 transition-[border-color,box-shadow] duration-300 hover:border-indigo-200 hover:shadow-[0_24px_70px_rgba(15,23,42,0.12)] ${index % 2 === 1 ? 'lg:order-1' : ''}`}
+                className={`relative min-h-[18rem] overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm outline outline-1 outline-black/10 transition-[border-color,box-shadow] duration-300 hover:border-brand-200 hover:shadow-[0_24px_70px_rgba(15,23,42,0.12)] ${index % 2 === 1 ? 'lg:order-1' : ''}`}
                 whileHover={shouldReduceMotion ? undefined : { y: -4 }}
                 transition={spring}
               >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-indigo-100/70 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-brand-100/70 to-transparent" />
                 <img
                   src={project.preview}
                   alt={`${project.title} interface preview`}
@@ -595,7 +596,7 @@ export default function PortfolioHome() {
             transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
           >
             <div className="grid gap-7">
-              <h1 className="max-w-6xl text-[2.625rem] font-normal leading-[1.04] text-slate-950 sm:text-6xl sm:leading-[0.96] lg:text-[5.35rem]">
+              <h1 className="max-w-6xl text-[2.5rem] font-normal leading-[1.04] text-slate-950 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
                 Building web solutions
                 <span className="block pt-1 text-slate-400 sm:pt-2">that actually scale.</span>
               </h1>
@@ -669,13 +670,13 @@ export default function PortfolioHome() {
                 <div className="grid content-start gap-3 lg:justify-items-end lg:text-right">
                   <p
                     className={`text-base font-medium ${
-                      item.current ? 'text-indigo-600' : 'text-slate-600'
+                      item.current ? 'text-brand-600' : 'text-slate-600'
                     }`}
                   >
                     {item.period}
                   </p>
                   {item.current ? (
-                    <span className="w-fit text-sm font-medium text-indigo-700">Current</span>
+                    <span className="w-fit text-sm font-medium text-brand-700">Current</span>
                   ) : null}
                 </div>
 
@@ -684,7 +685,7 @@ export default function PortfolioHome() {
                     <h3 className="text-2xl font-semibold leading-tight text-slate-900 text-balance">
                       {item.role}
                     </h3>
-                    <p className="text-sm font-medium text-indigo-600">{item.company}</p>
+                    <p className="text-sm font-medium text-brand-600">{item.company}</p>
                     {'roleHistory' in item ? (
                       <div className="mt-2 grid gap-2">
                         {item.roleHistory.map((roleItem) => (
@@ -745,50 +746,14 @@ export default function PortfolioHome() {
                     helps teams ship better software.
                   </p>
                 </div>
-                <a
-                  href="https://www.linkedin.com/in/ddharmawan"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-indigo-700 transition-colors hover:text-indigo-900"
-                >
-                  <LuLinkedin aria-hidden="true" className="size-4" />
-                  Let&apos;s connect on LinkedIn
-                </a>
               </div>
 
-              <div className="relative mx-auto aspect-[16/9] w-full max-w-[40rem] lg:mx-0 lg:max-w-[46rem] lg:justify-self-end">
-                <svg
-                  viewBox="0 0 160 90"
-                  role="img"
-                  aria-label="Warm working desk setup"
-                  className="size-full overflow-visible drop-shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
-                >
-                  <defs>
-                    <clipPath id="about-collage-clip" clipPathUnits="userSpaceOnUse">
-                      <path d="M16,0H76A10,10 0,0,1 86,10V24A10,10 0,0,0 96,34H144A10,10 0,0,1 154,44V74A16,16 0,0,1 138,90H86A10,10 0,0,1 76,80V72A10,10 0,0,0 66,62H10A10,10 0,0,1 0,52V16A16,16 0,0,1 16,0Z" />
-                    </clipPath>
-                  </defs>
-                  <image
-                    href={aboutSystemsImage}
-                    x="0"
-                    y="0"
-                    width="160"
-                    height="90"
-                    preserveAspectRatio="xMidYMid slice"
-                    clipPath="url(#about-collage-clip)"
-                  />
-                </svg>
-
-                <div className="absolute bottom-0 right-0 z-30 flex gap-3">
-                  {[Layers3, Workflow, ServerCog].map((Icon, index) => (
-                    <div
-                      key={index}
-                      className="flex size-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-sky-600 shadow-[0_10px_25px_rgba(14,165,233,0.12)] lg:size-14"
-                    >
-                      <Icon aria-hidden="true" className="size-5 lg:size-6" />
-                    </div>
-                  ))}
-                </div>
+              <div className="relative mx-auto aspect-[16/9] w-full max-w-[40rem] overflow-hidden rounded-lg shadow-[0_22px_60px_rgba(15,23,42,0.12)] lg:mx-0 lg:max-w-[46rem] lg:justify-self-end">
+                <img
+                  src={aboutSystemsImage}
+                  alt="Relaxed home workspace with a laptop, notebook, and tablet"
+                  className="size-full object-cover"
+                />
               </div>
             </motion.div>
           </div>
@@ -872,7 +837,7 @@ export default function PortfolioHome() {
                     <span>Find me on</span>
                     <span
                       aria-hidden="true"
-                      className="h-px w-9 shrink-0 rounded-full bg-indigo-500/70"
+                      className="h-px w-9 shrink-0 rounded-full bg-brand-500/70"
                     />
                   </p>
                   <div className="flex items-center gap-1">
@@ -883,7 +848,7 @@ export default function PortfolioHome() {
                         <a
                           key={item.href}
                           aria-label={item.label}
-                          className="group/social relative inline-flex size-9 items-center justify-center overflow-hidden rounded-md text-slate-500 transition-[color,scale] duration-300 ease-out hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-indigo-200 active:scale-[0.96] motion-reduce:transition-none"
+                          className="group/social relative inline-flex size-9 items-center justify-center overflow-hidden rounded-md text-slate-500 transition-[color,scale] duration-300 ease-out hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-200 active:scale-[0.96] motion-reduce:transition-none"
                           href={item.href}
                           rel="noopener noreferrer"
                           target="_blank"
@@ -912,7 +877,7 @@ export default function PortfolioHome() {
                   <button
                     key={item.target}
                     type="button"
-                    className="inline-flex min-h-9 w-fit items-center text-left transition-colors hover:text-indigo-600"
+                    className="inline-flex min-h-9 w-fit items-center text-left transition-colors hover:text-brand-600"
                     onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
                   >
                     {item.label}
@@ -929,16 +894,16 @@ export default function PortfolioHome() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="group/back min-h-10 gap-2 rounded-lg border-slate-200 bg-white px-3 text-slate-950 shadow-none transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-600"
+                    className="group/back min-h-10 gap-2 rounded-lg border-slate-200 bg-white px-3 text-slate-950 shadow-none transition-colors hover:border-brand-200 hover:bg-slate-50 hover:text-brand-600"
                     onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
                   >
                     <span
                       aria-hidden="true"
-                      className="relative inline-flex size-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-slate-700 transition-colors duration-300 group-hover/back:border-indigo-600"
+                      className="relative inline-flex size-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-slate-700 transition-colors duration-300 group-hover/back:border-brand-600"
                     >
                       <span
                         aria-hidden="true"
-                        className="absolute inset-0 scale-0 rounded-full bg-indigo-600 transition-transform duration-300 ease-out group-hover/back:scale-100"
+                        className="absolute inset-0 scale-0 rounded-full bg-brand-600 transition-transform duration-300 ease-out group-hover/back:scale-100"
                       />
                       <ChevronUp className="relative z-10 size-3.5 transition-colors duration-300 group-hover/back:text-white" />
                     </span>

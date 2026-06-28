@@ -10,8 +10,8 @@ export const expertiseItems = [
     title: 'AI-Native Development'
   },
   {
-    body: "Eight years building digital banking products. Credit systems, core integrations, compliance-heavy features. Working in this space keeps you honest: data integrity isn't optional, and the cost of getting things wrong is real.",
-    title: 'Fintech Domain'
+    body: 'Designing and building full-stack systems that hold up in production: scalable APIs, reliable workflows, maintainable architecture, and clear operational guardrails. My financial systems background keeps the work grounded in data integrity, security, and operational risk.',
+    title: 'Large-Scale Systems'
   }
 ];
 
@@ -26,7 +26,7 @@ export const capabilityTiles = [
   },
   {
     image: '/portfolio-previews/capability-production-reliability.png',
-    title: 'Fintech domain visual'
+    title: 'Large-scale systems visual'
   }
 ];
 
