@@ -136,6 +136,26 @@
     }
   }
 
+  @keyframes meteor-effect {
+    0% {
+      opacity: 0;
+      transform: rotate(215deg) translateX(0);
+    }
+
+    12% {
+      opacity: var(--meteor-opacity);
+    }
+
+    70% {
+      opacity: var(--meteor-opacity);
+    }
+
+    100% {
+      opacity: 0;
+      transform: rotate(215deg) translateX(-42rem);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

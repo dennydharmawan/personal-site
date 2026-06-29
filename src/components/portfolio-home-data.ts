@@ -1,4 +1,4 @@
-export const aboutSystemsImage = '/portfolio-previews/about-desk-workspace.png';
+export const aboutSystemsImage = '/portfolio-previews/about-evening-couch-accent-refined.png';
 
 export const expertiseItems = [
   {

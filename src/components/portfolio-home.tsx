@@ -11,9 +11,8 @@ import {
   projects,
   trustedTeams
 } from '@/components/portfolio-home-data';
-import { portfolioMarqueeImages } from '@/components/portfolio-marquee-images';
-import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { Button } from '@/components/ui/button';
+import { Meteors } from '@/components/ui/meteors';
 
 const navItems = [
   { label: 'Work Samples', target: 'work' },
@@ -49,6 +48,14 @@ const footerSocialLinks = [
 ];
 
 const trustedLogoToneClassName = 'grayscale opacity-[0.72] contrast-100';
+const pageShellClassName = 'mx-auto w-[min(1200px,calc(100%-2rem))]';
+const sectionPaddingClassName = 'py-16 md:py-20 lg:py-24';
+const sectionHeaderClassName = 'mb-12 grid max-w-3xl gap-4 md:mb-16';
+const sectionHeaderCenteredClassName = `${sectionHeaderClassName} mx-auto justify-items-center text-center`;
+const sectionContentGapClassName = 'gap-12 md:gap-16 lg:gap-20';
+const twoColumnGapClassName = 'gap-10 lg:gap-16';
+const detailStackGapClassName = 'gap-6';
+const listGapClassName = 'gap-3';
 
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
@@ -63,6 +70,41 @@ function getYearsExperience(date = new Date()) {
 
 function initialValue<T>(shouldReduceMotion: boolean | null, value: T) {
   return shouldReduceMotion ? false : value;
+}
+
+async function writeClipboardText(value: string) {
+  let copiedWithClipboard = false;
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      copiedWithClipboard = true;
+    } catch {
+      copiedWithClipboard = false;
+    }
+  }
+
+  if (copiedWithClipboard) {
+    return;
+  }
+
+  const textArea = document.createElement('textarea');
+
+  textArea.value = value;
+  textArea.setAttribute('readonly', '');
+  textArea.style.left = '-9999px';
+  textArea.style.position = 'fixed';
+  document.body.append(textArea);
+  textArea.focus({ preventScroll: true });
+  textArea.select();
+  textArea.setSelectionRange(0, value.length);
+
+  const didCopy = document.execCommand('copy');
+  textArea.remove();
+
+  if (!didCopy) {
+    throw new Error('Email copy command failed');
+  }
 }
 
 function scrollToTarget(
@@ -131,7 +173,7 @@ function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean |
 
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(contactEmail);
+      await writeClipboardText(contactEmail);
       setCopyState('copied');
       window.setTimeout(() => setCopyState('idle'), 1600);
     } catch {
@@ -289,7 +331,7 @@ function AnimatedHeader() {
         }
       >
         <motion.div
-          className="mx-auto flex w-[min(1200px,calc(100%-2rem))] items-center justify-between gap-4 px-0 md:px-0"
+          className={`${pageShellClassName} flex items-center justify-between gap-4 px-0 md:px-0`}
           initial={shouldReduceMotion ? false : { filter: 'blur(3px)', y: -8 }}
           animate={{ filter: 'blur(0px)', height: isNavCompact ? 56 : 72, y: 0 }}
           transition={
@@ -424,10 +466,10 @@ function usePreventHashNavigation() {
 
 function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
   return (
-    <section className="bg-slate-50 py-14 md:py-20" data-scroll-target="work">
-      <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
+    <section className={`bg-slate-50 ${sectionPaddingClassName}`} data-scroll-target="work">
+      <div className={pageShellClassName}>
         <motion.div
-          className="mx-auto mb-12 grid max-w-3xl justify-items-center gap-4 text-center md:mb-16"
+          className={sectionHeaderCenteredClassName}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ amount: 0.4, once: true }}
@@ -443,17 +485,19 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
           </p>
         </motion.div>
 
-        <div className="grid gap-16 md:gap-20">
+        <div className={`grid ${sectionContentGapClassName}`}>
           {projects.map((project, index) => (
             <motion.article
               key={project.title}
-              className="group grid items-center gap-8 lg:grid-cols-2 lg:gap-12"
+              className={`group grid items-center ${twoColumnGapClassName} lg:grid-cols-2`}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.25, once: true }}
               transition={{ delay: index * 0.05, duration: 0.4, ease: easeOut }}
             >
-              <motion.div className={`grid gap-6 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
+              <motion.div
+                className={`grid ${detailStackGapClassName} ${index % 2 === 1 ? 'lg:order-2' : ''}`}
+              >
                 <div className="grid gap-3">
                   <p className="text-sm font-medium text-slate-500">{project.role}</p>
                   <h3 className="max-w-xl text-3xl font-semibold leading-tight text-slate-900 text-balance transition-colors group-hover:text-slate-700 sm:text-4xl">
@@ -463,7 +507,7 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
                     {project.summary}
                   </p>
                 </div>
-                <ul className="grid gap-3">
+                <ul className={`grid ${listGapClassName}`}>
                   {project.bullets.map((bullet) => (
                     <li
                       key={bullet}
@@ -516,10 +560,12 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
 
 function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
   return (
-    <section className="border-y border-slate-200 bg-slate-50 py-16 md:py-20">
-      <div className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-10 lg:grid-cols-[minmax(0,0.74fr)_minmax(34rem,1fr)] lg:items-start lg:gap-16">
+    <section className={`border-y border-slate-200 bg-slate-50 ${sectionPaddingClassName}`}>
+      <div
+        className={`${pageShellClassName} grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.74fr)_minmax(34rem,1fr)] lg:items-start`}
+      >
         <motion.div
-          className="grid max-w-xl content-start gap-6"
+          className={`grid max-w-xl content-start ${detailStackGapClassName}`}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ amount: 0.35, once: true }}
@@ -528,11 +574,11 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
           <h2 className="text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
             Expertise
           </h2>
-          <div className="grid gap-5">
+          <div className={`grid ${detailStackGapClassName}`}>
             {expertiseItems.map((item) => (
               <div
                 key={item.title}
-                className="grid gap-2 border-t border-slate-200 pt-5 first:border-t-0 first:pt-0"
+                className="grid gap-2 border-t border-slate-200 pt-6 first:border-t-0 first:pt-0"
               >
                 <h3 className="text-base font-semibold leading-6 text-slate-950">{item.title}</h3>
                 <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
@@ -543,7 +589,7 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
           </div>
         </motion.div>
 
-        <div className="grid gap-3 sm:min-h-[32rem] sm:grid-cols-2 sm:grid-rows-2 lg:self-end lg:gap-4">
+        <div className="grid gap-4 sm:min-h-[32rem] sm:grid-cols-2 sm:grid-rows-2 lg:self-end">
           {capabilityTiles.map((tile, index) => (
             <motion.article
               key={tile.title}
@@ -573,6 +619,57 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
   );
 }
 
+function ContactActions() {
+  return (
+    <div className="relative w-fit max-w-full pr-28 pt-9 sm:pr-40 sm:pt-10">
+      <Button
+        asChild
+        size="lg"
+        className="h-10 gap-2 border-brand-300/20 bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))] px-4 text-white shadow-[0_12px_30px_rgba(124,58,237,0.24)] transition-[box-shadow,filter,scale] hover:bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))] hover:brightness-110 focus-visible:ring-brand-300/45 active:brightness-95 has-data-[icon=inline-start]:pl-4"
+      >
+        <a href={`mailto:${contactEmail}`}>
+          <Mail data-icon="inline-start" className="size-4" />
+          Let&apos;s chat
+        </a>
+      </Button>
+      <img
+        src="/portfolio-previews/contact-reply-fast-note.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[6.15rem] top-1 h-[3.65rem] w-auto opacity-[0.72] drop-shadow-[0_8px_18px_rgba(255,255,255,0.08)] sm:left-[6.55rem] sm:h-[4.05rem] lg:left-[6.85rem] lg:h-[4.1rem]"
+        decoding="async"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
+function ContactSignalScene({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none relative z-0 mt-6 h-[13rem] overflow-visible sm:h-[16rem] lg:absolute lg:inset-y-0 lg:right-[-4vw] lg:mt-0 lg:h-auto lg:w-[42vw] lg:max-w-[35rem]"
+    >
+      <div className="absolute inset-[-22%] opacity-[0.1] [mask-image:radial-gradient(circle_at_62%_38%,black,transparent_72%)]">
+        <Meteors number={2} />
+      </div>
+      <motion.img
+        src="/portfolio-previews/contact-space-rocket-planet-journey.png"
+        alt=""
+        className="absolute inset-x-[-6%] bottom-[1%] h-[92%] w-[114%] object-contain object-center opacity-[0.88] drop-shadow-[0_24px_58px_rgba(124,58,237,0.2)] saturate-[0.9] sm:inset-x-[-12%] sm:h-[100%] sm:w-[126%] lg:inset-x-[-34%] lg:bottom-[1%] lg:h-[108%] lg:w-[170%]"
+        decoding="async"
+        loading="lazy"
+        animate={shouldReduceMotion ? undefined : { y: [0, -10, 0] }}
+        transition={
+          shouldReduceMotion
+            ? { duration: 0 }
+            : { duration: 7, ease: 'easeInOut', repeat: Infinity }
+        }
+      />
+    </div>
+  );
+}
+
 export default function PortfolioHome() {
   const shouldReduceMotion = useReducedMotion();
   const yearsExperience = getYearsExperience();
@@ -584,9 +681,9 @@ export default function PortfolioHome() {
       <AnimatedHeader />
 
       <main data-scroll-target="top">
-        <section className="border-b border-slate-200 bg-[linear-gradient(135deg,#ffffff_0%,#ffffff_52%,#f2f6ff_100%)] pb-10 pt-24 sm:pt-28 lg:pb-14">
+        <section className="border-b border-slate-200 bg-[linear-gradient(135deg,#ffffff_0%,#ffffff_52%,#f2f6ff_100%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
           <motion.div
-            className="mx-auto grid w-[min(1200px,calc(100%-2rem))] gap-8"
+            className={`${pageShellClassName} grid gap-10 md:gap-12`}
             initial={initialValue(shouldReduceMotion, {
               filter: 'blur(3px)',
               opacity: 0,
@@ -595,7 +692,7 @@ export default function PortfolioHome() {
             animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
             transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
           >
-            <div className="grid gap-7">
+            <div className="grid gap-8">
               <h1 className="max-w-6xl text-[2.5rem] font-normal leading-[1.04] text-slate-950 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
                 Building web solutions
                 <span className="block pt-1 text-slate-400 sm:pt-2">that actually scale.</span>
@@ -604,10 +701,10 @@ export default function PortfolioHome() {
               <HeroPreviewBand shouldReduceMotion={shouldReduceMotion} />
             </div>
 
-            <div className="grid gap-7 pt-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
               <HeroProofBlock yearsExperience={yearsExperience} />
 
-              <div className="grid gap-5 lg:justify-items-start">
+              <div className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
                 <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
                   I'm a full-stack engineer with hands-on experience building{' '}
                   <span className="whitespace-nowrap">large-scale</span> financial systems, where
@@ -637,11 +734,11 @@ export default function PortfolioHome() {
         <WorkSamplesSection shouldReduceMotion={shouldReduceMotion} />
 
         <section
-          className="mx-auto w-[min(1200px,calc(100%-2rem))] py-16 md:py-20"
+          className={`${pageShellClassName} ${sectionPaddingClassName}`}
           data-scroll-target="experience"
         >
           <motion.div
-            className="mb-14 grid max-w-3xl gap-4"
+            className={sectionHeaderClassName}
             initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.4, once: true }}
@@ -661,7 +758,7 @@ export default function PortfolioHome() {
             {experiences.map((item, index) => (
               <motion.article
                 key={`${item.company}-${item.role}`}
-                className="relative grid gap-5 border-t border-slate-200 py-9 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)] lg:gap-10"
+                className="relative grid gap-6 border-t border-slate-200 py-10 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)] lg:gap-12"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ amount: 0.35, once: true }}
@@ -700,7 +797,7 @@ export default function PortfolioHome() {
                       </div>
                     ) : null}
                   </div>
-                  <ul className="mt-5 grid gap-3">
+                  <ul className={`mt-6 grid ${listGapClassName}`}>
                     {item.bullets.map((bullet) => (
                       <li
                         key={bullet}
@@ -719,16 +816,19 @@ export default function PortfolioHome() {
 
         <CapabilitiesSection shouldReduceMotion={shouldReduceMotion} />
 
-        <section className="overflow-hidden bg-white py-16 md:py-20" data-scroll-target="about">
-          <div className="mx-auto w-[min(1200px,calc(100%-2rem))]">
+        <section
+          className={`overflow-hidden bg-white ${sectionPaddingClassName}`}
+          data-scroll-target="about"
+        >
+          <div className={pageShellClassName}>
             <motion.div
-              className="relative grid min-h-[34rem] gap-10 lg:grid-cols-[minmax(0,0.52fr)_minmax(34rem,0.48fr)] lg:items-center lg:gap-12 xl:gap-16"
+              className={`relative grid min-h-[34rem] ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.52fr)_minmax(34rem,0.48fr)] lg:items-center xl:gap-16`}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.35, once: true }}
               transition={{ duration: 0.4, ease: easeOut }}
             >
-              <div className="grid content-center gap-6 py-4 lg:min-h-[34rem]">
+              <div className={`grid content-center ${detailStackGapClassName} lg:min-h-[34rem]`}>
                 <h2 className="max-w-xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
                   About me
                 </h2>
@@ -759,66 +859,58 @@ export default function PortfolioHome() {
           </div>
         </section>
 
-        <section className="bg-slate-50 pb-12 md:pb-16 lg:pb-20" data-scroll-target="contact">
+        <section
+          className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#080b1a_0%,var(--color-brand-950)_46%,#070916_100%)] py-14 md:py-16 lg:py-20"
+          data-scroll-target="contact"
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(circle at 12% 70%, color-mix(in srgb, var(--color-brand-700) 20%, transparent), transparent 30%), radial-gradient(circle at 63% 46%, color-mix(in srgb, var(--color-brand-500) 12%, transparent), transparent 34%), radial-gradient(circle at 96% 86%, color-mix(in srgb, var(--color-brand-300) 8%, transparent), transparent 34%)'
+            }}
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.14),rgba(15,23,42,0.78))]" />
           <motion.div
-            className="mx-auto w-[min(1200px,calc(100%-2rem))]"
+            className={`${pageShellClassName} relative flex flex-col gap-7 lg:min-h-[24rem] lg:justify-center`}
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.08, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div className="grid max-w-4xl gap-6 pb-10 pt-16 text-left md:pb-12 md:pt-20">
-              <h2 className="max-w-3xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-                Say hi. See where it goes.
+            <div className="relative z-10 grid max-w-xl gap-5 text-left lg:max-w-lg">
+              <h2 className="max-w-2xl text-4xl font-semibold leading-[1.05] text-white text-balance sm:text-5xl lg:text-[3.25rem]">
+                Say hi.{' '}
+                <span className="block bg-[linear-gradient(135deg,var(--color-brand-100)_0%,var(--color-brand-300)_46%,var(--color-brand-500)_100%)] bg-clip-text text-transparent">
+                  See where it goes.
+                </span>
               </h2>
 
-              <div className="grid max-w-2xl gap-6">
-                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
-                  I&apos;m open to new opportunities. Maybe you have something in mind, maybe
-                  you&apos;re just browsing — either way, say hi. Could be the start of something
-                  good.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="h-11 gap-2 px-4 has-data-[icon=inline-start]:pl-4"
-                  >
-                    <a href={`mailto:${contactEmail}`}>
-                      <Mail data-icon="inline-start" className="size-4" />
-                      Let&apos;s chat
-                    </a>
-                  </Button>
-                </div>
-              </div>
+              <p className="max-w-lg text-base font-normal leading-7 text-brand-50/72 text-pretty">
+                I&apos;m open to new opportunities. Maybe you have something in mind, maybe
+                you&apos;re just browsing — either way, say hi. Could be the start of something
+                good.
+              </p>
+
+              <ContactActions />
             </div>
 
-            <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(99,102,241,0.22),transparent_30%),radial-gradient(circle_at_78%_22%,rgba(244,114,182,0.18),transparent_28%),radial-gradient(circle_at_54%_82%,rgba(14,165,233,0.18),transparent_34%)]" />
-              <ThreeDMarquee
-                className="relative h-[26rem] rounded-none sm:h-[32rem] lg:h-[36rem]"
-                images={portfolioMarqueeImages}
-              />
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-950 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 to-transparent" />
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent sm:w-36 lg:w-44" />
-            </div>
+            <ContactSignalScene shouldReduceMotion={shouldReduceMotion} />
           </motion.div>
         </section>
 
         <footer className="border-t border-slate-200 bg-slate-50">
           <motion.div
-            className="mx-auto w-[min(1200px,calc(100%-2rem))] py-14 md:py-16 lg:py-20"
+            className={`${pageShellClassName} ${sectionPaddingClassName}`}
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.08, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div className="grid gap-12 lg:grid-cols-[minmax(0,0.68fr)_minmax(12rem,0.22fr)] lg:items-start lg:gap-x-24">
-              <div className="grid max-w-xl content-start gap-7">
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,0.68fr)_minmax(12rem,0.22fr)] lg:items-start lg:gap-x-20">
+              <div className={`grid max-w-xl content-start ${detailStackGapClassName}`}>
                 <div className="grid gap-4">
-                  <h2 className="max-w-lg text-3xl font-semibold leading-tight text-slate-950 text-balance sm:text-4xl">
+                  <h2 className="max-w-[20rem] text-3xl font-semibold leading-tight text-slate-950 text-balance sm:max-w-lg sm:text-4xl">
                     Thanks for looking around.
                   </h2>
                   <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
@@ -886,7 +978,7 @@ export default function PortfolioHome() {
               </nav>
             </div>
 
-            <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-5 text-sm font-normal text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm font-normal text-slate-500 sm:flex-row sm:items-center sm:justify-between">
               <p>© 2026 Denny Dharmawan. All rights reserved.</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div>
