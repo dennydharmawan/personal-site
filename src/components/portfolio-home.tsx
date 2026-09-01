@@ -12,7 +12,6 @@ import {
   trustedTeams
 } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
-import { Meteors } from '@/components/ui/meteors';
 
 const navItems = [
   { label: 'Work Samples', target: 'work' },
@@ -476,12 +475,11 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
           transition={{ duration: 0.4, ease: easeOut }}
         >
           <h2 className="text-3xl font-semibold leading-[1.08] text-slate-950 text-balance sm:text-4xl lg:text-[2.75rem]">
-            Selected Work Samples
+            Work samples
           </h2>
           <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
-            My work for enterprise companies is protected under strict NDAs. The prototypes and side
-            projects below demonstrate how I approach problem-solving and apply my skills without
-            exposing proprietary systems.
+            Employer systems stay under NDA. Below are production internal tooling and NDA-safe
+            prototypes that show how I model auth, workflows, payments, and review automation.
           </p>
         </motion.div>
 
@@ -535,7 +533,6 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
                 whileHover={shouldReduceMotion ? undefined : { y: -4 }}
                 transition={spring}
               >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-brand-100/70 to-transparent" />
                 <img
                   src={project.preview}
                   alt={`${project.title} interface preview`}
@@ -543,12 +540,6 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
                   loading="lazy"
                   decoding="async"
                 />
-                <div
-                  aria-label="Under development"
-                  className="pointer-events-none absolute left-6 top-6 z-10 inline-flex rounded-full border border-white/70 bg-white/85 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-700 shadow-sm backdrop-blur"
-                >
-                  Under development
-                </div>
               </motion.div>
             </motion.article>
           ))}
@@ -621,51 +612,13 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 
 function ContactActions() {
   return (
-    <div className="relative w-fit max-w-full pr-28 pt-9 sm:pr-40 sm:pt-10">
-      <Button
-        asChild
-        size="lg"
-        className="h-10 gap-2 border-brand-300/20 bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))] px-4 text-white shadow-[0_12px_30px_rgba(124,58,237,0.24)] transition-[box-shadow,filter,scale] hover:bg-[linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))] hover:brightness-110 focus-visible:ring-brand-300/45 active:brightness-95 has-data-[icon=inline-start]:pl-4"
-      >
+    <div className="relative w-fit max-w-full">
+      <Button asChild size="lg" className="min-h-11 px-4">
         <a href={`mailto:${contactEmail}`}>
           <Mail data-icon="inline-start" className="size-4" />
           Let&apos;s chat
         </a>
       </Button>
-      <img
-        src="/portfolio-previews/contact-reply-fast-note.svg"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute left-[6.15rem] top-1 h-[3.65rem] w-auto opacity-[0.72] drop-shadow-[0_8px_18px_rgba(255,255,255,0.08)] sm:left-[6.55rem] sm:h-[4.05rem] lg:left-[6.85rem] lg:h-[4.1rem]"
-        decoding="async"
-        loading="lazy"
-      />
-    </div>
-  );
-}
-
-function ContactSignalScene({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none relative z-0 mt-6 h-[13rem] overflow-visible sm:h-[16rem] lg:absolute lg:inset-y-0 lg:right-[-4vw] lg:mt-0 lg:h-auto lg:w-[42vw] lg:max-w-[35rem]"
-    >
-      <div className="absolute inset-[-22%] opacity-[0.1] [mask-image:radial-gradient(circle_at_62%_38%,black,transparent_72%)]">
-        <Meteors number={2} />
-      </div>
-      <motion.img
-        src="/portfolio-previews/contact-space-rocket-planet-journey.png"
-        alt=""
-        className="absolute inset-x-[-6%] bottom-[1%] h-[92%] w-[114%] object-contain object-center opacity-[0.88] drop-shadow-[0_24px_58px_rgba(124,58,237,0.2)] saturate-[0.9] sm:inset-x-[-12%] sm:h-[100%] sm:w-[126%] lg:inset-x-[-34%] lg:bottom-[1%] lg:h-[108%] lg:w-[170%]"
-        decoding="async"
-        loading="lazy"
-        animate={shouldReduceMotion ? undefined : { y: [0, -10, 0] }}
-        transition={
-          shouldReduceMotion
-            ? { duration: 0 }
-            : { duration: 7, ease: 'easeInOut', repeat: Infinity }
-        }
-      />
     </div>
   );
 }
@@ -706,7 +659,7 @@ export default function PortfolioHome() {
 
               <div className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
                 <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
-                  I'm a full-stack engineer with hands-on experience building{' '}
+                  I&apos;m a full-stack engineer with hands-on experience building{' '}
                   <span className="whitespace-nowrap">large-scale</span> financial systems, where
                   scalability, reliability, and maintainability are critical.
                 </p>
@@ -748,9 +701,8 @@ export default function PortfolioHome() {
               Experience
             </h2>
             <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
-              Experience across internal fintech platforms, digital lending services, ERP
-              customization, APIs, integrations, access control, monitoring, technical
-              documentation, and performance tuning.
+              Internal fintech platforms, digital lending backends, ERP customization, APIs,
+              integrations, access control, monitoring, and performance work.
             </p>
           </motion.div>
 
@@ -758,52 +710,56 @@ export default function PortfolioHome() {
             {experiences.map((item, index) => (
               <motion.article
                 key={`${item.company}-${item.role}`}
-                className="relative grid gap-6 border-t border-slate-200 py-10 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)] lg:gap-12"
+                className="relative grid gap-6 border-t border-slate-200 py-10 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)] lg:gap-x-10 lg:border-t-0 lg:py-0"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ amount: 0.35, once: true }}
                 transition={{ delay: index * 0.05, duration: 0.35, ease: easeOut }}
               >
-                <div className="grid content-start gap-3 lg:justify-items-end lg:text-right">
+                <div
+                  className={`grid content-start gap-3 lg:justify-items-end lg:text-right ${
+                    index === 0 ? 'lg:pt-0' : 'lg:pt-12'
+                  }`}
+                >
                   <p
-                    className={`text-base font-medium ${
+                    className={`text-base font-medium lg:leading-[1.875rem] ${
                       item.current ? 'text-brand-600' : 'text-slate-600'
                     }`}
                   >
                     {item.period}
                   </p>
-                  {item.current ? (
-                    <span className="w-fit text-sm font-medium text-brand-700">Current</span>
-                  ) : null}
                 </div>
 
-                <div>
+                <div
+                  className={`relative lg:pl-10 ${index === 0 ? 'lg:pt-0' : 'lg:pt-12'} ${
+                    index === experiences.length - 1 ? 'lg:pb-0' : 'lg:pb-12'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`absolute bottom-0 left-0 hidden w-px -translate-x-1/2 bg-slate-200 lg:block ${
+                      index === 0 ? 'top-[0.9375rem]' : 'top-0'
+                    }`}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-0 hidden size-2.5 -translate-x-1/2 rounded-full border-2 border-white lg:block ${
+                      index === 0 ? 'top-2.5' : 'top-[3.625rem]'
+                    } ${item.current ? 'bg-brand-600 ring-4 ring-brand-100' : 'bg-slate-300'}`}
+                  />
                   <div className="grid gap-2">
                     <h3 className="text-2xl font-semibold leading-tight text-slate-900 text-balance">
                       {item.role}
                     </h3>
                     <p className="text-sm font-medium text-brand-600">{item.company}</p>
-                    {'roleHistory' in item ? (
-                      <div className="mt-2 grid gap-2">
-                        {item.roleHistory.map((roleItem) => (
-                          <div
-                            key={`${item.company}-${roleItem.role}-${roleItem.period}`}
-                            className="grid items-baseline gap-x-4 gap-y-1 text-sm leading-5 sm:grid-cols-[minmax(11rem,max-content)_auto]"
-                          >
-                            <span className="font-medium text-slate-800">{roleItem.role}</span>
-                            <span className="text-slate-500">{roleItem.period}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
                   </div>
-                  <ul className={`mt-6 grid ${listGapClassName}`}>
+                  <ul className={`mt-6 grid max-w-[68ch] ${listGapClassName}`}>
                     {item.bullets.map((bullet) => (
                       <li
                         key={bullet}
                         className="flex gap-3 text-sm font-normal leading-6 text-slate-600"
                       >
-                        <span className="mt-2 size-1.5 shrink-0 rounded-full bg-slate-300" />
+                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-300" />
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -834,16 +790,14 @@ export default function PortfolioHome() {
                 </h2>
                 <div className="grid max-w-2xl gap-4 text-base font-normal leading-7 text-slate-700 text-pretty">
                   <p>
-                    I care about writing good software, but I am equally focused on what that
-                    software needs to do for the business. Engineering quality and delivery speed
-                    are not opposites. Finding where they meet is usually the more interesting
-                    problem.
+                    I ship full-stack product and platform work in regulated environments. When
+                    boundaries between UI, API, data, and ops are clear, quality and delivery speed
+                    stop fighting each other.
                   </p>
                   <p>
-                    I bring that same thinking to distributed systems and scalable architecture,
-                    where most of my deeper curiosity lives. The web moves fast, and I take keeping
-                    up with it seriously: understanding what is worth adopting, why, and how it
-                    helps teams ship better software.
+                    Most of my depth sits in distributed services, access control, and the path from
+                    interface to API to data to monitoring. I track what is worth adopting on the web
+                    stack by whether it helps a team ship and operate software, not by novelty.
                   </p>
                 </div>
               </div>
@@ -860,42 +814,27 @@ export default function PortfolioHome() {
         </section>
 
         <section
-          className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#080b1a_0%,var(--color-brand-950)_46%,#070916_100%)] py-14 md:py-16 lg:py-20"
+          className={`border-t border-slate-200 bg-slate-50 ${sectionPaddingClassName}`}
           data-scroll-target="contact"
         >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(circle at 12% 70%, color-mix(in srgb, var(--color-brand-700) 20%, transparent), transparent 30%), radial-gradient(circle at 63% 46%, color-mix(in srgb, var(--color-brand-500) 12%, transparent), transparent 34%), radial-gradient(circle at 96% 86%, color-mix(in srgb, var(--color-brand-300) 8%, transparent), transparent 34%)'
-            }}
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.14),rgba(15,23,42,0.78))]" />
           <motion.div
-            className={`${pageShellClassName} relative flex flex-col gap-7 lg:min-h-[24rem] lg:justify-center`}
+            className={`${pageShellClassName} grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}
             initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ amount: 0.08, once: true }}
+            viewport={{ amount: 0.2, once: true }}
             transition={{ duration: 0.42, ease: easeOut }}
           >
-            <div className="relative z-10 grid max-w-xl gap-5 text-left lg:max-w-lg">
-              <h2 className="max-w-2xl text-4xl font-semibold leading-[1.05] text-white text-balance sm:text-5xl lg:text-[3.25rem]">
-                Say hi.{' '}
-                <span className="block bg-[linear-gradient(135deg,var(--color-brand-100)_0%,var(--color-brand-300)_46%,var(--color-brand-500)_100%)] bg-clip-text text-transparent">
-                  See where it goes.
-                </span>
+            <div className="grid max-w-xl gap-4">
+              <h2 className="max-w-2xl text-4xl font-semibold leading-[1.05] text-slate-950 text-balance sm:text-5xl">
+                Contact
               </h2>
-
-              <p className="max-w-lg text-base font-normal leading-7 text-brand-50/72 text-pretty">
-                I&apos;m open to new opportunities. Maybe you have something in mind, maybe
-                you&apos;re just browsing — either way, say hi. Could be the start of something
-                good.
+              <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
+                Open to engineering roles. Email if you want to discuss a team, a problem space, or
+                the resume.
               </p>
-
-              <ContactActions />
             </div>
 
-            <ContactSignalScene shouldReduceMotion={shouldReduceMotion} />
+            <ContactActions />
           </motion.div>
         </section>
 
@@ -911,12 +850,11 @@ export default function PortfolioHome() {
               <div className={`grid max-w-xl content-start ${detailStackGapClassName}`}>
                 <div className="grid gap-4">
                   <h2 className="max-w-[20rem] text-3xl font-semibold leading-tight text-slate-950 text-balance sm:max-w-lg sm:text-4xl">
-                    Thanks for looking around.
+                    Thanks for reading.
                   </h2>
                   <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
-                    Based in Jakarta. I build product software across frontend, backend, and
-                    operations, with a bias for systems that stay clear to use and reliable in
-                    production.
+                    Based in Jakarta. I build frontend, backend, and platform software for systems
+                    that have to stay operable in production.
                   </p>
                 </div>
 

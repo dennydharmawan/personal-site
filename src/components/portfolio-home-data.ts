@@ -2,16 +2,16 @@ export const aboutSystemsImage = '/portfolio-previews/about-evening-couch-accent
 
 export const expertiseItems = [
   {
-    body: "I've spent most of my career building across the full stack in fintech. The part I care most about isn't whether the feature ships. It's whether the code is still understandable six months later, by someone who wasn't in the room when it was written.",
-    title: 'Full-Stack Engineering'
+    body: 'Most of my work is TypeScript across React, Next.js, and Node services in fintech. I optimize for code another engineer can change six months later without the original author in the room.',
+    title: 'Full-stack engineering'
   },
   {
-    body: "I actually use AI coding tools in production. I've built internal frameworks around spec-driven prompting and structured context-setting, and presented the approach to my engineering team. It's part of how I work, not a side experiment.",
-    title: 'AI-Native Development'
+    body: 'I run AI coding tools in production delivery, not as a demo. Spec-driven prompts and structured context are part of how I ship, and I have walked the engineering team through that setup.',
+    title: 'AI-assisted delivery'
   },
   {
-    body: 'Designing and building full-stack systems that hold up in production: scalable APIs, reliable workflows, maintainable architecture, and clear operational guardrails. My financial systems background keeps the work grounded in data integrity, security, and operational risk.',
-    title: 'Large-Scale Systems'
+    body: 'I design APIs, queues, access control, and monitoring for systems that have to stay up. Banking work keeps data integrity, auditability, and operational risk in the design from day one.',
+    title: 'Production systems'
   }
 ];
 
@@ -22,113 +22,104 @@ export const capabilityTiles = [
   },
   {
     image: '/portfolio-previews/capability-platform-foundations.png',
-    title: 'AI-native development visual'
+    title: 'AI-assisted delivery visual'
   },
   {
     image: '/portfolio-previews/capability-production-reliability.png',
-    title: 'Large-scale systems visual'
+    title: 'Production systems visual'
   }
 ];
 
 export const projects = [
   {
     bullets: [
-      'User and team management with roles, permissions, protected resources, and admin actions',
-      'RBAC rules for product features, API routes, and sensitive operational workflows',
-      'Access requests, approvals, and audit logs for traceable permission changes'
+      'Four specialist agents review a diff in parallel for security, correctness, testing, and conventions',
+      'A merger drops findings whose cited code does not support the claim, then routes the rest through confidence gates',
+      'Security findings never auto-post. Low-confidence notes go to a private approval queue before a human spends attention on them'
     ],
-    preview: '/portfolio-previews/work-sample-auth-access-device.webp',
-    role: 'Authentication, RBAC, and user management',
+    preview: '/portfolio-previews/work-sample-pr-reviewer.png',
+    role: 'Internal developer tooling',
+    stack: ['TypeScript', 'AWS Bedrock', 'Webhooks', 'AST analysis'],
+    summary:
+      'Multi-agent pull-request reviewer I built and run in production. Agents score a diff in parallel. A merger keeps only evidence-backed findings and controls what can auto-post.',
+    title: 'Multi-agent PR reviewer'
+  },
+  {
+    bullets: [
+      'Account and team management with roles, permissions, protected resources, and admin actions',
+      'RBAC checks on product features, API routes, and sensitive operational workflows',
+      'Access requests, approvals, and audit logs for permission changes'
+    ],
+    preview: '/portfolio-previews/work-sample-auth-access.png',
+    role: 'Auth, RBAC, and admin workflows',
     stack: ['Next.js', 'Node.js', 'RBAC', 'PostgreSQL'],
     summary:
-      'A planned platform for sign-in, user accounts, team membership, role-based permissions, access requests, and audit logs.',
-    title: 'Authentication & Access Management'
+      'Prototype covering sign-in, accounts, team membership, RBAC, access requests, and audit logs for regulated product surfaces.',
+    title: 'Authentication and access management'
   },
   {
     bullets: [
-      'Designed to turn delinquent accounts into prioritized queues with owners, due dates, and escalation state',
-      'Planned WhatsApp API messaging for reminders, promises to pay, and follow-up templates',
-      'Collection activity, customer responses, payment promises, and operational outcome tracking'
+      'Overdue accounts land in prioritized queues with owners, due dates, and escalation state',
+      'WhatsApp API messages for reminders, payment promises, and follow-up templates',
+      'Activity log for collector actions, customer replies, promises, and outcomes'
     ],
-    preview: '/portfolio-previews/work-sample-loan-collection-device.webp',
-    role: 'Fintech operations workflow and integration design',
+    preview: '/portfolio-previews/work-sample-loan-collection.png',
+    role: 'Collections operations and messaging',
     stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
     summary:
-      'A planned loan collection workspace for prioritizing overdue accounts, coordinating collectors, and sending WhatsApp-based follow-ups.',
-    title: 'Loan Collection System'
+      'Prototype loan collection workspace. Queue overdue accounts, assign owners, and send WhatsApp follow-ups with outcome tracking.',
+    title: 'Loan collection system'
   },
   {
     bullets: [
-      'Designed to cover catalog, cart, checkout, order status, inventory visibility, and admin operations',
-      'Planned payment intent states, callbacks, reconciliation, and customer-facing confirmation',
-      'Clear separation between storefront UX and operational payment and fulfillment workflows'
+      'Catalog, cart, checkout, order status, inventory visibility, and admin operations',
+      'Payment intent states, webhooks, reconciliation, and customer confirmation',
+      'Storefront UX kept separate from payment and fulfillment operations'
     ],
-    preview: '/portfolio-previews/work-sample-ecommerce-payment-device.webp',
-    role: 'Commerce product flow and payment integration',
+    preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
+    role: 'Commerce checkout and payments',
     stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     summary:
-      'A planned e-commerce platform prototype with product browsing, checkout, payment integration, and order management.',
-    title: 'E-commerce Payment Platform'
-  },
-  {
-    bullets: [
-      'Designed to generate carousel drafts from a prompt, topic outline, or reusable content structure',
-      'Planned brand presets, slide-level editing, image choices, and export-ready layouts',
-      'AI generation connected to a practical editing workflow instead of one-shot output'
-    ],
-    preview: '/portfolio-previews/work-sample-ai-carousel-device.webp',
-    role: 'AI-assisted creative tooling and frontend workflow',
-    stack: ['React', 'AI API', 'Canvas UI', 'Export'],
-    summary:
-      'A planned social media carousel generator that helps users turn ideas into editable, branded carousel posts with AI support.',
-    title: 'AI Carousel Generator'
+      'Prototype storefront and checkout with payment intents, webhooks, reconciliation, and order state.',
+    title: 'E-commerce payment platform'
   }
 ];
 
 export const experiences = [
   {
     bullets: [
-      'Maintain and improve internal fintech platforms used by business and operations teams, with focus on reliability, maintainability, and performance.',
-      'Owned end-to-end system design and delivery for internal operations tools across data modeling, workflow UI, API integration, monitoring, and release support.',
-      'Reduced average API execution time by 37% by addressing technical debt in legacy modules, improving code structure, and adding targeted caching.',
-      'Designed access-management workflows covering RBAC, access review, audit trails, and operational approval flows.',
-      'Built shared internal libraries for audit logging, feature-flag management, and common implementation utilities that helped standardize delivery.',
-      'Drive engineering standards through RFCs, technical documentation, reusable implementation patterns, and cross-functional delivery.',
-      'Improved production reliability through monitoring dashboards, distributed tracing, CI/CD improvements, and infrastructure migration support.'
+      'Built the bank identity and access governance platform on Next.js, React, TypeScript, and Node.js. Scope includes RBAC admin, employee directory, audit logging, and periodic access review. It is the system of record for access decisions across internal apps.',
+      'Published a shared npm package for authentication, structured logging, and feature flags. Four production apps adopt it through Express.js and Next.js adapters.',
+      'Wrote the Git workflow standard now used by 5+ teams on one shared codebase. Covers branch layout, Conventional Commits, PR gates, hotfixes, and release tagging.',
+      'Specified a reusable approval framework on CASL. Permissions live as data-driven JSON instead of hardcoded conditionals.',
+      'Designed HRIS-integrated account provisioning on BullMQ and Redis. Employee lifecycle events become queued, retryable access jobs.',
+      'Shipped an internal operations platform as primary engineer. Introduced Next.js to the team and integrated third-party telephony with partner engineers.',
+      'Cut production noise with targeted API caching, Datadog dashboards, and error-context tracing. Other teams reused that monitoring pattern.',
+      'Mentor two engineers. Run design and code review. Write the docs other teams use to extend these platforms.'
     ],
     company: 'Krom Bank',
     current: true,
     period: 'Jan 2023 - Present',
-    role: 'Senior Full-Stack Engineer',
-    roleHistory: [
-      {
-        period: 'May 2026 - Present',
-        role: 'Senior Full-Stack Engineer'
-      },
-      {
-        period: 'Jan 2023 - May 2026',
-        role: 'Full-Stack Engineer'
-      }
-    ]
+    role: 'Senior Full-Stack Engineer'
   },
   {
     bullets: [
-      'Built and maintained backend services for Jenius and Flexi Cash using Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.',
-      'Served on the backend team during Flexi Cash growth from launch to a 147% increase in user base over three years.',
-      'Developed APIs, data flows, and service integrations for loan origination, funding disbursement, and partner distribution workflows.',
-      'Built external retail partner integration flows to expand Flexi Cash digital lending distribution.',
-      'Improved backend maintainability through service refactoring, integration reliability improvements, and cleaner error handling.'
+      'Built and maintained Flexi Cash backend services on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.',
+      'Owned APIs, data flows, and Kafka integrations for loan origination, funding disbursement, and partner distribution.',
+      'Built retail partner integration flows that widened digital lending distribution.',
+      'Stayed on the backend team while the product grew 147% in users over three years from launch.',
+      'Refactored services, hardened integrations, and cleaned error handling to keep the backend maintainable.'
     ],
     company: 'Jenius / Bank SMBC Indonesia',
-    period: 'Dec 2019 - Jan 2022',
+    period: 'Dec 2019 - Dec 2022',
     role: 'Back End Engineer'
   },
   {
     bullets: [
       'Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia.',
-      'Translated business requirements into ERP customizations, integrations, and operational fixes.',
-      'Built and supported integrations across data warehouse, enterprise portal, and POS printer-related systems.',
-      'Trained professionals from multiple companies in Dynamics AX customization and implementation practices.'
+      'Turned business requirements into ERP customizations, integrations, and reporting.',
+      'Built integrations across data warehouse, enterprise portal, and point-of-sale systems.',
+      'Trained hundreds of professionals at 2+ companies on Dynamics AX customization and implementation.'
     ],
     company: 'Iverson Technology',
     period: 'Dec 2017 - Dec 2019',
