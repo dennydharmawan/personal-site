@@ -25,6 +25,8 @@ pnpm-debug.log*
 
 # AI/design process artifacts
 .impeccable/
+.v2c/
+.video_agent/
 outputs/
 design-qa.md
 tmp/
