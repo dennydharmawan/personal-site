@@ -25,4 +25,5 @@ pnpm preview
 
 Portfolio copy should stay truthful, NDA-safe, and grounded in real systems,
 scale, reliability, delivery judgment, and cross-team work. Repo-local guidance
-lives in `AGENTS.md`, `CONTEXT.md`, and private working notes under `.ai-docs/`.
+lives in `AGENTS.md` and `CONTEXT.md`. Job-target keyword notes live in the
+Obsidian career vault; `AGENTS.md` has the path.

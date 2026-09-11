@@ -1,9 +1,9 @@
 # Personal Site Agent Notes
 
 Before changing portfolio positioning, homepage copy, resume-facing language, or
-recruiter-targeted sections, read:
+recruiter-targeted sections, read job-target notes in the Obsidian vault:
 
-- `.ai-docs/job-targets/*.md`
+- `/Users/denny.dharmawan/Documents/Obsidian Vault/2-Areas/career/superbank-job-target-keywords.md`
 
 Use the job-target files as private working context for keyword alignment. Do not
 turn them into public site content verbatim. Keep public copy recruiter-readable,
