@@ -1,16 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
-import { CheckCircle2, ChevronDown, ChevronUp, Download, Mail } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
+import type { MouseEvent, ReactNode } from 'react';
 import {
-  aboutSystemsImage,
-  capabilityTiles,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Image as ImageIcon,
+  Mail
+} from 'lucide-react';
+import {
+  AnimatePresence,
+  motion,
+  stagger,
+  useInView,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform
+} from 'motion/react';
+import type { HTMLMotionProps } from 'motion/react';
+import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
+import { CapabilityInstrument } from '@/components/capability-instruments';
+import {
+  aboutGradientImage,
+  aboutGradientImageSmall,
   experiences,
   expertiseItems,
   projects,
-  trustedTeams
+  trustedTeams,
+  type Project
 } from '@/components/portfolio-home-data';
+import { stageLayers, type StageLayerId } from '@/components/system-stage-data';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -47,17 +68,25 @@ const footerSocialLinks = [
 ];
 
 const trustedLogoToneClassName = 'grayscale opacity-[0.72] contrast-100';
-const pageShellClassName = 'mx-auto w-[min(1200px,calc(100%-2rem))]';
-const sectionPaddingClassName = 'py-16 md:py-20 lg:py-24';
+const pageShellClassName = 'mx-auto w-[min(1280px,calc(100%-2.5rem))]';
+const sectionPaddingClassName = 'py-20 md:py-28 lg:py-32';
 const sectionHeaderClassName = 'mb-12 grid max-w-3xl gap-4 md:mb-16';
 const sectionHeaderCenteredClassName = `${sectionHeaderClassName} mx-auto justify-items-center text-center`;
-const sectionContentGapClassName = 'gap-12 md:gap-16 lg:gap-20';
+const sectionContentGapClassName = 'gap-16 md:gap-20 lg:gap-28';
 const twoColumnGapClassName = 'gap-10 lg:gap-16';
 const detailStackGapClassName = 'gap-6';
 const listGapClassName = 'gap-3';
-
+const taglineBaseClassName = 'text-[0.6875rem] font-medium uppercase tracking-[0.18em]';
+const taglineClassName = `${taglineBaseClassName} text-teal-700`;
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
+const revealEase = [0.22, 1, 0.36, 1] as const;
+const revealTransition = {
+  opacity: { duration: 0.5, ease: 'linear' as const },
+  y: { duration: 1, ease: revealEase }
+};
+const revealViewport = { margin: '0px 0px -10% 0px', once: true };
+
 const anchorScrollOffset = 76;
 const careerStart = { monthIndex: 11, year: 2017 };
 const contactEmail = 'contact@dennydharmawan.com';
@@ -65,10 +94,6 @@ const contactEmail = 'contact@dennydharmawan.com';
 function getYearsExperience(date = new Date()) {
   const completedYears = date.getFullYear() - careerStart.year;
   return date.getMonth() >= careerStart.monthIndex ? completedYears : completedYears - 1;
-}
-
-function initialValue<T>(shouldReduceMotion: boolean | null, value: T) {
-  return shouldReduceMotion ? false : value;
 }
 
 async function writeClipboardText(value: string) {
@@ -106,31 +131,134 @@ async function writeClipboardText(value: string) {
   }
 }
 
-function scrollToTarget(
-  event: MouseEvent<HTMLElement>,
-  targetName: string,
-  shouldReduceMotion: boolean | null
-) {
+function scrollToTargetName(targetName: string, shouldReduceMotion?: boolean | null) {
   const target = document.querySelector<HTMLElement>(`[data-scroll-target="${targetName}"]`);
 
   if (!target) {
-    return;
+    return false;
   }
-
-  event.preventDefault();
 
   const targetTop =
     targetName === 'top'
       ? 0
       : target.getBoundingClientRect().top + window.scrollY - anchorScrollOffset;
+  const prefersReducedMotion =
+    shouldReduceMotion ?? window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   window.scrollTo({
-    behavior: shouldReduceMotion ? 'auto' : 'smooth',
+    behavior: prefersReducedMotion ? 'auto' : 'smooth',
     top: Math.max(targetTop, 0)
   });
+
+  return true;
 }
 
-function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+function scrollToTarget(
+  event: MouseEvent<HTMLElement>,
+  targetName: string,
+  shouldReduceMotion?: boolean | null
+) {
+  if (scrollToTargetName(targetName, shouldReduceMotion)) {
+    event.preventDefault();
+  }
+}
+
+function useMediaQuery(query: string): boolean | null {
+  const [matches, setMatches] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const sync = () => setMatches(mediaQuery.matches);
+
+    sync();
+    mediaQuery.addEventListener('change', sync);
+
+    return () => mediaQuery.removeEventListener('change', sync);
+  }, [query]);
+
+  return matches;
+}
+
+function Reveal({
+  children,
+  className,
+  delay = 0
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={revealViewport}
+      transition={shouldReduceMotion ? { duration: 0 } : { delay, ...revealTransition }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 }
+};
+
+function RevealGroup({
+  children,
+  className,
+  delay = 0,
+  onMount = false,
+  stagger: interval = 0.08
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  onMount?: boolean;
+  stagger?: number;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+  const activationProps: HTMLMotionProps<'div'> = onMount
+    ? { animate: 'visible' }
+    : { whileInView: 'visible', viewport: revealViewport };
+
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      variants={{ hidden: {}, visible: {} }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : { delayChildren: stagger(interval, { startDelay: delay }) }
+      }
+      {...activationProps}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function RevealItem({ children, className, ...props }: HTMLMotionProps<'div'>) {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      className={className}
+      variants={revealVariants}
+      transition={shouldReduceMotion ? { duration: 0 } : revealTransition}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function EmailActionMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const menuRef = useRef<HTMLDivElement>(null);
@@ -187,7 +315,7 @@ function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean |
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 max-w-full gap-2 rounded-lg border-slate-200 bg-white px-4 text-slate-950 shadow-none transition-colors hover:border-brand-200 hover:bg-slate-50 hover:text-brand-600"
+        className="h-11 max-w-full gap-2 rounded-full border-black/10 bg-white px-4 text-slate-900 shadow-none transition-colors hover:border-black/20 hover:bg-white hover:text-slate-900"
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((current) => !current)}
@@ -195,70 +323,122 @@ function EmailActionMenu({ shouldReduceMotion }: { shouldReduceMotion: boolean |
         <span className="truncate">{contactEmail}</span>
         <ChevronDown
           aria-hidden="true"
-          className={`size-4 shrink-0 text-slate-400 transition-transform duration-200 ${
+          className={`size-4 shrink-0 text-slate-500 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
       </Button>
 
-      <AnimatePresence>
-        {isOpen ? (
-          <motion.div
-            role="menu"
-            className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg shadow-slate-950/10"
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -4 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.16, ease: easeOut }}
+      {isOpen ? (
+        <div
+          role="menu"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-black/8 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:bg-slate-50 focus-visible:text-slate-900 focus-visible:outline-none"
+            onClick={copyEmail}
           >
-            <button
-              type="button"
-              role="menuitem"
-              className="rounded-md px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-brand-600 focus-visible:bg-slate-50 focus-visible:text-brand-600 focus-visible:outline-none"
-              onClick={copyEmail}
-            >
-              {copyLabel}
-            </button>
-            <a
-              role="menuitem"
-              className="rounded-md px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-brand-600 focus-visible:bg-slate-50 focus-visible:text-brand-600 focus-visible:outline-none"
-              href={`mailto:${contactEmail}`}
-              onClick={() => setIsOpen(false)}
-            >
-              Send email
-            </a>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+            {copyLabel}
+          </button>
+          <a
+            role="menuitem"
+            className="rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:bg-slate-50 focus-visible:text-slate-900 focus-visible:outline-none"
+            href={`mailto:${contactEmail}`}
+            onClick={() => setIsOpen(false)}
+          >
+            Send email
+          </a>
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function HeroPreviewBand({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+type HeroGlowBlob = {
+  id: string;
+  className: string;
+  animate: { x: number[]; y: number[]; scale: number[] };
+  duration: number;
+  delay: number;
+};
+
+const heroGlowBlobs: HeroGlowBlob[] = [
+  {
+    id: 'violet',
+    className:
+      '-bottom-[22%] -left-[8%] w-[60%] bg-[radial-gradient(circle,rgba(167,139,250,0.2),rgba(167,139,250,0)_70%)]',
+    animate: { x: [0, 38], y: [0, -24], scale: [1, 1.08] },
+    duration: 18,
+    delay: 0
+  },
+  {
+    id: 'teal',
+    className:
+      '-bottom-[26%] left-[28%] w-[48%] bg-[radial-gradient(circle,rgba(45,212,191,0.14),rgba(45,212,191,0)_70%)]',
+    animate: { x: [0, -28], y: [0, 18], scale: [1, 1.06] },
+    duration: 14,
+    delay: 1.6
+  },
+  {
+    id: 'pink',
+    className:
+      '-right-[8%] top-[38%] w-[42%] bg-[radial-gradient(circle,rgba(244,114,182,0.1),rgba(244,114,182,0)_70%)]',
+    animate: { x: [0, 22], y: [0, 34], scale: [1, 1.07] },
+    duration: 22,
+    delay: 3.4
+  }
+];
+
+function HeroPreviewBand() {
+  const shouldReduceMotion = useReducedMotion();
+  const glowRef = useRef<HTMLDivElement>(null);
+  const isGlowInView = useInView(glowRef, { amount: 0.1 });
+  const isGlowBreathing = isGlowInView && !shouldReduceMotion;
+
   return (
-    <motion.div
-      className="overflow-hidden rounded-xl border border-slate-200 bg-white"
-      initial={shouldReduceMotion ? false : { filter: 'blur(4px)', opacity: 0, y: 16 }}
-      animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-      transition={{ delay: 0.18, duration: 0.48, ease: easeOut }}
-    >
-      <picture>
-        <source
-          media="(max-width: 639px)"
-          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
-        />
-        <source
-          media="(min-width: 1024px)"
-          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
-        />
-        <img
-          src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
-          alt="Team collaborating around a laptop with attention directed toward the next action"
-          className="block h-[12.5rem] w-full object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
-          decoding="async"
-        />
-      </picture>
-    </motion.div>
+    <div className="relative isolate">
+      <div
+        ref={glowRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-x-8 -bottom-8 top-1/3 -z-10 sm:-inset-x-12 sm:-bottom-12"
+      >
+        {heroGlowBlobs.map((blob) => (
+          <motion.div
+            key={blob.id}
+            className={`absolute aspect-[10/7] rounded-full blur-3xl will-change-transform ${blob.className}`}
+            animate={isGlowBreathing ? blob.animate : false}
+            transition={{
+              duration: blob.duration,
+              delay: blob.delay,
+              repeat: Infinity,
+              repeatType: 'mirror',
+              ease: 'easeInOut'
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-black/5">
+        <picture>
+          <source
+            media="(max-width: 639px)"
+            srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
+          />
+          <source
+            media="(min-width: 1024px)"
+            srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
+          />
+          <img
+            alt="Team collaborating around a laptop with attention directed toward the next action"
+            className="block h-[12.5rem] w-full object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
+            decoding="async"
+            src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
+          />
+        </picture>
+      </div>
+    </div>
   );
 }
 
@@ -344,7 +524,7 @@ function AnimatedHeader() {
           }
         >
           <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-brand-700"
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-teal-700"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
@@ -463,85 +643,157 @@ function usePreventHashNavigation() {
   }, []);
 }
 
-function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+function stageLayerLabel(id: StageLayerId) {
+  return stageLayers.find((layer) => layer.id === id)?.label ?? id;
+}
+
+function LayerPills({ className, layers }: { className?: string; layers: StageLayerId[] }) {
+  return (
+    <div className={`flex flex-wrap items-center gap-2 ${className ?? ''}`}>
+      {layers.map((id) => (
+        <span
+          key={id}
+          className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700"
+        >
+          {stageLayerLabel(id)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+const projectMediaClassName =
+  'aspect-[3/2] w-full rounded-xl object-cover shadow-sm';
+
+function ProjectMedia({ project }: { project: Project }) {
+  const shouldReduceMotion = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isInView = useInView(videoRef, { amount: 0.4 });
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    if (isInView) {
+      // React sets `muted` as a property only; mobile autoplay policy checks the attribute.
+      video.muted = true;
+      video.defaultMuted = true;
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [isInView]);
+
+  if (shouldReduceMotion) {
+    return (
+      <img
+        alt={`${project.title} interface preview`}
+        className={projectMediaClassName}
+        decoding="async"
+        loading="lazy"
+        src={project.preview}
+      />
+    );
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      aria-label={`${project.title} interface recording`}
+      className={projectMediaClassName}
+      loop
+      muted
+      playsInline
+      poster={project.preview}
+      preload="none"
+      src={project.video}
+    />
+  );
+}
+
+function ProjectArticle({ index, project }: { index: number; project: Project }) {
+  const isMediaFirst = index % 2 === 1;
+
+  return (
+    <article
+      className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16"
+      data-scroll-target={`project-${index}`}
+    >
+      <RevealGroup className={`grid ${detailStackGapClassName} ${isMediaFirst ? 'lg:order-2' : ''}`}>
+        <div className="grid gap-3">
+          <RevealItem>
+            <p className={taglineClassName}>{project.role}</p>
+          </RevealItem>
+          <RevealItem>
+            <LayerPills layers={project.layers} />
+          </RevealItem>
+          <RevealItem>
+            <h3 className="max-w-xl text-3xl font-heading font-normal leading-tight tracking-tight text-slate-900 text-balance sm:text-4xl">
+              {project.title}
+            </h3>
+          </RevealItem>
+          <RevealItem>
+            <p className="max-w-xl text-base font-normal leading-7 text-slate-600 text-pretty">
+              {project.summary}
+            </p>
+          </RevealItem>
+        </div>
+        <RevealItem>
+          <ul className={`grid ${listGapClassName}`}>
+            {project.bullets.map((bullet) => (
+              <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-slate-700">
+                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-teal-600" />
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </RevealItem>
+        <RevealItem className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-600">
+          {project.stack.map((tech, stackIndex) => (
+            <span key={tech} className="inline-flex items-center gap-2">
+              {stackIndex > 0 ? (
+                <span aria-hidden="true" className="size-1 rounded-full bg-slate-300" />
+              ) : null}
+              <span>{tech}</span>
+            </span>
+          ))}
+        </RevealItem>
+      </RevealGroup>
+
+      <Reveal className={isMediaFirst ? 'lg:order-1' : undefined} delay={0.15}>
+        <ProjectMedia project={project} />
+      </Reveal>
+    </article>
+  );
+}
+
+function WorkSamplesSection() {
   return (
     <section className={`bg-slate-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
-        <motion.div
-          className={sectionHeaderCenteredClassName}
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ amount: 0.4, once: true }}
-          transition={{ duration: 0.4, ease: easeOut }}
-        >
-          <h2 className="text-3xl font-semibold leading-[1.08] text-slate-950 text-balance sm:text-4xl lg:text-[2.75rem]">
-            Work samples
-          </h2>
-          <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
-            Employer systems stay under NDA. Below are production internal tooling and NDA-safe
-            prototypes that show how I model auth, workflows, payments, and review automation.
-          </p>
-        </motion.div>
+        <RevealGroup className={sectionHeaderCenteredClassName}>
+          <RevealItem>
+            <p className={taglineClassName}>Selected work</p>
+          </RevealItem>
+          <RevealItem>
+            <h2 className="text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+              Work samples
+            </h2>
+          </RevealItem>
+          <RevealItem>
+            <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
+              Employer platforms stay under NDA. These samples show the same systems work: access
+              control, operational workflows, payments, and review automation.
+            </p>
+          </RevealItem>
+        </RevealGroup>
 
         <div className={`grid ${sectionContentGapClassName}`}>
           {projects.map((project, index) => (
-            <motion.article
-              key={project.title}
-              className={`group grid items-center ${twoColumnGapClassName} lg:grid-cols-2`}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.25, once: true }}
-              transition={{ delay: index * 0.05, duration: 0.4, ease: easeOut }}
-            >
-              <motion.div
-                className={`grid ${detailStackGapClassName} ${index % 2 === 1 ? 'lg:order-2' : ''}`}
-              >
-                <div className="grid gap-3">
-                  <p className="text-sm font-medium text-slate-500">{project.role}</p>
-                  <h3 className="max-w-xl text-3xl font-semibold leading-tight text-slate-900 text-balance transition-colors group-hover:text-slate-700 sm:text-4xl">
-                    {project.title}
-                  </h3>
-                  <p className="max-w-xl text-base font-normal leading-7 text-slate-600 text-pretty">
-                    {project.summary}
-                  </p>
-                </div>
-                <ul className={`grid ${listGapClassName}`}>
-                  {project.bullets.map((bullet) => (
-                    <li
-                      key={bullet}
-                      className="group/bullet flex gap-3 text-sm font-normal leading-6 text-slate-700"
-                    >
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand-600 transition-transform duration-200 group-hover/bullet:scale-110" />
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-500">
-                  {project.stack.map((tech, stackIndex) => (
-                    <span key={tech} className="inline-flex items-center gap-2">
-                      {stackIndex > 0 ? (
-                        <span aria-hidden="true" className="size-1 rounded-full bg-slate-300" />
-                      ) : null}
-                      <span>{tech}</span>
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-
-              <motion.div
-                className={`relative min-h-[18rem] overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm outline outline-1 outline-black/10 transition-[border-color,box-shadow] duration-300 hover:border-brand-200 hover:shadow-[0_24px_70px_rgba(15,23,42,0.12)] ${index % 2 === 1 ? 'lg:order-1' : ''}`}
-                whileHover={shouldReduceMotion ? undefined : { y: -4 }}
-                transition={spring}
-              >
-                <img
-                  src={project.preview}
-                  alt={`${project.title} interface preview`}
-                  className="relative aspect-[1.45/1] min-h-[18rem] w-full rounded-xl object-cover object-center"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </motion.div>
-            </motion.article>
+            <ProjectArticle key={project.title} index={index} project={project} />
           ))}
         </div>
       </div>
@@ -549,62 +801,339 @@ function WorkSamplesSection({ shouldReduceMotion }: { shouldReduceMotion: boolea
   );
 }
 
-function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boolean | null }) {
+function PlayBulletMarker() {
   return (
-    <section className={`border-y border-slate-200 bg-slate-50 ${sectionPaddingClassName}`}>
-      <div
-        className={`${pageShellClassName} grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.74fr)_minmax(34rem,1fr)] lg:items-start`}
-      >
-        <motion.div
-          className={`grid max-w-xl content-start ${detailStackGapClassName}`}
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ amount: 0.35, once: true }}
-          transition={{ duration: 0.4, ease: easeOut }}
-        >
-          <h2 className="text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-            Expertise
-          </h2>
-          <div className={`grid ${detailStackGapClassName}`}>
-            {expertiseItems.map((item) => (
-              <div
-                key={item.title}
-                className="grid gap-2 border-t border-slate-200 pt-6 first:border-t-0 first:pt-0"
-              >
-                <h3 className="text-base font-semibold leading-6 text-slate-950">{item.title}</h3>
-                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
-                  {item.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="mt-[0.3125rem] size-3.5 shrink-0 text-teal-300"
+    >
+      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-teal-400/45" />
+      <path
+        d="M5 1.8 L5 13 L14 7.4 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-        <div className="grid gap-4 sm:min-h-[32rem] sm:grid-cols-2 sm:grid-rows-2 lg:self-end">
-          {capabilityTiles.map((tile, index) => (
-            <motion.article
-              key={tile.title}
-              aria-hidden="true"
-              className={`relative min-h-[15rem] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 sm:h-full ${
-                index === 0 ? 'sm:col-start-2 sm:row-start-1' : ''
-              } ${index === 1 ? 'sm:col-start-1 sm:row-start-2' : ''} ${
-                index === 2 ? 'sm:col-start-2 sm:row-start-2' : ''
-              }`}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.25, once: true }}
-              transition={{ delay: index * 0.06, duration: 0.38, ease: easeOut }}
+function TimelineEntry({
+  item,
+  isLast
+}: {
+  item: (typeof experiences)[number];
+  isLast: boolean;
+}) {
+  const ref = useRef<HTMLLIElement>(null);
+  const isActive = useInView(ref, { amount: 0.4, margin: '0px 0px -20% 0px' });
+  const shouldReduceMotion = useReducedMotion();
+  const isCurrent = 'current' in item && item.current;
+
+  return (
+    <li ref={ref} className={`relative grid gap-x-8 pl-10 sm:pl-14 lg:grid-cols-[11rem_minmax(0,1fr)] lg:pl-0 ${isLast ? '' : 'pb-14 lg:pb-16'}`}>
+      <span
+        aria-hidden="true"
+        className="absolute top-1.5 left-0 flex size-5 items-center justify-center lg:left-[11rem] lg:-translate-x-1/2"
+      >
+        {isCurrent && !shouldReduceMotion ? (
+          <span className="absolute inset-0 animate-ping rounded-full bg-teal-400/40" />
+        ) : null}
+        <span
+          className={`relative size-2.5 rounded-full ring-4 ring-slate-800 transition-colors duration-500 ${
+            isActive ? 'bg-teal-400' : 'bg-slate-500'
+          }`}
+        />
+      </span>
+
+      <RevealItem className="mb-3 grid content-start gap-1 lg:mb-0 lg:pr-10 lg:text-right">
+        <p className="text-sm whitespace-nowrap tabular-nums text-slate-300">{item.period}</p>
+        {isCurrent ? (
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-300 lg:justify-self-end">
+            Current
+          </span>
+        ) : null}
+      </RevealItem>
+
+      <div className="grid content-start gap-3 lg:pl-10">
+        <RevealItem className="grid gap-1">
+          <p className="text-sm font-medium text-teal-300">{item.company}</p>
+          <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-slate-50 text-balance sm:text-3xl">
+            {item.role}
+          </h3>
+        </RevealItem>
+        <RevealItem>
+          <p className="max-w-[60ch] text-base leading-7 text-slate-300 text-pretty">{item.summary}</p>
+        </RevealItem>
+        <RevealItem>
+          <ul className={`grid max-w-[60ch] ${listGapClassName}`}>
+            {item.highlights.map((highlight) => (
+              <li
+                key={highlight}
+                className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-slate-200"
+              >
+                <PlayBulletMarker />
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        </RevealItem>
+      </div>
+    </li>
+  );
+}
+
+function ExperienceSection() {
+  const listRef = useRef<HTMLOListElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    offset: ['start 70%', 'end 70%'],
+    target: listRef
+  });
+  const smoothProgress = useSpring(scrollYProgress, { damping: 30, restDelta: 0.001, stiffness: 120 });
+  const scaleY = useTransform(shouldReduceMotion ? scrollYProgress : smoothProgress, [0, 1], [0, 1]);
+
+  return (
+    <section
+      className={`bg-slate-800 bg-[radial-gradient(ellipse_at_top_right,rgba(45,212,191,0.14),transparent_55%)] text-slate-50 ${sectionPaddingClassName}`}
+      data-scroll-target="experience"
+    >
+      <div className={pageShellClassName}>
+        <RevealGroup className={sectionHeaderClassName}>
+          <RevealItem>
+            <p className={`${taglineBaseClassName} text-teal-300`}>Career</p>
+          </RevealItem>
+          <RevealItem>
+            <h2 className="text-4xl font-heading font-normal tracking-tight text-slate-50 text-balance sm:text-5xl">
+              Experience
+            </h2>
+          </RevealItem>
+          <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+            <p className="max-w-2xl text-base font-normal leading-7 text-slate-300 text-pretty">
+              ERP consulting, then lending backends, then bank platform engineering.
+            </p>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium text-teal-300 underline-offset-4 hover:underline"
+              href="/resume.pdf"
+              rel="noopener"
+              target="_blank"
             >
-              <img
-                src={tile.image}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 size-full object-cover object-center"
-                loading="lazy"
-              />
-            </motion.article>
-          ))}
+              Full detail in resume
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </a>
+          </RevealItem>
+        </RevealGroup>
+
+        <div className="relative">
+          <span
+            aria-hidden="true"
+            className="absolute top-2 bottom-2 left-[9px] w-px bg-white/15 lg:left-[11rem] lg:-translate-x-1/2"
+          />
+          <motion.span
+            aria-hidden="true"
+            className="absolute top-2 bottom-2 left-[9px] w-px origin-top bg-teal-400 lg:left-[11rem] lg:-translate-x-1/2"
+            style={{ scaleY }}
+          />
+          <ol ref={listRef} className="grid">
+            {experiences.map((item, index) => (
+              <RevealGroup key={`${item.company}-${item.role}`}>
+                <TimelineEntry isLast={index === experiences.length - 1} item={item} />
+              </RevealGroup>
+            ))}
+          </ol>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function CapabilitiesSection() {
+  const isDesktop = useMediaQuery('(min-width: 64rem)');
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [replayTokens, setReplayTokens] = useState(() => expertiseItems.map(() => 0));
+
+  const activate = (index: number) => {
+    setActiveIndex(index);
+    setReplayTokens((current) =>
+      current.map((token, tokenIndex) => (tokenIndex === index ? token + 1 : token))
+    );
+  };
+
+  return (
+    <section className={sectionPaddingClassName}>
+      <div className={pageShellClassName}>
+        <RevealGroup className={`mb-12 grid items-end md:mb-16 ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}>
+          <RevealItem className="grid gap-4">
+            <p className={taglineClassName}>How I work</p>
+            <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+              Expertise that holds up in production.
+            </h2>
+          </RevealItem>
+          <RevealItem>
+            <p className="max-w-xl text-base font-normal leading-7 text-slate-600 text-pretty">
+              Full-stack product and platform work in regulated environments: interfaces, APIs,
+              access rules, data, and the monitoring that keeps the system operable after launch.
+            </p>
+          </RevealItem>
+        </RevealGroup>
+
+        <RevealGroup
+          className="overflow-hidden rounded-[2rem] border border-black/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
+          stagger={0.1}
+        >
+          <div className={`grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] lg:items-start`}>
+            <div className={`grid content-start ${detailStackGapClassName}`}>
+              {expertiseItems.map((item, index) => (
+                <RevealItem
+                  key={item.title}
+                  className="grid gap-2 rounded-xl border-t border-black/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-teal-300"
+                  onBlur={() => setActiveIndex(null)}
+                  onFocus={() => activate(index)}
+                  onMouseEnter={() => activate(index)}
+                  onMouseLeave={() => setActiveIndex(null)}
+                  tabIndex={0}
+                >
+                  <h3
+                    className={`text-base font-semibold leading-6 transition-colors duration-300 ${
+                      activeIndex === index ? 'text-teal-700' : 'text-slate-900'
+                    }`}
+                  >
+                    {item.title}
+                  </h3>
+                  <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
+                    {item.body}
+                  </p>
+                  {isDesktop === true ? null : (
+                    <CapabilityInstrument
+                      active={activeIndex === index}
+                      className="mt-2 lg:hidden"
+                      kind={item.kind}
+                      replayToken={replayTokens[index]}
+                    />
+                  )}
+                </RevealItem>
+              ))}
+            </div>
+
+            <RevealItem className="hidden gap-3 lg:grid lg:grid-cols-2">
+              {expertiseItems.map((item, index) => (
+                <div
+                  key={item.title}
+                  onMouseEnter={() => activate(index)}
+                  onMouseLeave={() => setActiveIndex(null)}
+                >
+                  <CapabilityInstrument
+                    active={activeIndex === index}
+                    kind={item.kind}
+                    placeholder={isDesktop !== true}
+                    replayToken={replayTokens[index]}
+                  />
+                </div>
+              ))}
+            </RevealItem>
+          </div>
+        </RevealGroup>
+      </div>
+    </section>
+  );
+}
+
+const aboutFacts = (yearsExperience: number) => [
+  { label: 'years in production', value: `${yearsExperience}+` },
+  { label: 'regulated delivery since 2019', value: 'Banking' },
+  { label: 'React, Next.js, Node', value: 'TypeScript' }
+];
+
+function AboutSection({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <section className={sectionPaddingClassName} data-scroll-target="about">
+      <div className={pageShellClassName}>
+        <RevealGroup
+          className="relative isolate overflow-hidden rounded-[2rem] bg-orange-50 ring-1 ring-black/5"
+          stagger={0.1}
+        >
+          <picture aria-hidden="true">
+            <source media="(max-width: 767px)" srcSet={aboutGradientImageSmall} />
+            <img
+              alt=""
+              className="absolute inset-0 -z-20 h-full w-full object-cover object-[62%_50%]"
+              decoding="async"
+              loading="lazy"
+              src={aboutGradientImage}
+            />
+          </picture>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.14)_60%,rgba(255,255,255,0)_100%)] lg:bg-[linear-gradient(98deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.14)_40%,rgba(255,255,255,0)_62%)]"
+          />
+
+          <div
+            className="grid gap-10 px-6 pb-0 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-16 lg:px-16 lg:pt-20"
+          >
+            <div className={`grid content-start ${detailStackGapClassName} lg:pb-20`}>
+              <div className="grid gap-4">
+                <RevealItem>
+                  <p className={taglineClassName}>About</p>
+                </RevealItem>
+                <RevealItem>
+                  <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+                    Full-stack engineer who treats operability as part of the feature.
+                  </h2>
+                </RevealItem>
+              </div>
+
+              <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-800 text-pretty">
+                <RevealItem>
+                  <p>
+                    I have spent {yearsExperience}+ years shipping product and platform work for
+                    Indonesian digital banks. Every release there has to survive audit, incident
+                    review, and the next engineer who inherits it.
+                  </p>
+                </RevealItem>
+                <RevealItem>
+                  <p>
+                    Most of my depth is TypeScript across React, Next.js, and Node: distributed
+                    services, access control, and the path from interface to API to data to
+                    monitoring. I adopt tools, AI coding agents included, on one test: does the
+                    team ship and operate better with them.
+                  </p>
+                </RevealItem>
+              </div>
+
+              <RevealItem>
+                <ul className="grid max-w-xl divide-y divide-black/8 rounded-2xl bg-white/75 ring-1 ring-black/5 backdrop-blur-md sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                  {aboutFacts(yearsExperience).map((fact) => (
+                    <li key={fact.value} className="grid gap-1 px-5 py-4 sm:px-5">
+                      <p className="text-xl font-heading font-semibold leading-none tracking-tight text-slate-900 tabular-nums sm:text-2xl">
+                        {fact.value}
+                      </p>
+                      <p className="text-xs font-medium leading-5 text-slate-600 text-pretty sm:text-[0.8125rem]">
+                        {fact.label}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </RevealItem>
+            </div>
+
+            <RevealItem className="relative -mx-2 sm:mx-0 lg:justify-self-end">
+              <div
+                aria-label="Image placeholder"
+                className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-black/10 shadow-[0_32px_64px_-24px_rgba(15,23,42,0.5)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]"
+                role="img"
+              >
+                <div className="grid aspect-[4/3] w-full place-items-center bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:2rem_2rem] bg-slate-50">
+                  <div className="grid justify-items-center gap-2 text-slate-400">
+                    <ImageIcon aria-hidden="true" className="size-8" strokeWidth={1.5} />
+                    <p className="text-xs font-medium uppercase tracking-[0.18em]">Image placeholder</p>
+                  </div>
+                </div>
+              </div>
+            </RevealItem>
+          </div>
+        </RevealGroup>
       </div>
     </section>
   );
@@ -612,14 +1141,12 @@ function CapabilitiesSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 
 function ContactActions() {
   return (
-    <div className="relative w-fit max-w-full">
-      <Button asChild size="lg" className="min-h-11 px-4">
-        <a href={`mailto:${contactEmail}`}>
-          <Mail data-icon="inline-start" className="size-4" />
-          Let&apos;s chat
-        </a>
-      </Button>
-    </div>
+    <Button asChild size="lg" className="min-h-11 rounded-full px-5">
+      <a href={`mailto:${contactEmail}`}>
+        <Mail data-icon="inline-start" className="size-4" />
+        Let&apos;s chat
+      </a>
+    </Button>
   );
 }
 
@@ -630,34 +1157,35 @@ export default function PortfolioHome() {
   usePreventHashNavigation();
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen overflow-x-clip bg-white text-slate-900">
       <AnimatedHeader />
 
       <main data-scroll-target="top">
-        <section className="border-b border-slate-200 bg-[linear-gradient(135deg,#ffffff_0%,#ffffff_52%,#f2f6ff_100%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
-          <motion.div
+        <section className="border-b border-slate-200 bg-[radial-gradient(ellipse_at_top_right,var(--color-teal-50),white_60%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
+          <RevealGroup
             className={`${pageShellClassName} grid gap-10 md:gap-12`}
-            initial={initialValue(shouldReduceMotion, {
-              filter: 'blur(3px)',
-              opacity: 0,
-              y: 12
-            })}
-            animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.45, ease: easeOut }}
+            onMount
+            stagger={0.1}
           >
             <div className="grid gap-8">
-              <h1 className="max-w-6xl text-[2.5rem] font-normal leading-[1.04] text-slate-950 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
-                Building web solutions
-                <span className="block pt-1 text-slate-400 sm:pt-2">that actually scale.</span>
-              </h1>
+              <RevealItem>
+                <h1 className="max-w-6xl text-[2.5rem] font-heading font-normal leading-[1.04] tracking-tight text-slate-900 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
+                  Building web solutions
+                  <span className="block pt-1 text-slate-500 sm:pt-2">that actually scale.</span>
+                </h1>
+              </RevealItem>
 
-              <HeroPreviewBand shouldReduceMotion={shouldReduceMotion} />
+              <RevealItem>
+                <HeroPreviewBand />
+              </RevealItem>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
-              <HeroProofBlock yearsExperience={yearsExperience} />
+              <RevealItem>
+                <HeroProofBlock yearsExperience={yearsExperience} />
+              </RevealItem>
 
-              <div className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
+              <RevealItem className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
                 <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
                   I&apos;m a full-stack engineer with hands-on experience building{' '}
                   <span className="whitespace-nowrap">large-scale</span> financial systems, where
@@ -673,278 +1201,273 @@ export default function PortfolioHome() {
                     <ChevronDown data-icon="inline-end" className="size-4" />
                   </Button>
                   <Button asChild variant="secondary" size="lg" className="min-h-11 px-3 sm:px-4">
-                    <a href="/resume.pdf">
+                    <a href="/resume.pdf" rel="noopener" target="_blank">
                       <Download data-icon="inline-start" />
                       Download resume
                     </a>
                   </Button>
                 </div>
-              </div>
+              </RevealItem>
             </div>
-          </motion.div>
+          </RevealGroup>
         </section>
 
-        <WorkSamplesSection shouldReduceMotion={shouldReduceMotion} />
+        <WorkSamplesSection />
 
-        <section
-          className={`${pageShellClassName} ${sectionPaddingClassName}`}
-          data-scroll-target="experience"
-        >
-          <motion.div
-            className={sectionHeaderClassName}
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ amount: 0.4, once: true }}
-            transition={{ duration: 0.4, ease: easeOut }}
-          >
-            <h2 className="text-4xl font-semibold leading-tight text-slate-900 text-balance sm:text-5xl">
-              Experience
-            </h2>
-            <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
-              Internal fintech platforms, digital lending backends, ERP customization, APIs,
-              integrations, access control, monitoring, and performance work.
-            </p>
-          </motion.div>
+        <ExperienceSection />
 
-          <div className="relative">
-            {experiences.map((item, index) => (
-              <motion.article
-                key={`${item.company}-${item.role}`}
-                className="relative grid gap-6 border-t border-slate-200 py-10 first:border-t-0 first:pt-0 last:pb-0 lg:grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)] lg:gap-x-10 lg:border-t-0 lg:py-0"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ amount: 0.35, once: true }}
-                transition={{ delay: index * 0.05, duration: 0.35, ease: easeOut }}
-              >
-                <div
-                  className={`grid content-start gap-3 lg:justify-items-end lg:text-right ${
-                    index === 0 ? 'lg:pt-0' : 'lg:pt-12'
-                  }`}
-                >
-                  <p
-                    className={`text-base font-medium lg:leading-[1.875rem] ${
-                      item.current ? 'text-brand-600' : 'text-slate-600'
-                    }`}
-                  >
-                    {item.period}
-                  </p>
-                </div>
+        <CapabilitiesSection />
 
-                <div
-                  className={`relative lg:pl-10 ${index === 0 ? 'lg:pt-0' : 'lg:pt-12'} ${
-                    index === experiences.length - 1 ? 'lg:pb-0' : 'lg:pb-12'
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`absolute bottom-0 left-0 hidden w-px -translate-x-1/2 bg-slate-200 lg:block ${
-                      index === 0 ? 'top-[0.9375rem]' : 'top-0'
-                    }`}
-                  />
-                  <span
-                    aria-hidden="true"
-                    className={`absolute left-0 hidden size-2.5 -translate-x-1/2 rounded-full border-2 border-white lg:block ${
-                      index === 0 ? 'top-2.5' : 'top-[3.625rem]'
-                    } ${item.current ? 'bg-brand-600 ring-4 ring-brand-100' : 'bg-slate-300'}`}
-                  />
-                  <div className="grid gap-2">
-                    <h3 className="text-2xl font-semibold leading-tight text-slate-900 text-balance">
-                      {item.role}
-                    </h3>
-                    <p className="text-sm font-medium text-brand-600">{item.company}</p>
-                  </div>
-                  <ul className={`mt-6 grid max-w-[68ch] ${listGapClassName}`}>
-                    {item.bullets.map((bullet) => (
-                      <li
-                        key={bullet}
-                        className="flex gap-3 text-sm font-normal leading-6 text-slate-600"
-                      >
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-300" />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </section>
+        <AboutSection yearsExperience={yearsExperience} />
 
-        <CapabilitiesSection shouldReduceMotion={shouldReduceMotion} />
-
-        <section
-          className={`overflow-hidden bg-white ${sectionPaddingClassName}`}
-          data-scroll-target="about"
-        >
+        <section className={sectionPaddingClassName} data-scroll-target="contact">
           <div className={pageShellClassName}>
-            <motion.div
-              className={`relative grid min-h-[34rem] ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.52fr)_minmax(34rem,0.48fr)] lg:items-center xl:gap-16`}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ amount: 0.35, once: true }}
-              transition={{ duration: 0.4, ease: easeOut }}
-            >
-              <div className={`grid content-center ${detailStackGapClassName} lg:min-h-[34rem]`}>
-                <h2 className="max-w-xl text-4xl font-semibold leading-[1.04] text-slate-950 text-balance sm:text-5xl">
-                  About me
+            <RevealGroup className="mx-auto grid max-w-3xl justify-items-center gap-6 rounded-[2rem] border border-black/6 bg-white px-6 py-16 text-center shadow-sm sm:px-10 lg:py-20">
+              <RevealItem>
+                <p className={taglineClassName}>Next</p>
+              </RevealItem>
+              <RevealItem>
+                <h2 className="max-w-2xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+                  Open to engineering roles.
                 </h2>
-                <div className="grid max-w-2xl gap-4 text-base font-normal leading-7 text-slate-700 text-pretty">
-                  <p>
-                    I ship full-stack product and platform work in regulated environments. When
-                    boundaries between UI, API, data, and ops are clear, quality and delivery speed
-                    stop fighting each other.
-                  </p>
-                  <p>
-                    Most of my depth sits in distributed services, access control, and the path from
-                    interface to API to data to monitoring. I track what is worth adopting on the web
-                    stack by whether it helps a team ship and operate software, not by novelty.
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative mx-auto aspect-[16/9] w-full max-w-[40rem] overflow-hidden rounded-lg shadow-[0_22px_60px_rgba(15,23,42,0.12)] lg:mx-0 lg:max-w-[46rem] lg:justify-self-end">
-                <img
-                  src={aboutSystemsImage}
-                  alt="Relaxed home workspace with a laptop, notebook, and tablet"
-                  className="size-full object-cover"
-                />
-              </div>
-            </motion.div>
+              </RevealItem>
+              <RevealItem>
+                <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
+                  Senior full-stack and platform work. Email if you want to discuss a team, a problem
+                  space, or the resume.
+                </p>
+              </RevealItem>
+              <RevealItem>
+                <ContactActions />
+              </RevealItem>
+            </RevealGroup>
           </div>
         </section>
 
-        <section
-          className={`border-t border-slate-200 bg-slate-50 ${sectionPaddingClassName}`}
-          data-scroll-target="contact"
-        >
-          <motion.div
-            className={`${pageShellClassName} grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ amount: 0.2, once: true }}
-            transition={{ duration: 0.42, ease: easeOut }}
-          >
-            <div className="grid max-w-xl gap-4">
-              <h2 className="max-w-2xl text-4xl font-semibold leading-[1.05] text-slate-950 text-balance sm:text-5xl">
-                Contact
-              </h2>
-              <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
-                Open to engineering roles. Email if you want to discuss a team, a problem space, or
-                the resume.
-              </p>
-            </div>
-
-            <ContactActions />
-          </motion.div>
-        </section>
-
-        <footer className="border-t border-slate-200 bg-slate-50">
-          <motion.div
-            className={`${pageShellClassName} ${sectionPaddingClassName}`}
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ amount: 0.08, once: true }}
-            transition={{ duration: 0.42, ease: easeOut }}
-          >
-            <div className="grid gap-12 lg:grid-cols-[minmax(0,0.68fr)_minmax(12rem,0.22fr)] lg:items-start lg:gap-x-20">
-              <div className={`grid max-w-xl content-start ${detailStackGapClassName}`}>
-                <div className="grid gap-4">
-                  <h2 className="max-w-[20rem] text-3xl font-semibold leading-tight text-slate-950 text-balance sm:max-w-lg sm:text-4xl">
-                    Thanks for reading.
-                  </h2>
-                  <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
-                    Based in Jakarta. I build frontend, backend, and platform software for systems
-                    that have to stay operable in production.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <EmailActionMenu shouldReduceMotion={shouldReduceMotion} />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 pt-1">
-                  <p className="flex w-fit items-center gap-2 text-sm font-medium text-slate-600">
-                    <span>Find me on</span>
-                    <span
-                      aria-hidden="true"
-                      className="h-px w-9 shrink-0 rounded-full bg-brand-500/70"
-                    />
-                  </p>
-                  <div className="flex items-center gap-1">
-                    {footerSocialLinks.map((item) => {
-                      const Icon = item.icon;
-
-                      return (
-                        <a
-                          key={item.href}
-                          aria-label={item.label}
-                          className="group/social relative inline-flex size-9 items-center justify-center overflow-hidden rounded-md text-slate-500 transition-[color,scale] duration-300 ease-out hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-200 active:scale-[0.96] motion-reduce:transition-none"
-                          href={item.href}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                          title={item.label}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="absolute inset-0.5 scale-[0.18] rounded-md bg-slate-950 opacity-0 transition-[opacity,scale] duration-300 ease-out group-hover/social:scale-100 group-hover/social:opacity-100 group-focus-visible/social:scale-100 group-focus-visible/social:opacity-100 motion-reduce:transition-none"
-                          />
-                          <Icon
-                            aria-hidden="true"
-                            className="relative z-10 size-5 transition-[color,scale] duration-300 ease-out group-hover/social:scale-110 group-focus-visible/social:scale-110 motion-reduce:transition-none"
-                          />
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <nav className="grid content-start gap-1.5 text-sm font-medium text-slate-600 lg:justify-self-start">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950">
-                  Navigate
-                </p>
-                {footerNavItems.map((item) => (
-                  <button
-                    key={item.target}
-                    type="button"
-                    className="inline-flex min-h-9 w-fit items-center text-left transition-colors hover:text-brand-600"
-                    onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm font-normal text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-              <p>© 2026 Denny Dharmawan. All rights reserved.</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                <div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="group/back min-h-10 gap-2 rounded-lg border-slate-200 bg-white px-3 text-slate-950 shadow-none transition-colors hover:border-brand-200 hover:bg-slate-50 hover:text-brand-600"
-                    onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="relative inline-flex size-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-slate-700 transition-colors duration-300 group-hover/back:border-brand-600"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-0 scale-0 rounded-full bg-brand-600 transition-transform duration-300 ease-out group-hover/back:scale-100"
-                      />
-                      <ChevronUp className="relative z-10 size-3.5 transition-colors duration-300 group-hover/back:text-white" />
-                    </span>
-                    <span>Back to top</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </footer>
+        <SiteFooter />
       </main>
     </div>
+  );
+}
+
+const jakartaTimeZone = 'Asia/Jakarta';
+const jakartaClockFormatter = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  hour12: false,
+  minute: '2-digit',
+  second: '2-digit',
+  timeZone: jakartaTimeZone
+});
+const jakartaDayFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  timeZone: jakartaTimeZone,
+  weekday: 'short'
+});
+const jakartaPartsFormatter = new Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  hour12: false,
+  timeZone: jakartaTimeZone,
+  weekday: 'short'
+});
+
+function isJakartaWorkingHours(date: Date) {
+  const parts = jakartaPartsFormatter.formatToParts(date);
+  const weekday = parts.find((part) => part.type === 'weekday')?.value ?? '';
+  // Intl may emit "24" for midnight under hour12: false; normalise so the range check holds.
+  const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? '0') % 24;
+  const isWeekday = !['Sat', 'Sun'].includes(weekday);
+
+  return isWeekday && hour >= 9 && hour < 18;
+}
+
+function useJakartaClock() {
+  // Starts null so the server render and first client render agree; the clock fills in after mount.
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  return now;
+}
+
+function FooterStatusCard() {
+  const now = useJakartaClock();
+  const shouldReduceMotion = useReducedMotion();
+  const isOnline = now ? isJakartaWorkingHours(now) : false;
+
+  return (
+    <div className="rounded-[1.75rem] border border-black/6 bg-white p-6 shadow-sm sm:p-7">
+      <div className="flex items-center justify-between gap-4">
+        <p className={`${taglineBaseClassName} text-slate-500`}>Status</p>
+        <p className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
+          <span className="relative flex size-2">
+            {shouldReduceMotion ? null : (
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal-500 opacity-50" />
+            )}
+            <span className="relative inline-flex size-2 rounded-full bg-teal-600" />
+          </span>
+          Open to roles
+        </p>
+      </div>
+
+      <div className="mt-7 grid gap-1">
+        <p
+          aria-live="off"
+          className="font-heading text-5xl font-normal leading-none tracking-tight text-slate-900 tabular-nums sm:text-6xl"
+        >
+          {now ? jakartaClockFormatter.format(now) : '--:--:--'}
+        </p>
+        <p className="text-sm text-slate-500">
+          {now ? jakartaDayFormatter.format(now) : 'Jakarta'} · WIB (UTC+7)
+        </p>
+      </div>
+
+      <dl className="mt-7 grid gap-3 border-t border-black/6 pt-5 text-sm">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-slate-500">Right now</dt>
+          <dd className="text-right text-slate-800">
+            {now ? (isOnline ? 'Likely at the keyboard' : 'Probably away, will reply') : '—'}
+          </dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-slate-500">Based in</dt>
+          <dd className="text-right text-slate-800">Jakarta, Indonesia</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-slate-500">Looking for</dt>
+          <dd className="text-right text-slate-800">Senior full-stack · platform</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function SiteFooter() {
+  const shouldReduceMotion = useReducedMotion();
+  const footerLinkClassName =
+    'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
+
+  return (
+    <footer className="mt-8 overflow-hidden border-t border-black/6 bg-slate-50 text-slate-600 md:mt-12">
+      <div className={`${pageShellClassName} pt-20 md:pt-28 lg:pt-32`}>
+        <RevealGroup className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] lg:items-start lg:gap-x-20">
+          <div className={`grid content-start ${detailStackGapClassName}`}>
+            <RevealItem>
+              <p className={taglineClassName}>Sign-off</p>
+            </RevealItem>
+            <RevealItem>
+              <h2 className="max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-slate-900 text-balance sm:text-5xl lg:text-6xl">
+                Let&apos;s build something
+                <span className="block text-slate-500">that stays up.</span>
+              </h2>
+            </RevealItem>
+            <RevealItem>
+              <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
+                Frontend, backend, and platform work for systems that have to stay operable in
+                production. Working from Jakarta with teams across time zones.
+              </p>
+            </RevealItem>
+            <RevealItem className="flex flex-wrap items-center gap-3 pt-1">
+              <EmailActionMenu />
+            </RevealItem>
+          </div>
+
+          <RevealItem>
+            <FooterStatusCard />
+          </RevealItem>
+        </RevealGroup>
+
+        <RevealGroup className="mt-16 grid gap-10 border-t border-black/6 pt-10 text-sm font-medium sm:grid-cols-3 md:mt-20">
+          <RevealItem>
+            <nav className="grid content-start gap-1">
+              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Navigate</p>
+              {footerNavItems.map((item) => (
+                <button
+                  key={item.target}
+                  type="button"
+                  className={footerLinkClassName}
+                  onClick={(event) => scrollToTarget(event, item.target)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </RevealItem>
+          <RevealItem>
+            <div className="grid content-start gap-1">
+              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Elsewhere</p>
+              {footerSocialLinks.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <a
+                    key={item.href}
+                    className={`group ${footerLinkClassName}`}
+                    href={item.href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-teal-700" />
+                    <span>{item.label}</span>
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      className="size-3.5 text-slate-300 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-slate-900"
+                    />
+                  </a>
+                );
+              })}
+            </div>
+          </RevealItem>
+          <RevealItem>
+            <div className="grid content-start gap-1">
+              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Colophon</p>
+              <p className="max-w-xs font-normal leading-6 text-slate-600">
+                Built with Astro, React, Tailwind, and Motion. Set in Bricolage Grotesque and
+                Instrument Sans. No trackers, no cookies.
+              </p>
+            </div>
+          </RevealItem>
+        </RevealGroup>
+      </div>
+
+      <div className="relative mt-14 overflow-hidden md:mt-20">
+        <div className={pageShellClassName}>
+          <motion.p
+            aria-hidden="true"
+            className="w-fit max-w-none select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] sm:whitespace-nowrap font-medium leading-[0.82] tracking-[-0.045em] text-slate-300"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: '48%' }}
+            whileInView={{ opacity: 1, y: '26%' }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 1.4, ease: revealEase }}
+          >
+            Denny Dharmawan
+          </motion.p>
+        </div>
+      </div>
+
+      <div className="border-t border-black/6">
+        <div
+          className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal text-slate-600 sm:flex-row sm:items-center sm:justify-between`}
+        >
+          <p>© 2026 Denny Dharmawan. All rights reserved.</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="min-h-10 w-fit gap-2 rounded-full border-black/10 bg-white px-3 text-slate-900 shadow-none transition-colors hover:border-black/20 hover:bg-white hover:text-slate-900"
+            onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
+          >
+            <ChevronUp aria-hidden="true" className="size-3.5" />
+            <span>Back to top</span>
+          </Button>
+        </div>
+      </div>
+    </footer>
   );
 }

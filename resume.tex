@@ -1,6 +1,6 @@
 \documentclass[10pt,letterpaper]{article}
 
-\usepackage[margin=0.55in,top=0.5in,bottom=0.62in]{geometry}
+\usepackage[margin=0.5in,top=0.42in,bottom=0.48in]{geometry}
 \usepackage{fontspec}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
@@ -25,7 +25,7 @@
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-\fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Updated Aug 2026 \textbar{} Page \thepage\ of \pageref{LastPage}}
+\fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Updated Sep 2026}
 
 \titleformat{\section}
   {\large\bfseries\color{accent}}
@@ -33,7 +33,7 @@
   {0pt}
   {}
   [\vspace{-2pt}{\color{rulecolor}\titlerule}]
-\titlespacing*{\section}{0pt}{10pt}{6pt}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
@@ -43,8 +43,8 @@
 \RaggedRight
 \setlist[itemize]{
   leftmargin=1.1em,
-  itemsep=2.2pt,
-  topsep=3pt,
+  itemsep=1.4pt,
+  topsep=2pt,
   parsep=0pt,
   partopsep=0pt,
   % Never split a single bullet mid-sentence across a page break.
@@ -61,25 +61,22 @@
 }
 
 \newcommand{\educationEntry}[4]{
-  \Needspace{4\baselineskip}
-  \textbf{#1}\hfill\textbf{#4}\par
-  #2\hfill\textcolor{muted}{#3}\par
-  \vspace{4pt}
+  \Needspace{2\baselineskip}
+  \textbf{#1}, #2\hfill\textbf{#4}\par
 }
 
 \newcommand{\skillLine}[2]{%
   \Needspace{2\baselineskip}
-  \par\noindent\textbf{#1}\par
-  #2\par
-  \vspace{1.2pt}
+  \par\noindent\textbf{#1:} #2\par
+  \vspace{0.6pt}
 }
 
 \begin{document}
 
 \begin{center}
-  {\fontsize{28}{32}\selectfont\bfseries\color{accent} Denny Dharmawan\par}
-  \vspace{4pt}
-  {\normalsize\bfseries\color{heading} Senior Software Engineer\par}
+  {\fontsize{24}{28}\selectfont\bfseries\color{accent} Denny Dharmawan\par}
+  \vspace{2pt}
+  {\normalsize\bfseries\color{heading} Senior Full-Stack Engineer\par}
   \vspace{5pt}
   {\normalsize\color{accent}
     Jakarta, Indonesia \textbar{}
@@ -91,68 +88,50 @@
     \href{https://github.com/dennydharmawan}{github.com/dennydharmawan}
   }
 \end{center}
-\vspace{3pt}
+\vspace{1pt}
 
 \section{Professional Summary}
-Senior software engineer with more than 10 years of experience designing and delivering full-stack web applications using JavaScript and TypeScript, with deep expertise in both front-end and back-end engineering. Brings proven experience across fintech and SaaS, spanning customer-facing products and large-scale systems. Specializes in building secure, scalable, and reliable solutions that support both customer needs and core business operations. Driven by continuous learning, creative problem-solving, persistence, and effective collaboration across engineering teams and business stakeholders.
+Senior full-stack engineer with 8+ years building TypeScript systems in digital banking, across React, Next.js, and Node.js. Owns Krom Bank's identity and access governance platform, the system of record for access decisions across internal applications. Previously spent three years on Jenius Flexi Cash lending backends through 147\% user-base growth.
 
 \section{Experience}
 \resumeEntry{Krom Bank \textnormal{(digital bank, Indonesia)}}{Senior Full-Stack Engineer}{Jakarta, Indonesia}{Jan 2023 -- Present}
 \begin{itemize}
-  \item Built the bank's identity and access governance platform from scratch on Next.js (App Router), React, TypeScript, and Node.js, spanning RBAC administration, employee directory, audit and compliance logging, and periodic user access review; it is now the system of record for access decisions across internal applications.
-  \item Built and published a shared internal npm package for authentication, structured logging, and feature-flag management, adopted by four production applications through Express.js and Next.js adapters.
-  \item Authored the Git workflow standard now governing 5+ teams on one shared codebase, covering branch architecture, Conventional Commits, PR approval gates, hotfix paths, and release tagging.
-  \item Originated and specified a reusable approval framework on CASL that models permissions as data-driven JSON rather than hardcoded conditionals.
-  \item Designed an HRIS-integrated account auto-provisioning architecture on BullMQ and Redis, moving employee lifecycle changes into access records as queued, retryable jobs.
-  \item Delivered an internal operations platform end to end as primary engineer, introducing Next.js to the team and integrating third-party telephony alongside a partner company's engineers.
-  \item Improved production reliability through targeted API caching, Datadog dashboards, and error-context tracing that other teams adopted as their monitoring template.
-  \item Mentor two engineers, run design and code review, and author the technical documentation that lets other teams extend these platforms independently.
+  \item Built the bank's identity and access governance platform from scratch on Next.js (App Router), React, TypeScript, and Node.js, covering RBAC administration, employee directory, audit logging, and periodic user access review. It is now the system of record for access decisions across internal applications.
+  \item Specified a CASL approval framework that stores permissions as JSON data instead of hardcoded conditionals.
+  \item Designed HRIS-driven account provisioning as checkpointed BullMQ and Redis workflows. Provider mutations stay separate from local finalization, so a retry is idempotent when a third-party call fails halfway.
+  \item Cut average API execution time by 37\% by refactoring legacy modules and adding targeted caching.
+  \item Published a shared npm package for authentication, structured logging, and feature flags, adopted by four production applications through Express.js and Next.js adapters.
+  \item Built a multi-agent pull-request reviewer on AWS Bedrock, Bitbucket, and Slack. Four specialist agents review diffs in parallel against retrieved repository context, with confidence and security gates before a finding can post.
+  \item Delivered an internal operations platform end to end as primary engineer, introducing Next.js to the team and integrating third-party telephony with partner-company engineers.
+  \item Authored the Git workflow standard used by 5+ teams. Mentor two engineers, run design and code review, and built Datadog dashboards and tracing that other teams adopted as their monitoring template.
 \end{itemize}
 
 \resumeEntry{Bank SMBC Indonesia (Jenius)}{Back End Engineer}{Jakarta, Indonesia}{Dec 2019 -- Dec 2022}
 \begin{itemize}
-  \item Built and maintained backend services for Flexi Cash, a digital consumer lending product, on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.
-  \item Developed the APIs, data flows, and Kafka-based integrations behind loan origination, funding disbursement, and partner distribution workflows.
-  \item Built external retail partner integration flows that expanded the product's digital lending distribution.
-  \item Served on the backend team through the product's growth from launch to a 147\% user-base increase over three years.
-  \item Improved backend maintainability through service refactoring, integration reliability work, and cleaner error handling.
+  \item Built and operated Flexi Cash lending backends on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka, covering loan origination, funding disbursement, and retail-partner APIs.
+  \item Designed Kafka event-driven partner integrations and kept origination and disbursement stable through a 147\% user-base increase over three years from launch.
 \end{itemize}
 
 \resumeEntry{PT Iverson Technology}{Technical Consultant}{Jakarta, Indonesia}{Dec 2017 -- Dec 2019}
 \begin{itemize}
-  \item Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia.
-  \item Translated business requirements into ERP customizations, integrations, and reporting solutions.
-  \item Built integrations spanning data warehouse, enterprise portal, and point-of-sale systems.
-  \item Trained hundreds of professionals at 2+ companies in Dynamics AX customization and implementation practices.
-\end{itemize}
-
-\resumeEntry{BINUS University}{Teaching Assistant, Software Laboratory Center}{Jakarta, Indonesia}{Feb 2011 -- Jul 2013}
-\begin{itemize}
-  \item Taught hands-on programming to hundreds of undergraduates.
-  \item Designed practicum cases and assessment materials, reviewed code, and coached students through project implementation.
-  \item Reached one of the lab's highest assistant grades, taking on a new technical subject and competency assessment every six months.
+  \item Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia, built integrations across data warehouse, enterprise portal, and point-of-sale systems, and trained hundreds of professionals at 2+ companies.
 \end{itemize}
 
 \section{Technical Skills}
-\skillLine{Core}{TypeScript, JavaScript, Node.js, Express.js, GraphQL, REST API design, React, Next.js (App Router), Mantine.}
-\skillLine{Identity \& Access}{RBAC authorization modeling, CASL, periodic access review, audit and compliance logging, multi-level approval workflows, HRIS-driven provisioning.}
-\skillLine{Data \& Messaging}{MySQL, MongoDB, DocumentDB, Redis, Apache Kafka, BullMQ, schema design and normalization.}
-\skillLine{Platform \& Operations}{AWS (ECS, EKS), Kubernetes, Docker, CI/CD, Datadog dashboards and distributed tracing, production incident diagnosis.}
-\skillLine{Practices}{RFC authoring, API and Git workflow standards, design and code review, shared package ownership, technical documentation, mentoring.}
+\skillLine{Core}{TypeScript, JavaScript, Node.js, Express.js, GraphQL, REST, React, Next.js (App Router), Mantine}
+\skillLine{Architecture}{System design, distributed workflows, idempotent retries, caching, event-driven integration, RBAC, CASL, audit logging, HRIS provisioning}
+\skillLine{Data \& platform}{MySQL, MongoDB, DocumentDB, Redis, Kafka, BullMQ, AWS (ECS, EKS), Kubernetes, Docker, CI/CD, Datadog}
+\skillLine{Practices}{RFC authoring, Git workflow standards, design and code review, shared package ownership, mentoring}
 
 \section{Education}
-\educationEntry{RWTH Aachen University}{DAAD Scholarship Exchange Program, Information Technology}{Aachen, Germany}{Oct 2014 -- Nov 2015}
-\educationEntry{King Mongkut's University of Technology North Bangkok (KMUTNB)}{DAAD Scholarship Exchange Program, Information Technology}{Bangkok, Thailand}{Aug 2013 -- Sep 2014}
-\educationEntry{BINUS University}{Bachelor of Science, Computer Science}{Jakarta, Indonesia}{Mar 2011 -- Jun 2013}
+\educationEntry{RWTH Aachen University}{DAAD Exchange, Information Technology}{Aachen, Germany}{Oct 2014 -- Nov 2015}
+\educationEntry{KMUTNB}{DAAD Exchange, Information Technology}{Bangkok, Thailand}{Aug 2013 -- Sep 2014}
+\educationEntry{BINUS University}{B.S. Computer Science}{Jakarta, Indonesia}{Mar 2011 -- Jun 2013}
 
 \section{Selected Achievements}
 \begin{itemize}
-  \item Won an internal AI engineering competition and presented the resulting spec-driven development practice to Krom Bank engineering teams.
-  \item DAAD scholarship recipient, KMUTNB and RWTH Aachen international engineering program.
-  \item Recognized as a top-performing teaching assistant at BINUS University.
+  \item Won an internal AI engineering competition and presented spec-driven development to Krom Bank engineering teams.
+  \item DAAD scholar at KMUTNB and RWTH Aachen. Top-performing teaching assistant at BINUS University.
 \end{itemize}
-
-\section{Languages}
-Indonesian (Native), English (Professional working proficiency)
 
 \end{document}
