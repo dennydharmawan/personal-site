@@ -16,10 +16,9 @@ const instrumentLabels: Record<CapabilityKind, string> = {
   fullstack:
     'Illustration: a request flowing from a React component to a Node route handler and back',
   production: 'Illustration: a status board for API latency, queue depth, and error budget',
-  standards: 'Illustration: a git branch merging into main beside a checklist of review gates'
+  standards: 'Illustration: a git branch merging into main beside a checklist of passing checks'
 };
 
-const slate300 = 'var(--color-slate-300)';
 const emerald500 = 'var(--color-emerald-500)';
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -53,6 +52,9 @@ function cycle(
   };
 }
 
+const svgLabelClassName = 'fill-slate-500 font-medium';
+const svgLabelSize = '10.5';
+
 const codeClientLines = ['const { data } =', '  useAccounts()', 'fetch(', "  '/api/accounts'"];
 const codeServerLines = [
   'router.get(',
@@ -61,14 +63,6 @@ const codeServerLines = [
   "    'admin'),",
   '  listAccounts)'
 ];
-
-function paneLabel(text: string, x: number): JSX.Element {
-  return (
-    <text className="fill-slate-500 font-mono" fontSize="9" letterSpacing="1.4" x={x} y="30">
-      {text}
-    </text>
-  );
-}
 
 function codeLines(lines: string[], x: number, top: number, lit: number): JSX.Element[] {
   return lines.map((line, index) => (
@@ -105,8 +99,12 @@ function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
 
   return (
     <svg className="size-full" viewBox="0 0 320 240">
-      {paneLabel('CLIENT', 14)}
-      {paneLabel('SERVER', 174)}
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="30">
+        Client
+      </text>
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="174" y="30">
+        Server
+      </text>
       <rect className="fill-slate-50 stroke-black/5" height="118" rx="9" width="132" x="14" y="40" />
       <rect className="fill-slate-50 stroke-black/5" height="118" rx="9" width="132" x="174" y="40" />
       <rect className="fill-teal-50" height="15" rx="3" width="110" x="20" y="101" />
@@ -128,22 +126,21 @@ function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
           <motion.circle className="fill-teal-400" cx={174} cy={70} r="3.2" {...response} />
         </>
       )}
-      <text className="fill-slate-500 font-mono" fontSize="9" letterSpacing="1.4" x="14" y="188">
-        REQUEST OUT · RESPONSE BACK
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="192">
+        The client call and the route handler
       </text>
-      <line className="stroke-black/5" x1="14" x2="306" y1="200" y2="200" />
-      <text className="fill-slate-500 font-mono" fontSize="10" x="14" y="220">
-        one contract, both sides
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="208">
+        share one typed contract.
       </text>
     </svg>
   );
 }
 
 const agentLines = [
-  'reading spec … 3 requirements',
+  'reading spec: 3 requirements',
   'plan: 4 files',
-  'tests 14 passed',
-  'PR #482 opened → review queue'
+  'tests: 14 passed',
+  'PR #482 opened for review'
 ];
 
 function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
@@ -153,9 +150,7 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
         <span className="size-1.5 rounded-full bg-slate-200" />
         <span className="size-1.5 rounded-full bg-slate-200" />
         <span className="size-1.5 rounded-full bg-teal-200" />
-        <span className="ml-1 text-[0.625rem] font-medium uppercase tracking-[0.18em] text-slate-500">
-          agent
-        </span>
+        <span className="ml-1 text-xs font-medium text-slate-500">Agent run</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-slate-50 p-3 font-mono text-[11px] leading-[1.5] text-slate-500 ring-1 ring-black/5">
         <p className="truncate">
@@ -190,27 +185,38 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
+// Both time-series rows repeat every 50 viewBox units and slide by exactly one period, so the
+// snap back to 0 lands on identical pixels.
+const seriesPeriod = 50;
+const seriesDuration = 7;
 const sparkPoints =
   '0,17 10,11 20,15 30,7 40,13 50,17 60,11 70,15 80,7 90,13 100,17 110,11 120,15 130,7 140,13 150,17';
+const depthHeights = [10, 14, 8, 18, 12, 7, 15, 11];
+const depthBars = Array.from({ length: 24 }, (_, index) => ({
+  height: depthHeights[index % depthHeights.length],
+  x: index * (seriesPeriod / depthHeights.length)
+}));
 
 function StatusRow({ children, label, value }: { children: JSX.Element; label: string; value: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-[5.5rem] shrink-0 truncate font-mono text-[11px] text-slate-500">{label}</span>
+      <span className="w-[5.5rem] shrink-0 truncate text-[11px] font-medium text-slate-600">
+        {label}
+      </span>
       <span className="flex h-5 min-w-0 flex-1 items-center">{children}</span>
-      <span className="shrink-0 font-mono text-[11px] tabular-nums text-slate-600">{value}</span>
+      <span className="shrink-0 text-[11px] font-medium tabular-nums text-slate-600">{value}</span>
     </div>
   );
 }
 
 function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
+  const slide = cycle(reduced, { x: [0, -seriesPeriod] }, seriesDuration, [0, 1], { ease: 'linear' });
+
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-4">
       <div className="flex items-center justify-between">
-        <span className="text-[0.625rem] font-medium uppercase tracking-[0.18em] text-slate-500">
-          production
-        </span>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500">
+        <span className="text-xs font-medium text-slate-500">Production</span>
+        <span className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
           <motion.span
             className="size-1.5 rounded-full bg-emerald-500"
             {...cycle(reduced, { opacity: [0.45, 1, 0.45] }, 3.6, [0, 0.5, 1])}
@@ -219,11 +225,7 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
         </span>
       </div>
       <StatusRow label="API p95" value="142 ms">
-        <svg
-          className="size-full overflow-hidden"
-          preserveAspectRatio="none"
-          viewBox="0 0 100 24"
-        >
+        <svg className="size-full overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 24">
           <motion.polyline
             className="stroke-teal-400"
             fill="none"
@@ -231,41 +233,43 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
             strokeLinejoin="round"
             strokeWidth="1.25"
             vectorEffect="non-scaling-stroke"
-            {...cycle(reduced, { x: [0, -50] }, 7, [0, 1], { ease: 'linear' })}
+            {...slide}
           />
         </svg>
       </StatusRow>
       <StatusRow label="Queue depth" value="18">
-        <span className="flex h-4 w-full items-end gap-[3px]">
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((bar) => (
-            <motion.span
-              className="h-full min-w-0 flex-1 origin-bottom rounded-sm bg-teal-200"
-              key={bar}
-              {...cycle(reduced, { scaleY: [1, 0.18, 1] }, 4.4, [0, 0.5, 1], { delay: bar * 0.1 })}
-            />
-          ))}
-        </span>
+        <svg className="size-full overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 24">
+          <motion.g {...slide}>
+            {depthBars.map((bar) => (
+              <rect
+                className="fill-teal-300"
+                height={bar.height}
+                key={bar.x}
+                width="4"
+                x={bar.x}
+                y={24 - bar.height}
+              />
+            ))}
+          </motion.g>
+        </svg>
       </StatusRow>
       <StatusRow label="Error budget" value="99.97%">
         <span className="h-1 w-full overflow-hidden rounded-full bg-slate-100">
-          <motion.span
-            className="block h-full w-[94%] rounded-full bg-emerald-500/70"
-            {...cycle(reduced, { opacity: [0.75, 1, 0.75] }, 5.2, [0, 0.5, 1])}
-          />
+          <span className="block h-full w-[94%] rounded-full bg-emerald-500/70" />
         </span>
       </StatusRow>
-      <p className="font-mono text-[10px] text-slate-500">30d window · alerts wired to on-call</p>
+      <p className="text-[11px] text-slate-500">Last 30 days. Alerts page on-call, not customers.</p>
     </div>
   );
 }
 
-const gates = ['lint', 'types', 'tests', 'review'];
+const checks = ['lint', 'types', 'tests', 'review'];
 
-function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
+function ReviewGate(): JSX.Element {
   return (
     <svg className="size-full" viewBox="0 0 320 240">
-      <text className="fill-slate-500 font-mono" fontSize="9" letterSpacing="1.4" x="16" y="30">
-        BRANCH FLOW
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="16" y="30">
+        Branch
       </text>
       <text className="fill-teal-700 font-mono" fontSize="9.5" x="46" y="56">
         feature/access-review
@@ -277,13 +281,13 @@ function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
         fill="none"
         strokeWidth="1.75"
       />
-      {[16, 46, 172, 200].map((x) => (
+      {[16, 46, 200].map((x) => (
         <circle className="fill-white stroke-slate-300" cx={x} cy="100" key={x} r="3.6" strokeWidth="1.75" />
       ))}
       {[86, 126].map((x) => (
         <circle className="fill-white stroke-teal-400" cx={x} cy="70" key={x} r="3.6" strokeWidth="1.75" />
       ))}
-      <circle className="fill-teal-600" cx="172" cy="100" r="2" />
+      <circle className="fill-teal-600" cx="172" cy="100" r="3.6" />
       <text className="fill-slate-500 font-mono" fontSize="9" x="18" y="118">
         main
       </text>
@@ -293,51 +297,28 @@ function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
       <text className="fill-slate-500 font-mono" fontSize="9.5" x="16" y="164">
         fix(api): audit log order
       </text>
-      <line className="stroke-black/5" x1="16" x2="200" y1="182" y2="182" />
-      <text className="fill-slate-500 font-mono" fontSize="9" letterSpacing="1.4" x="16" y="204">
-        MERGE WHEN GATES PASS
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="16" y="204">
+        Merges only when every check passes.
       </text>
       <line className="stroke-black/5" x1="216" x2="216" y1="30" y2="210" />
-      <text className="fill-slate-500 font-mono" fontSize="9" letterSpacing="1.4" x="234" y="44">
-        GATES
+      <text className={svgLabelClassName} fontSize={svgLabelSize} x="234" y="30">
+        Checks
       </text>
-      {gates.map((gate, index) => {
-        const y = 78 + index * 34;
-        const start = 0.1 + index * 0.13;
-        const check = cycle(
-          reduced,
-          {
-            pathLength: [0, 0, 1, 1, 0],
-            stroke: [slate300, slate300, emerald500, emerald500, slate300]
-          },
-          6,
-          [0, start, start + 0.08, 0.92, 0.98]
-        );
+      {checks.map((check, index) => {
+        const y = 66 + index * 34;
         return (
-          <g key={gate}>
-            <circle className="fill-white stroke-slate-200" cx="240" cy={y} r="8" strokeWidth="1.5" />
-            {reduced ? (
-              <path
-                d={`M ${236} ${y} l 3 3.4 l 5.4 -6.4`}
-                fill="none"
-                stroke={emerald500}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.75"
-              />
-            ) : (
-              <motion.path
-                d={`M ${236} ${y} l 3 3.4 l 5.4 -6.4`}
-                fill="none"
-                stroke={slate300}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.75"
-                {...check}
-              />
-            )}
-            <text className="fill-slate-500 font-mono" fontSize="10.5" x="256" y={y + 3.5}>
-              {gate}
+          <g key={check}>
+            <circle className="fill-white stroke-slate-200" cx="242" cy={y} r="8" strokeWidth="1.5" />
+            <path
+              d={`M 238 ${y} l 3 3.4 l 5.4 -6.4`}
+              fill="none"
+              stroke={emerald500}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.75"
+            />
+            <text className="fill-slate-600 font-mono" fontSize="10.5" x="258" y={y + 3.5}>
+              {check}
             </text>
           </g>
         );
@@ -381,7 +362,7 @@ export function CapabilityInstrument({
             {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
             {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
             {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}
-            {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
+            {kind === 'standards' ? <ReviewGate /> : null}
           </>
         )}
       </div>

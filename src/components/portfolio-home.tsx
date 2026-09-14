@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
-  Image as ImageIcon,
   Mail
 } from 'lucide-react';
 import {
@@ -25,6 +24,7 @@ import { CapabilityInstrument } from '@/components/capability-instruments';
 import {
   aboutGradientImage,
   aboutGradientImageSmall,
+  aboutSystemsImage,
   experiences,
   expertiseItems,
   projects,
@@ -950,7 +950,7 @@ function ExperienceSection() {
 }
 
 function CapabilitiesSection() {
-  const isDesktop = useMediaQuery('(min-width: 64rem)');
+  const isDesktop = useMediaQuery('(min-width: 80rem)');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [replayTokens, setReplayTokens] = useState(() => expertiseItems.map(() => 0));
 
@@ -980,15 +980,15 @@ function CapabilitiesSection() {
         </RevealGroup>
 
         <RevealGroup
-          className="overflow-hidden rounded-[2rem] border border-black/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
+          className="overflow-clip rounded-[2rem] border border-black/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
           stagger={0.1}
         >
-          <div className={`grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] lg:items-start`}>
-            <div className={`grid content-start ${detailStackGapClassName}`}>
+          <div className={`grid ${twoColumnGapClassName} xl:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] xl:items-start`}>
+            <div className={`grid content-start ${detailStackGapClassName} md:grid-cols-2 md:gap-x-10 md:gap-y-10 xl:grid-cols-1 xl:gap-y-6`}>
               {expertiseItems.map((item, index) => (
                 <RevealItem
                   key={item.title}
-                  className="grid gap-2 rounded-xl border-t border-black/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-teal-300"
+                  className="grid content-start gap-2 rounded-xl border-t border-black/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-teal-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
                   onBlur={() => setActiveIndex(null)}
                   onFocus={() => activate(index)}
                   onMouseEnter={() => activate(index)}
@@ -1008,7 +1008,7 @@ function CapabilitiesSection() {
                   {isDesktop === true ? null : (
                     <CapabilityInstrument
                       active={activeIndex === index}
-                      className="mt-2 lg:hidden"
+                      className="mt-2 max-w-sm xl:hidden"
                       kind={item.kind}
                       replayToken={replayTokens[index]}
                     />
@@ -1017,7 +1017,7 @@ function CapabilitiesSection() {
               ))}
             </div>
 
-            <RevealItem className="hidden gap-3 lg:grid lg:grid-cols-2">
+            <RevealItem className="hidden gap-3 xl:sticky xl:top-24 xl:grid xl:grid-cols-2">
               {expertiseItems.map((item, index) => (
                 <div
                   key={item.title}
@@ -1119,17 +1119,14 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
             </div>
 
             <RevealItem className="relative -mx-2 sm:mx-0 lg:justify-self-end">
-              <div
-                aria-label="Image placeholder"
-                className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-black/10 shadow-[0_32px_64px_-24px_rgba(15,23,42,0.5)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]"
-                role="img"
-              >
-                <div className="grid aspect-[4/3] w-full place-items-center bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:2rem_2rem] bg-slate-50">
-                  <div className="grid justify-items-center gap-2 text-slate-400">
-                    <ImageIcon aria-hidden="true" className="size-8" strokeWidth={1.5} />
-                    <p className="text-xs font-medium uppercase tracking-[0.18em]">Image placeholder</p>
-                  </div>
-                </div>
+              <div className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-black/10 shadow-[0_32px_64px_-24px_rgba(15,23,42,0.5)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]">
+                <img
+                  alt="Laptop open on a coffee table in a dim living room, city lights through the window"
+                  className="aspect-[4/3] w-full object-cover object-[50%_60%]"
+                  decoding="async"
+                  loading="lazy"
+                  src={aboutSystemsImage}
+                />
               </div>
             </RevealItem>
           </div>
