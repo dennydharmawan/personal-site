@@ -16,10 +16,8 @@ const instrumentLabels: Record<CapabilityKind, string> = {
   fullstack:
     'Illustration: a request flowing from a React component to a Node route handler and back',
   production: 'Illustration: a status board for API latency, queue depth, and error budget',
-  standards: 'Illustration: a git branch merging into main beside a checklist of passing checks'
+  standards: 'Illustration: a merge node ringed by floating labels for passing lint, type, test, and review checks'
 };
-
-const emerald500 = 'var(--color-emerald-500)';
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
 
@@ -67,7 +65,7 @@ const codeServerLines = [
 function codeLines(lines: string[], x: number, top: number, lit: number): JSX.Element[] {
   return lines.map((line, index) => (
     <text
-      className={index === lit ? 'fill-teal-700 font-mono' : 'fill-slate-500 font-mono'}
+      className={index === lit ? 'fill-sky-700 font-mono' : 'fill-slate-500 font-mono'}
       fontSize="10"
       key={line}
       x={x}
@@ -105,25 +103,25 @@ function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
       <text className={svgLabelClassName} fontSize={svgLabelSize} x="174" y="30">
         Server
       </text>
-      <rect className="fill-slate-50 stroke-black/5" height="118" rx="9" width="132" x="14" y="40" />
-      <rect className="fill-slate-50 stroke-black/5" height="118" rx="9" width="132" x="174" y="40" />
-      <rect className="fill-teal-50" height="15" rx="3" width="110" x="20" y="101" />
-      <rect className="fill-teal-50" height="15" rx="3" width="92" x="180" y="65" />
+      <rect className="fill-slate-50 stroke-slate-900/5" height="118" rx="9" width="132" x="14" y="40" />
+      <rect className="fill-slate-50 stroke-slate-900/5" height="118" rx="9" width="132" x="174" y="40" />
+      <rect className="fill-sky-50" height="15" rx="3" width="110" x="20" y="101" />
+      <rect className="fill-sky-50" height="15" rx="3" width="92" x="180" y="65" />
       {codeLines(codeClientLines, 24, 62, 3)}
       {codeLines(codeServerLines, 184, 58, 1)}
       <path
-        className="stroke-teal-200"
+        className="stroke-sky-200"
         d="M 146 104 C 158 104 162 70 174 70"
         fill="none"
         strokeDasharray="3 3"
         strokeWidth="1.25"
       />
       {reduced ? (
-        <circle className="fill-teal-600" cx="174" cy="70" r="3.2" />
+        <circle className="fill-sky-600" cx="174" cy="70" r="3.2" />
       ) : (
         <>
-          <motion.circle className="fill-teal-600" cx={146} cy={104} r="3.2" {...request} />
-          <motion.circle className="fill-teal-400" cx={174} cy={70} r="3.2" {...response} />
+          <motion.circle className="fill-sky-600" cx={146} cy={104} r="3.2" {...request} />
+          <motion.circle className="fill-sky-400" cx={174} cy={70} r="3.2" {...response} />
         </>
       )}
       <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="192">
@@ -149,18 +147,18 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
       <div className="flex items-center gap-1.5">
         <span className="size-1.5 rounded-full bg-slate-200" />
         <span className="size-1.5 rounded-full bg-slate-200" />
-        <span className="size-1.5 rounded-full bg-teal-200" />
+        <span className="size-1.5 rounded-full bg-sky-200" />
         <span className="ml-1 text-xs font-medium text-slate-500">Agent run</span>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-slate-50 p-3 font-mono text-[11px] leading-[1.5] text-slate-500 ring-1 ring-black/5">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-slate-50 p-3 font-mono text-[11px] leading-[1.5] text-slate-500 ring-1 ring-slate-900/5">
         <p className="truncate">
-          <span className="text-teal-700">$</span> agent run --spec access-review.md
+          <span className="text-sky-700">$</span> agent run --spec access-review.md
         </p>
         {agentLines.map((line, index) => {
           const start = 0.12 + index * 0.13;
           return (
             <motion.p
-              className={cn('truncate', index === 3 ? 'text-teal-700' : undefined)}
+              className={cn('truncate', index === 3 ? 'text-sky-700' : undefined)}
               key={line}
               {...cycle(
                 reduced,
@@ -176,7 +174,7 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
         <p className="mt-auto flex items-center gap-1">
           <span className="text-slate-500">$</span>
           <motion.span
-            className="inline-block h-3 w-1.5 bg-teal-600"
+            className="inline-block h-3 w-1.5 bg-sky-600"
             {...cycle(reduced, { opacity: [1, 1, 0, 0] }, 1.1, [0, 0.49, 0.5, 1])}
           />
         </p>
@@ -227,7 +225,7 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
       <StatusRow label="API p95" value="142 ms">
         <svg className="size-full overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 24">
           <motion.polyline
-            className="stroke-teal-400"
+            className="stroke-sky-400"
             fill="none"
             points={sparkPoints}
             strokeLinejoin="round"
@@ -242,7 +240,7 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
           <motion.g {...slide}>
             {depthBars.map((bar) => (
               <rect
-                className="fill-teal-300"
+                className="fill-sky-300"
                 height={bar.height}
                 key={bar.x}
                 width="4"
@@ -263,78 +261,101 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
-const checks = ['lint', 'types', 'tests', 'review'];
+type GateChip = {
+  className: string;
+  drift: TargetAndTransition;
+  duration: number;
+  delay: number;
+  id: string;
+  label: string;
+};
 
-function ReviewGate(): JSX.Element {
+const gateChips: GateChip[] = [
+  {
+    className: 'left-[3%] top-[22%] bg-sky-50 text-sky-700 ring-sky-200/70',
+    drift: { x: [0, 6, 0], y: [0, -7, 0] },
+    duration: 9,
+    delay: 0,
+    id: 'types',
+    label: 'types clean'
+  },
+  {
+    className: 'right-[4%] top-[13%] bg-emerald-50 text-emerald-700 ring-emerald-200/70',
+    drift: { x: [0, -5, 0], y: [0, 8, 0] },
+    duration: 11,
+    delay: 0.7,
+    id: 'lint',
+    label: 'lint 0 errors'
+  },
+  {
+    className: 'bottom-[13%] left-[7%] bg-sky-50 text-sky-700 ring-sky-200/70',
+    drift: { x: [0, 7, 0], y: [0, 6, 0] },
+    duration: 10,
+    delay: 1.4,
+    id: 'tests',
+    label: 'tests 14/14'
+  },
+  {
+    className: 'right-[3%] bottom-[21%] bg-violet-50 text-violet-700 ring-violet-200/70',
+    drift: { x: [0, -6, 0], y: [0, -6, 0] },
+    duration: 12,
+    delay: 2.1,
+    id: 'review',
+    label: 'review approved'
+  }
+];
+
+function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <svg className="size-full" viewBox="0 0 320 240">
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="16" y="30">
-        Branch
-      </text>
-      <text className="fill-teal-700 font-mono" fontSize="9.5" x="46" y="56">
-        feature/access-review
-      </text>
-      <path className="stroke-slate-300" d="M 16 100 H 200" fill="none" strokeWidth="2" />
-      <path
-        className="stroke-teal-300"
-        d="M 46 100 C 62 100 62 70 78 70 H 140 C 156 70 156 100 172 100"
-        fill="none"
-        strokeWidth="1.75"
-      />
-      {[16, 46, 200].map((x) => (
-        <circle className="fill-white stroke-slate-300" cx={x} cy="100" key={x} r="3.6" strokeWidth="1.75" />
-      ))}
-      {[86, 126].map((x) => (
-        <circle className="fill-white stroke-teal-400" cx={x} cy="70" key={x} r="3.6" strokeWidth="1.75" />
-      ))}
-      <circle className="fill-teal-600" cx="172" cy="100" r="3.6" />
-      <text className="fill-slate-500 font-mono" fontSize="9" x="18" y="118">
-        main
-      </text>
-      <text className="fill-slate-500 font-mono" fontSize="9.5" x="16" y="146">
-        feat(auth): access review job
-      </text>
-      <text className="fill-slate-500 font-mono" fontSize="9.5" x="16" y="164">
-        fix(api): audit log order
-      </text>
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="16" y="204">
-        Merges only when every check passes.
-      </text>
-      <line className="stroke-black/5" x1="216" x2="216" y1="30" y2="210" />
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="234" y="30">
-        Checks
-      </text>
-      {checks.map((check, index) => {
-        const y = 66 + index * 34;
-        return (
-          <g key={check}>
-            <circle className="fill-white stroke-slate-200" cx="242" cy={y} r="8" strokeWidth="1.5" />
+    <div className="flex h-full flex-col p-4">
+      <p className="text-sm font-semibold text-slate-900">Nothing merges on trust.</p>
+      <p className="mt-0.5 text-xs leading-snug text-slate-500">
+        Every branch carries its own proof before it reaches main.
+      </p>
+      <div className="relative min-h-0 flex-1">
+        <div className="absolute top-1/2 left-1/2 aspect-square h-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200/70" />
+        <div className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200/70" />
+        <motion.span
+          className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-300"
+          {...cycle(reduced, { opacity: [0, 0.9, 0], scale: [0.72, 1.12, 1.12] }, 5.2, [0, 0.55, 1])}
+        />
+        <div className="absolute top-1/2 left-1/2 flex aspect-square h-[34%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-slate-900)/45%)] ring-1 ring-slate-900/5">
+          <svg className="h-1/2 w-1/2" fill="none" viewBox="0 0 24 24">
             <path
-              d={`M 238 ${y} l 3 3.4 l 5.4 -6.4`}
-              fill="none"
-              stroke={emerald500}
+              className="stroke-slate-900"
+              d="M7 4v7a5 5 0 0 0 5 5h5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="1.75"
+              strokeWidth="1.6"
             />
-            <text className="fill-slate-600 font-mono" fontSize="10.5" x="258" y={y + 3.5}>
-              {check}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+            <circle className="fill-white stroke-slate-900" cx="7" cy="19" r="2.4" strokeWidth="1.6" />
+            <circle className="fill-white stroke-slate-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.6" />
+            <circle className="fill-slate-900" cx="18.5" cy="16" r="2.4" />
+          </svg>
+        </div>
+        {gateChips.map((chip) => (
+          <motion.span
+            className={cn(
+              'absolute inline-flex items-center rounded-lg px-2 py-1 text-[11px] font-medium whitespace-nowrap ring-1',
+              chip.className
+            )}
+            key={chip.id}
+            {...cycle(reduced, chip.drift, chip.duration, [0, 0.5, 1], { delay: chip.delay })}
+          >
+            {chip.label}
+          </motion.span>
+        ))}
+      </div>
+    </div>
   );
 }
 
 export function CapabilityInstrument({
-  active = false,
   className,
   kind,
   placeholder = false,
   replayToken = 0
 }: {
-  active?: boolean;
   className?: string;
   kind: CapabilityKind;
   // Renders the card shell only, so a hidden or not-yet-hydrated set keeps its layout without looping.
@@ -348,10 +369,7 @@ export function CapabilityInstrument({
     <div
       aria-label={instrumentLabels[kind]}
       className={cn(
-        'relative overflow-hidden rounded-2xl bg-white ring-1 transition duration-300',
-        active
-          ? '-translate-y-0.5 shadow-md ring-teal-300'
-          : 'shadow-sm ring-black/5',
+        'relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-900/5',
         className
       )}
       role="img"
@@ -362,7 +380,7 @@ export function CapabilityInstrument({
             {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
             {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
             {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}
-            {kind === 'standards' ? <ReviewGate /> : null}
+            {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
           </>
         )}
       </div>

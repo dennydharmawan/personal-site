@@ -93,7 +93,7 @@ export function SystemStage({ className, onLayerSelect }: SystemStageProps): JSX
 
   return (
     <div className={cn('relative', className)} ref={cardRef}>
-      <div className="grid overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-black/5 lg:grid-cols-[1fr_15rem]">
+      <div className="grid overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5 lg:grid-cols-[1fr_15rem]">
         <div className="grid content-start gap-3 px-5 py-6 sm:px-7 sm:py-7">
           <StageMedia playing={inView} />
 
@@ -112,7 +112,7 @@ export function SystemStage({ className, onLayerSelect }: SystemStageProps): JSX
               >
                 <span
                   aria-hidden="true"
-                  className="mt-[0.3rem] size-1.5 shrink-0 rounded-full bg-slate-400 transition-colors duration-300 group-focus-visible:bg-teal-600 group-hover:bg-teal-600"
+                  className="mt-[0.3rem] size-1.5 shrink-0 rounded-full bg-slate-400 transition-colors duration-300 group-focus-visible:bg-sky-600 group-hover:bg-sky-600"
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[0.8125rem] font-semibold leading-snug text-slate-900">
@@ -124,7 +124,7 @@ export function SystemStage({ className, onLayerSelect }: SystemStageProps): JSX
                 </span>
                 <ArrowRight
                   aria-hidden="true"
-                  className="mt-[0.15rem] size-3.5 shrink-0 text-teal-600 opacity-0 transition-opacity duration-200 group-focus-visible:opacity-100 group-hover:opacity-100"
+                  className="mt-[0.15rem] size-3.5 shrink-0 text-sky-600 opacity-0 transition-opacity duration-200 group-focus-visible:opacity-100 group-hover:opacity-100"
                 />
               </button>
             </li>

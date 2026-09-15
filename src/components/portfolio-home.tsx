@@ -77,7 +77,7 @@ const twoColumnGapClassName = 'gap-10 lg:gap-16';
 const detailStackGapClassName = 'gap-6';
 const listGapClassName = 'gap-3';
 const taglineBaseClassName = 'text-[0.6875rem] font-medium uppercase tracking-[0.18em]';
-const taglineClassName = `${taglineBaseClassName} text-teal-700`;
+const taglineClassName = `${taglineBaseClassName} text-sky-700`;
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
 const revealEase = [0.22, 1, 0.36, 1] as const;
@@ -315,7 +315,7 @@ function EmailActionMenu() {
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 max-w-full gap-2 rounded-full border-black/10 bg-white px-4 text-slate-900 shadow-none transition-colors hover:border-black/20 hover:bg-white hover:text-slate-900"
+        className="h-11 max-w-full gap-2 rounded-full border-slate-900/10 bg-white px-4 text-slate-900 shadow-none transition-colors hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((current) => !current)}
@@ -332,7 +332,7 @@ function EmailActionMenu() {
       {isOpen ? (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-black/8 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-slate-900/8 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg"
         >
           <button
             type="button"
@@ -368,15 +368,15 @@ const heroGlowBlobs: HeroGlowBlob[] = [
   {
     id: 'violet',
     className:
-      '-bottom-[22%] -left-[8%] w-[60%] bg-[radial-gradient(circle,rgba(167,139,250,0.2),rgba(167,139,250,0)_70%)]',
+      '-bottom-[22%] -left-[8%] w-[60%] bg-[radial-gradient(circle,--alpha(var(--color-violet-400)/20%),--alpha(var(--color-violet-400)/0%)_70%)]',
     animate: { x: [0, 38], y: [0, -24], scale: [1, 1.08] },
     duration: 18,
     delay: 0
   },
   {
-    id: 'teal',
+    id: 'sky',
     className:
-      '-bottom-[26%] left-[28%] w-[48%] bg-[radial-gradient(circle,rgba(45,212,191,0.14),rgba(45,212,191,0)_70%)]',
+      '-bottom-[26%] left-[28%] w-[48%] bg-[radial-gradient(circle,--alpha(var(--color-sky-400)/14%),--alpha(var(--color-sky-400)/0%)_70%)]',
     animate: { x: [0, -28], y: [0, 18], scale: [1, 1.06] },
     duration: 14,
     delay: 1.6
@@ -384,7 +384,7 @@ const heroGlowBlobs: HeroGlowBlob[] = [
   {
     id: 'pink',
     className:
-      '-right-[8%] top-[38%] w-[42%] bg-[radial-gradient(circle,rgba(244,114,182,0.1),rgba(244,114,182,0)_70%)]',
+      '-right-[8%] top-[38%] w-[42%] bg-[radial-gradient(circle,--alpha(var(--color-pink-400)/10%),--alpha(var(--color-pink-400)/0%)_70%)]',
     animate: { x: [0, 22], y: [0, 34], scale: [1, 1.07] },
     duration: 22,
     delay: 3.4
@@ -420,7 +420,7 @@ function HeroPreviewBand() {
         ))}
       </div>
 
-      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-black/5">
+      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5">
         <picture>
           <source
             media="(max-width: 639px)"
@@ -524,7 +524,7 @@ function AnimatedHeader() {
           }
         >
           <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-teal-700"
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-sky-700"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
@@ -653,7 +653,7 @@ function LayerPills({ className, layers }: { className?: string; layers: StageLa
       {layers.map((id) => (
         <span
           key={id}
-          className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700"
+          className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700"
         >
           {stageLayerLabel(id)}
         </span>
@@ -745,7 +745,7 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
           <ul className={`grid ${listGapClassName}`}>
             {project.bullets.map((bullet) => (
               <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-slate-700">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-teal-600" />
+                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-sky-600" />
                 <span>{bullet}</span>
               </li>
             ))}
@@ -806,9 +806,9 @@ function PlayBulletMarker() {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="mt-[0.3125rem] size-3.5 shrink-0 text-teal-300"
+      className="mt-[0.3125rem] size-3.5 shrink-0 text-sky-300"
     >
-      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-teal-400/45" />
+      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/45" />
       <path
         d="M5 1.8 L5 13 L14 7.4 Z"
         fill="none"
@@ -839,11 +839,11 @@ function TimelineEntry({
         className="absolute top-1.5 left-0 flex size-5 items-center justify-center lg:left-[11rem] lg:-translate-x-1/2"
       >
         {isCurrent && !shouldReduceMotion ? (
-          <span className="absolute inset-0 animate-ping rounded-full bg-teal-400/40" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-sky-400/40" />
         ) : null}
         <span
           className={`relative size-2.5 rounded-full ring-4 ring-slate-800 transition-colors duration-500 ${
-            isActive ? 'bg-teal-400' : 'bg-slate-500'
+            isActive ? 'bg-sky-400' : 'bg-slate-500'
           }`}
         />
       </span>
@@ -851,7 +851,7 @@ function TimelineEntry({
       <RevealItem className="mb-3 grid content-start gap-1 lg:mb-0 lg:pr-10 lg:text-right">
         <p className="text-sm whitespace-nowrap tabular-nums text-slate-300">{item.period}</p>
         {isCurrent ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-300 lg:justify-self-end">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-300 lg:justify-self-end">
             Current
           </span>
         ) : null}
@@ -859,7 +859,7 @@ function TimelineEntry({
 
       <div className="grid content-start gap-3 lg:pl-10">
         <RevealItem className="grid gap-1">
-          <p className="text-sm font-medium text-teal-300">{item.company}</p>
+          <p className="text-sm font-medium text-sky-300">{item.company}</p>
           <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-slate-50 text-balance sm:text-3xl">
             {item.role}
           </h3>
@@ -897,13 +897,13 @@ function ExperienceSection() {
 
   return (
     <section
-      className={`bg-slate-800 bg-[radial-gradient(ellipse_at_top_right,rgba(45,212,191,0.14),transparent_55%)] text-slate-50 ${sectionPaddingClassName}`}
+      className={`bg-slate-800 bg-[radial-gradient(ellipse_at_top_right,--alpha(var(--color-sky-400)/14%),transparent_55%)] text-slate-50 ${sectionPaddingClassName}`}
       data-scroll-target="experience"
     >
       <div className={pageShellClassName}>
         <RevealGroup className={sectionHeaderClassName}>
           <RevealItem>
-            <p className={`${taglineBaseClassName} text-teal-300`}>Career</p>
+            <p className={`${taglineBaseClassName} text-sky-300`}>Career</p>
           </RevealItem>
           <RevealItem>
             <h2 className="text-4xl font-heading font-normal tracking-tight text-slate-50 text-balance sm:text-5xl">
@@ -915,7 +915,7 @@ function ExperienceSection() {
               ERP consulting, then lending backends, then bank platform engineering.
             </p>
             <a
-              className="inline-flex items-center gap-1 text-sm font-medium text-teal-300 underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-sky-300 underline-offset-4 hover:underline"
               href="/resume.pdf"
               rel="noopener"
               target="_blank"
@@ -933,7 +933,7 @@ function ExperienceSection() {
           />
           <motion.span
             aria-hidden="true"
-            className="absolute top-2 bottom-2 left-[9px] w-px origin-top bg-teal-400 lg:left-[11rem] lg:-translate-x-1/2"
+            className="absolute top-2 bottom-2 left-[9px] w-px origin-top bg-sky-400 lg:left-[11rem] lg:-translate-x-1/2"
             style={{ scaleY }}
           />
           <ol ref={listRef} className="grid">
@@ -980,7 +980,7 @@ function CapabilitiesSection() {
         </RevealGroup>
 
         <RevealGroup
-          className="overflow-clip rounded-[2rem] border border-black/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
+          className="overflow-clip rounded-[2rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
           stagger={0.1}
         >
           <div className={`grid ${twoColumnGapClassName} xl:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] xl:items-start`}>
@@ -988,7 +988,7 @@ function CapabilitiesSection() {
               {expertiseItems.map((item, index) => (
                 <RevealItem
                   key={item.title}
-                  className="grid content-start gap-2 rounded-xl border-t border-black/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-teal-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
+                  className="grid content-start gap-2 rounded-xl border-t border-slate-900/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-sky-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
                   onBlur={() => setActiveIndex(null)}
                   onFocus={() => activate(index)}
                   onMouseEnter={() => activate(index)}
@@ -997,7 +997,7 @@ function CapabilitiesSection() {
                 >
                   <h3
                     className={`text-base font-semibold leading-6 transition-colors duration-300 ${
-                      activeIndex === index ? 'text-teal-700' : 'text-slate-900'
+                      activeIndex === index ? 'text-sky-700' : 'text-slate-900'
                     }`}
                   >
                     {item.title}
@@ -1007,7 +1007,6 @@ function CapabilitiesSection() {
                   </p>
                   {isDesktop === true ? null : (
                     <CapabilityInstrument
-                      active={activeIndex === index}
                       className="mt-2 max-w-sm xl:hidden"
                       kind={item.kind}
                       replayToken={replayTokens[index]}
@@ -1019,13 +1018,8 @@ function CapabilitiesSection() {
 
             <RevealItem className="hidden gap-3 xl:sticky xl:top-24 xl:grid xl:grid-cols-2">
               {expertiseItems.map((item, index) => (
-                <div
-                  key={item.title}
-                  onMouseEnter={() => activate(index)}
-                  onMouseLeave={() => setActiveIndex(null)}
-                >
+                <div key={item.title}>
                   <CapabilityInstrument
-                    active={activeIndex === index}
                     kind={item.kind}
                     placeholder={isDesktop !== true}
                     replayToken={replayTokens[index]}
@@ -1051,7 +1045,7 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
     <section className={sectionPaddingClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
         <RevealGroup
-          className="relative isolate overflow-hidden rounded-[2rem] bg-orange-50 ring-1 ring-black/5"
+          className="relative isolate overflow-hidden rounded-[2rem] bg-orange-50 ring-1 ring-slate-900/5"
           stagger={0.1}
         >
           <picture aria-hidden="true">
@@ -1066,7 +1060,7 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
           </picture>
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.14)_60%,rgba(255,255,255,0)_100%)] lg:bg-[linear-gradient(98deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.14)_40%,rgba(255,255,255,0)_62%)]"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,--alpha(var(--color-white)/34%)_0%,--alpha(var(--color-white)/14%)_60%,--alpha(var(--color-white)/0%)_100%)] lg:bg-[linear-gradient(98deg,--alpha(var(--color-white)/30%)_0%,--alpha(var(--color-white)/14%)_40%,--alpha(var(--color-white)/0%)_62%)]"
           />
 
           <div
@@ -1103,7 +1097,7 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
               </div>
 
               <RevealItem>
-                <ul className="grid max-w-xl divide-y divide-black/8 rounded-2xl bg-white/75 ring-1 ring-black/5 backdrop-blur-md sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                <ul className="grid max-w-xl divide-y divide-slate-900/8 rounded-2xl bg-white/75 ring-1 ring-slate-900/5 backdrop-blur-md sm:grid-cols-3 sm:divide-x sm:divide-y-0">
                   {aboutFacts(yearsExperience).map((fact) => (
                     <li key={fact.value} className="grid gap-1 px-5 py-4 sm:px-5">
                       <p className="text-xl font-heading font-semibold leading-none tracking-tight text-slate-900 tabular-nums sm:text-2xl">
@@ -1119,7 +1113,7 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
             </div>
 
             <RevealItem className="relative -mx-2 sm:mx-0 lg:justify-self-end">
-              <div className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-black/10 shadow-[0_32px_64px_-24px_rgba(15,23,42,0.5)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]">
+              <div className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/50%)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]">
                 <img
                   alt="Laptop open on a coffee table in a dim living room, city lights through the window"
                   className="aspect-[4/3] w-full object-cover object-[50%_60%]"
@@ -1158,7 +1152,7 @@ export default function PortfolioHome() {
       <AnimatedHeader />
 
       <main data-scroll-target="top">
-        <section className="border-b border-slate-200 bg-[radial-gradient(ellipse_at_top_right,var(--color-teal-50),white_60%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
+        <section className="border-b border-slate-200 bg-[radial-gradient(ellipse_at_top_right,var(--color-sky-50),white_60%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
           <RevealGroup
             className={`${pageShellClassName} grid gap-10 md:gap-12`}
             onMount
@@ -1219,7 +1213,7 @@ export default function PortfolioHome() {
 
         <section className={sectionPaddingClassName} data-scroll-target="contact">
           <div className={pageShellClassName}>
-            <RevealGroup className="mx-auto grid max-w-3xl justify-items-center gap-6 rounded-[2rem] border border-black/6 bg-white px-6 py-16 text-center shadow-sm sm:px-10 lg:py-20">
+            <RevealGroup className="mx-auto grid max-w-3xl justify-items-center gap-6 rounded-[2rem] border border-slate-900/6 bg-white px-6 py-16 text-center shadow-sm sm:px-10 lg:py-20">
               <RevealItem>
                 <p className={taglineClassName}>Next</p>
               </RevealItem>
@@ -1299,15 +1293,15 @@ function FooterStatusCard() {
   const isOnline = now ? isJakartaWorkingHours(now) : false;
 
   return (
-    <div className="rounded-[1.75rem] border border-black/6 bg-white p-6 shadow-sm sm:p-7">
+    <div className="rounded-[1.75rem] border border-slate-900/6 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-center justify-between gap-4">
         <p className={`${taglineBaseClassName} text-slate-500`}>Status</p>
-        <p className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800">
+        <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
           <span className="relative flex size-2">
             {shouldReduceMotion ? null : (
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal-500 opacity-50" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-sky-500 opacity-50" />
             )}
-            <span className="relative inline-flex size-2 rounded-full bg-teal-600" />
+            <span className="relative inline-flex size-2 rounded-full bg-sky-600" />
           </span>
           Open to roles
         </p>
@@ -1325,7 +1319,7 @@ function FooterStatusCard() {
         </p>
       </div>
 
-      <dl className="mt-7 grid gap-3 border-t border-black/6 pt-5 text-sm">
+      <dl className="mt-7 grid gap-3 border-t border-slate-900/6 pt-5 text-sm">
         <div className="flex items-baseline justify-between gap-4">
           <dt className="text-slate-500">Right now</dt>
           <dd className="text-right text-slate-800">
@@ -1351,7 +1345,7 @@ function SiteFooter() {
     'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
 
   return (
-    <footer className="mt-8 overflow-hidden border-t border-black/6 bg-slate-50 text-slate-600 md:mt-12">
+    <footer className="mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
       <div className={`${pageShellClassName} pt-20 md:pt-28 lg:pt-32`}>
         <RevealGroup className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] lg:items-start lg:gap-x-20">
           <div className={`grid content-start ${detailStackGapClassName}`}>
@@ -1380,7 +1374,7 @@ function SiteFooter() {
           </RevealItem>
         </RevealGroup>
 
-        <RevealGroup className="mt-16 grid gap-10 border-t border-black/6 pt-10 text-sm font-medium sm:grid-cols-3 md:mt-20">
+        <RevealGroup className="mt-16 grid gap-10 border-t border-slate-900/6 pt-10 text-sm font-medium sm:grid-cols-3 md:mt-20">
           <RevealItem>
             <nav className="grid content-start gap-1">
               <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Navigate</p>
@@ -1410,7 +1404,7 @@ function SiteFooter() {
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-teal-700" />
+                    <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-sky-700" />
                     <span>{item.label}</span>
                     <ArrowUpRight
                       aria-hidden="true"
@@ -1448,7 +1442,7 @@ function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-black/6">
+      <div className="border-t border-slate-900/6">
         <div
           className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal text-slate-600 sm:flex-row sm:items-center sm:justify-between`}
         >
@@ -1457,7 +1451,7 @@ function SiteFooter() {
             type="button"
             variant="outline"
             size="sm"
-            className="min-h-10 w-fit gap-2 rounded-full border-black/10 bg-white px-3 text-slate-900 shadow-none transition-colors hover:border-black/20 hover:bg-white hover:text-slate-900"
+            className="min-h-10 w-fit gap-2 rounded-full border-slate-900/10 bg-white px-3 text-slate-900 shadow-none transition-colors hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
           >
             <ChevronUp aria-hidden="true" className="size-3.5" />
