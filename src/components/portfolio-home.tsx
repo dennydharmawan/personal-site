@@ -20,7 +20,10 @@ import {
 } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
 import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
-import { CapabilityInstrument } from '@/components/capability-instruments';
+import {
+  CapabilityInstrument,
+  type CapabilityKind
+} from '@/components/capability-instruments';
 import { DotField } from '@/components/dot-field';
 import {
   aboutSystemsImage,
@@ -989,43 +992,48 @@ function ExperienceSection() {
   );
 }
 
+const capabilityBackdrops: Record<CapabilityKind, string> = {
+  ai: 'bg-[radial-gradient(90%_70%_at_85%_10%,var(--color-violet-300),transparent_60%),radial-gradient(110%_80%_at_10%_100%,var(--color-sky-300),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-violet-100))]',
+  fullstack:
+    'bg-[radial-gradient(90%_70%_at_15%_5%,var(--color-sky-300),transparent_60%),radial-gradient(110%_80%_at_90%_100%,var(--color-violet-200),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-sky-100))]',
+  production:
+    'bg-[radial-gradient(90%_70%_at_80%_0%,var(--color-sky-200),transparent_60%),radial-gradient(120%_80%_at_20%_100%,var(--color-emerald-200),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-sky-100))]',
+  standards:
+    'bg-[radial-gradient(90%_70%_at_20%_0%,var(--color-violet-200),transparent_60%),radial-gradient(120%_80%_at_85%_100%,var(--color-sky-400),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-violet-100))]'
+};
+
 function CapabilityCards() {
   return (
-    <div className="relative isolate">
-      <DotField
-        className="pointer-events-none absolute inset-0 -z-10"
-        colorVar="--color-slate-500"
-        density={0.1}
-      />
-      <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
-        {expertiseItems.map((item) => (
-          <RevealItem
-            key={item.title}
-            className="relative grid h-[30rem] content-start overflow-hidden rounded-[2rem] bg-slate-100/70 ring-1 ring-slate-900/5 sm:h-[34rem]"
+    <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
+      {expertiseItems.map((item) => (
+        <RevealItem
+          key={item.title}
+          className="grid content-start gap-6 rounded-[1.75rem] bg-slate-50 p-5 ring-1 ring-slate-900/5 sm:p-7"
+        >
+          <div className="grid gap-3">
+            <span aria-hidden="true" className="size-2.5 rounded-[3px] bg-sky-500" />
+            <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-slate-900 sm:text-[1.75rem]">
+              {item.title}
+            </h3>
+            <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
+              {item.body}
+            </p>
+          </div>
+          <div
+            className={`relative isolate grid place-items-center overflow-hidden rounded-2xl px-6 py-12 sm:px-12 sm:py-16 ${capabilityBackdrops[item.kind]}`}
           >
-            <div className="grid gap-3 p-7 sm:p-10">
-              <h3 className="max-w-md text-2xl font-heading font-normal leading-[1.15] tracking-tight text-slate-900 text-balance sm:text-[2rem]">
-                {item.title} <span className="text-slate-500">{item.tail}</span>
-              </h3>
-              <p className="max-w-md text-sm font-normal leading-6 text-slate-600 text-pretty">
-                {item.body}
-              </p>
-            </div>
-            <div className="ml-7 overflow-hidden rounded-tl-2xl border-l border-t border-slate-900/10 bg-white/70 shadow-[0_-12px_40px_-24px_--alpha(var(--color-slate-900)/35%)] backdrop-blur-sm sm:ml-10">
-              <div aria-hidden="true" className="flex items-center gap-1.5 border-b border-slate-900/6 px-4 py-3">
-                <span className="size-2.5 rounded-full bg-slate-200" />
-                <span className="size-2.5 rounded-full bg-slate-200" />
-                <span className="size-2.5 rounded-full bg-slate-200" />
-              </div>
-              <CapabilityInstrument
-                className="rounded-none bg-white shadow-none ring-0"
-                kind={item.kind}
-              />
-            </div>
-          </RevealItem>
-        ))}
-      </RevealGroup>
-    </div>
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(0deg,--alpha(var(--color-white)/45%)_0_1px,transparent_1px_28px),repeating-linear-gradient(90deg,--alpha(var(--color-white)/45%)_0_1px,transparent_1px_28px)] [mask-image:radial-gradient(70%_60%_at_100%_100%,black,transparent)]"
+            />
+            <CapabilityInstrument
+              className="w-full max-w-md rounded-xl bg-white/85 shadow-[0_24px_48px_-20px_--alpha(var(--color-slate-900)/35%)] ring-slate-900/10 backdrop-blur-md"
+              kind={item.kind}
+            />
+          </div>
+        </RevealItem>
+      ))}
+    </RevealGroup>
   );
 }
 
@@ -1179,7 +1187,12 @@ function SiteFooter() {
     'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
 
   return (
-    <footer data-scroll-target="contact" className="mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
+    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
+      <DotField
+        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(80%_90%_at_100%_0%,black,transparent_75%)]"
+        colorVar="--color-slate-500"
+        density={0.1}
+      />
       <div className={`${pageShellClassName} pt-20 md:pt-24`}>
         <RevealGroup className="grid gap-12">
           <div className={`grid content-start ${detailStackGapClassName}`}>
