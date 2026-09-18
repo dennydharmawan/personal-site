@@ -1152,7 +1152,14 @@ export default function PortfolioHome() {
       <AnimatedHeader />
 
       <main data-scroll-target="top">
-        <section className="border-b border-slate-200 bg-[radial-gradient(ellipse_at_top_right,var(--color-sky-50),white_60%)] pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
+        <section className="relative isolate border-b border-slate-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(280%_160%_at_50%_0%,transparent_32%,black_64%)]"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(90%_80%_at_50%_100%,#e6ecff_0%,#bccbff_45%,#86a0ee_100%)] opacity-40" />
+            <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,--alpha(var(--color-white)/78%)_0_1px,transparent_1px_8px)] opacity-40" />
+          </div>
           <RevealGroup
             className={`${pageShellClassName} grid gap-10 md:gap-12`}
             onMount
