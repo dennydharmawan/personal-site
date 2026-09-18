@@ -1195,7 +1195,7 @@ export default function PortfolioHome() {
   );
 }
 
-function FooterSocials({ className, dark = false }: { className?: string; dark?: boolean }) {
+function FooterSocials({ className }: { className?: string }) {
   return (
     <div className={`flex flex-wrap items-center gap-x-8 gap-y-1 text-sm font-medium ${className ?? ''}`}>
       {footerSocialLinks.map((item) => {
@@ -1204,11 +1204,7 @@ function FooterSocials({ className, dark = false }: { className?: string; dark?:
         return (
           <a
             key={item.href}
-            className={`group inline-flex min-h-9 w-fit items-center gap-1.5 transition-colors focus-visible:outline-none ${
-              dark
-                ? 'text-slate-300 hover:text-white focus-visible:text-white'
-                : 'text-slate-600 hover:text-slate-900 focus-visible:text-slate-900'
-            }`}
+            className="group inline-flex min-h-9 w-fit items-center gap-1.5 transition-colors focus-visible:outline-none text-slate-600 hover:text-slate-900 focus-visible:text-slate-900"
             href={item.href}
             rel="noopener noreferrer"
             target="_blank"
@@ -1226,26 +1222,20 @@ function FooterSocials({ className, dark = false }: { className?: string; dark?:
   );
 }
 
-function FooterBottomBar({ dark = false }: { dark?: boolean }) {
+function FooterBottomBar() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className={`border-t ${dark ? 'border-white/10' : 'border-slate-900/6'}`}>
+    <div className="border-t border-slate-900/6">
       <div
-        className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal sm:flex-row sm:items-center sm:justify-between ${
-          dark ? 'text-slate-400' : 'text-slate-600'
-        }`}
+        className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal sm:flex-row sm:items-center sm:justify-between text-slate-600`}
       >
         <p>© 2026 Denny Dharmawan. All rights reserved.</p>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className={`min-h-10 w-fit gap-2 rounded-full px-3 shadow-none transition-colors ${
-            dark
-              ? 'border-white/15 bg-transparent text-white hover:border-white/30 hover:bg-white/5 hover:text-white'
-              : 'border-slate-900/10 bg-white text-slate-900 hover:border-slate-900/20 hover:bg-white hover:text-slate-900'
-          }`}
+          className="min-h-10 w-fit gap-2 rounded-full px-3 shadow-none transition-colors border-slate-900/10 bg-white text-slate-900 hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
           onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
         >
           <ChevronUp aria-hidden="true" className="size-3.5" />
@@ -1256,19 +1246,17 @@ function FooterBottomBar({ dark = false }: { dark?: boolean }) {
   );
 }
 
-function FooterHeadline({ centered = false, dark = false }: { centered?: boolean; dark?: boolean }) {
+function FooterHeadline() {
   return (
-    <div className={`grid ${detailStackGapClassName} ${centered ? 'justify-items-center text-center' : ''}`}>
-      <p className={`${taglineBaseClassName} ${dark ? 'text-sky-300' : 'text-sky-700'}`}>Sign-off</p>
+    <div className={`grid justify-items-center text-center ${detailStackGapClassName}`}>
+      <p className={taglineClassName}>Sign-off</p>
       <h2
-        className={`max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-balance sm:text-5xl lg:text-6xl ${
-          dark ? 'text-white' : 'text-slate-900'
-        }`}
+        className="max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-balance text-slate-900 sm:text-5xl lg:text-6xl"
       >
         Let&apos;s build something
-        <span className={`block ${dark ? 'text-slate-400' : 'text-slate-500'}`}>that stays up.</span>
+        <span className="block text-slate-500">that stays up.</span>
       </h2>
-      <p className={`max-w-lg text-base font-normal leading-7 text-pretty ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+      <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
         Frontend, backend, and platform work for systems that have to stay operable in production.
         Working from Jakarta with teams across time zones.
       </p>
@@ -1277,225 +1265,28 @@ function FooterHeadline({ centered = false, dark = false }: { centered?: boolean
   );
 }
 
-function FooterNight() {
-  return (
-    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden bg-slate-900 bg-[radial-gradient(70%_55%_at_50%_100%,--alpha(var(--color-sky-500)/18%),transparent)] md:mt-12">
-      <div className={`${pageShellClassName} pt-20 md:pt-28`}>
-        <FooterHeadline dark />
-        <FooterSocials dark className="mt-12 border-t border-white/10 pt-6 md:mt-16" />
-      </div>
-      <div className={`${pageShellClassName} mt-14 overflow-hidden md:mt-20`}>
-        <p
-          aria-hidden="true"
-          className="w-fit translate-y-[26%] select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] text-slate-800 sm:whitespace-nowrap"
-        >
-          Denny Dharmawan
-        </p>
-      </div>
-      <FooterBottomBar dark />
-    </footer>
-  );
-}
+function SiteFooter() {
+  const shouldReduceMotion = useReducedMotion();
 
-function FooterMinimal() {
-  return (
-    <footer data-scroll-target="contact" className="mt-8 border-t border-slate-900/6 bg-white md:mt-12">
-      <div className={`${pageShellClassName} flex flex-col gap-6 py-10 md:flex-row md:items-center md:justify-between`}>
-        <div className="grid gap-1">
-          <p className="font-heading text-xl font-medium tracking-tight text-slate-900">Denny Dharmawan</p>
-          <p className="text-sm text-slate-600">Full-stack engineer in Jakarta. Open to senior and platform roles.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-          <FooterSocials />
-          <EmailActionMenu />
-        </div>
-      </div>
-      <FooterBottomBar />
-    </footer>
-  );
-}
-
-function FooterCentered() {
   return (
     <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 md:mt-12">
       <div className={`${pageShellClassName} grid justify-items-center gap-10 pb-10 pt-24 md:pt-32`}>
-        <FooterHeadline centered />
+        <FooterHeadline />
         <FooterSocials className="justify-center" />
       </div>
       <div className="overflow-hidden">
-        <p
+        <motion.p
           aria-hidden="true"
-          className="mx-auto w-fit translate-y-[26%] select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] text-slate-200 sm:whitespace-nowrap"
+          className="mx-auto w-fit select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] text-slate-200 sm:whitespace-nowrap"
+          initial={shouldReduceMotion ? false : { opacity: 0, transform: 'translateY(48%)' }}
+          whileInView={{ opacity: 1, transform: 'translateY(26%)' }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 1.4, ease: revealEase }}
         >
           Denny Dharmawan
-        </p>
+        </motion.p>
       </div>
       <FooterBottomBar />
-    </footer>
-  );
-}
-
-const footerContactRows = [
-  { label: 'Based in', value: 'Jakarta, Indonesia · UTC+7' },
-  { label: 'Looking for', value: 'Senior full-stack · platform' },
-  { label: 'Replies', value: 'Within a working day' }
-];
-
-function FooterCard() {
-  return (
-    <footer data-scroll-target="contact" className="mt-8 md:mt-12">
-      <div className={pageShellClassName}>
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-slate-50 ring-1 ring-slate-900/5">
-          <div className="grid gap-10 px-6 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-16 lg:pl-16 lg:pr-0 lg:pt-20">
-            <div className="pb-12 lg:pb-20">
-              <FooterHeadline />
-            </div>
-            <div className="-mr-6 self-end overflow-hidden rounded-tl-2xl border-l border-t border-slate-900/10 bg-white shadow-[0_-12px_40px_-24px_--alpha(var(--color-slate-900)/35%)] sm:-mr-10 lg:mr-0">
-              <div aria-hidden="true" className="flex items-center gap-1.5 border-b border-slate-900/6 px-4 py-3">
-                <span className="size-2.5 rounded-full bg-slate-200" />
-                <span className="size-2.5 rounded-full bg-slate-200" />
-                <span className="size-2.5 rounded-full bg-slate-200" />
-              </div>
-              <dl className="divide-y divide-slate-900/6 text-sm">
-                {footerContactRows.map((row) => (
-                  <div key={row.label} className="flex items-baseline justify-between gap-6 px-6 py-4">
-                    <dt className="text-slate-500">{row.label}</dt>
-                    <dd className="text-right font-medium text-slate-900">{row.value}</dd>
-                  </div>
-                ))}
-                {footerSocialLinks.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <a
-                      key={item.href}
-                      className="group flex items-center justify-between gap-6 px-6 py-4 transition-colors hover:bg-slate-50"
-                      href={item.href}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span className="inline-flex items-center gap-2 font-medium text-slate-900">
-                        <Icon aria-hidden="true" className="size-4 text-slate-400 group-hover:text-sky-700" />
-                        {item.label}
-                      </span>
-                      <ArrowUpRight
-                        aria-hidden="true"
-                        className="size-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      />
-                    </a>
-                  );
-                })}
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="mt-10">
-        <FooterBottomBar />
-      </div>
-    </footer>
-  );
-}
-
-export type FooterVariant = 'card' | 'centered' | 'current' | 'minimal' | 'night';
-
-export function SiteFooter({ variant = 'current' }: { variant?: FooterVariant }) {
-  if (variant === 'night') return <FooterNight />;
-  if (variant === 'minimal') return <FooterMinimal />;
-  if (variant === 'centered') return <FooterCentered />;
-  if (variant === 'card') return <FooterCard />;
-  return <FooterCurrent />;
-}
-
-function FooterCurrent() {
-  const shouldReduceMotion = useReducedMotion();
-  const footerLinkClassName =
-    'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
-
-  return (
-    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
-      <div className={`${pageShellClassName} pt-20 md:pt-24`}>
-        <RevealGroup className="grid gap-12">
-          <div className={`grid content-start ${detailStackGapClassName}`}>
-            <RevealItem>
-              <p className={taglineClassName}>Sign-off</p>
-            </RevealItem>
-            <RevealItem>
-              <h2 className="max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-slate-900 text-balance sm:text-5xl lg:text-6xl">
-                Let&apos;s build something
-                <span className="block text-slate-500">that stays up.</span>
-              </h2>
-            </RevealItem>
-            <RevealItem>
-              <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
-                Frontend, backend, and platform work for systems that have to stay operable in
-                production. Working from Jakarta with teams across time zones.
-              </p>
-            </RevealItem>
-            <RevealItem className="flex flex-wrap items-center gap-3 pt-1">
-              <EmailActionMenu />
-            </RevealItem>
-          </div>
-
-        </RevealGroup>
-
-        <RevealGroup className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-1 border-t border-slate-900/6 pt-6 text-sm font-medium md:mt-16">
-          {footerSocialLinks.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <RevealItem key={item.href}>
-                <a
-                  className={`group ${footerLinkClassName}`}
-                  href={item.href}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-sky-700" />
-                  <span>{item.label}</span>
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="size-3.5 text-slate-300 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-slate-900"
-                  />
-                </a>
-              </RevealItem>
-            );
-          })}
-        </RevealGroup>
-      </div>
-
-      <div className="relative mt-14 overflow-hidden md:mt-20">
-        <div className={pageShellClassName}>
-          <motion.p
-            aria-hidden="true"
-            className="w-fit max-w-none select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] sm:whitespace-nowrap font-medium leading-[0.82] tracking-[-0.045em] text-slate-300"
-            initial={shouldReduceMotion ? false : { opacity: 0, y: '48%' }}
-            whileInView={{ opacity: 1, y: '26%' }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={shouldReduceMotion ? { duration: 0 } : { duration: 1.4, ease: revealEase }}
-          >
-            Denny Dharmawan
-          </motion.p>
-        </div>
-      </div>
-
-      <div className="border-t border-slate-900/6">
-        <div
-          className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal text-slate-600 sm:flex-row sm:items-center sm:justify-between`}
-        >
-          <p>© 2026 Denny Dharmawan. All rights reserved.</p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-h-10 w-fit gap-2 rounded-full border-slate-900/10 bg-white px-3 text-slate-900 shadow-none transition-colors hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
-            onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
-          >
-            <ChevronUp aria-hidden="true" className="size-3.5" />
-            <span>Back to top</span>
-          </Button>
-        </div>
-      </div>
     </footer>
   );
 }
