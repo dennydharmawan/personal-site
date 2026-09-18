@@ -2,8 +2,6 @@ import type { CapabilityKind } from '@/components/capability-instruments';
 import type { StageLayerId } from '@/components/system-stage-data';
 
 export const aboutSystemsImage = '/portfolio-previews/about-evening-workspace-relume.png';
-export const aboutGradientImage = '/portfolio-previews/about-gradient-wash.webp';
-export const aboutGradientImageSmall = '/portfolio-previews/about-gradient-wash-1000.webp';
 
 export type ExpertiseItem = {
   body: string;
