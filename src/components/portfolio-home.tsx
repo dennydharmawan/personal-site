@@ -1213,73 +1213,7 @@ export default function PortfolioHome() {
   );
 }
 
-const jakartaTimeZone = 'Asia/Jakarta';
-const jakartaClockFormatter = new Intl.DateTimeFormat('en-GB', {
-  hour: '2-digit',
-  hour12: false,
-  minute: '2-digit',
-  second: '2-digit',
-  timeZone: jakartaTimeZone
-});
-const jakartaDayFormatter = new Intl.DateTimeFormat('en-GB', {
-  day: 'numeric',
-  month: 'short',
-  timeZone: jakartaTimeZone,
-  weekday: 'short'
-});
-
-function useJakartaClock() {
-  // Starts null so the server render and first client render agree; the clock fills in after mount.
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    tick();
-    const intervalId = window.setInterval(tick, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  return now;
-}
-
-function FooterStatusCard() {
-  const now = useJakartaClock();
-  const shouldReduceMotion = useReducedMotion();
-
-  return (
-    <div className="rounded-[1.75rem] border border-slate-900/6 bg-white p-6 shadow-sm sm:p-7">
-      <div className="flex items-center justify-between gap-4">
-        <p className={`${taglineBaseClassName} text-slate-500`}>Status</p>
-        <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
-          <span className="relative flex size-2">
-            {shouldReduceMotion ? null : (
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-sky-500 opacity-50" />
-            )}
-            <span className="relative inline-flex size-2 rounded-full bg-sky-600" />
-          </span>
-          Open to roles
-        </p>
-      </div>
-
-      <div className="mt-7 grid gap-1">
-        <p
-          aria-live="off"
-          className="font-heading text-5xl font-normal leading-none tracking-tight text-slate-900 tabular-nums sm:text-6xl"
-        >
-          {now ? jakartaClockFormatter.format(now) : '--:--:--'}
-        </p>
-        <p className="text-sm text-slate-500">
-          {now ? jakartaDayFormatter.format(now) : 'Jakarta'} · WIB (UTC+7)
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export type FooterVariant = 'lean' | 'status';
-
-export function SiteFooter({ variant = 'lean' }: { variant?: FooterVariant }) {
+function SiteFooter() {
   const shouldReduceMotion = useReducedMotion();
   const footerLinkClassName =
     'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
@@ -1287,11 +1221,7 @@ export function SiteFooter({ variant = 'lean' }: { variant?: FooterVariant }) {
   return (
     <footer data-scroll-target="contact" className="mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
       <div className={`${pageShellClassName} pt-20 md:pt-24`}>
-        <RevealGroup
-          className={`grid gap-12 lg:items-start lg:gap-x-20 ${
-            variant === 'status' ? 'lg:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)]' : ''
-          }`}
-        >
+        <RevealGroup className="grid gap-12">
           <div className={`grid content-start ${detailStackGapClassName}`}>
             <RevealItem>
               <p className={taglineClassName}>Sign-off</p>
@@ -1313,11 +1243,6 @@ export function SiteFooter({ variant = 'lean' }: { variant?: FooterVariant }) {
             </RevealItem>
           </div>
 
-          {variant === 'status' ? (
-            <RevealItem>
-              <FooterStatusCard />
-            </RevealItem>
-          ) : null}
         </RevealGroup>
 
         <RevealGroup className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-1 border-t border-slate-900/6 pt-6 text-sm font-medium md:mt-16">
