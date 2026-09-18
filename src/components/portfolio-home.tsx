@@ -467,7 +467,7 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-export function HeroSection() {
+function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
   const yearsExperience = getYearsExperience();
 
@@ -1006,7 +1006,130 @@ function ExperienceSection() {
   );
 }
 
-function CapabilitiesSection() {
+export type CapabilitiesLayout = 'bento' | 'current' | 'rows' | 'spy';
+
+function SpyItem({
+  active,
+  index,
+  onActive
+}: {
+  active: boolean;
+  index: number;
+  onActive: (index: number) => void;
+}) {
+  const ref = useRef<HTMLLIElement>(null);
+  const isCentered = useInView(ref, { margin: '-45% 0px -45% 0px' });
+  const item = expertiseItems[index];
+
+  useEffect(() => {
+    if (isCentered) onActive(index);
+  }, [index, isCentered, onActive]);
+
+  return (
+    <li
+      ref={ref}
+      aria-current={active ? 'true' : undefined}
+      className={`grid gap-3 border-l-2 py-10 pl-6 transition-colors duration-300 lg:py-16 ${
+        active ? 'border-sky-500' : 'border-slate-900/8'
+      }`}
+    >
+      <h3
+        className={`text-xl font-semibold leading-7 transition-colors duration-300 ${
+          active ? 'text-slate-900' : 'text-slate-400'
+        }`}
+      >
+        {item.title}
+      </h3>
+      <p
+        className={`max-w-md text-base font-normal leading-7 text-pretty transition-colors duration-300 ${
+          active ? 'text-slate-700' : 'text-slate-400'
+        }`}
+      >
+        {item.body}
+      </p>
+      <CapabilityInstrument className="mt-2 max-w-sm lg:hidden" kind={item.kind} />
+    </li>
+  );
+}
+
+function CapabilitiesSpy() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = expertiseItems[activeIndex];
+
+  return (
+    <div className={`grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:items-start`}>
+      <ul className="grid">
+        {expertiseItems.map((item, index) => (
+          <SpyItem
+            key={item.title}
+            active={index === activeIndex}
+            index={index}
+            onActive={setActiveIndex}
+          />
+        ))}
+      </ul>
+      <div className="hidden lg:sticky lg:top-28 lg:block">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeItem.kind}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: easeOut }}
+          >
+            <CapabilityInstrument kind={activeItem.kind} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function CapabilitiesBento() {
+  return (
+    <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
+      {expertiseItems.map((item) => (
+        <RevealItem
+          key={item.title}
+          className="grid content-start gap-5 rounded-[1.75rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-5"
+        >
+          <CapabilityInstrument className="bg-slate-50 shadow-none" kind={item.kind} />
+          <div className="grid gap-2 px-2 pb-3">
+            <h3 className="text-lg font-semibold leading-7 text-slate-900">{item.title}</h3>
+            <p className="text-base font-normal leading-7 text-slate-700 text-pretty">{item.body}</p>
+          </div>
+        </RevealItem>
+      ))}
+    </RevealGroup>
+  );
+}
+
+function CapabilitiesRows() {
+  return (
+    <div className="grid gap-16 lg:gap-24">
+      {expertiseItems.map((item, index) => (
+        <RevealGroup
+          key={item.title}
+          className={`grid items-center ${twoColumnGapClassName} lg:grid-cols-2`}
+          stagger={0.1}
+        >
+          <RevealItem className={`grid gap-3 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
+            <p className={`${taglineBaseClassName} text-slate-400 tabular-nums`}>{`0${index + 1}`}</p>
+            <h3 className="text-2xl font-semibold leading-8 text-slate-900">{item.title}</h3>
+            <p className="max-w-md text-base font-normal leading-7 text-slate-700 text-pretty">
+              {item.body}
+            </p>
+          </RevealItem>
+          <RevealItem>
+            <CapabilityInstrument kind={item.kind} />
+          </RevealItem>
+        </RevealGroup>
+      ))}
+    </div>
+  );
+}
+
+function CapabilitiesCurrent() {
   const isDesktop = useMediaQuery('(min-width: 80rem)');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [replayTokens, setReplayTokens] = useState(() => expertiseItems.map(() => 0));
@@ -1018,6 +1141,61 @@ function CapabilitiesSection() {
     );
   };
 
+  return (
+      <RevealGroup
+        className="overflow-clip rounded-[2rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
+        stagger={0.1}
+      >
+        <div className={`grid ${twoColumnGapClassName} xl:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] xl:items-start`}>
+          <div className={`grid content-start ${detailStackGapClassName} md:grid-cols-2 md:gap-x-10 md:gap-y-10 xl:grid-cols-1 xl:gap-y-6`}>
+            {expertiseItems.map((item, index) => (
+              <RevealItem
+                key={item.title}
+                className="grid content-start gap-2 rounded-xl border-t border-slate-900/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-sky-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
+                onBlur={() => setActiveIndex(null)}
+                onFocus={() => activate(index)}
+                onMouseEnter={() => activate(index)}
+                onMouseLeave={() => setActiveIndex(null)}
+                tabIndex={0}
+              >
+                <h3
+                  className={`text-base font-semibold leading-6 transition-colors duration-300 ${
+                    activeIndex === index ? 'text-sky-700' : 'text-slate-900'
+                  }`}
+                >
+                  {item.title}
+                </h3>
+                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
+                  {item.body}
+                </p>
+                {isDesktop === true ? null : (
+                  <CapabilityInstrument
+                    className="mt-2 max-w-sm xl:hidden"
+                    kind={item.kind}
+                    replayToken={replayTokens[index]}
+                  />
+                )}
+              </RevealItem>
+            ))}
+          </div>
+
+          <RevealItem className="hidden gap-3 xl:sticky xl:top-24 xl:grid xl:grid-cols-2">
+            {expertiseItems.map((item, index) => (
+              <div key={item.title}>
+                <CapabilityInstrument
+                  kind={item.kind}
+                  placeholder={isDesktop !== true}
+                  replayToken={replayTokens[index]}
+                />
+              </div>
+            ))}
+          </RevealItem>
+        </div>
+      </RevealGroup>
+  );
+}
+
+export function CapabilitiesSection({ layout = 'current' }: { layout?: CapabilitiesLayout }) {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
@@ -1036,56 +1214,11 @@ function CapabilitiesSection() {
           </RevealItem>
         </RevealGroup>
 
-        <RevealGroup
-          className="overflow-clip rounded-[2rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
-          stagger={0.1}
-        >
-          <div className={`grid ${twoColumnGapClassName} xl:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] xl:items-start`}>
-            <div className={`grid content-start ${detailStackGapClassName} md:grid-cols-2 md:gap-x-10 md:gap-y-10 xl:grid-cols-1 xl:gap-y-6`}>
-              {expertiseItems.map((item, index) => (
-                <RevealItem
-                  key={item.title}
-                  className="grid content-start gap-2 rounded-xl border-t border-slate-900/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-sky-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
-                  onBlur={() => setActiveIndex(null)}
-                  onFocus={() => activate(index)}
-                  onMouseEnter={() => activate(index)}
-                  onMouseLeave={() => setActiveIndex(null)}
-                  tabIndex={0}
-                >
-                  <h3
-                    className={`text-base font-semibold leading-6 transition-colors duration-300 ${
-                      activeIndex === index ? 'text-sky-700' : 'text-slate-900'
-                    }`}
-                  >
-                    {item.title}
-                  </h3>
-                  <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
-                    {item.body}
-                  </p>
-                  {isDesktop === true ? null : (
-                    <CapabilityInstrument
-                      className="mt-2 max-w-sm xl:hidden"
-                      kind={item.kind}
-                      replayToken={replayTokens[index]}
-                    />
-                  )}
-                </RevealItem>
-              ))}
-            </div>
 
-            <RevealItem className="hidden gap-3 xl:sticky xl:top-24 xl:grid xl:grid-cols-2">
-              {expertiseItems.map((item, index) => (
-                <div key={item.title}>
-                  <CapabilityInstrument
-                    kind={item.kind}
-                    placeholder={isDesktop !== true}
-                    replayToken={replayTokens[index]}
-                  />
-                </div>
-              ))}
-            </RevealItem>
-          </div>
-        </RevealGroup>
+        {layout === 'current' ? <CapabilitiesCurrent /> : null}
+        {layout === 'bento' ? <CapabilitiesBento /> : null}
+        {layout === 'spy' ? <CapabilitiesSpy /> : null}
+        {layout === 'rows' ? <CapabilitiesRows /> : null}
       </div>
     </section>
   );
