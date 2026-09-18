@@ -20,7 +20,8 @@ import {
 } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
 import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
-import { CapabilityInstrument } from '@/components/capability-instruments';
+import { CapabilityInstrument, cycle } from '@/components/capability-instruments';
+import { DotField, type DotFieldPulse } from '@/components/dot-field';
 import {
   aboutGradientImage,
   aboutGradientImageSmall,
@@ -383,7 +384,17 @@ const heroGlowBlobs: HeroGlowBlob[] = [
   }
 ];
 
-function HeroPreviewBand() {
+const heroWipeVariants = {
+  hidden: { clipPath: 'inset(0 100% 0 0 round 1.5rem)' },
+  visible: { clipPath: 'inset(0 0% 0 0 round 1.5rem)' }
+};
+
+// Fractions of the hero box: from the image's lower right edge to the action buttons.
+const heroPulse: DotFieldPulse = { everySeconds: 7, from: [0.6, 0.6], to: [0.78, 0.88] };
+
+export type HeroVariant = 'both' | 'current' | 'dots' | 'sweep';
+
+function HeroPreviewBand({ sweep = false }: { sweep?: boolean }) {
   const shouldReduceMotion = useReducedMotion();
   const glowRef = useRef<HTMLDivElement>(null);
   const isGlowInView = useInView(glowRef, { amount: 0.1 });
@@ -412,7 +423,11 @@ function HeroPreviewBand() {
         ))}
       </div>
 
-      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5">
+      <motion.div
+        className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5"
+        variants={sweep && !shouldReduceMotion ? heroWipeVariants : undefined}
+        transition={{ duration: 1.2, ease: revealEase }}
+      >
         <picture>
           <source
             media="(max-width: 639px)"
@@ -422,14 +437,15 @@ function HeroPreviewBand() {
             media="(min-width: 1024px)"
             srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
           />
-          <img
+          <motion.img
             alt="Team collaborating around a laptop with attention directed toward the next action"
-            className="block h-[12.5rem] w-full object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
+            className="block h-[12.5rem] w-full scale-[1.02] object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
             decoding="async"
             src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
+            {...(sweep ? cycle(!!shouldReduceMotion, { x: [0, -5, 0] }, 17, [0, 0.5, 1]) : {})}
           />
         </picture>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -467,8 +483,10 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-export function HeroSection() {
+export function HeroSection({ variant = 'current' }: { variant?: HeroVariant }) {
   const shouldReduceMotion = useReducedMotion();
+  const hasDots = variant === 'dots' || variant === 'both';
+  const hasSweep = variant === 'sweep' || variant === 'both';
   const yearsExperience = getYearsExperience();
 
   return (
@@ -477,13 +495,21 @@ export function HeroSection() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(280%_160%_at_50%_0%,transparent_32%,black_64%)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(90%_80%_at_50%_100%,#e6ecff_0%,#bccbff_45%,#86a0ee_100%)] opacity-40" />
+        <div className="absolute inset-0 bg-[radial-gradient(90%_80%_at_50%_100%,var(--color-sky-100)_0%,var(--color-sky-200)_45%,var(--color-sky-400)_100%)] opacity-40" />
         <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,--alpha(var(--color-white)/78%)_0_1px,transparent_1px_8px)] opacity-40" />
       </div>
+      {hasDots ? (
+        <DotField
+          className={`absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent_18%,black_62%)] ${
+            variant === 'both' ? 'opacity-50' : ''
+          }`}
+          pulse={heroPulse}
+        />
+      ) : null}
       <RevealGroup
         className={`${pageShellClassName} grid gap-10 md:gap-12`}
         onMount
-        stagger={0.1}
+        stagger={hasSweep ? 0.22 : 0.1}
       >
         <div className="grid gap-8">
           <RevealItem>
@@ -494,7 +520,7 @@ export function HeroSection() {
           </RevealItem>
 
           <RevealItem>
-            <HeroPreviewBand />
+            <HeroPreviewBand sweep={hasSweep} />
           </RevealItem>
         </div>
 
@@ -503,18 +529,29 @@ export function HeroSection() {
             <HeroProofBlock yearsExperience={yearsExperience} />
           </RevealItem>
 
-          <RevealItem className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
-            <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
-              I&apos;m a full-stack engineer with hands-on experience building{' '}
-              <span className="whitespace-nowrap">large-scale</span> financial systems, where
-              scalability, reliability, and maintainability are critical.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
+          <div className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
+            <RevealItem>
+              <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
+                I&apos;m a full-stack engineer with hands-on experience building{' '}
+                <span className="whitespace-nowrap">large-scale</span> financial systems, where
+                scalability, reliability, and maintainability are critical.
+              </p>
+            </RevealItem>
+            <RevealItem className="flex flex-wrap items-center gap-3">
               <Button
                 size="lg"
-                className="group min-h-11 px-3 has-data-[icon=inline-end]:pr-3 sm:px-4 sm:has-data-[icon=inline-end]:pr-4"
+                className="group relative min-h-11 overflow-hidden px-3 has-data-[icon=inline-end]:pr-3 sm:px-4 sm:has-data-[icon=inline-end]:pr-4"
                 onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
               >
+                {hasSweep ? (
+                  <motion.span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-[linear-gradient(90deg,transparent,--alpha(var(--color-sky-300)/45%),transparent)]"
+                    {...cycle(!!shouldReduceMotion, { x: ['0%', '0%', '420%'] }, 9, [0, 0.88, 1], {
+                      delay: 2.5
+                    })}
+                  />
+                ) : null}
                 View work samples
                 <ChevronDown data-icon="inline-end" className="size-4" />
               </Button>
@@ -524,8 +561,8 @@ export function HeroSection() {
                   Download resume
                 </a>
               </Button>
-            </div>
-          </RevealItem>
+            </RevealItem>
+          </div>
         </div>
       </RevealGroup>
     </section>

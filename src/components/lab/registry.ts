@@ -1,6 +1,8 @@
-import type { ComponentType } from 'react';
+import { createElement, type ComponentType } from 'react';
 
-import { HeroSection } from '@/components/portfolio-home';
+import { HeroSection, type HeroVariant } from '@/components/portfolio-home';
+
+const hero = (variant: HeroVariant) => () => createElement(HeroSection, { variant });
 
 export type LabVariant = {
   Component: ComponentType;
@@ -16,6 +18,11 @@ export type LabSection = {
 export const labSections: LabSection[] = [
   {
     section: 'hero',
-    variants: [{ Component: HeroSection, id: 'current', label: 'Current' }]
+    variants: [
+      { Component: hero('current'), id: 'current', label: 'Current' },
+      { Component: hero('dots'), id: 'dots', label: 'Dots' },
+      { Component: hero('sweep'), id: 'sweep', label: 'Sweep' },
+      { Component: hero('both'), id: 'both', label: 'Both' }
+    ]
   }
 ];
