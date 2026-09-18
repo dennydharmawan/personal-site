@@ -1,12 +1,13 @@
 import { AbsoluteFill } from "remotion";
+import { palette } from "../theme";
 
 /**
  * Flat saturated field with a fine grid, the way Relume frames a product shot.
  * The card carries no shadow, so separation comes from this contrast instead.
  */
 export const backdropTones = {
-  cyan: { field: "#7dd3fc", line: "#a9e4fd" },
-  pink: { field: "#f5a3ef", line: "#fac3f6" },
+  sky: { field: palette.sky300, line: palette.sky200 },
+  violet: { field: palette.violet300, line: palette.violet200 },
 } as const;
 
 export type BackdropTone = keyof typeof backdropTones;

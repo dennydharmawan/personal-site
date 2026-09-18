@@ -11,9 +11,9 @@ import { Act, Lane, ResultRow, Stage } from "../components/shapes";
 export const EcommercePayment: React.FC = () => {
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <Backdrop tone="pink" />
+      <Backdrop tone="violet" />
       <ClipCard>
-        <Chip label="order 20418" tone="teal" />
+        <Chip label="order 20418" tone="sky" />
         <CardTitle>IDR 1,240,000</CardTitle>
         <CardSubject>checkout · card · single capture</CardSubject>
 
@@ -27,7 +27,7 @@ export const EcommercePayment: React.FC = () => {
                 { label: "checkout", start: 44 },
                 { label: "order placed", start: 56 },
               ]}
-              tone="teal"
+              tone="sky"
             />
             <Lane
               label="money"
@@ -48,7 +48,7 @@ export const EcommercePayment: React.FC = () => {
               pending="listening"
               result="applied"
               start={158}
-              tone="teal"
+              tone="sky"
             />
             <ResultRow
               detail="payment_intent.succeeded · same event id"
@@ -66,7 +66,7 @@ export const EcommercePayment: React.FC = () => {
               pending="matching"
               result="balances once"
               start={208}
-              tone="teal"
+              tone="sky"
             />
           </Act>
 
@@ -77,7 +77,7 @@ export const EcommercePayment: React.FC = () => {
               pending="holding"
               result="warehouse notified"
               start={276}
-              tone="green"
+              tone="emerald"
             />
             <ResultRow
               detail="no processor call on the storefront path"
@@ -85,7 +85,7 @@ export const EcommercePayment: React.FC = () => {
               pending="checking"
               result="returns immediately"
               start={292}
-              tone="teal"
+              tone="sky"
             />
           </Act>
         </Stage>

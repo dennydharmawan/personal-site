@@ -11,15 +11,15 @@ import { Act, ResultRow, Stage } from "../components/shapes";
 export const AuthAccess: React.FC = () => {
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <Backdrop tone="pink" />
+      <Backdrop tone="violet" />
       <ClipCard>
-        <Chip label="joiner" tone="teal" />
+        <Chip label="joiner" tone="sky" />
         <CardTitle>Provision m.santoso</CardTitle>
         <CardSubject>hris event · engineering · starts today</CardSubject>
 
         <Stage>
           <Act from={18} to={136} caption="first attempt, and one call fails halfway">
-            <ResultRow label="JumpCloud" pending="calling" result="account created" start={40} tone="teal" />
+            <ResultRow label="JumpCloud" pending="calling" result="account created" start={40} tone="sky" />
             <ResultRow
               dropped
               label="Google Workspace"
@@ -34,8 +34,8 @@ export const AuthAccess: React.FC = () => {
 
           <Act from={136} to={254} caption="the replay skips work that already finished">
             <ResultRow icon="dash" label="JumpCloud" pending="resuming" result="skipped, already done" start={158} tone="slate" />
-            <ResultRow label="Google Workspace" pending="resuming" result="account created" start={218} tone="teal" />
-            <ResultRow label="Atlassian" pending="resuming" result="account created" start={200} tone="teal" />
+            <ResultRow label="Google Workspace" pending="resuming" result="account created" start={218} tone="sky" />
+            <ResultRow label="Atlassian" pending="resuming" result="account created" start={200} tone="sky" />
           </Act>
 
           <Act from={254} to={356} caption="onboarding done, nobody opened a ticket">
@@ -45,7 +45,7 @@ export const AuthAccess: React.FC = () => {
               pending="finalizing"
               result="3 of 3 providers"
               start={276}
-              tone="teal"
+              tone="sky"
             />
             <ResultRow
               detail="2 attempts · 1 replay · 0 duplicates"
@@ -53,7 +53,7 @@ export const AuthAccess: React.FC = () => {
               pending="finalizing"
               result="logged"
               start={292}
-              tone="teal"
+              tone="sky"
             />
           </Act>
         </Stage>

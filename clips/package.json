@@ -25,6 +25,7 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion bundle",
+    "render:work-samples": "./render-work-samples.sh",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },

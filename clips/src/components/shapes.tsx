@@ -1,4 +1,4 @@
-import { interpolate } from "remotion";
+import { interpolate, interpolateColors } from "remotion";
 import { useStoryFrame } from "../pace";
 import { palette, uiFont } from "../theme";
 import { ease, Tone, tones } from "./kit";
@@ -7,6 +7,9 @@ export const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
 export const fade = (frame: number, range: number[], values: number[]) =>
   interpolate(frame, range, values, { easing: ease, extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+/** Blend between two states on a 0..1 progress, so a row tints in over the same beat its text fades. */
+const blend = (progress: number, from: string, to: string) => interpolateColors(progress, [0, 1], [from, to]);
 
 export const Check: React.FC<{ readonly color: string; readonly size: number }> = ({ color, size }) => (
   <svg fill="none" height={size} viewBox="0 0 24 24" width={size}>
@@ -121,8 +124,8 @@ export const ResultRow: React.FC<{
         gap: 26,
         padding: "20px 28px",
         borderRadius: 12,
-        border: `1px solid ${lit ? tones[tone].border : palette.slate200}`,
-        backgroundColor: lit ? tones[tone].tint : palette.slate50,
+        border: `1px solid ${blend(done, palette.slate200, tones[tone].border)}`,
+        backgroundColor: blend(done, palette.slate50, tones[tone].tint),
       }}
     >
       <div style={{ minWidth: 0 }}>
@@ -208,7 +211,7 @@ export const QueueRow: React.FC<{
   readonly start: number;
 }> = ({ amount, account, cleared = false, clearedAt = 0, overdue, selected = false, selectedAt = 0, start }) => {
   const frame = useStoryFrame();
-  const on = selected ? fade(frame, [selectedAt, selectedAt + 11], [0, 1]) > 0.5 : false;
+  const picked = selected ? fade(frame, [selectedAt, selectedAt + 11], [0, 1]) : 0;
   const gone = cleared ? fade(frame, [clearedAt, clearedAt + 12], [0, 1]) : 0;
 
   return (
@@ -220,8 +223,8 @@ export const QueueRow: React.FC<{
         gap: 26,
         padding: "20px 28px",
         borderRadius: 12,
-        border: `1px solid ${on ? palette.amber500 : palette.slate200}`,
-        backgroundColor: gone > 0.5 ? palette.slate50 : on ? palette.amber50 : "#ffffff",
+        border: `1px solid ${blend(picked, palette.slate200, palette.amber500)}`,
+        backgroundColor: blend(gone, blend(picked, "#ffffff", palette.amber50), palette.slate50),
         opacity: fade(frame, [start, start + 10], [0, 1]),
       }}
     >
@@ -238,7 +241,7 @@ export const QueueRow: React.FC<{
         {account}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 34, opacity: 1 - gone * 0.45 }}>
-        <div style={{ fontFamily: uiFont, fontSize: 27, fontWeight: 500, color: on ? "#b45309" : palette.slate500 }}>
+        <div style={{ fontFamily: uiFont, fontSize: 27, fontWeight: 500, color: blend(picked, palette.slate500, palette.amber700) }}>
           {overdue}
         </div>
         <div style={{ fontFamily: mono, fontSize: 27, color: palette.slate700, width: 210, textAlign: "right" }}>
@@ -266,8 +269,8 @@ export const Bubble: React.FC<{
         borderRadius: 18,
         borderBottomRightRadius: incoming ? 18 : 5,
         borderBottomLeftRadius: incoming ? 5 : 18,
-        backgroundColor: incoming ? "#ffffff" : palette.green50,
-        border: `1px solid ${incoming ? palette.slate200 : "#bbf7d0"}`,
+        backgroundColor: incoming ? "#ffffff" : palette.emerald50,
+        border: `1px solid ${incoming ? palette.slate200 : palette.emerald200}`,
         fontFamily: uiFont,
         fontSize: 28,
         fontWeight: 500,
@@ -325,7 +328,8 @@ export const Lane: React.FC<{
         </div>
         <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "space-between" }}>
           {states.map((state) => {
-            const on = fade(frame, [state.start, state.start + 10], [0, 1]) > 0.5;
+            const reached = fade(frame, [state.start, state.start + 10], [0, 1]);
+            const on = reached > 0.5;
 
             return (
               <div key={state.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 180 }}>
@@ -334,8 +338,8 @@ export const Lane: React.FC<{
                     width: 26,
                     height: 26,
                     borderRadius: "50%",
-                    backgroundColor: on ? tones[tone].accent : "#ffffff",
-                    border: `3px solid ${on ? tones[tone].accent : palette.slate300}`,
+                    backgroundColor: blend(reached, "#ffffff", tones[tone].accent),
+                    border: `3px solid ${blend(reached, palette.slate300, tones[tone].accent)}`,
                   }}
                 />
                 <div
@@ -344,7 +348,7 @@ export const Lane: React.FC<{
                     fontFamily: mono,
                     fontSize: 25,
                     fontWeight: on ? 600 : 400,
-                    color: on ? palette.slate900 : palette.slate400,
+                    color: blend(reached, palette.slate400, palette.slate900),
                     whiteSpace: "nowrap",
                   }}
                 >

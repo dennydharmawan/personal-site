@@ -17,7 +17,7 @@ export const LoanCollection: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <Backdrop tone="cyan" />
+      <Backdrop tone="sky" />
       <ClipCard>
         <Chip label="collections" tone="amber" />
         <CardTitle>Queue for r.wijaya</CardTitle>
@@ -44,7 +44,7 @@ export const LoanCollection: React.FC = () => {
               pending="writing"
               result="logged"
               start={270}
-              tone="green"
+              tone="emerald"
             />
             <QueueRow
               account="4471 · Budi S."

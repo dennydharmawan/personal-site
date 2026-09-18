@@ -9,6 +9,8 @@ import { Config } from "@remotion/cli/config";
 import { enableTailwind } from '@remotion/tailwind-v4';
 
 Config.setRspack(true);
-Config.setVideoImageFormat("jpeg");
+// PNG frames keep flat UI fills and small text free of JPEG ringing before the H.264 encode.
+Config.setVideoImageFormat("png");
+Config.setColorSpace("bt709");
 Config.setOverwriteOutput(true);
 Config.overrideBundlerConfig(enableTailwind);

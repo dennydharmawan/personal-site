@@ -6,14 +6,14 @@ import { timing } from "../timing";
 /** Brief's easing: settles without overshoot. */
 export const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-export type Tone = "teal" | "green" | "amber" | "rose" | "slate";
+export type Tone = "sky" | "emerald" | "amber" | "rose" | "slate";
 
 export const tones: Record<Tone, { accent: string; bar: string; border: string; tint: string }> = {
-  amber: { accent: "#b45309", bar: palette.amber500, border: palette.amber500, tint: palette.amber50 },
-  green: { accent: palette.green600, bar: palette.green600, border: "#bbf7d0", tint: palette.green50 },
+  amber: { accent: palette.amber700, bar: palette.amber500, border: palette.amber500, tint: palette.amber50 },
+  emerald: { accent: palette.emerald600, bar: palette.emerald600, border: palette.emerald200, tint: palette.emerald50 },
   rose: { accent: palette.rose600, bar: palette.rose600, border: palette.rose100, tint: palette.rose50 },
+  sky: { accent: palette.sky700, bar: palette.sky600, border: palette.sky200, tint: palette.sky50 },
   slate: { accent: palette.slate500, bar: palette.slate400, border: palette.slate200, tint: palette.slate50 },
-  teal: { accent: palette.teal600, bar: palette.teal600, border: "#99f6e4", tint: palette.teal50 },
 };
 
 const fade = (frame: number, range: readonly number[], values: readonly number[]) =>
