@@ -394,7 +394,7 @@ const heroPulse: DotFieldPulse = { everySeconds: 7, from: [0.6, 0.6], to: [0.78,
 
 export type HeroVariant = 'both' | 'current' | 'dots' | 'sweep';
 
-function HeroPreviewBand({ sweep = false }: { sweep?: boolean }) {
+function HeroPreviewBand({ children, sweep = false }: { children?: ReactNode; sweep?: boolean }) {
   const shouldReduceMotion = useReducedMotion();
   const glowRef = useRef<HTMLDivElement>(null);
   const isGlowInView = useInView(glowRef, { amount: 0.1 });
@@ -423,29 +423,31 @@ function HeroPreviewBand({ sweep = false }: { sweep?: boolean }) {
         ))}
       </div>
 
-      <motion.div
-        className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5"
-        variants={sweep && !shouldReduceMotion ? heroWipeVariants : undefined}
-        transition={{ duration: 1.2, ease: revealEase }}
-      >
-        <picture>
-          <source
-            media="(max-width: 639px)"
-            srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
-          />
-          <source
-            media="(min-width: 1024px)"
-            srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
-          />
-          <motion.img
-            alt="Team collaborating around a laptop with attention directed toward the next action"
-            className="block h-[12.5rem] w-full scale-[1.02] object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
-            decoding="async"
-            src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
-            {...(sweep ? cycle(!!shouldReduceMotion, { x: [0, -5, 0] }, 17, [0, 0.5, 1]) : {})}
-          />
-        </picture>
-      </motion.div>
+      {children ?? (
+        <motion.div
+          className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5"
+          variants={sweep && !shouldReduceMotion ? heroWipeVariants : undefined}
+          transition={{ duration: 1.2, ease: revealEase }}
+        >
+          <picture>
+            <source
+              media="(max-width: 639px)"
+              srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
+            />
+            <source
+              media="(min-width: 1024px)"
+              srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
+            />
+            <motion.img
+              alt="Team collaborating around a laptop with attention directed toward the next action"
+              className="block h-[12.5rem] w-full scale-[1.02] object-cover object-[50%_22%] sm:h-[17rem] lg:h-[18rem]"
+              decoding="async"
+              src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
+              {...(sweep ? cycle(!!shouldReduceMotion, { x: [0, -5, 0] }, 17, [0, 0.5, 1]) : {})}
+            />
+          </picture>
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -483,7 +485,13 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-export function HeroSection({ variant = 'current' }: { variant?: HeroVariant }) {
+export function HeroSection({
+  band,
+  variant = 'current'
+}: {
+  band?: ReactNode;
+  variant?: HeroVariant;
+}) {
   const shouldReduceMotion = useReducedMotion();
   const hasDots = variant === 'dots' || variant === 'both';
   const hasSweep = variant === 'sweep' || variant === 'both';
@@ -520,7 +528,7 @@ export function HeroSection({ variant = 'current' }: { variant?: HeroVariant }) 
           </RevealItem>
 
           <RevealItem>
-            <HeroPreviewBand sweep={hasSweep} />
+            <HeroPreviewBand sweep={hasSweep}>{band}</HeroPreviewBand>
           </RevealItem>
         </div>
 
