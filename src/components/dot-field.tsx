@@ -231,12 +231,15 @@ function resolveCssColor(element: HTMLElement, colorVar: string): [number, numbe
 export function DotField({
   className,
   colorVar = '--color-slate-400',
-  density = 1
+  density = 1,
+  pulse
 }: {
   className?: string;
   colorVar?: string;
   // Share of grid cells that draw a dot. 1 is the full grid.
   density?: number;
+  // A ripple fired on a timer from a point given as fractions of the field box.
+  pulse?: { everySeconds: number; origin: [number, number] };
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -475,6 +478,7 @@ export function DotField({
     let lastFrame = 0;
     let clock = 0;
     let skipClock = true;
+    let nextPulseAt = pulse ? 1.5 : Infinity;
 
     const paint = (time = 0) => {
       if (!targets) return;
@@ -511,6 +515,13 @@ export function DotField({
       lastFrame = now;
       clock += dt;
       measure();
+
+      if (pulse && clock >= nextPulseAt) {
+        ripples.push({ x: pulse.origin[0] * cssW, y: pulse.origin[1] * cssH, born: clock });
+        if (ripples.length > MAX_RIPPLES) ripples.shift();
+        lastSimAt = clock;
+        nextPulseAt = clock + pulse.everySeconds;
+      }
 
       if (interacting) {
         if (hovering) {
@@ -599,7 +610,7 @@ export function DotField({
         gl.deleteTexture(targets[1].tex);
       }
     };
-  }, [colorVar, density]);
+  }, [colorVar, density, pulse]);
 
   return (
     <div ref={wrapRef} className={className} aria-hidden="true">

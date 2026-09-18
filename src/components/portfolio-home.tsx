@@ -1074,15 +1074,15 @@ function AboutCopy({ yearsExperience }: { yearsExperience: number }) {
     <>
       <div className="grid gap-4">
         <RevealItem>
-          <p className={taglineClassName}>About</p>
+          <p className={`${taglineBaseClassName} text-sky-300`}>About</p>
         </RevealItem>
         <RevealItem>
-          <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+          <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-white text-balance sm:text-5xl">
             Full-stack engineer who treats operability as part of the feature.
           </h2>
         </RevealItem>
       </div>
-      <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-700 text-pretty">
+      <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-300 text-pretty">
         <RevealItem>
           <p>
             I have spent {yearsExperience}+ years shipping product and platform work for Indonesian
@@ -1105,46 +1105,58 @@ function AboutCopy({ yearsExperience }: { yearsExperience: number }) {
 
 function AboutFacts({ className }: { className?: string }) {
   return (
-    <ul className={`grid divide-y divide-slate-900/8 sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${className ?? ''}`}>
+    <ul className={`grid divide-y divide-white/10 sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${className ?? ''}`}>
       {aboutFacts.map((fact) => (
         <li key={fact.value} className="grid gap-1 py-4 sm:px-6 sm:first:pl-0">
-          <p className="text-2xl font-heading font-semibold leading-none tracking-tight text-slate-900">
+          <p className="text-2xl font-heading font-semibold leading-none tracking-tight text-white">
             {fact.value}
           </p>
-          <p className="text-[0.8125rem] font-medium leading-5 text-slate-600">{fact.label}</p>
+          <p className="text-[0.8125rem] font-medium leading-5 text-slate-400">{fact.label}</p>
         </li>
       ))}
     </ul>
   );
 }
 
-function AboutRibbon({ yearsExperience }: { yearsExperience: number }) {
+// The ripple starts at the laptop in the photo, as if the dust were the city lights behind it.
+const aboutPulse = { everySeconds: 6, origin: [0.82, 0.62] as [number, number] };
+
+function AboutCard({ yearsExperience }: { yearsExperience: number }) {
   return (
     <RevealGroup
-      className={`grid items-center ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)]`}
+      className="relative isolate overflow-hidden rounded-[2rem] bg-slate-900 ring-1 ring-slate-900/5"
       stagger={0.1}
     >
-      <div className={`grid content-start ${detailStackGapClassName}`}>
-        <AboutCopy yearsExperience={yearsExperience} />
-        <RevealItem>
-          <AboutFacts className="max-w-xl border-t border-slate-900/8" />
+      <DotField
+        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(110%_120%_at_100%_0%,black_25%,transparent_85%)]"
+        colorVar="--color-sky-200"
+        density={0.16}
+        pulse={aboutPulse}
+      />
+      <div className="grid gap-10 px-6 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.54fr)_minmax(0,0.46fr)] lg:items-end lg:gap-16 lg:pl-16 lg:pr-0 lg:pt-20">
+        <div className={`grid content-start lg:pb-20 ${detailStackGapClassName}`}>
+          <AboutCopy yearsExperience={yearsExperience} />
+          <RevealItem>
+            <AboutFacts className="max-w-xl border-t border-white/10" />
+          </RevealItem>
+        </div>
+        <RevealItem className="-mr-6 self-end sm:-mr-10 lg:mr-0">
+          <div className="overflow-hidden rounded-tl-2xl border-l border-t border-white/10 bg-slate-800 shadow-[0_-16px_64px_-16px_--alpha(var(--color-sky-400)/25%)]">
+            <div aria-hidden="true" className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
+              <span className="size-2.5 rounded-full bg-slate-600" />
+              <span className="size-2.5 rounded-full bg-slate-600" />
+              <span className="size-2.5 rounded-full bg-slate-600" />
+            </div>
+            <img
+              alt="Laptop open on a coffee table in a dim living room, city lights through the window"
+              className="aspect-[4/3] w-full object-cover object-[50%_60%]"
+              decoding="async"
+              loading="lazy"
+              src={aboutSystemsImage}
+            />
+          </div>
         </RevealItem>
       </div>
-      <RevealItem className="relative isolate py-10">
-        <div
-          aria-hidden="true"
-          className="absolute -inset-x-6 inset-y-0 -z-10 -skew-y-6 rounded-[2rem] bg-[linear-gradient(120deg,var(--color-sky-200),var(--color-violet-200)_55%,var(--color-sky-100))] lg:-right-[50vw]"
-        />
-        <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/35%)]">
-          <img
-            alt="Laptop open on a coffee table in a dim living room, city lights through the window"
-            className="aspect-[4/3] w-full object-cover object-[50%_60%]"
-            decoding="async"
-            loading="lazy"
-            src={aboutSystemsImage}
-          />
-        </div>
-      </RevealItem>
     </RevealGroup>
   );
 }
@@ -1153,7 +1165,7 @@ function AboutSection() {
   return (
     <section className={sectionPaddingClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
-        <AboutRibbon yearsExperience={getYearsExperience()} />
+        <AboutCard yearsExperience={getYearsExperience()} />
       </div>
     </section>
   );
