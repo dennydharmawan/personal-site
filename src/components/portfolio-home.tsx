@@ -21,6 +21,7 @@ import {
 import type { HTMLMotionProps } from 'motion/react';
 import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
 import { CapabilityInstrument } from '@/components/capability-instruments';
+import { DotField } from '@/components/dot-field';
 import {
   aboutSystemsImage,
   experiences,
@@ -988,22 +989,43 @@ function ExperienceSection() {
   );
 }
 
-function CapabilitiesBento() {
+function CapabilityCards() {
   return (
-    <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
-      {expertiseItems.map((item) => (
-        <RevealItem
-          key={item.title}
-          className="grid content-start gap-5 rounded-[1.75rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-5"
-        >
-          <CapabilityInstrument className="bg-slate-50 shadow-none" kind={item.kind} />
-          <div className="grid gap-2 px-2 pb-3">
-            <h3 className="text-lg font-semibold leading-7 text-slate-900">{item.title}</h3>
-            <p className="text-base font-normal leading-7 text-slate-700 text-pretty">{item.body}</p>
-          </div>
-        </RevealItem>
-      ))}
-    </RevealGroup>
+    <div className="relative isolate">
+      <DotField
+        className="pointer-events-none absolute inset-0 -z-10"
+        colorVar="--color-slate-500"
+        density={0.1}
+      />
+      <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
+        {expertiseItems.map((item) => (
+          <RevealItem
+            key={item.title}
+            className="relative grid h-[30rem] content-start overflow-hidden rounded-[2rem] bg-slate-100/70 ring-1 ring-slate-900/5 sm:h-[34rem]"
+          >
+            <div className="grid gap-3 p-7 sm:p-10">
+              <h3 className="max-w-md text-2xl font-heading font-normal leading-[1.15] tracking-tight text-slate-900 text-balance sm:text-[2rem]">
+                {item.title} <span className="text-slate-500">{item.tail}</span>
+              </h3>
+              <p className="max-w-md text-sm font-normal leading-6 text-slate-600 text-pretty">
+                {item.body}
+              </p>
+            </div>
+            <div className="ml-7 overflow-hidden rounded-tl-2xl border-l border-t border-slate-900/10 bg-white/70 shadow-[0_-12px_40px_-24px_--alpha(var(--color-slate-900)/35%)] backdrop-blur-sm sm:ml-10">
+              <div aria-hidden="true" className="flex items-center gap-1.5 border-b border-slate-900/6 px-4 py-3">
+                <span className="size-2.5 rounded-full bg-slate-200" />
+                <span className="size-2.5 rounded-full bg-slate-200" />
+                <span className="size-2.5 rounded-full bg-slate-200" />
+              </div>
+              <CapabilityInstrument
+                className="rounded-none bg-white shadow-none ring-0"
+                kind={item.kind}
+              />
+            </div>
+          </RevealItem>
+        ))}
+      </RevealGroup>
+    </div>
   );
 }
 
@@ -1026,7 +1048,7 @@ function CapabilitiesSection() {
           </RevealItem>
         </RevealGroup>
 
-        <CapabilitiesBento />
+        <CapabilityCards />
       </div>
     </section>
   );
