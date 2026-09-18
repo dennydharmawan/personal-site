@@ -1,6 +1,7 @@
-import type { JSX } from 'react';
+import { useRef, type JSX } from 'react';
 import {
   motion,
+  useInView,
   useReducedMotion,
   type TargetAndTransition,
   type Transition
@@ -80,15 +81,17 @@ function codeLines(lines: string[], x: number, top: number, lit: number): JSX.El
 function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
   const request = cycle(
     reduced,
-    { cx: [146, 152, 168, 174, 174], cy: [104, 102, 72, 70, 70], opacity: [0, 1, 1, 0, 0] },
+    {
+      opacity: [0, 1, 1, 0, 0],
+      transform: ['translate(0px, 0px)', 'translate(6px, -2px)', 'translate(22px, -32px)', 'translate(28px, -34px)', 'translate(28px, -34px)']
+    },
     4.8,
     [0, 0.06, 0.3, 0.38, 1]
   );
   const response = cycle(
     reduced,
     {
-      cx: [174, 174, 168, 152, 146, 146],
-      cy: [70, 70, 72, 102, 104, 104],
+      transform: ['translate(0px, 0px)', 'translate(0px, 0px)', 'translate(-6px, 2px)', 'translate(-22px, 32px)', 'translate(-28px, 34px)', 'translate(-28px, 34px)'],
       opacity: [0, 0, 1, 1, 0, 0]
     },
     4.8,
@@ -162,7 +165,10 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
               key={line}
               {...cycle(
                 reduced,
-                { opacity: [0, 0, 1, 1, 0], x: [-4, -4, 0, 0, 0] },
+                {
+                  opacity: [0, 0, 1, 1, 0],
+                  transform: ['translateX(-4px)', 'translateX(-4px)', 'translateX(0px)', 'translateX(0px)', 'translateX(0px)']
+                },
                 6.4,
                 [0, start, start + 0.05, 0.94, 0.99]
               )}
@@ -208,7 +214,13 @@ function StatusRow({ children, label, value }: { children: JSX.Element; label: s
 }
 
 function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
-  const slide = cycle(reduced, { x: [0, -seriesPeriod] }, seriesDuration, [0, 1], { ease: 'linear' });
+  const slide = cycle(
+    reduced,
+    { transform: ['translateX(0px)', `translateX(-${seriesPeriod}px)`] },
+    seriesDuration,
+    [0, 1],
+    { ease: 'linear' }
+  );
 
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-4">
@@ -273,7 +285,7 @@ type GateChip = {
 const gateChips: GateChip[] = [
   {
     className: 'left-[3%] top-[22%] bg-sky-50 text-sky-700 ring-sky-200/70',
-    drift: { x: [0, 6, 0], y: [0, -7, 0] },
+    drift: { transform: ['translate(0px, 0px)', 'translate(6px, -7px)', 'translate(0px, 0px)'] },
     duration: 9,
     delay: 0,
     id: 'types',
@@ -281,7 +293,7 @@ const gateChips: GateChip[] = [
   },
   {
     className: 'right-[4%] top-[13%] bg-emerald-50 text-emerald-700 ring-emerald-200/70',
-    drift: { x: [0, -5, 0], y: [0, 8, 0] },
+    drift: { transform: ['translate(0px, 0px)', 'translate(-5px, 8px)', 'translate(0px, 0px)'] },
     duration: 11,
     delay: 0.7,
     id: 'lint',
@@ -289,7 +301,7 @@ const gateChips: GateChip[] = [
   },
   {
     className: 'bottom-[13%] left-[7%] bg-sky-50 text-sky-700 ring-sky-200/70',
-    drift: { x: [0, 7, 0], y: [0, 6, 0] },
+    drift: { transform: ['translate(0px, 0px)', 'translate(7px, 6px)', 'translate(0px, 0px)'] },
     duration: 10,
     delay: 1.4,
     id: 'tests',
@@ -297,7 +309,7 @@ const gateChips: GateChip[] = [
   },
   {
     className: 'right-[3%] bottom-[21%] bg-violet-50 text-violet-700 ring-violet-200/70',
-    drift: { x: [0, -6, 0], y: [0, -6, 0] },
+    drift: { transform: ['translate(0px, 0px)', 'translate(-6px, -6px)', 'translate(0px, 0px)'] },
     duration: 12,
     delay: 2.1,
     id: 'review',
@@ -317,7 +329,7 @@ function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
         <div className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200/70" />
         <motion.span
           className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-300"
-          {...cycle(reduced, { opacity: [0, 0.9, 0], scale: [0.72, 1.12, 1.12] }, 5.2, [0, 0.55, 1])}
+          {...cycle(reduced, { opacity: [0, 0.9, 0], transform: ['scale(0.72)', 'scale(1.12)', 'scale(1.12)'] }, 5.2, [0, 0.55, 1])}
         />
         <div className="absolute top-1/2 left-1/2 flex aspect-square h-[34%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-slate-900)/45%)] ring-1 ring-slate-900/5">
           <svg className="h-1/2 w-1/2" fill="none" viewBox="0 0 24 24">
@@ -357,10 +369,14 @@ export function CapabilityInstrument({
   className?: string;
   kind: CapabilityKind;
 }): JSX.Element {
-  const reduced = useReducedMotion() === true;
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref);
+  // Off screen, the illustration remounts in its static state so no loop ticks where nobody can see it.
+  const reduced = useReducedMotion() === true || !isInView;
 
   return (
     <div
+      ref={ref}
       aria-label={instrumentLabels[kind]}
       className={cn(
         'relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-900/5',
@@ -368,7 +384,7 @@ export function CapabilityInstrument({
       )}
       role="img"
     >
-      <div aria-hidden="true" className="aspect-[4/3] w-full">
+      <div aria-hidden="true" className="aspect-[4/3] w-full" key={reduced ? 'static' : 'looping'}>
         {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
         {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
         {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}

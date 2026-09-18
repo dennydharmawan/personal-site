@@ -71,10 +71,13 @@ const taglineClassName = `${taglineBaseClassName} text-sky-700`;
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
 const revealEase = [0.22, 1, 0.36, 1] as const;
+// A transform string runs on the compositor through WAAPI. Motion's independent y would tick on the main thread.
 const revealTransition = {
   opacity: { duration: 0.5, ease: 'linear' as const },
-  y: { duration: 1, ease: revealEase }
+  transform: { duration: 1, ease: revealEase }
 };
+const revealHidden = { opacity: 0, transform: 'translateY(24px)' };
+const revealVisible = { opacity: 1, transform: 'translateY(0px)' };
 const revealViewport = { margin: '0px 0px -10% 0px', once: true };
 
 const anchorScrollOffset = 76;
@@ -167,8 +170,8 @@ function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={revealHidden}
+      whileInView={revealVisible}
       viewport={revealViewport}
       transition={shouldReduceMotion ? { duration: 0 } : { delay, ...revealTransition }}
     >
@@ -177,10 +180,7 @@ function Reveal({
   );
 }
 
-const revealVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 }
-};
+const revealVariants = { hidden: revealHidden, visible: revealVisible };
 
 function RevealGroup({
   children,
@@ -343,7 +343,7 @@ const heroGlowBlobs: HeroGlowBlob[] = [
     id: 'violet',
     className:
       '-bottom-[22%] -left-[8%] w-[60%] bg-[radial-gradient(circle,--alpha(var(--color-violet-400)/20%),--alpha(var(--color-violet-400)/0%)_70%)]',
-    animate: { x: [0, 38], y: [0, -24], scale: [1, 1.08] },
+    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(38px, -24px) scale(1.08)'] },
     duration: 18,
     delay: 0
   },
@@ -351,7 +351,7 @@ const heroGlowBlobs: HeroGlowBlob[] = [
     id: 'sky',
     className:
       '-bottom-[26%] left-[28%] w-[48%] bg-[radial-gradient(circle,--alpha(var(--color-sky-400)/14%),--alpha(var(--color-sky-400)/0%)_70%)]',
-    animate: { x: [0, -28], y: [0, 18], scale: [1, 1.06] },
+    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(-28px, 18px) scale(1.06)'] },
     duration: 14,
     delay: 1.6
   },
@@ -359,7 +359,7 @@ const heroGlowBlobs: HeroGlowBlob[] = [
     id: 'pink',
     className:
       '-right-[8%] top-[38%] w-[42%] bg-[radial-gradient(circle,--alpha(var(--color-pink-400)/10%),--alpha(var(--color-pink-400)/0%)_70%)]',
-    animate: { x: [0, 22], y: [0, 34], scale: [1, 1.07] },
+    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(22px, 34px) scale(1.07)'] },
     duration: 22,
     delay: 3.4
   }
@@ -381,7 +381,7 @@ function HeroPreviewBand() {
         {heroGlowBlobs.map((blob) => (
           <motion.div
             key={blob.id}
-            className={`absolute aspect-[10/7] rounded-full blur-3xl will-change-transform ${blob.className}`}
+            className={`absolute aspect-[10/7] rounded-full blur-3xl ${isGlowBreathing ? 'will-change-transform' : ''} ${blob.className}`}
             animate={isGlowBreathing ? blob.animate : false}
             transition={{
               duration: blob.duration,
