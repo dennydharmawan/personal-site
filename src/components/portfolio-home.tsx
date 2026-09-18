@@ -41,14 +41,6 @@ const navItems = [
   { label: 'Contact', target: 'contact' }
 ];
 
-const footerNavItems = [
-  { label: 'Home', target: 'top' },
-  { label: 'Work Samples', target: 'work' },
-  { label: 'Experience', target: 'experience' },
-  { label: 'About', target: 'about' },
-  { label: 'Contact', target: 'contact' }
-];
-
 const footerSocialLinks = [
   {
     href: 'https://www.linkedin.com/in/ddharmawan',
@@ -1195,17 +1187,6 @@ function AboutSection({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-function ContactActions() {
-  return (
-    <Button asChild size="lg" className="min-h-11 rounded-full px-5">
-      <a href={`mailto:${contactEmail}`}>
-        <Mail data-icon="inline-start" className="size-4" />
-        Let&apos;s chat
-      </a>
-    </Button>
-  );
-}
-
 export default function PortfolioHome() {
   const yearsExperience = getYearsExperience();
 
@@ -1225,30 +1206,6 @@ export default function PortfolioHome() {
         <CapabilitiesSection />
 
         <AboutSection yearsExperience={yearsExperience} />
-
-        <section className={sectionPaddingClassName} data-scroll-target="contact">
-          <div className={pageShellClassName}>
-            <RevealGroup className="mx-auto grid max-w-3xl justify-items-center gap-6 rounded-[2rem] border border-slate-900/6 bg-white px-6 py-16 text-center shadow-sm sm:px-10 lg:py-20">
-              <RevealItem>
-                <p className={taglineClassName}>Next</p>
-              </RevealItem>
-              <RevealItem>
-                <h2 className="max-w-2xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
-                  Open to engineering roles.
-                </h2>
-              </RevealItem>
-              <RevealItem>
-                <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
-                  Senior full-stack and platform work. Email if you want to discuss a team, a problem
-                  space, or the resume.
-                </p>
-              </RevealItem>
-              <RevealItem>
-                <ContactActions />
-              </RevealItem>
-            </RevealGroup>
-          </div>
-        </section>
 
         <SiteFooter />
       </main>
@@ -1270,22 +1227,6 @@ const jakartaDayFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: jakartaTimeZone,
   weekday: 'short'
 });
-const jakartaPartsFormatter = new Intl.DateTimeFormat('en-US', {
-  hour: 'numeric',
-  hour12: false,
-  timeZone: jakartaTimeZone,
-  weekday: 'short'
-});
-
-function isJakartaWorkingHours(date: Date) {
-  const parts = jakartaPartsFormatter.formatToParts(date);
-  const weekday = parts.find((part) => part.type === 'weekday')?.value ?? '';
-  // Intl may emit "24" for midnight under hour12: false; normalise so the range check holds.
-  const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? '0') % 24;
-  const isWeekday = !['Sat', 'Sun'].includes(weekday);
-
-  return isWeekday && hour >= 9 && hour < 18;
-}
 
 function useJakartaClock() {
   // Starts null so the server render and first client render agree; the clock fills in after mount.
@@ -1305,7 +1246,6 @@ function useJakartaClock() {
 function FooterStatusCard() {
   const now = useJakartaClock();
   const shouldReduceMotion = useReducedMotion();
-  const isOnline = now ? isJakartaWorkingHours(now) : false;
 
   return (
     <div className="rounded-[1.75rem] border border-slate-900/6 bg-white p-6 shadow-sm sm:p-7">
@@ -1333,36 +1273,25 @@ function FooterStatusCard() {
           {now ? jakartaDayFormatter.format(now) : 'Jakarta'} · WIB (UTC+7)
         </p>
       </div>
-
-      <dl className="mt-7 grid gap-3 border-t border-slate-900/6 pt-5 text-sm">
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-slate-500">Right now</dt>
-          <dd className="text-right text-slate-800">
-            {now ? (isOnline ? 'Likely at the keyboard' : 'Probably away, will reply') : '—'}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-slate-500">Based in</dt>
-          <dd className="text-right text-slate-800">Jakarta, Indonesia</dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-slate-500">Looking for</dt>
-          <dd className="text-right text-slate-800">Senior full-stack · platform</dd>
-        </div>
-      </dl>
     </div>
   );
 }
 
-function SiteFooter() {
+export type FooterVariant = 'lean' | 'status';
+
+export function SiteFooter({ variant = 'lean' }: { variant?: FooterVariant }) {
   const shouldReduceMotion = useReducedMotion();
   const footerLinkClassName =
     'inline-flex min-h-9 w-fit items-center gap-1.5 text-left text-slate-600 transition-colors hover:text-slate-900 focus-visible:text-slate-900 focus-visible:outline-none';
 
   return (
-    <footer className="mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
-      <div className={`${pageShellClassName} pt-20 md:pt-28 lg:pt-32`}>
-        <RevealGroup className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] lg:items-start lg:gap-x-20">
+    <footer data-scroll-target="contact" className="mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
+      <div className={`${pageShellClassName} pt-20 md:pt-24`}>
+        <RevealGroup
+          className={`grid gap-12 lg:items-start lg:gap-x-20 ${
+            variant === 'status' ? 'lg:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)]' : ''
+          }`}
+        >
           <div className={`grid content-start ${detailStackGapClassName}`}>
             <RevealItem>
               <p className={taglineClassName}>Sign-off</p>
@@ -1384,61 +1313,35 @@ function SiteFooter() {
             </RevealItem>
           </div>
 
-          <RevealItem>
-            <FooterStatusCard />
-          </RevealItem>
+          {variant === 'status' ? (
+            <RevealItem>
+              <FooterStatusCard />
+            </RevealItem>
+          ) : null}
         </RevealGroup>
 
-        <RevealGroup className="mt-16 grid gap-10 border-t border-slate-900/6 pt-10 text-sm font-medium sm:grid-cols-3 md:mt-20">
-          <RevealItem>
-            <nav className="grid content-start gap-1">
-              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Navigate</p>
-              {footerNavItems.map((item) => (
-                <button
-                  key={item.target}
-                  type="button"
-                  className={footerLinkClassName}
-                  onClick={(event) => scrollToTarget(event, item.target)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-          </RevealItem>
-          <RevealItem>
-            <div className="grid content-start gap-1">
-              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Elsewhere</p>
-              {footerSocialLinks.map((item) => {
-                const Icon = item.icon;
+        <RevealGroup className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-1 border-t border-slate-900/6 pt-6 text-sm font-medium md:mt-16">
+          {footerSocialLinks.map((item) => {
+            const Icon = item.icon;
 
-                return (
-                  <a
-                    key={item.href}
-                    className={`group ${footerLinkClassName}`}
-                    href={item.href}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-sky-700" />
-                    <span>{item.label}</span>
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="size-3.5 text-slate-300 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-slate-900"
-                    />
-                  </a>
-                );
-              })}
-            </div>
-          </RevealItem>
-          <RevealItem>
-            <div className="grid content-start gap-1">
-              <p className={`${taglineBaseClassName} mb-3 text-slate-900`}>Colophon</p>
-              <p className="max-w-xs font-normal leading-6 text-slate-600">
-                Built with Astro, React, Tailwind, and Motion. Set in Bricolage Grotesque and
-                Instrument Sans. No trackers, no cookies.
-              </p>
-            </div>
-          </RevealItem>
+            return (
+              <RevealItem key={item.href}>
+                <a
+                  className={`group ${footerLinkClassName}`}
+                  href={item.href}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-sky-700" />
+                  <span>{item.label}</span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-3.5 text-slate-300 transition-[color,transform] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-slate-900"
+                  />
+                </a>
+              </RevealItem>
+            );
+          })}
         </RevealGroup>
       </div>
 
