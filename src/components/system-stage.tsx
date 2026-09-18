@@ -76,6 +76,8 @@ function StageMedia({ playing }: { playing: boolean }): JSX.Element {
       aria-label={stageDescription}
       className={stageMediaClassName}
       key={source.video}
+      disablePictureInPicture
+      disableRemotePlayback
       loop
       muted
       playsInline

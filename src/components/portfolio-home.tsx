@@ -747,6 +747,8 @@ function ProjectMedia({ project }: { project: Project }) {
       ref={videoRef}
       aria-label={`${project.title} interface recording`}
       className={projectMediaClassName}
+      disablePictureInPicture
+      disableRemotePlayback
       loop
       muted
       playsInline
