@@ -1277,17 +1277,9 @@ function FooterHeadline({ centered = false, dark = false }: { centered?: boolean
   );
 }
 
-const footerPulse = { everySeconds: 7, origin: [0.5, 1] as [number, number] };
-
 function FooterNight() {
   return (
-    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden bg-slate-900 md:mt-12">
-      <DotField
-        className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
-        colorVar="--color-sky-200"
-        density={0.16}
-        pulse={footerPulse}
-      />
+    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden bg-slate-900 bg-[radial-gradient(70%_55%_at_50%_100%,--alpha(var(--color-sky-500)/18%),transparent)] md:mt-12">
       <div className={`${pageShellClassName} pt-20 md:pt-28`}>
         <FooterHeadline dark />
         <FooterSocials dark className="mt-12 border-t border-white/10 pt-6 md:mt-16" />
@@ -1326,14 +1318,17 @@ function FooterMinimal() {
 function FooterCentered() {
   return (
     <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 md:mt-12">
-      <DotField
-        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(45%_70%_at_50%_45%,transparent_55%,black)]"
-        colorVar="--color-slate-500"
-        density={0.14}
-      />
-      <div className={`${pageShellClassName} grid justify-items-center gap-10 py-24 md:py-32`}>
+      <div className={`${pageShellClassName} grid justify-items-center gap-10 pb-10 pt-24 md:pt-32`}>
         <FooterHeadline centered />
         <FooterSocials className="justify-center" />
+      </div>
+      <div className="overflow-hidden">
+        <p
+          aria-hidden="true"
+          className="mx-auto w-fit translate-y-[26%] select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] text-slate-200 sm:whitespace-nowrap"
+        >
+          Denny Dharmawan
+        </p>
       </div>
       <FooterBottomBar />
     </footer>
@@ -1351,11 +1346,6 @@ function FooterCard() {
     <footer data-scroll-target="contact" className="mt-8 md:mt-12">
       <div className={pageShellClassName}>
         <div className="relative isolate overflow-hidden rounded-[2rem] bg-slate-50 ring-1 ring-slate-900/5">
-          <DotField
-            className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(90%_100%_at_100%_0%,black_20%,transparent_78%)]"
-            colorVar="--color-slate-500"
-            density={0.14}
-          />
           <div className="grid gap-10 px-6 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-16 lg:pl-16 lg:pr-0 lg:pt-20">
             <div className="pb-12 lg:pb-20">
               <FooterHeadline />
@@ -1424,11 +1414,6 @@ function FooterCurrent() {
 
   return (
     <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 text-slate-600 md:mt-12">
-      <DotField
-        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(80%_90%_at_100%_0%,black,transparent_75%)]"
-        colorVar="--color-slate-500"
-        density={0.1}
-      />
       <div className={`${pageShellClassName} pt-20 md:pt-24`}>
         <RevealGroup className="grid gap-12">
           <div className={`grid content-start ${detailStackGapClassName}`}>
