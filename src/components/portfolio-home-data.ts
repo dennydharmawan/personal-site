@@ -4,31 +4,36 @@ import type { StageLayerId } from '@/components/system-stage-data';
 export const aboutSystemsImage = '/portfolio-previews/about-evening-workspace-relume.png';
 
 export type ExpertiseItem = {
-  body: string;
   kind: CapabilityKind;
+  tail: string;
   title: string;
+  windowLabel: string;
 };
 
 export const expertiseItems: ExpertiseItem[] = [
   {
-    body: 'Most of my work is TypeScript across React, Next.js, and Node services in fintech. I optimize for code another engineer can change six months later without the original author in the room.',
     kind: 'fullstack',
-    title: 'Full-stack engineering'
+    tail: 'another engineer can change six months later',
+    title: 'Full-stack engineering',
+    windowLabel: 'accounts.trace'
   },
   {
-    body: 'I run AI coding tools in production delivery, not as a demo. Spec-driven prompts and structured context are part of how I ship, and I have walked the engineering team through that setup.',
     kind: 'ai',
-    title: 'AI-assisted delivery'
+    tail: 'running in production, not in a demo',
+    title: 'AI-assisted delivery',
+    windowLabel: 'agent.run'
   },
   {
-    body: 'I design APIs, queues, access control, and monitoring for systems that have to stay up. Banking work keeps data integrity, auditability, and operational risk in the design from day one.',
     kind: 'production',
-    title: 'Production systems'
+    tail: 'designed to stay up',
+    title: 'Production systems',
+    windowLabel: 'status'
   },
   {
-    body: 'I write the git workflow, shared packages, and review bar other teams extend. Mentoring and design review are part of how the platforms stay coherent as they grow.',
     kind: 'standards',
-    title: 'Engineering standards'
+    tail: 'other teams extend',
+    title: 'Engineering standards',
+    windowLabel: 'review.gate'
   }
 ];
 

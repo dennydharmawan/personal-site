@@ -6,6 +6,16 @@ import {
   type TargetAndTransition,
   type Transition
 } from 'motion/react';
+import {
+  SiAstro,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiPostgresql,
+  SiReact,
+  SiRedis,
+  SiTailwindcss,
+  SiTypescript
+} from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
 export type CapabilityKind = 'ai' | 'fullstack' | 'production' | 'standards';
@@ -391,5 +401,47 @@ export function CapabilityInstrument({
         {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
       </div>
     </div>
+  );
+}
+
+const stackTiles = [
+  { Icon: SiReact, drift: 'translateY(-4px)', duration: 5.2, label: 'React' },
+  { Icon: SiNextdotjs, drift: 'translateY(3px)', duration: 6.4, label: 'Next.js' },
+  { Icon: SiTypescript, drift: 'translateY(-5px)', duration: 4.6, label: 'TypeScript' },
+  { Icon: SiNodedotjs, drift: 'translateY(4px)', duration: 5.8, label: 'Node.js' },
+  { Icon: SiPostgresql, drift: 'translateY(-3px)', duration: 6.9, label: 'PostgreSQL' },
+  { Icon: SiRedis, drift: 'translateY(5px)', duration: 5.5, label: 'Redis' },
+  { Icon: SiTailwindcss, drift: 'translateY(-4px)', duration: 6.1, label: 'Tailwind CSS' },
+  { Icon: SiAstro, drift: 'translateY(3px)', duration: 4.9, label: 'Astro' }
+];
+
+export function StackGrid({ className }: { className?: string }): JSX.Element {
+  const ref = useRef<HTMLUListElement>(null);
+  const isInView = useInView(ref);
+  const reduced = useReducedMotion() === true || !isInView;
+
+  return (
+    <ul
+      ref={ref}
+      aria-label="Stack: React, Next.js, TypeScript, Node.js, PostgreSQL, Redis, Tailwind CSS, Astro"
+      className={cn('grid grid-cols-4 gap-3', className)}
+      key={reduced ? 'static' : 'looping'}
+    >
+      {stackTiles.map(({ Icon, drift, duration, label }, index) => (
+        <motion.li
+          key={label}
+          className={cn(
+            'grid aspect-square place-items-center rounded-2xl bg-white text-slate-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-slate-900)/40%)] ring-1 ring-slate-900/5',
+            index === 2 && 'text-sky-600'
+          )}
+          title={label}
+          {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
+            delay: index * 0.37
+          })}
+        >
+          <Icon aria-hidden="true" className="size-[42%]" />
+        </motion.li>
+      ))}
+    </ul>
   );
 }

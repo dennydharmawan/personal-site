@@ -22,9 +22,10 @@ import type { HTMLMotionProps } from 'motion/react';
 import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
 import {
   CapabilityInstrument,
-  type CapabilityKind
+  StackGrid
 } from '@/components/capability-instruments';
 import { DotField } from '@/components/dot-field';
+import { ParticleStream } from '@/components/particle-stream';
 import {
   aboutSystemsImage,
   experiences,
@@ -994,47 +995,74 @@ function ExperienceSection() {
   );
 }
 
-const capabilityBackdrops: Record<CapabilityKind, string> = {
-  ai: 'bg-[radial-gradient(90%_70%_at_85%_10%,var(--color-violet-300),transparent_60%),radial-gradient(110%_80%_at_10%_100%,var(--color-sky-300),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-violet-100))]',
-  fullstack:
-    'bg-[radial-gradient(90%_70%_at_15%_5%,var(--color-sky-300),transparent_60%),radial-gradient(110%_80%_at_90%_100%,var(--color-violet-200),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-sky-100))]',
-  production:
-    'bg-[radial-gradient(90%_70%_at_80%_0%,var(--color-sky-200),transparent_60%),radial-gradient(120%_80%_at_20%_100%,var(--color-emerald-200),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-sky-100))]',
-  standards:
-    'bg-[radial-gradient(90%_70%_at_20%_0%,var(--color-violet-200),transparent_60%),radial-gradient(120%_80%_at_85%_100%,var(--color-sky-400),transparent_60%),linear-gradient(var(--color-slate-100),var(--color-violet-100))]'
-};
+const bentoCardClassName =
+  'relative isolate flex min-h-[27rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-100';
+const bentoWindowShadowClassName =
+  'shadow-[0_28px_56px_-24px_--alpha(var(--color-slate-900)/30%)]';
+
+function BentoHeading({ tail, title }: { tail: string; title: string }) {
+  return (
+    <h3 className="max-w-[24rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-slate-900 text-balance sm:p-9 sm:text-[1.75rem]">
+      {title} <span className="text-slate-500">{tail}</span>
+    </h3>
+  );
+}
+
+function BentoWindow({ children, label, wide }: { children: ReactNode; label: string; wide: boolean }) {
+  return (
+    <div
+      className={`mt-auto overflow-hidden rounded-t-xl border border-b-0 border-slate-200 bg-white ${bentoWindowShadowClassName} ${
+        wide ? 'mx-7 sm:mr-0 sm:ml-[18%] sm:rounded-tr-none sm:border-r-0' : 'mx-7'
+      }`}
+    >
+      <div className="flex items-center gap-1.5 border-b border-slate-200 px-4 py-3">
+        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
+        <span className="mx-auto pr-8 text-[11px] font-medium text-slate-500">{label}</span>
+      </div>
+      <div className={wide ? '-mb-16' : '-mb-10'}>{children}</div>
+    </div>
+  );
+}
+
+const wideCardCount = 2;
+const spiralOrigin: [number, number] = [0.1, 1.2];
+const spiralMaskClassName =
+  '[mask-image:radial-gradient(120%_110%_at_75%_0%,black_35%,transparent_85%)]';
 
 function CapabilityCards() {
   return (
-    <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
-      {expertiseItems.map((item) => (
-        <RevealItem
-          key={item.title}
-          className="grid content-start gap-6 rounded-[1.75rem] bg-slate-50 p-5 ring-1 ring-slate-900/5 sm:p-7"
-        >
-          <div className="grid gap-3">
-            <span aria-hidden="true" className="size-2.5 rounded-[3px] bg-sky-500" />
-            <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-slate-900 sm:text-[1.75rem]">
-              {item.title}
-            </h3>
-            <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
-              {item.body}
-            </p>
-          </div>
-          <div
-            className={`relative isolate grid place-items-center overflow-hidden rounded-2xl px-6 py-12 sm:px-12 sm:py-16 ${capabilityBackdrops[item.kind]}`}
+    <RevealGroup className="grid gap-4 lg:grid-cols-6 lg:gap-6" stagger={0.1}>
+      {expertiseItems.map((item, index) => {
+        const wide = index < wideCardCount;
+        return (
+          <RevealItem
+            key={item.title}
+            className={`${bentoCardClassName} ${wide ? 'lg:col-span-3 lg:min-h-[31rem]' : 'lg:col-span-2'}`}
           >
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(0deg,--alpha(var(--color-white)/45%)_0_1px,transparent_1px_28px),repeating-linear-gradient(90deg,--alpha(var(--color-white)/45%)_0_1px,transparent_1px_28px)] [mask-image:radial-gradient(70%_60%_at_100%_100%,black,transparent)]"
+            <ParticleStream
+              className={`pointer-events-none absolute inset-0 -z-10 size-full ${index === 0 ? spiralMaskClassName : ''}`}
+              origin={spiralOrigin}
+              pattern={index === 0 ? 'spiral' : 'dust'}
+              seed={index + 1}
             />
-            <CapabilityInstrument
-              className="w-full max-w-md rounded-xl bg-white/85 shadow-[0_24px_48px_-20px_--alpha(var(--color-slate-900)/35%)] ring-slate-900/10 backdrop-blur-md"
-              kind={item.kind}
-            />
-          </div>
-        </RevealItem>
-      ))}
+            <BentoHeading tail={item.tail} title={item.title} />
+            <BentoWindow label={item.windowLabel} wide={wide}>
+              <CapabilityInstrument className="rounded-none shadow-none ring-0" kind={item.kind} />
+            </BentoWindow>
+          </RevealItem>
+        );
+      })}
+      <RevealItem className={`${bentoCardClassName} lg:col-span-2`}>
+        <ParticleStream
+          className="pointer-events-none absolute inset-0 -z-10 size-full"
+          pattern="dust"
+          seed={expertiseItems.length + 1}
+        />
+        <BentoHeading tail="from the interface to the queue" title="One TypeScript stack" />
+        <StackGrid className="mx-7 mt-auto -mb-6 [mask-image:linear-gradient(black_55%,transparent)] sm:mx-9" />
+      </RevealItem>
     </RevealGroup>
   );
 }
