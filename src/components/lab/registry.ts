@@ -1,6 +1,6 @@
 import { createElement, type ComponentType } from 'react';
 
-import { CapabilitiesSection, type CapabilitiesLayout } from '@/components/portfolio-home';
+import { AboutSection, type AboutLayout } from '@/components/portfolio-home';
 
 export type LabVariant = {
   Component: ComponentType;
@@ -13,17 +13,16 @@ export type LabSection = {
   variants: LabVariant[];
 };
 
-const capabilities = (layout: CapabilitiesLayout) => () =>
-  createElement(CapabilitiesSection, { layout });
+const about = (layout: AboutLayout) => () => createElement(AboutSection, { layout });
 
 export const labSections: LabSection[] = [
   {
-    section: 'expertise',
+    section: 'about',
     variants: [
-      { Component: capabilities('current'), id: 'current', label: 'Current' },
-      { Component: capabilities('bento'), id: 'bento', label: 'Bento' },
-      { Component: capabilities('spy'), id: 'spy', label: 'Scroll spy' },
-      { Component: capabilities('rows'), id: 'rows', label: 'Rows' }
+      { Component: about('current'), id: 'current', label: 'Current' },
+      { Component: about('ribbon'), id: 'ribbon', label: 'Ribbon' },
+      { Component: about('editorial'), id: 'editorial', label: 'Editorial' },
+      { Component: about('recolor'), id: 'recolor', label: 'Recolor' }
     ]
   }
 ];

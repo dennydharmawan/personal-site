@@ -155,7 +155,7 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
           <span className="text-sky-700">$</span> agent run --spec access-review.md
         </p>
         {agentLines.map((line, index) => {
-          const start = 0.12 + index * 0.13;
+          const start = 0.04 + index * 0.12;
           return (
             <motion.p
               className={cn('truncate', index === 3 ? 'text-sky-700' : undefined)}
@@ -164,7 +164,7 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
                 reduced,
                 { opacity: [0, 0, 1, 1, 0], x: [-4, -4, 0, 0, 0] },
                 6.4,
-                [0, start, start + 0.05, 0.9, 0.97]
+                [0, start, start + 0.05, 0.94, 0.99]
               )}
             >
               {line}
@@ -352,16 +352,10 @@ function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
 
 export function CapabilityInstrument({
   className,
-  kind,
-  placeholder = false,
-  replayToken = 0
+  kind
 }: {
   className?: string;
   kind: CapabilityKind;
-  // Renders the card shell only, so a hidden or not-yet-hydrated set keeps its layout without looping.
-  placeholder?: boolean;
-  // Changing the token remounts the illustration, which restarts its loop from the first keyframe.
-  replayToken?: number;
 }): JSX.Element {
   const reduced = useReducedMotion() === true;
 
@@ -374,15 +368,11 @@ export function CapabilityInstrument({
       )}
       role="img"
     >
-      <div aria-hidden="true" className="aspect-[4/3] w-full" key={replayToken}>
-        {placeholder ? null : (
-          <>
-            {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
-            {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
-            {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}
-            {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
-          </>
-        )}
+      <div aria-hidden="true" className="aspect-[4/3] w-full">
+        {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
+        {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
+        {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}
+        {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
       </div>
     </div>
   );

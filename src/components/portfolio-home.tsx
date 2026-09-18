@@ -155,22 +155,6 @@ function scrollToTarget(
   }
 }
 
-function useMediaQuery(query: string): boolean | null {
-  const [matches, setMatches] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    const sync = () => setMatches(mediaQuery.matches);
-
-    sync();
-    mediaQuery.addEventListener('change', sync);
-
-    return () => mediaQuery.removeEventListener('change', sync);
-  }, [query]);
-
-  return matches;
-}
-
 function Reveal({
   children,
   className,
@@ -1006,85 +990,6 @@ function ExperienceSection() {
   );
 }
 
-export type CapabilitiesLayout = 'bento' | 'current' | 'rows' | 'spy';
-
-function SpyItem({
-  active,
-  index,
-  onActive
-}: {
-  active: boolean;
-  index: number;
-  onActive: (index: number) => void;
-}) {
-  const ref = useRef<HTMLLIElement>(null);
-  const isCentered = useInView(ref, { margin: '-45% 0px -45% 0px' });
-  const item = expertiseItems[index];
-
-  useEffect(() => {
-    if (isCentered) onActive(index);
-  }, [index, isCentered, onActive]);
-
-  return (
-    <li
-      ref={ref}
-      aria-current={active ? 'true' : undefined}
-      className={`grid gap-3 border-l-2 py-10 pl-6 transition-colors duration-300 lg:py-16 ${
-        active ? 'border-sky-500' : 'border-slate-900/8'
-      }`}
-    >
-      <h3
-        className={`text-xl font-semibold leading-7 transition-colors duration-300 ${
-          active ? 'text-slate-900' : 'text-slate-400'
-        }`}
-      >
-        {item.title}
-      </h3>
-      <p
-        className={`max-w-md text-base font-normal leading-7 text-pretty transition-colors duration-300 ${
-          active ? 'text-slate-700' : 'text-slate-400'
-        }`}
-      >
-        {item.body}
-      </p>
-      <CapabilityInstrument className="mt-2 max-w-sm lg:hidden" kind={item.kind} />
-    </li>
-  );
-}
-
-function CapabilitiesSpy() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeItem = expertiseItems[activeIndex];
-
-  return (
-    <div className={`grid ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:items-start`}>
-      <ul className="grid">
-        {expertiseItems.map((item, index) => (
-          <SpyItem
-            key={item.title}
-            active={index === activeIndex}
-            index={index}
-            onActive={setActiveIndex}
-          />
-        ))}
-      </ul>
-      <div className="hidden lg:sticky lg:top-28 lg:block">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeItem.kind}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: easeOut }}
-          >
-            <CapabilityInstrument kind={activeItem.kind} />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
 function CapabilitiesBento() {
   return (
     <RevealGroup className="grid gap-4 md:grid-cols-2 lg:gap-6" stagger={0.1}>
@@ -1104,98 +1009,7 @@ function CapabilitiesBento() {
   );
 }
 
-function CapabilitiesRows() {
-  return (
-    <div className="grid gap-16 lg:gap-24">
-      {expertiseItems.map((item, index) => (
-        <RevealGroup
-          key={item.title}
-          className={`grid items-center ${twoColumnGapClassName} lg:grid-cols-2`}
-          stagger={0.1}
-        >
-          <RevealItem className={`grid gap-3 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
-            <p className={`${taglineBaseClassName} text-slate-400 tabular-nums`}>{`0${index + 1}`}</p>
-            <h3 className="text-2xl font-semibold leading-8 text-slate-900">{item.title}</h3>
-            <p className="max-w-md text-base font-normal leading-7 text-slate-700 text-pretty">
-              {item.body}
-            </p>
-          </RevealItem>
-          <RevealItem>
-            <CapabilityInstrument kind={item.kind} />
-          </RevealItem>
-        </RevealGroup>
-      ))}
-    </div>
-  );
-}
-
-function CapabilitiesCurrent() {
-  const isDesktop = useMediaQuery('(min-width: 80rem)');
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [replayTokens, setReplayTokens] = useState(() => expertiseItems.map(() => 0));
-
-  const activate = (index: number) => {
-    setActiveIndex(index);
-    setReplayTokens((current) =>
-      current.map((token, tokenIndex) => (tokenIndex === index ? token + 1 : token))
-    );
-  };
-
-  return (
-      <RevealGroup
-        className="overflow-clip rounded-[2rem] border border-slate-900/6 bg-white p-4 shadow-sm sm:p-6 lg:p-8"
-        stagger={0.1}
-      >
-        <div className={`grid ${twoColumnGapClassName} xl:grid-cols-[minmax(0,0.78fr)_minmax(28rem,1fr)] xl:items-start`}>
-          <div className={`grid content-start ${detailStackGapClassName} md:grid-cols-2 md:gap-x-10 md:gap-y-10 xl:grid-cols-1 xl:gap-y-6`}>
-            {expertiseItems.map((item, index) => (
-              <RevealItem
-                key={item.title}
-                className="grid content-start gap-2 rounded-xl border-t border-slate-900/8 pt-6 outline-hidden first:border-t-0 first:pt-0 focus-visible:ring-2 focus-visible:ring-sky-300 md:border-t-0 md:pt-0 xl:border-t xl:pt-6 xl:first:border-t-0 xl:first:pt-0"
-                onBlur={() => setActiveIndex(null)}
-                onFocus={() => activate(index)}
-                onMouseEnter={() => activate(index)}
-                onMouseLeave={() => setActiveIndex(null)}
-                tabIndex={0}
-              >
-                <h3
-                  className={`text-base font-semibold leading-6 transition-colors duration-300 ${
-                    activeIndex === index ? 'text-sky-700' : 'text-slate-900'
-                  }`}
-                >
-                  {item.title}
-                </h3>
-                <p className="text-base font-normal leading-7 text-slate-700 text-pretty">
-                  {item.body}
-                </p>
-                {isDesktop === true ? null : (
-                  <CapabilityInstrument
-                    className="mt-2 max-w-sm xl:hidden"
-                    kind={item.kind}
-                    replayToken={replayTokens[index]}
-                  />
-                )}
-              </RevealItem>
-            ))}
-          </div>
-
-          <RevealItem className="hidden gap-3 xl:sticky xl:top-24 xl:grid xl:grid-cols-2">
-            {expertiseItems.map((item, index) => (
-              <div key={item.title}>
-                <CapabilityInstrument
-                  kind={item.kind}
-                  placeholder={isDesktop !== true}
-                  replayToken={replayTokens[index]}
-                />
-              </div>
-            ))}
-          </RevealItem>
-        </div>
-      </RevealGroup>
-  );
-}
-
-export function CapabilitiesSection({ layout = 'current' }: { layout?: CapabilitiesLayout }) {
+function CapabilitiesSection() {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
@@ -1214,115 +1028,246 @@ export function CapabilitiesSection({ layout = 'current' }: { layout?: Capabilit
           </RevealItem>
         </RevealGroup>
 
-
-        {layout === 'current' ? <CapabilitiesCurrent /> : null}
-        {layout === 'bento' ? <CapabilitiesBento /> : null}
-        {layout === 'spy' ? <CapabilitiesSpy /> : null}
-        {layout === 'rows' ? <CapabilitiesRows /> : null}
+        <CapabilitiesBento />
       </div>
     </section>
   );
 }
 
-const aboutFacts = (yearsExperience: number) => [
-  { label: 'years in production', value: `${yearsExperience}+` },
+const aboutFacts = [
   { label: 'regulated delivery since 2019', value: 'Banking' },
   { label: 'React, Next.js, Node', value: 'TypeScript' }
 ];
 
-function AboutSection({ yearsExperience }: { yearsExperience: number }) {
+function AboutCopy({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <>
+      <div className="grid gap-4">
+        <RevealItem>
+          <p className={taglineClassName}>About</p>
+        </RevealItem>
+        <RevealItem>
+          <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+            Full-stack engineer who treats operability as part of the feature.
+          </h2>
+        </RevealItem>
+      </div>
+      <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-700 text-pretty">
+        <RevealItem>
+          <p>
+            I have spent {yearsExperience}+ years shipping product and platform work for Indonesian
+            digital banks. Every release there has to survive audit, incident review, and the next
+            engineer who inherits it.
+          </p>
+        </RevealItem>
+        <RevealItem>
+          <p>
+            Most of my depth is TypeScript across React, Next.js, and Node: distributed services,
+            access control, and the path from interface to API to data to monitoring. I adopt
+            tools, AI coding agents included, on one test: does the team ship and operate better
+            with them.
+          </p>
+        </RevealItem>
+      </div>
+    </>
+  );
+}
+
+function AboutFacts({ className }: { className?: string }) {
+  return (
+    <ul className={`grid divide-y divide-slate-900/8 sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${className ?? ''}`}>
+      {aboutFacts.map((fact) => (
+        <li key={fact.value} className="grid gap-1 py-4 sm:px-6 sm:first:pl-0">
+          <p className="text-2xl font-heading font-semibold leading-none tracking-tight text-slate-900">
+            {fact.value}
+          </p>
+          <p className="text-[0.8125rem] font-medium leading-5 text-slate-600">{fact.label}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function AboutRibbon({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <RevealGroup
+      className={`grid items-center ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)]`}
+      stagger={0.1}
+    >
+      <div className={`grid content-start ${detailStackGapClassName}`}>
+        <AboutCopy yearsExperience={yearsExperience} />
+        <RevealItem>
+          <AboutFacts className="max-w-xl border-t border-slate-900/8" />
+        </RevealItem>
+      </div>
+      <RevealItem className="relative isolate py-10">
+        <div
+          aria-hidden="true"
+          className="absolute -inset-x-6 inset-y-0 -z-10 -skew-y-6 rounded-[2rem] bg-[linear-gradient(120deg,var(--color-sky-200),var(--color-violet-200)_55%,var(--color-sky-100))] lg:-right-[50vw]"
+        />
+        <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/35%)]">
+          <img
+            alt="Laptop open on a coffee table in a dim living room, city lights through the window"
+            className="aspect-[4/3] w-full object-cover object-[50%_60%]"
+            decoding="async"
+            loading="lazy"
+            src={aboutSystemsImage}
+          />
+        </div>
+      </RevealItem>
+    </RevealGroup>
+  );
+}
+
+function AboutEditorial({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <RevealGroup
+      className="grid gap-10 rounded-[2rem] bg-slate-50 px-6 py-12 ring-1 ring-slate-900/5 sm:px-10 sm:py-16 lg:grid-cols-2 lg:gap-x-16 lg:px-16 lg:py-20"
+      stagger={0.1}
+    >
+      <div className="contents">
+        <AboutCopy yearsExperience={yearsExperience} />
+      </div>
+      <RevealItem className="lg:col-span-2">
+        <AboutFacts className="border-t border-slate-900/8 pt-2" />
+      </RevealItem>
+    </RevealGroup>
+  );
+}
+
+function AboutRecolor({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <RevealGroup
+      className="relative isolate overflow-hidden rounded-[2rem] bg-[linear-gradient(115deg,var(--color-sky-100),var(--color-violet-200)_50%,var(--color-sky-300))] ring-1 ring-slate-900/5"
+      stagger={0.1}
+    >
+      <div className="grid gap-10 px-6 pb-0 pt-10 sm:px-10 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-12 lg:p-12 lg:pb-0">
+        <div className={`grid content-start rounded-[1.5rem] bg-white p-6 ring-1 ring-slate-900/5 sm:p-10 lg:mb-12 ${detailStackGapClassName}`}>
+          <AboutCopy yearsExperience={yearsExperience} />
+          <RevealItem>
+            <AboutFacts className="border-t border-slate-900/8" />
+          </RevealItem>
+        </div>
+        <RevealItem className="lg:justify-self-end">
+          <div className="overflow-hidden rounded-t-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/50%)]">
+            <img
+              alt="Laptop open on a coffee table in a dim living room, city lights through the window"
+              className="aspect-[4/3] w-full object-cover object-[50%_60%]"
+              decoding="async"
+              loading="lazy"
+              src={aboutSystemsImage}
+            />
+          </div>
+        </RevealItem>
+      </div>
+    </RevealGroup>
+  );
+}
+
+function AboutCurrent({ yearsExperience }: { yearsExperience: number }) {
+  return (
+    <RevealGroup
+      className="relative isolate overflow-hidden rounded-[2rem] bg-orange-50 ring-1 ring-slate-900/5"
+      stagger={0.1}
+    >
+      <picture aria-hidden="true">
+        <source media="(max-width: 767px)" srcSet={aboutGradientImageSmall} />
+        <img
+          alt=""
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[62%_50%]"
+          decoding="async"
+          loading="lazy"
+          src={aboutGradientImage}
+        />
+      </picture>
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,--alpha(var(--color-white)/34%)_0%,--alpha(var(--color-white)/14%)_60%,--alpha(var(--color-white)/0%)_100%)] lg:bg-[linear-gradient(98deg,--alpha(var(--color-white)/30%)_0%,--alpha(var(--color-white)/14%)_40%,--alpha(var(--color-white)/0%)_62%)]"
+      />
+
+      <div
+        className="grid gap-10 px-6 pb-0 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-16 lg:px-16 lg:pt-20"
+      >
+        <div className={`grid content-start ${detailStackGapClassName} lg:pb-20`}>
+          <div className="grid gap-4">
+            <RevealItem>
+              <p className={taglineClassName}>About</p>
+            </RevealItem>
+            <RevealItem>
+              <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+                Full-stack engineer who treats operability as part of the feature.
+              </h2>
+            </RevealItem>
+          </div>
+
+          <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-800 text-pretty">
+            <RevealItem>
+              <p>
+                I have spent {yearsExperience}+ years shipping product and platform work for
+                Indonesian digital banks. Every release there has to survive audit, incident
+                review, and the next engineer who inherits it.
+              </p>
+            </RevealItem>
+            <RevealItem>
+              <p>
+                Most of my depth is TypeScript across React, Next.js, and Node: distributed
+                services, access control, and the path from interface to API to data to
+                monitoring. I adopt tools, AI coding agents included, on one test: does the
+                team ship and operate better with them.
+              </p>
+            </RevealItem>
+          </div>
+
+          <RevealItem>
+            <ul className="grid max-w-xl divide-y divide-slate-900/8 rounded-2xl bg-white/75 ring-1 ring-slate-900/5 backdrop-blur-md sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              {[{ label: 'years in production', value: `${yearsExperience}+` }, ...aboutFacts].map((fact) => (
+                <li key={fact.value} className="grid gap-1 px-5 py-4 sm:px-5">
+                  <p className="text-xl font-heading font-semibold leading-none tracking-tight text-slate-900 tabular-nums sm:text-2xl">
+                    {fact.value}
+                  </p>
+                  <p className="text-xs font-medium leading-5 text-slate-600 text-pretty sm:text-[0.8125rem]">
+                    {fact.label}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </RevealItem>
+        </div>
+
+        <RevealItem className="relative -mx-2 sm:mx-0 lg:justify-self-end">
+          <div className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/50%)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]">
+            <img
+              alt="Laptop open on a coffee table in a dim living room, city lights through the window"
+              className="aspect-[4/3] w-full object-cover object-[50%_60%]"
+              decoding="async"
+              loading="lazy"
+              src={aboutSystemsImage}
+            />
+          </div>
+        </RevealItem>
+      </div>
+    </RevealGroup>
+  );
+}
+
+export type AboutLayout = 'current' | 'editorial' | 'recolor' | 'ribbon';
+
+export function AboutSection({ layout = 'current' }: { layout?: AboutLayout }) {
+  const yearsExperience = getYearsExperience();
+
   return (
     <section className={sectionPaddingClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
-        <RevealGroup
-          className="relative isolate overflow-hidden rounded-[2rem] bg-orange-50 ring-1 ring-slate-900/5"
-          stagger={0.1}
-        >
-          <picture aria-hidden="true">
-            <source media="(max-width: 767px)" srcSet={aboutGradientImageSmall} />
-            <img
-              alt=""
-              className="absolute inset-0 -z-20 h-full w-full object-cover object-[62%_50%]"
-              decoding="async"
-              loading="lazy"
-              src={aboutGradientImage}
-            />
-          </picture>
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,--alpha(var(--color-white)/34%)_0%,--alpha(var(--color-white)/14%)_60%,--alpha(var(--color-white)/0%)_100%)] lg:bg-[linear-gradient(98deg,--alpha(var(--color-white)/30%)_0%,--alpha(var(--color-white)/14%)_40%,--alpha(var(--color-white)/0%)_62%)]"
-          />
-
-          <div
-            className="grid gap-10 px-6 pb-0 pt-12 sm:px-10 sm:pt-16 lg:grid-cols-[minmax(0,0.56fr)_minmax(0,0.44fr)] lg:items-end lg:gap-16 lg:px-16 lg:pt-20"
-          >
-            <div className={`grid content-start ${detailStackGapClassName} lg:pb-20`}>
-              <div className="grid gap-4">
-                <RevealItem>
-                  <p className={taglineClassName}>About</p>
-                </RevealItem>
-                <RevealItem>
-                  <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
-                    Full-stack engineer who treats operability as part of the feature.
-                  </h2>
-                </RevealItem>
-              </div>
-
-              <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-800 text-pretty">
-                <RevealItem>
-                  <p>
-                    I have spent {yearsExperience}+ years shipping product and platform work for
-                    Indonesian digital banks. Every release there has to survive audit, incident
-                    review, and the next engineer who inherits it.
-                  </p>
-                </RevealItem>
-                <RevealItem>
-                  <p>
-                    Most of my depth is TypeScript across React, Next.js, and Node: distributed
-                    services, access control, and the path from interface to API to data to
-                    monitoring. I adopt tools, AI coding agents included, on one test: does the
-                    team ship and operate better with them.
-                  </p>
-                </RevealItem>
-              </div>
-
-              <RevealItem>
-                <ul className="grid max-w-xl divide-y divide-slate-900/8 rounded-2xl bg-white/75 ring-1 ring-slate-900/5 backdrop-blur-md sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                  {aboutFacts(yearsExperience).map((fact) => (
-                    <li key={fact.value} className="grid gap-1 px-5 py-4 sm:px-5">
-                      <p className="text-xl font-heading font-semibold leading-none tracking-tight text-slate-900 tabular-nums sm:text-2xl">
-                        {fact.value}
-                      </p>
-                      <p className="text-xs font-medium leading-5 text-slate-600 text-pretty sm:text-[0.8125rem]">
-                        {fact.label}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </RevealItem>
-            </div>
-
-            <RevealItem className="relative -mx-2 sm:mx-0 lg:justify-self-end">
-              <div className="translate-y-6 overflow-hidden rounded-t-2xl bg-white ring-1 ring-slate-900/10 shadow-[0_32px_64px_-24px_--alpha(var(--color-slate-900)/50%)] sm:translate-y-8 lg:w-[34rem] lg:translate-x-8 lg:translate-y-12 xl:w-[38rem]">
-                <img
-                  alt="Laptop open on a coffee table in a dim living room, city lights through the window"
-                  className="aspect-[4/3] w-full object-cover object-[50%_60%]"
-                  decoding="async"
-                  loading="lazy"
-                  src={aboutSystemsImage}
-                />
-              </div>
-            </RevealItem>
-          </div>
-        </RevealGroup>
+        {layout === 'current' ? <AboutCurrent yearsExperience={yearsExperience} /> : null}
+        {layout === 'ribbon' ? <AboutRibbon yearsExperience={yearsExperience} /> : null}
+        {layout === 'editorial' ? <AboutEditorial yearsExperience={yearsExperience} /> : null}
+        {layout === 'recolor' ? <AboutRecolor yearsExperience={yearsExperience} /> : null}
       </div>
     </section>
   );
 }
 
 export default function PortfolioHome() {
-  const yearsExperience = getYearsExperience();
-
   usePreventHashNavigation();
 
   return (
@@ -1338,7 +1283,7 @@ export default function PortfolioHome() {
 
         <CapabilitiesSection />
 
-        <AboutSection yearsExperience={yearsExperience} />
+        <AboutSection />
 
         <SiteFooter />
       </main>
