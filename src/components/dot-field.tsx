@@ -230,7 +230,7 @@ function resolveCssColor(element: HTMLElement, colorVar: string): [number, numbe
 
 export function DotField({
   className,
-  colorVar = '--color-slate-400',
+  colorVar = '--color-zinc-400',
   density = 1,
   pulse
 }: {

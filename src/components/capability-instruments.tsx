@@ -61,7 +61,7 @@ function cycle(
   };
 }
 
-const svgLabelClassName = 'fill-slate-500 font-medium';
+const svgLabelClassName = 'fill-zinc-500 font-medium';
 const svgLabelSize = '10.5';
 
 const codeClientLines = ['const { data } =', '  useAccounts()', 'fetch(', "  '/api/accounts'"];
@@ -76,7 +76,7 @@ const codeServerLines = [
 function codeLines(lines: string[], x: number, top: number, lit: number): JSX.Element[] {
   return lines.map((line, index) => (
     <text
-      className={index === lit ? 'fill-sky-700 font-mono' : 'fill-slate-500 font-mono'}
+      className={index === lit ? 'fill-sky-700 font-mono' : 'fill-zinc-500 font-mono'}
       fontSize="10"
       key={line}
       x={x}
@@ -116,8 +116,8 @@ function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
       <text className={svgLabelClassName} fontSize={svgLabelSize} x="174" y="30">
         Server
       </text>
-      <rect className="fill-slate-50 stroke-slate-900/5" height="118" rx="9" width="132" x="14" y="40" />
-      <rect className="fill-slate-50 stroke-slate-900/5" height="118" rx="9" width="132" x="174" y="40" />
+      <rect className="fill-zinc-50 stroke-zinc-900/5" height="118" rx="9" width="132" x="14" y="40" />
+      <rect className="fill-zinc-50 stroke-zinc-900/5" height="118" rx="9" width="132" x="174" y="40" />
       <rect className="fill-sky-50" height="15" rx="3" width="110" x="20" y="101" />
       <rect className="fill-sky-50" height="15" rx="3" width="92" x="180" y="65" />
       {codeLines(codeClientLines, 24, 62, 3)}
@@ -158,12 +158,12 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className="flex h-full flex-col gap-2.5 p-4">
       <div className="flex items-center gap-1.5">
-        <span className="size-1.5 rounded-full bg-slate-200" />
-        <span className="size-1.5 rounded-full bg-slate-200" />
+        <span className="size-1.5 rounded-full bg-zinc-200" />
+        <span className="size-1.5 rounded-full bg-zinc-200" />
         <span className="size-1.5 rounded-full bg-sky-200" />
-        <span className="ml-1 text-xs font-medium text-slate-500">Agent run</span>
+        <span className="ml-1 text-xs font-medium text-zinc-500">Agent run</span>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-slate-50 p-3 font-mono text-[11px] leading-[1.5] text-slate-500 ring-1 ring-slate-900/5">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-zinc-50 p-3 font-mono text-[11px] leading-[1.5] text-zinc-500 ring-1 ring-zinc-900/5">
         <p className="truncate">
           <span className="text-sky-700">$</span> agent run --spec access-review.md
         </p>
@@ -188,7 +188,7 @@ function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
           );
         })}
         <p className="mt-auto flex items-center gap-1">
-          <span className="text-slate-500">$</span>
+          <span className="text-zinc-500">$</span>
           <motion.span
             className="inline-block h-3 w-1.5 bg-sky-600"
             {...cycle(reduced, { opacity: [1, 1, 0, 0] }, 1.1, [0, 0.49, 0.5, 1])}
@@ -214,11 +214,11 @@ const depthBars = Array.from({ length: 24 }, (_, index) => ({
 function StatusRow({ children, label, value }: { children: JSX.Element; label: string; value: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-[5.5rem] shrink-0 truncate text-[11px] font-medium text-slate-600">
+      <span className="w-[5.5rem] shrink-0 truncate text-[11px] font-medium text-zinc-600">
         {label}
       </span>
       <span className="flex h-5 min-w-0 flex-1 items-center">{children}</span>
-      <span className="shrink-0 text-[11px] font-medium tabular-nums text-slate-600">{value}</span>
+      <span className="shrink-0 text-[11px] font-medium tabular-nums text-zinc-600">{value}</span>
     </div>
   );
 }
@@ -235,8 +235,8 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-500">Production</span>
-        <span className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+        <span className="text-xs font-medium text-zinc-500">Production</span>
+        <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
           <motion.span
             className="size-1.5 rounded-full bg-emerald-500"
             {...cycle(reduced, { opacity: [0.45, 1, 0.45] }, 3.6, [0, 0.5, 1])}
@@ -274,11 +274,11 @@ function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
         </svg>
       </StatusRow>
       <StatusRow label="Error budget" value="99.97%">
-        <span className="h-1 w-full overflow-hidden rounded-full bg-slate-100">
+        <span className="h-1 w-full overflow-hidden rounded-full bg-zinc-100">
           <span className="block h-full w-[94%] rounded-full bg-emerald-500/70" />
         </span>
       </StatusRow>
-      <p className="text-[11px] text-slate-500">Last 30 days. Alerts page on-call, not customers.</p>
+      <p className="text-[11px] text-zinc-500">Last 30 days. Alerts page on-call, not customers.</p>
     </div>
   );
 }
@@ -294,7 +294,7 @@ type GateChip = {
 
 const gateChips: GateChip[] = [
   {
-    className: 'left-[3%] top-[22%] bg-sky-50 text-sky-700 ring-sky-200/70',
+    className: 'left-[5%] top-[14%] bg-sky-50 text-sky-700 ring-sky-200/70',
     drift: { transform: ['translate(0px, 0px)', 'translate(6px, -7px)', 'translate(0px, 0px)'] },
     duration: 9,
     delay: 0,
@@ -302,7 +302,7 @@ const gateChips: GateChip[] = [
     label: 'types clean'
   },
   {
-    className: 'right-[4%] top-[13%] bg-emerald-50 text-emerald-700 ring-emerald-200/70',
+    className: 'right-[4%] top-[4%] bg-emerald-50 text-emerald-700 ring-emerald-200/70',
     drift: { transform: ['translate(0px, 0px)', 'translate(-5px, 8px)', 'translate(0px, 0px)'] },
     duration: 11,
     delay: 0.7,
@@ -310,7 +310,7 @@ const gateChips: GateChip[] = [
     label: 'lint 0 errors'
   },
   {
-    className: 'bottom-[13%] left-[7%] bg-sky-50 text-sky-700 ring-sky-200/70',
+    className: 'left-[3%] top-[50%] bg-rose-50 text-rose-700 ring-rose-200/70',
     drift: { transform: ['translate(0px, 0px)', 'translate(7px, 6px)', 'translate(0px, 0px)'] },
     duration: 10,
     delay: 1.4,
@@ -318,7 +318,7 @@ const gateChips: GateChip[] = [
     label: 'tests 14/14'
   },
   {
-    className: 'right-[3%] bottom-[21%] bg-violet-50 text-violet-700 ring-violet-200/70',
+    className: 'right-[3%] top-[62%] bg-violet-50 text-violet-700 ring-violet-200/70',
     drift: { transform: ['translate(0px, 0px)', 'translate(-6px, -6px)', 'translate(0px, 0px)'] },
     duration: 12,
     delay: 2.1,
@@ -330,29 +330,29 @@ const gateChips: GateChip[] = [
 function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className="flex h-full flex-col p-4">
-      <p className="text-sm font-semibold text-slate-900">Nothing merges on trust.</p>
-      <p className="mt-0.5 text-xs leading-snug text-slate-500">
+      <p className="text-sm font-semibold text-zinc-900">Nothing merges on trust.</p>
+      <p className="mt-0.5 text-xs leading-snug text-zinc-500">
         Every branch carries its own proof before it reaches main.
       </p>
       <div className="relative min-h-0 flex-1">
-        <div className="absolute top-1/2 left-1/2 aspect-square h-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200/70" />
-        <div className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200/70" />
+        <div className="absolute top-1/2 left-1/2 aspect-square h-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-zinc-200/70" />
+        <div className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-zinc-200/70" />
         <motion.span
           className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-300"
           {...cycle(reduced, { opacity: [0, 0.9, 0], transform: ['scale(0.72)', 'scale(1.12)', 'scale(1.12)'] }, 5.2, [0, 0.55, 1])}
         />
-        <div className="absolute top-1/2 left-1/2 flex aspect-square h-[34%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-slate-900)/45%)] ring-1 ring-slate-900/5">
+        <div className="absolute top-1/2 left-1/2 flex aspect-square h-[34%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
           <svg className="h-1/2 w-1/2" fill="none" viewBox="0 0 24 24">
             <path
-              className="stroke-slate-900"
+              className="stroke-zinc-900"
               d="M7 4v7a5 5 0 0 0 5 5h5"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="1.6"
             />
-            <circle className="fill-white stroke-slate-900" cx="7" cy="19" r="2.4" strokeWidth="1.6" />
-            <circle className="fill-white stroke-slate-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.6" />
-            <circle className="fill-slate-900" cx="18.5" cy="16" r="2.4" />
+            <circle className="fill-white stroke-zinc-900" cx="7" cy="19" r="2.4" strokeWidth="1.6" />
+            <circle className="fill-white stroke-zinc-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.6" />
+            <circle className="fill-zinc-900" cx="18.5" cy="16" r="2.4" />
           </svg>
         </div>
         {gateChips.map((chip) => (
@@ -389,7 +389,7 @@ export function CapabilityInstrument({
       ref={ref}
       aria-label={instrumentLabels[kind]}
       className={cn(
-        'relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-900/5',
+        'relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-900/5',
         className
       )}
       role="img"
@@ -431,7 +431,7 @@ export function StackGrid({ className }: { className?: string }): JSX.Element {
         <motion.li
           key={label}
           className={cn(
-            'grid aspect-square place-items-center rounded-2xl bg-white text-slate-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-slate-900)/40%)] ring-1 ring-slate-900/5',
+            'grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5',
             index === 2 && 'text-sky-600'
           )}
           title={label}

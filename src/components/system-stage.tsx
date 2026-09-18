@@ -95,32 +95,32 @@ export function SystemStage({ className, onLayerSelect }: SystemStageProps): JSX
 
   return (
     <div className={cn('relative', className)} ref={cardRef}>
-      <div className="grid overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5 lg:grid-cols-[1fr_15rem]">
+      <div className="grid overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5 lg:grid-cols-[1fr_15rem]">
         <div className="grid content-start gap-3 px-5 py-6 sm:px-7 sm:py-7">
           <StageMedia playing={inView} />
 
-          <p className="text-[0.6875rem] leading-tight text-slate-500">
+          <p className="text-[0.6875rem] leading-tight text-zinc-500">
             Card payment, from checkout to ledger
           </p>
         </div>
 
-        <ul className="relative flex flex-col gap-1 border-t border-slate-200/80 px-5 pb-4 pt-4 lg:justify-center lg:gap-1.5 lg:border-l lg:border-t-0 lg:px-0 lg:pb-0 lg:pl-5 lg:pr-5 lg:pt-0">
+        <ul className="relative flex flex-col gap-1 border-t border-zinc-200/80 px-5 pb-4 pt-4 lg:justify-center lg:gap-1.5 lg:border-l lg:border-t-0 lg:px-0 lg:pb-0 lg:pl-5 lg:pr-5 lg:pt-0">
           {stageLayers.map((layer) => (
             <li key={layer.id}>
               <button
-                className="group flex w-full items-start gap-2.5 rounded-lg px-1 py-1 text-left outline-hidden focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="group flex w-full items-start gap-2.5 rounded-lg px-1 py-1 text-left outline-hidden focus-visible:ring-2 focus-visible:ring-zinc-400"
                 onClick={() => onLayerSelect?.(layer.id)}
                 type="button"
               >
                 <span
                   aria-hidden="true"
-                  className="mt-[0.3rem] size-1.5 shrink-0 rounded-full bg-slate-400 transition-colors duration-300 group-focus-visible:bg-sky-600 group-hover:bg-sky-600"
+                  className="mt-[0.3rem] size-1.5 shrink-0 rounded-full bg-zinc-400 transition-colors duration-300 group-focus-visible:bg-sky-600 group-hover:bg-sky-600"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[0.8125rem] font-semibold leading-snug text-slate-900">
+                  <span className="block text-[0.8125rem] font-semibold leading-snug text-zinc-900">
                     {layer.label}
                   </span>
-                  <span className="block text-[0.6875rem] font-medium leading-snug text-slate-500">
+                  <span className="block text-[0.6875rem] font-medium leading-snug text-zinc-500">
                     {layer.caption}
                   </span>
                 </span>

@@ -25,7 +25,7 @@ import {
   StackGrid
 } from '@/components/capability-instruments';
 import { DotField } from '@/components/dot-field';
-import { ParticleStream } from '@/components/particle-stream';
+import { type DustFormation, ParticleStream } from '@/components/particle-stream';
 import {
   aboutSystemsImage,
   experiences,
@@ -64,24 +64,25 @@ const footerSocialLinks = [
 
 const trustedLogoToneClassName = 'grayscale opacity-[0.72] contrast-100';
 const pageShellClassName = 'mx-auto w-[min(1280px,calc(100%-2.5rem))]';
-const sectionPaddingClassName = 'py-20 md:py-28 lg:py-32';
-const sectionHeaderClassName = 'mb-12 grid max-w-3xl gap-4 md:mb-16';
+const sectionPaddingTopClassName = 'pt-20 md:pt-28 lg:pt-32';
+const sectionPaddingBottomClassName = 'pb-20 md:pb-28 lg:pb-32';
+const sectionPaddingClassName = `${sectionPaddingTopClassName} ${sectionPaddingBottomClassName}`;
+const sectionHeaderMarginClassName = 'mb-12 md:mb-16';
+const sectionHeaderClassName = `grid max-w-3xl gap-4 ${sectionHeaderMarginClassName}`;
 const sectionHeaderCenteredClassName = `${sectionHeaderClassName} mx-auto justify-items-center text-center`;
 const sectionContentGapClassName = 'gap-16 md:gap-20 lg:gap-28';
 const twoColumnGapClassName = 'gap-10 lg:gap-16';
 const detailStackGapClassName = 'gap-6';
 const listGapClassName = 'gap-3';
-const taglineBaseClassName = 'text-[0.6875rem] font-medium uppercase tracking-[0.18em]';
-const taglineClassName = `${taglineBaseClassName} text-sky-700`;
 const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 const easeOut = [0.2, 0, 0, 1] as const;
 const revealEase = [0.22, 1, 0.36, 1] as const;
 // A transform string runs on the compositor through WAAPI. Motion's independent y would tick on the main thread.
 const revealTransition = {
-  opacity: { duration: 0.5, ease: 'linear' as const },
-  transform: { duration: 1, ease: revealEase }
+  opacity: { duration: 0.4, ease: 'linear' as const },
+  transform: { duration: 0.6, ease: revealEase }
 };
-const revealHidden = { opacity: 0, transform: 'translateY(24px)' };
+const revealHidden = { opacity: 0, transform: 'translateY(12px)' };
 const revealVisible = { opacity: 1, transform: 'translateY(0px)' };
 const revealViewport = { margin: '0px 0px -10% 0px', once: true };
 
@@ -294,7 +295,7 @@ function EmailActionMenu() {
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 max-w-full gap-2 rounded-full border-slate-900/10 bg-white px-4 text-slate-900 shadow-none transition-colors hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
+        className="h-11 max-w-full gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900"
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((current) => !current)}
@@ -302,7 +303,7 @@ function EmailActionMenu() {
         <span className="truncate">{contactEmail}</span>
         <ChevronDown
           aria-hidden="true"
-          className={`size-4 shrink-0 text-slate-500 transition-transform duration-200 ${
+          className={`size-4 shrink-0 text-zinc-500 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -311,19 +312,19 @@ function EmailActionMenu() {
       {isOpen ? (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-slate-900/8 bg-white p-1 text-sm font-medium text-slate-700 shadow-lg"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-zinc-900/8 bg-white p-1 text-sm font-medium text-zinc-700 shadow-lg"
         >
           <button
             type="button"
             role="menuitem"
-            className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:bg-slate-50 focus-visible:text-slate-900 focus-visible:outline-none"
+            className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:bg-zinc-50 focus-visible:text-zinc-900 focus-visible:outline-none"
             onClick={copyEmail}
           >
             {copyLabel}
           </button>
           <a
             role="menuitem"
-            className="rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:bg-slate-50 focus-visible:text-slate-900 focus-visible:outline-none"
+            className="rounded-xl px-3 py-2.5 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:bg-zinc-50 focus-visible:text-zinc-900 focus-visible:outline-none"
             href={`mailto:${contactEmail}`}
             onClick={() => setIsOpen(false)}
           >
@@ -399,7 +400,7 @@ function HeroPreviewBand() {
         ))}
       </div>
 
-      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-slate-900/5">
+      <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5">
         <picture>
           <source
             media="(max-width: 639px)"
@@ -425,7 +426,7 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   return (
     <div className="grid gap-6 pt-2 min-[520px]:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.36fr)] min-[520px]:items-end lg:gap-8">
       <div className="grid gap-3">
-        <p className="max-w-md text-sm font-medium leading-6 text-slate-700 text-pretty">
+        <p className="max-w-md text-sm font-medium leading-6 text-zinc-700 text-pretty">
           Trusted by teams at Indonesia&apos;s leading digital banks
         </p>
         <div className="flex flex-wrap items-center gap-x-10 gap-y-3">
@@ -443,10 +444,10 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
       </div>
 
       <div className="grid gap-2">
-        <p className="text-5xl font-semibold leading-none text-slate-700 tabular-nums">
+        <p className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
           {yearsExperience}+
         </p>
-        <p className="text-sm font-medium leading-5 text-slate-600 text-pretty">
+        <p className="text-sm font-medium leading-5 text-zinc-600 text-pretty">
           years of experience
         </p>
       </div>
@@ -459,7 +460,7 @@ function HeroSection() {
   const yearsExperience = getYearsExperience();
 
   return (
-    <section className="relative isolate border-b border-slate-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
+    <section className="relative isolate border-b border-zinc-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(280%_160%_at_50%_0%,transparent_32%,black_64%)]"
@@ -474,9 +475,9 @@ function HeroSection() {
       >
         <div className="grid gap-8">
           <RevealItem>
-            <h1 className="max-w-6xl text-[2.5rem] font-heading font-normal leading-[1.04] tracking-tight text-slate-900 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
+            <h1 className="max-w-6xl text-[2.5rem] font-heading font-normal leading-[1.04] tracking-tight text-zinc-900 sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]">
               Building web solutions
-              <span className="block pt-1 text-slate-500 sm:pt-2">that actually scale.</span>
+              <span className="block pt-1 text-zinc-500 sm:pt-2">that actually scale.</span>
             </h1>
           </RevealItem>
 
@@ -491,7 +492,7 @@ function HeroSection() {
           </RevealItem>
 
           <RevealItem className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
-            <p className="max-w-xl text-base font-normal leading-7 text-slate-700 text-pretty">
+            <p className="max-w-xl text-base font-normal leading-7 text-zinc-700 text-pretty">
               I&apos;m a full-stack engineer with hands-on experience building{' '}
               <span className="whitespace-nowrap">large-scale</span> financial systems, where
               scalability, reliability, and maintainability are critical.
@@ -540,7 +541,7 @@ function AnimatedHeader() {
         initial={shouldReduceMotion ? false : { opacity: 0 }}
         animate={{
           backgroundColor: isNavCompact ? 'rgba(255,255,255,0.86)' : 'rgba(255,255,255,0)',
-          borderColor: isNavCompact ? 'rgba(226,232,240,0.9)' : 'rgba(226,232,240,0)',
+          borderColor: isNavCompact ? 'rgba(228,228,231,0.9)' : 'rgba(228,228,231,0)',
           opacity: 1
         }}
         transition={
@@ -568,7 +569,7 @@ function AnimatedHeader() {
           }
         >
           <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-slate-950 transition-colors hover:text-sky-700"
+            className="inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             href="/"
             aria-label="Denny Dharmawan home"
             onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
@@ -585,7 +586,7 @@ function AnimatedHeader() {
             />
             <span className="grid gap-px leading-none">
               <span className="text-base font-semibold">Denny Dharmawan</span>
-              <span className="text-xs font-medium text-slate-500">Full-Stack Engineer</span>
+              <span className="text-xs font-medium text-zinc-500">Full-Stack Engineer</span>
             </span>
           </motion.a>
           <motion.nav
@@ -600,7 +601,7 @@ function AnimatedHeader() {
               <motion.button
                 key={item.target}
                 type="button"
-                className="relative hidden min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-800 transition-colors duration-200 hover:text-slate-950 focus-visible:text-slate-950 sm:inline-flex"
+                className="relative hidden min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 sm:inline-flex"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 onBlur={() => setHoveredNavHref(null)}
@@ -616,7 +617,7 @@ function AnimatedHeader() {
                     <motion.span
                       layoutId="nav-hover-pill"
                       aria-hidden="true"
-                      className="absolute inset-0 rounded-xl bg-slate-100/90 shadow-sm ring-1 ring-slate-300/70"
+                      className="absolute inset-0 rounded-xl bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
                       initial={
                         shouldReduceMotion
                           ? false
@@ -771,18 +772,18 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
       <RevealGroup className={`grid ${detailStackGapClassName} ${isMediaFirst ? 'lg:order-2' : ''}`}>
         <div className="grid gap-3">
           <RevealItem>
-            <p className={taglineClassName}>{project.role}</p>
+            <p className="text-sm font-medium text-sky-700">{project.role}</p>
           </RevealItem>
           <RevealItem>
             <LayerPills layers={project.layers} />
           </RevealItem>
           <RevealItem>
-            <h3 className="max-w-xl text-3xl font-heading font-normal leading-tight tracking-tight text-slate-900 text-balance sm:text-4xl">
+            <h3 className="max-w-xl text-3xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
               {project.title}
             </h3>
           </RevealItem>
           <RevealItem>
-            <p className="max-w-xl text-base font-normal leading-7 text-slate-600 text-pretty">
+            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
               {project.summary}
             </p>
           </RevealItem>
@@ -790,18 +791,18 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
         <RevealItem>
           <ul className={`grid ${listGapClassName}`}>
             {project.bullets.map((bullet) => (
-              <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-slate-700">
+              <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-zinc-700">
                 <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-sky-600" />
                 <span>{bullet}</span>
               </li>
             ))}
           </ul>
         </RevealItem>
-        <RevealItem className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-600">
+        <RevealItem className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-zinc-600">
           {project.stack.map((tech, stackIndex) => (
             <span key={tech} className="inline-flex items-center gap-2">
               {stackIndex > 0 ? (
-                <span aria-hidden="true" className="size-1 rounded-full bg-slate-300" />
+                <span aria-hidden="true" className="size-1 rounded-full bg-zinc-300" />
               ) : null}
               <span>{tech}</span>
             </span>
@@ -818,19 +819,16 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
 
 function WorkSamplesSection() {
   return (
-    <section className={`bg-slate-50 ${sectionPaddingClassName}`} data-scroll-target="work">
+    <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
         <RevealGroup className={sectionHeaderCenteredClassName}>
           <RevealItem>
-            <p className={taglineClassName}>Selected work</p>
-          </RevealItem>
-          <RevealItem>
-            <h2 className="text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+            <h2 className="text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples
             </h2>
           </RevealItem>
           <RevealItem>
-            <p className="max-w-2xl text-base font-normal leading-7 text-slate-600 text-pretty">
+            <p className="max-w-2xl text-base font-normal leading-7 text-zinc-600 text-pretty">
               Employer platforms stay under NDA. These samples show the same systems work: access
               control, operational workflows, payments, and review automation.
             </p>
@@ -852,7 +850,7 @@ function PlayBulletMarker() {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="mt-[0.3125rem] size-3.5 shrink-0 text-sky-300"
+      className="mt-[0.3125rem] size-3.5 shrink-0 text-zinc-400"
     >
       <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/45" />
       <path
@@ -888,16 +886,16 @@ function TimelineEntry({
           <span className="absolute inset-0 animate-ping rounded-full bg-sky-400/40" />
         ) : null}
         <span
-          className={`relative size-2.5 rounded-full ring-4 ring-slate-800 transition-colors duration-500 ${
-            isActive ? 'bg-sky-400' : 'bg-slate-500'
+          className={`relative size-2.5 rounded-full ring-4 ring-zinc-700 transition-colors duration-500 ${
+            isActive ? 'bg-sky-400' : 'bg-zinc-400'
           }`}
         />
       </span>
 
       <RevealItem className="mb-3 grid content-start gap-1 lg:mb-0 lg:pr-10 lg:text-right">
-        <p className="text-sm whitespace-nowrap tabular-nums text-slate-300">{item.period}</p>
+        <p className="text-sm whitespace-nowrap tabular-nums text-zinc-300">{item.period}</p>
         {isCurrent ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-300 lg:justify-self-end">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-200 lg:justify-self-end">
             Current
           </span>
         ) : null}
@@ -905,20 +903,20 @@ function TimelineEntry({
 
       <div className="grid content-start gap-3 lg:pl-10">
         <RevealItem className="grid gap-1">
-          <p className="text-sm font-medium text-sky-300">{item.company}</p>
-          <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-slate-50 text-balance sm:text-3xl">
+          <p className="text-sm font-medium text-zinc-200">{item.company}</p>
+          <h3 className="text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-50 text-balance sm:text-3xl">
             {item.role}
           </h3>
         </RevealItem>
         <RevealItem>
-          <p className="max-w-[60ch] text-base leading-7 text-slate-300 text-pretty">{item.summary}</p>
+          <p className="max-w-[60ch] text-base leading-7 text-zinc-300 text-pretty">{item.summary}</p>
         </RevealItem>
         <RevealItem>
           <ul className={`grid max-w-[60ch] ${listGapClassName}`}>
             {item.highlights.map((highlight) => (
               <li
                 key={highlight}
-                className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-slate-200"
+                className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-zinc-200"
               >
                 <PlayBulletMarker />
                 <span>{highlight}</span>
@@ -943,25 +941,22 @@ function ExperienceSection() {
 
   return (
     <section
-      className={`bg-slate-800 bg-[radial-gradient(ellipse_at_top_right,--alpha(var(--color-sky-400)/14%),transparent_55%)] text-slate-50 ${sectionPaddingClassName}`}
+      className={`bg-zinc-700 text-zinc-50 ${sectionPaddingClassName}`}
       data-scroll-target="experience"
     >
       <div className={pageShellClassName}>
         <RevealGroup className={sectionHeaderClassName}>
           <RevealItem>
-            <p className={`${taglineBaseClassName} text-sky-300`}>Career</p>
-          </RevealItem>
-          <RevealItem>
-            <h2 className="text-4xl font-heading font-normal tracking-tight text-slate-50 text-balance sm:text-5xl">
+            <h2 className="text-4xl font-heading font-normal tracking-tight text-zinc-50 text-balance sm:text-5xl">
               Experience
             </h2>
           </RevealItem>
           <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-            <p className="max-w-2xl text-base font-normal leading-7 text-slate-300 text-pretty">
+            <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
               ERP consulting, then lending backends, then bank platform engineering.
             </p>
             <a
-              className="inline-flex items-center gap-1 text-sm font-medium text-sky-300 underline-offset-4 hover:underline"
+              className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-700"
               href="/resume.pdf"
               rel="noopener"
               target="_blank"
@@ -996,14 +991,14 @@ function ExperienceSection() {
 }
 
 const bentoCardClassName =
-  'relative isolate flex min-h-[27rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-100';
+  'relative isolate flex flex-col lg:min-h-[27rem] overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100';
 const bentoWindowShadowClassName =
-  'shadow-[0_28px_56px_-24px_--alpha(var(--color-slate-900)/30%)]';
+  'shadow-[0_28px_56px_-24px_--alpha(var(--color-zinc-900)/30%)]';
 
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
-    <h3 className="max-w-[24rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-slate-900 text-balance sm:p-9 sm:text-[1.75rem]">
-      {title} <span className="text-slate-500">{tail}</span>
+    <h3 className="max-w-[24rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
+      {title} <span className="text-zinc-500">{tail}</span>
     </h3>
   );
 }
@@ -1011,15 +1006,15 @@ function BentoHeading({ tail, title }: { tail: string; title: string }) {
 function BentoWindow({ children, label, wide }: { children: ReactNode; label: string; wide: boolean }) {
   return (
     <div
-      className={`mt-auto overflow-hidden rounded-t-xl border border-b-0 border-slate-200 bg-white ${bentoWindowShadowClassName} ${
-        wide ? 'mx-7 sm:mr-0 sm:ml-[18%] sm:rounded-tr-none sm:border-r-0' : 'mx-7'
+      className={`mt-auto overflow-hidden rounded-t-xl border border-b-0 border-zinc-200 bg-white ${bentoWindowShadowClassName} ${
+        wide ? 'mx-7 sm:mr-0 sm:ml-[18%] sm:rounded-tr-none sm:border-r-0' : 'mx-7 sm:mx-9'
       }`}
     >
-      <div className="flex items-center gap-1.5 border-b border-slate-200 px-4 py-3">
-        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
-        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
-        <span aria-hidden="true" className="size-2 rounded-full bg-slate-300" />
-        <span className="mx-auto pr-8 text-[11px] font-medium text-slate-500">{label}</span>
+      <div className="flex items-center gap-1.5 border-b border-zinc-200 px-4 py-3">
+        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
+        <span className="mx-auto pr-8 text-[11px] font-medium text-zinc-500">{label}</span>
       </div>
       <div className={wide ? '-mb-16' : '-mb-10'}>{children}</div>
     </div>
@@ -1028,6 +1023,8 @@ function BentoWindow({ children, label, wide }: { children: ReactNode; label: st
 
 const wideCardCount = 2;
 const spiralOrigin: [number, number] = [0.1, 1.2];
+const arcOrigin: [number, number] = [1.08, 1.12];
+const cardFormations: DustFormation[] = ['arcs', 'braid', 'waves', 'arcs', 'columns'];
 const spiralMaskClassName =
   '[mask-image:radial-gradient(120%_110%_at_75%_0%,black_35%,transparent_85%)]';
 
@@ -1043,7 +1040,8 @@ function CapabilityCards() {
           >
             <ParticleStream
               className={`pointer-events-none absolute inset-0 -z-10 size-full ${index === 0 ? spiralMaskClassName : ''}`}
-              origin={spiralOrigin}
+              formation={cardFormations[index]}
+              origin={index === 0 ? spiralOrigin : arcOrigin}
               pattern={index === 0 ? 'spiral' : 'dust'}
               seed={index + 1}
             />
@@ -1057,6 +1055,8 @@ function CapabilityCards() {
       <RevealItem className={`${bentoCardClassName} lg:col-span-2`}>
         <ParticleStream
           className="pointer-events-none absolute inset-0 -z-10 size-full"
+          formation={cardFormations[expertiseItems.length]}
+          origin={arcOrigin}
           pattern="dust"
           seed={expertiseItems.length + 1}
         />
@@ -1071,15 +1071,14 @@ function CapabilitiesSection() {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
-        <RevealGroup className={`mb-12 grid items-end md:mb-16 ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}>
+        <RevealGroup className={`grid items-end ${sectionHeaderMarginClassName} ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}>
           <RevealItem className="grid gap-4">
-            <p className={taglineClassName}>How I work</p>
-            <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-slate-900 text-balance sm:text-5xl">
+            <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Expertise that holds up in production.
             </h2>
           </RevealItem>
           <RevealItem>
-            <p className="max-w-xl text-base font-normal leading-7 text-slate-600 text-pretty">
+            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
               Full-stack product and platform work in regulated environments: interfaces, APIs,
               access rules, data, and the monitoring that keeps the system operable after launch.
             </p>
@@ -1102,15 +1101,12 @@ function AboutCopy({ yearsExperience }: { yearsExperience: number }) {
     <>
       <div className="grid gap-4">
         <RevealItem>
-          <p className={`${taglineBaseClassName} text-sky-300`}>About</p>
-        </RevealItem>
-        <RevealItem>
           <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-white text-balance sm:text-5xl">
             Full-stack engineer who treats operability as part of the feature.
           </h2>
         </RevealItem>
       </div>
-      <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-slate-300 text-pretty">
+      <div className="grid max-w-xl gap-4 text-base font-normal leading-7 text-zinc-300 text-pretty">
         <RevealItem>
           <p>
             I have spent {yearsExperience}+ years shipping product and platform work for Indonesian
@@ -1139,7 +1135,7 @@ function AboutFacts({ className }: { className?: string }) {
           <p className="text-2xl font-heading font-semibold leading-none tracking-tight text-white">
             {fact.value}
           </p>
-          <p className="text-[0.8125rem] font-medium leading-5 text-slate-400">{fact.label}</p>
+          <p className="text-[0.8125rem] font-medium leading-5 text-zinc-300">{fact.label}</p>
         </li>
       ))}
     </ul>
@@ -1152,7 +1148,7 @@ const aboutPulse = { everySeconds: 6, origin: [0.82, 0.62] as [number, number] }
 function AboutCard({ yearsExperience }: { yearsExperience: number }) {
   return (
     <RevealGroup
-      className="relative isolate overflow-hidden rounded-[2rem] bg-slate-900 ring-1 ring-slate-900/5"
+      className="relative isolate overflow-hidden rounded-[2rem] bg-zinc-700 ring-1 ring-zinc-900/5"
       stagger={0.1}
     >
       <DotField
@@ -1169,11 +1165,11 @@ function AboutCard({ yearsExperience }: { yearsExperience: number }) {
           </RevealItem>
         </div>
         <RevealItem className="-mr-6 self-end sm:-mr-10 lg:mr-0">
-          <div className="overflow-hidden rounded-tl-2xl border-l border-t border-white/10 bg-slate-800 shadow-[0_-16px_64px_-16px_--alpha(var(--color-sky-400)/25%)]">
+          <div className="overflow-hidden rounded-tl-2xl border-l border-t border-white/10 bg-zinc-600 shadow-[0_-16px_64px_-16px_--alpha(var(--color-black)/50%)]">
             <div aria-hidden="true" className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
-              <span className="size-2.5 rounded-full bg-slate-600" />
-              <span className="size-2.5 rounded-full bg-slate-600" />
-              <span className="size-2.5 rounded-full bg-slate-600" />
+              <span className="size-2.5 rounded-full bg-zinc-400" />
+              <span className="size-2.5 rounded-full bg-zinc-400" />
+              <span className="size-2.5 rounded-full bg-zinc-400" />
             </div>
             <img
               alt="Laptop open on a coffee table in a dim living room, city lights through the window"
@@ -1191,7 +1187,7 @@ function AboutCard({ yearsExperience }: { yearsExperience: number }) {
 
 function AboutSection() {
   return (
-    <section className={sectionPaddingClassName} data-scroll-target="about">
+    <section className={sectionPaddingBottomClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
         <AboutCard yearsExperience={getYearsExperience()} />
       </div>
@@ -1203,7 +1199,7 @@ export default function PortfolioHome() {
   usePreventHashNavigation();
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-white text-slate-900">
+    <div className="min-h-screen overflow-x-clip bg-white text-zinc-900">
       <AnimatedHeader />
 
       <main data-scroll-target="top">
@@ -1232,16 +1228,16 @@ function FooterSocials({ className }: { className?: string }) {
         return (
           <a
             key={item.href}
-            className="group inline-flex min-h-9 w-fit items-center gap-1.5 transition-colors focus-visible:outline-none text-slate-600 hover:text-slate-900 focus-visible:text-slate-900"
+            className="group inline-flex min-h-11 w-fit items-center gap-1.5 text-zinc-600 transition-colors hover:text-zinc-900 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             href={item.href}
             rel="noopener noreferrer"
             target="_blank"
           >
-            <Icon aria-hidden="true" className="size-4 text-slate-400 transition-colors group-hover:text-sky-500" />
+            <Icon aria-hidden="true" className="size-4 text-zinc-400 transition-colors group-hover:text-sky-500" />
             <span>{item.label}</span>
             <ArrowUpRight
               aria-hidden="true"
-              className="size-3.5 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              className="size-3.5 text-zinc-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
           </a>
         );
@@ -1254,16 +1250,16 @@ function FooterBottomBar() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className="border-t border-slate-900/6">
+    <div className="border-t border-zinc-900/6">
       <div
-        className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal sm:flex-row sm:items-center sm:justify-between text-slate-600`}
+        className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal sm:flex-row sm:items-center sm:justify-between text-zinc-600`}
       >
         <p>© 2026 Denny Dharmawan. All rights reserved.</p>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="min-h-10 w-fit gap-2 rounded-full px-3 shadow-none transition-colors border-slate-900/10 bg-white text-slate-900 hover:border-slate-900/20 hover:bg-white hover:text-slate-900"
+          className="min-h-11 w-fit gap-2 rounded-full px-4 shadow-none transition-colors border-zinc-900/10 bg-white text-zinc-900 hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900"
           onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
         >
           <ChevronUp aria-hidden="true" className="size-3.5" />
@@ -1277,14 +1273,13 @@ function FooterBottomBar() {
 function FooterHeadline() {
   return (
     <div className={`grid justify-items-center text-center ${detailStackGapClassName}`}>
-      <p className={taglineClassName}>Sign-off</p>
       <h2
-        className="max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-balance text-slate-900 sm:text-5xl lg:text-6xl"
+        className="max-w-2xl text-4xl font-heading font-normal leading-[1.02] tracking-tight text-balance text-zinc-900 sm:text-5xl lg:text-6xl"
       >
         Let&apos;s build something
-        <span className="block text-slate-500">that stays up.</span>
+        <span className="block text-zinc-500">that stays up.</span>
       </h2>
-      <p className="max-w-lg text-base font-normal leading-7 text-slate-600 text-pretty">
+      <p className="max-w-lg text-base font-normal leading-7 text-zinc-600 text-pretty">
         Frontend, backend, and platform work for systems that have to stay operable in production.
         Working from Jakarta with teams across time zones.
       </p>
@@ -1297,15 +1292,15 @@ function SiteFooter() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <footer data-scroll-target="contact" className="relative isolate mt-8 overflow-hidden border-t border-slate-900/6 bg-slate-50 md:mt-12">
-      <div className={`${pageShellClassName} grid justify-items-center gap-10 pb-10 pt-24 md:pt-32`}>
+    <footer data-scroll-target="contact" className="relative isolate overflow-hidden border-t border-zinc-900/6 bg-zinc-50">
+      <div className={`${pageShellClassName} grid justify-items-center gap-10 pb-10 ${sectionPaddingTopClassName}`}>
         <FooterHeadline />
         <FooterSocials className="justify-center" />
       </div>
       <div className="overflow-hidden">
         <motion.p
           aria-hidden="true"
-          className="mx-auto w-fit select-none font-heading text-[clamp(3.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] text-slate-200 sm:whitespace-nowrap"
+          className="mx-auto w-fit select-none font-heading text-[clamp(2.5rem,11vw,9.25rem)] font-medium leading-[0.82] tracking-[-0.045em] whitespace-nowrap text-zinc-200"
           initial={shouldReduceMotion ? false : { opacity: 0, transform: 'translateY(48%)' }}
           whileInView={{ opacity: 1, transform: 'translateY(26%)' }}
           viewport={{ once: true, amount: 0.3 }}
