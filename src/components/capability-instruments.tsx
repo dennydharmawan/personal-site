@@ -29,7 +29,7 @@ function firstKeyframe(keyframes: TargetAndTransition): TargetAndTransition {
   );
 }
 
-export function cycle(
+function cycle(
   reduced: boolean,
   keyframes: TargetAndTransition,
   duration: number,
