@@ -1,11 +1,11 @@
-import type { ComponentType } from 'react';
+import { createElement, type ComponentType } from 'react';
 
 import {
   AboutSection,
   CapabilitiesSection,
-  ExperienceSection,
   SiteFooter
 } from '@/components/portfolio-home';
+import { ExperienceSection } from '@/components/sections/experience';
 import { HeroSection } from '@/components/sections/hero';
 import { WorkSamplesSection } from '@/components/sections/work-samples';
 
@@ -25,7 +25,11 @@ export const labSections: LabSection[] = [
   { section: 'work', variants: [{ Component: WorkSamplesSection, id: 'current', label: 'Current' }] },
   {
     section: 'experience',
-    variants: [{ Component: ExperienceSection, id: 'current', label: 'Current' }]
+    variants: [
+      { Component: ExperienceSection, id: 'current', label: 'Current' },
+      { Component: () => createElement(ExperienceSection, { variant: 'ledger' }), id: 'ledger', label: 'Ledger' },
+      { Component: () => createElement(ExperienceSection, { variant: 'sticky' }), id: 'sticky', label: 'Sticky' }
+    ]
   },
   {
     section: 'expertise',
