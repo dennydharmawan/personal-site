@@ -36,3 +36,6 @@ tmp/
 # remotion clip package (own dependencies + render output)
 clips/node_modules/
 clips/out/
+
+# LaTeX build output (published copy lives in public/)
+/resume.pdf
