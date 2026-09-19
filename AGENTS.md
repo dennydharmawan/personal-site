@@ -39,9 +39,9 @@ utility classes across components.
 These predate the rule and should migrate to `var(--color-*)` when touched, not be
 copied:
 
-- `src/components/portfolio-home.tsx` — hero glow blobs, nav backdrop, and gradient
-  overlays use `rgba()` inside arbitrary values. The numbers are palette colors
-  (`rgba(56,189,248,…)` is `sky-400`), just spelled out.
+- `src/components/sections/site-header.tsx` — the compact nav animates its background and
+  border between `rgba()` values. The numbers are palette colors (`rgba(228,228,231,…)` is
+  `zinc-200`), spelled out because Motion interpolates concrete color values.
 - `public/logo-mark.svg` and `public/favicon.svg` — `#18181B` is `zinc-900`. A static `.svg` in `public/` is not
   processed by Tailwind, so it cannot reference a token; a hex is correct here.
 

@@ -70,12 +70,6 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
               <li key={title.role} className="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
                 <span className={index === 0 ? 'font-medium text-zinc-50' : 'text-zinc-300'}>
                   {title.role}
-                  {index === 0 ? (
-                    <>
-                      {' '}
-                      <span className="pl-1 text-xs font-medium text-sky-300">Promoted</span>
-                    </>
-                  ) : null}
                 </span>
                 <span className="whitespace-nowrap tabular-nums text-zinc-400">{title.period}</span>
               </li>
