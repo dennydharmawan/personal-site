@@ -97,8 +97,8 @@ export function SiteFooter() {
         </div>
         <div className="grid gap-6 border-t border-zinc-900/10 pt-6">
           <p className="max-w-md text-base font-normal leading-7 text-zinc-600 text-pretty">
-            Frontend, backend, and platform work for systems that have to stay operable in
-            production. Working from Jakarta with teams across time zones.
+            I take on full-stack and platform work where reliability matters. Based in Jakarta,
+            working with teams across time zones.
           </p>
           <FooterSocials className="flex-col !items-start gap-y-0" />
         </div>

@@ -24,15 +24,17 @@ function AboutParagraphs({ yearsExperience }: { yearsExperience: number }) {
       <RevealItem>
         <p>
           I have spent {yearsExperience}+ years shipping product and platform work for Indonesian
-          digital banks. Every release there has to survive audit, incident review, and the next
-          engineer who inherits it.
+          digital banks, including a lending product that handled 2M+ transactions a month. Every
+          release there has to survive audit, incident review, and the next engineer who inherits
+          it.
         </p>
       </RevealItem>
       <RevealItem>
         <p>
-          Most of my depth is TypeScript across React, Next.js, and Node: distributed services,
-          access control, and the path from interface to API to data to monitoring. I adopt tools,
-          AI coding agents included, on one test: does the team ship and operate better with them.
+          Most of my depth is TypeScript across React, Next.js, and Node. I work on distributed
+          services, access control, and the whole path from interface to API to data to
+          monitoring. I adopt tools, AI coding agents included, on one test. Does the team ship
+          and operate better with them?
         </p>
       </RevealItem>
     </>

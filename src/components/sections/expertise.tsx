@@ -106,8 +106,9 @@ export function CapabilitiesSection() {
           </RevealItem>
           <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Full-stack product and platform work in regulated environments: interfaces, APIs,
-              access rules, data, and the monitoring that keeps the system operable after launch.
+              Full-stack product and platform work in regulated environments, from interfaces and
+              APIs to access rules, data, and the monitoring that keeps a system healthy after
+              launch.
             </p>
           </RevealItem>
         </RevealGroup>

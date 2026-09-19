@@ -81,31 +81,31 @@ export const projects: Project[] = [
   },
   {
     bullets: [
-      'Overdue accounts land in prioritized queues with owners, due dates, and escalation state',
-      'WhatsApp API messages for reminders, payment promises, and follow-up templates',
-      'Activity log for collector actions, customer replies, promises, and outcomes'
+      'Overdue accounts land in prioritized queues, each with an owner, a due date, and an escalation state',
+      'Reminders, payment promises, and follow-ups go out as WhatsApp API templates, so collectors stop retyping messages',
+      'One activity log records collector actions, customer replies, promises, and outcomes'
     ],
     layers: ['queue', 'client'],
     preview: '/portfolio-previews/work-sample-loan-collection.png',
     role: 'Collections operations and messaging',
     stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
     summary:
-      'Collections workspace for overdue accounts: owners, queues, WhatsApp follow-ups, and an activity log for outcomes.',
+      'Collections workspace for overdue accounts. Queues give every account an owner, WhatsApp handles the follow-ups, and one log records the outcomes.',
     title: 'Loan collection system',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
   {
     bullets: [
-      'Catalog, cart, checkout, order status, inventory visibility, and admin operations',
-      'Payment intent states, webhooks, reconciliation, and customer confirmation',
-      'Storefront UX kept separate from payment and fulfillment operations'
+      'Catalog, cart, checkout, and order status for customers, with inventory and admin operations behind them',
+      'Payment intents move through explicit states. Webhooks drive reconciliation and the customer confirmation',
+      'Storefront UX stays separate from payment and fulfillment, so either side can change alone'
     ],
     layers: ['client', 'data'],
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
     role: 'Commerce checkout and payments',
     stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     summary:
-      'Storefront and checkout with payment intents, webhooks, reconciliation, and a clean split between customer UX and fulfillment.',
+      'Storefront and checkout built on payment intents and webhooks, with reconciliation and a clean split between customer UX and fulfillment.',
     title: 'E-commerce payment platform',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
@@ -116,9 +116,10 @@ export const experiences = [
     company: 'Krom Bank',
     current: true,
     highlights: [
-      'Built the identity and access governance platform, the system of record for access decisions',
+      'Built the access governance platform that automates onboarding, rehire, and offboarding access, with continuous reconciliation and an audit trail',
       'Shipped a shared auth, logging, and feature-flag package adopted by four production apps',
-      'Wrote the Git workflow standard used by 5+ teams on one codebase'
+      'Improved API performance 37% by refactoring legacy modules and adding targeted caching',
+      'Designed the Datadog dashboards and tracing that became the company monitoring template'
     ],
     period: 'Jan 2023 - Present',
     role: 'Senior Full-Stack Engineer',
@@ -126,15 +127,16 @@ export const experiences = [
       { period: 'May 2026 - Present', role: 'Senior Full-Stack Engineer' },
       { period: 'Jan 2023 - May 2026', role: 'Full-Stack Engineer' }
     ],
-    summary: 'Platform and product engineering for a digital bank on Next.js, Node.js, and TypeScript.',
+    summary:
+      'Platform and product engineering for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers and wrote the Git workflow used by 5+ teams.',
     years: '2023'
   },
   {
     company: 'Jenius / Bank SMBC Indonesia',
     highlights: [
-      'Owned loan origination, disbursement, and partner APIs on Node.js, GraphQL, and Kafka',
-      'Built retail partner integrations that widened digital lending distribution',
-      'Kept the backend maintainable while users grew 147% over three years'
+      'Ran the lending backends at 2M+ transactions a month and 99.98% uptime on Node.js, GraphQL, and Kafka',
+      'Kept origination and disbursement stable while users grew 147% in three years',
+      'Built retail partner APIs on Kafka events that widened digital lending distribution'
     ],
     period: 'Dec 2019 - Dec 2022',
     role: 'Back End Engineer',
@@ -146,7 +148,7 @@ export const experiences = [
     highlights: [
       'Customized Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia',
       'Integrated data warehouse, enterprise portal, and point-of-sale systems',
-      'Trained hundreds of professionals on Dynamics AX customization'
+      'Trained 200 professionals on Dynamics AX customization'
     ],
     period: 'Dec 2017 - Dec 2019',
     role: 'Technical Consultant',

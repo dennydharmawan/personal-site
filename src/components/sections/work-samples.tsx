@@ -138,8 +138,8 @@ export function WorkSamplesSection() {
           </RevealItem>
           <RevealItem>
             <p className="max-w-2xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Employer platforms stay under NDA. These samples show the same systems work: access
-              control, operational workflows, payments, and review automation.
+              My employer work stays under NDA. These samples show the same kinds of systems,
+              covering access control, operational workflows, payments, and review automation.
             </p>
           </RevealItem>
         </RevealGroup>
