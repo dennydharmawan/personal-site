@@ -33,8 +33,8 @@ export const labSections: LabSection[] = [
     section: 'about',
     variants: [
       { Component: AboutSection, id: 'current', label: 'Current' },
-      { Component: () => createElement(AboutSection, { variant: 'letter' }), id: 'letter', label: 'Letter' },
-      { Component: () => createElement(AboutSection, { variant: 'statement' }), id: 'statement', label: 'Statement' }
+      { Component: () => createElement(AboutSection, { variant: 'bento' }), id: 'bento', label: 'Bento' },
+      { Component: () => createElement(AboutSection, { variant: 'band' }), id: 'band', label: 'Band' }
     ]
   },
   { section: 'footer', variants: [{ Component: SiteFooter, id: 'current', label: 'Current' }] }
