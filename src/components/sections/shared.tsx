@@ -1,4 +1,3 @@
-import { createContext, useContext } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import { motion, stagger, useReducedMotion } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
@@ -68,9 +67,6 @@ export function scrollToTarget(
   }
 }
 
-// The lab renders sections already revealed. A hidden browser tab freezes animations at frame 0, so a reveal would screenshot blank.
-export const RevealedContext = createContext(false);
-
 export function Reveal({
   children,
   className,
@@ -81,15 +77,13 @@ export function Reveal({
   delay?: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
-  const revealed = useContext(RevealedContext);
-  const activationProps: HTMLMotionProps<'div'> = revealed
-    ? { initial: false, animate: revealVisible }
-    : { initial: revealHidden, whileInView: revealVisible, viewport: revealViewport };
 
   return (
     <motion.div
       className={className}
-      {...activationProps}
+      initial={revealHidden}
+      whileInView={revealVisible}
+      viewport={revealViewport}
       transition={shouldReduceMotion ? { duration: 0 } : { delay, ...revealTransition }}
     >
       {children}
@@ -113,16 +107,14 @@ export function RevealGroup({
   stagger?: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
-  const revealed = useContext(RevealedContext);
-  const activationProps: HTMLMotionProps<'div'> = revealed
-    ? { initial: false, animate: 'visible' }
-    : onMount
-      ? { initial: 'hidden', animate: 'visible' }
-      : { initial: 'hidden', whileInView: 'visible', viewport: revealViewport };
+  const activationProps: HTMLMotionProps<'div'> = onMount
+    ? { animate: 'visible' }
+    : { whileInView: 'visible', viewport: revealViewport };
 
   return (
     <motion.div
       className={className}
+      initial="hidden"
       variants={{ hidden: {}, visible: {} }}
       transition={
         shouldReduceMotion
