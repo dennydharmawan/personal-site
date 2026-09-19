@@ -12,14 +12,6 @@ import {
 } from '@/components/sections/shared';
 import { Button } from '@/components/ui/button';
 
-type HeroVariant = 'current' | 'band' | 'split' | 'proof';
-
-const bandImageClassName: Record<'current' | 'band', string> = {
-  current: 'h-[12.5rem] sm:h-[17rem] lg:h-[18rem]',
-  // The band gives back whatever the viewport cannot spare, so the actions stay above the fold.
-  band: 'h-[clamp(9rem,calc(100svh-35rem),18rem)]'
-};
-
 function HeroPhoto({ className }: { className: string }) {
   return (
     <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5">
@@ -138,29 +130,24 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-function HeroStacked({ variant }: { variant: 'current' | 'band' }) {
+export function HeroSection() {
   const yearsExperience = getYearsExperience();
-  const isBand = variant === 'band';
 
   return (
-    <section
-      className={`relative isolate border-b border-zinc-200 bg-white pt-24 ${
-        isBand ? 'pb-10 sm:pt-24 md:pb-12' : 'pb-16 sm:pt-28 md:pb-20 lg:pb-24'
-      }`}
-    >
+    <section className="relative isolate border-b border-zinc-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
       <HeroBackdrop />
       <RevealGroup
-        className={`${pageShellClassName} grid ${isBand ? 'gap-8' : 'gap-10 md:gap-12'}`}
+        className={`${pageShellClassName} grid gap-10 md:gap-12`}
         onMount
         stagger={0.1}
       >
-        <div className={`grid ${isBand ? 'gap-6' : 'gap-8'}`}>
+        <div className="grid gap-8">
           <RevealItem>
             <HeroHeadline className="max-w-6xl text-[2.5rem] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
           </RevealItem>
 
           <RevealItem>
-            <HeroPhoto className={`object-[50%_22%] ${bandImageClassName[variant]}`} />
+            <HeroPhoto className="h-[12.5rem] object-[50%_22%] sm:h-[17rem] lg:h-[18rem]" />
           </RevealItem>
         </div>
 
@@ -177,86 +164,4 @@ function HeroStacked({ variant }: { variant: 'current' | 'band' }) {
       </RevealGroup>
     </section>
   );
-}
-
-function HeroSplit() {
-  const yearsExperience = getYearsExperience();
-
-  return (
-    <section className="relative isolate border-b border-zinc-200 bg-white pb-10 pt-24 md:pb-12 lg:min-h-svh">
-      <HeroBackdrop />
-      <RevealGroup
-        className={`${pageShellClassName} grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] lg:items-center lg:gap-16`}
-        onMount
-        stagger={0.1}
-      >
-        <div className="grid gap-7">
-          <RevealItem>
-            <p className="font-mono text-xs uppercase tracking-widest text-sky-700">
-              {yearsExperience}+ years · full-stack · financial systems
-            </p>
-          </RevealItem>
-          <RevealItem>
-            <HeroHeadline className="text-[2.5rem] leading-[1.04] sm:text-[3.25rem] sm:leading-none lg:text-[4.25rem]" />
-          </RevealItem>
-          <RevealItem className={`grid ${detailStackGapClassName}`}>
-            <HeroLede />
-            <HeroActions />
-          </RevealItem>
-          <RevealItem className="grid gap-3 border-t border-zinc-200 pt-6">
-            <p className="text-sm font-medium leading-6 text-zinc-700">{trustedLine}</p>
-            <TrustedLogos />
-          </RevealItem>
-        </div>
-
-        <RevealItem>
-          <HeroPhoto className="h-[14rem] object-[62%_22%] sm:h-[18rem] lg:h-[min(34rem,calc(100svh-11rem))]" />
-        </RevealItem>
-      </RevealGroup>
-    </section>
-  );
-}
-
-function HeroProof() {
-  const yearsExperience = getYearsExperience();
-
-  return (
-    <section className="relative isolate border-b border-zinc-200 bg-white pb-10 pt-28 md:pb-12 lg:min-h-svh lg:pt-36">
-      <HeroBackdrop />
-      <RevealGroup
-        className={`${pageShellClassName} grid justify-items-center gap-10 text-center lg:gap-14`}
-        onMount
-        stagger={0.1}
-      >
-        <div className="grid justify-items-center gap-7">
-          <RevealItem>
-            <HeroHeadline className="text-[2.5rem] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5.5rem]" />
-          </RevealItem>
-          <RevealItem className={`grid justify-items-center ${detailStackGapClassName}`}>
-            <HeroLede className="max-w-2xl" />
-            <HeroActions className="justify-center" />
-          </RevealItem>
-        </div>
-
-        <RevealItem className="grid w-full max-w-4xl gap-6 rounded-[1.5rem] bg-white/70 p-6 ring-1 ring-zinc-900/5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-10 sm:p-8 sm:text-left">
-          <div className="grid gap-1 sm:border-r sm:border-zinc-200 sm:pr-10">
-            <p className="text-5xl font-semibold leading-none text-zinc-800 tabular-nums">
-              {yearsExperience}+
-            </p>
-            <p className="text-sm font-medium leading-5 text-zinc-600">years of experience</p>
-          </div>
-          <div className="grid gap-3">
-            <p className="text-sm font-medium leading-6 text-zinc-700">{trustedLine}</p>
-            <TrustedLogos className="justify-center sm:justify-start" />
-          </div>
-        </RevealItem>
-      </RevealGroup>
-    </section>
-  );
-}
-
-export function HeroSection({ variant = 'current' }: { variant?: HeroVariant }) {
-  if (variant === 'split') return <HeroSplit />;
-  if (variant === 'proof') return <HeroProof />;
-  return <HeroStacked variant={variant} />;
 }
