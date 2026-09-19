@@ -28,17 +28,13 @@ import { type DustFormation, ParticleStream } from '@/components/particle-stream
 import {
   aboutSystemsImage,
   experiences,
-  expertiseItems,
-  projects,
-  trustedTeams,
-  type Project
+  expertiseItems
 } from '@/components/portfolio-home-data';
-import { stageLayers, type StageLayerId } from '@/components/system-stage-data';
 import { Button } from '@/components/ui/button';
 import {
-  Reveal,
   RevealGroup,
   RevealItem,
+  PlayBulletMarker,
   RevealedContext,
   anchorScrollOffset,
   careerStart,
@@ -56,7 +52,6 @@ import {
   revealVisible,
   scrollToTarget,
   scrollToTargetName,
-  sectionContentGapClassName,
   sectionHeaderCenteredClassName,
   sectionHeaderClassName,
   sectionHeaderMarginClassName,
@@ -68,6 +63,7 @@ import {
   twoColumnGapClassName,
 } from '@/components/sections/shared';
 import { HeroSection } from '@/components/sections/hero';
+import { WorkSamplesSection } from '@/components/sections/work-samples';
 
 const navItems = [
   { label: 'Work Samples', target: 'work' },
@@ -393,175 +389,6 @@ function usePreventHashNavigation() {
 
     return () => window.removeEventListener('hashchange', resetHashNavigation);
   }, []);
-}
-
-function stageLayerLabel(id: StageLayerId) {
-  return stageLayers.find((layer) => layer.id === id)?.label ?? id;
-}
-
-function LayerPills({ className, layers }: { className?: string; layers: StageLayerId[] }) {
-  return (
-    <div className={`flex flex-wrap items-center gap-2 ${className ?? ''}`}>
-      {layers.map((id) => (
-        <span
-          key={id}
-          className="inline-flex items-center rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600"
-        >
-          {stageLayerLabel(id)}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-const projectMediaClassName =
-  'aspect-[3/2] w-full rounded-2xl object-cover ring-1 ring-zinc-900/10';
-
-function ProjectMedia({ project }: { project: Project }) {
-  const shouldReduceMotion = useReducedMotion();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const isInView = useInView(videoRef, { amount: 0.4 });
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video) {
-      return;
-    }
-
-    if (isInView) {
-      // React sets `muted` as a property only; mobile autoplay policy checks the attribute.
-      video.muted = true;
-      video.defaultMuted = true;
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [isInView]);
-
-  if (shouldReduceMotion) {
-    return (
-      <img
-        alt={`${project.title} interface preview`}
-        className={projectMediaClassName}
-        decoding="async"
-        loading="lazy"
-        src={project.preview}
-      />
-    );
-  }
-
-  return (
-    <video
-      ref={videoRef}
-      aria-label={`${project.title} interface recording`}
-      className={projectMediaClassName}
-      disablePictureInPicture
-      disableRemotePlayback
-      loop
-      muted
-      playsInline
-      poster={project.preview}
-      preload="none"
-      src={project.video}
-    />
-  );
-}
-
-function ProjectArticle({ index, project }: { index: number; project: Project }) {
-  const isMediaFirst = index % 2 === 1;
-
-  return (
-    <article
-      className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16"
-      data-scroll-target={`project-${index}`}
-    >
-      <RevealGroup className={`grid ${detailStackGapClassName} ${isMediaFirst ? 'lg:order-2' : ''}`}>
-        <div className="grid gap-3">
-          <RevealItem>
-            <p className="text-sm font-medium text-sky-700">{project.role}</p>
-          </RevealItem>
-          <RevealItem>
-            <LayerPills layers={project.layers} />
-          </RevealItem>
-          <RevealItem>
-            <h3 className="max-w-xl text-3xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
-              {project.title}
-            </h3>
-          </RevealItem>
-          <RevealItem>
-            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              {project.summary}
-            </p>
-          </RevealItem>
-        </div>
-        <RevealItem>
-          <ul className={`grid ${listGapClassName}`}>
-            {project.bullets.map((bullet) => (
-              <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-zinc-700">
-                <PlayBulletMarker className="text-zinc-500" />
-                <span>{bullet}</span>
-              </li>
-            ))}
-          </ul>
-        </RevealItem>
-        <RevealItem>
-          <p className="text-sm text-zinc-500">{project.stack.join(', ')}</p>
-        </RevealItem>
-      </RevealGroup>
-
-      <Reveal className={isMediaFirst ? 'lg:order-1' : undefined} delay={0.15}>
-        <ProjectMedia project={project} />
-      </Reveal>
-    </article>
-  );
-}
-
-export function WorkSamplesSection() {
-  return (
-    <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
-      <div className={pageShellClassName}>
-        <RevealGroup className={sectionHeaderCenteredClassName}>
-          <RevealItem>
-            <h2 className="text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
-              Work samples
-            </h2>
-          </RevealItem>
-          <RevealItem>
-            <p className="max-w-2xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Employer platforms stay under NDA. These samples show the same systems work: access
-              control, operational workflows, payments, and review automation.
-            </p>
-          </RevealItem>
-        </RevealGroup>
-
-        <div className={`grid ${sectionContentGapClassName}`}>
-          {projects.map((project, index) => (
-            <ProjectArticle key={project.title} index={index} project={project} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      className={`mt-[0.3125rem] size-3.5 shrink-0 ${className}`}
-    >
-      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/45" />
-      <path
-        d="M5 1.8 L5 13 L14 7.4 Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 function TimelineEntry({
