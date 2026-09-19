@@ -122,6 +122,10 @@ export const experiences = [
     ],
     period: 'Jan 2023 - Present',
     role: 'Senior Full-Stack Engineer',
+    titles: [
+      { period: 'May 2026 - Present', role: 'Senior Full-Stack Engineer' },
+      { period: 'Jan 2023 - May 2026', role: 'Full-Stack Engineer' }
+    ],
     summary: 'Platform and product engineering for a digital bank on Next.js, Node.js, and TypeScript.',
     years: '2023'
   },

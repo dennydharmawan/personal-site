@@ -63,6 +63,26 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
           {item.role}
         </h3>
       </RevealItem>
+      {'titles' in item && item.titles ? (
+        <RevealItem>
+          <ol aria-label={`Titles held at ${item.company}`} className="grid max-w-md gap-1.5 border-l border-white/15 pl-4">
+            {item.titles.map((title, index) => (
+              <li key={title.role} className="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
+                <span className={index === 0 ? 'font-medium text-zinc-50' : 'text-zinc-300'}>
+                  {title.role}
+                  {index === 0 ? (
+                    <>
+                      {' '}
+                      <span className="pl-1 text-xs font-medium text-sky-300">Promoted</span>
+                    </>
+                  ) : null}
+                </span>
+                <span className="whitespace-nowrap tabular-nums text-zinc-400">{title.period}</span>
+              </li>
+            ))}
+          </ol>
+        </RevealItem>
+      ) : null}
       <RevealItem>
         <p className="max-w-[60ch] text-base leading-7 text-zinc-300 text-pretty">{item.summary}</p>
       </RevealItem>
