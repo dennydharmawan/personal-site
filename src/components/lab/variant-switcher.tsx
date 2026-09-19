@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { labSections } from '@/components/lab/registry';
-import { RevealedContext } from '@/components/portfolio-home';
+import { RevealedContext } from '@/components/sections/shared';
 
 type Selection = { section: string | null; variant: string | null };
 

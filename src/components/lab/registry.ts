@@ -1,13 +1,13 @@
-import type { ComponentType } from 'react';
+import { createElement, type ComponentType } from 'react';
 
 import {
   AboutSection,
   CapabilitiesSection,
   ExperienceSection,
-  HeroSection,
   SiteFooter,
   WorkSamplesSection
 } from '@/components/portfolio-home';
+import { HeroSection } from '@/components/sections/hero';
 
 export type LabVariant = {
   Component: ComponentType;
@@ -21,7 +21,15 @@ export type LabSection = {
 };
 
 export const labSections: LabSection[] = [
-  { section: 'hero', variants: [{ Component: HeroSection, id: 'current', label: 'Current' }] },
+  {
+    section: 'hero',
+    variants: [
+      { Component: HeroSection, id: 'current', label: 'Current' },
+      { Component: () => createElement(HeroSection, { variant: 'band' }), id: 'band', label: 'Band' },
+      { Component: () => createElement(HeroSection, { variant: 'split' }), id: 'split', label: 'Split' },
+      { Component: () => createElement(HeroSection, { variant: 'proof' }), id: 'proof', label: 'Proof' }
+    ]
+  },
   { section: 'work', variants: [{ Component: WorkSamplesSection, id: 'current', label: 'Current' }] },
   {
     section: 'experience',
