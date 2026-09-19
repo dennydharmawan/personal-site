@@ -1,4 +1,4 @@
-import { createElement, type ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 import {
   AboutSection,
@@ -25,11 +25,7 @@ export const labSections: LabSection[] = [
   { section: 'work', variants: [{ Component: WorkSamplesSection, id: 'current', label: 'Current' }] },
   {
     section: 'experience',
-    variants: [
-      { Component: ExperienceSection, id: 'current', label: 'Current' },
-      { Component: () => createElement(ExperienceSection, { variant: 'ledger' }), id: 'ledger', label: 'Ledger' },
-      { Component: () => createElement(ExperienceSection, { variant: 'sticky' }), id: 'sticky', label: 'Sticky' }
-    ]
+    variants: [{ Component: ExperienceSection, id: 'current', label: 'Current' }]
   },
   {
     section: 'expertise',
