@@ -110,8 +110,21 @@
     scroll-padding-top: 5rem;
     @apply font-sans;
     }
+  html {
+    accent-color: var(--color-zinc-900);
+    caret-color: var(--color-sky-600);
+    scrollbar-color: var(--color-zinc-300) transparent;
+    }
   body {
     @apply bg-background text-foreground antialiased;
+    }
+  ::selection {
+    background-color: var(--color-sky-200);
+    color: var(--color-zinc-900);
+    }
+  a {
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.25em;
     }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;

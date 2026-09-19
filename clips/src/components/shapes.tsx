@@ -62,9 +62,7 @@ export const Act: React.FC<{
           fontFamily: uiFont,
           fontSize: 28,
           fontWeight: 600,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: palette.slate500,
+          color: palette.zinc500,
         }}
       >
         {caption}
@@ -124,8 +122,8 @@ export const ResultRow: React.FC<{
         gap: 26,
         padding: "20px 28px",
         borderRadius: 12,
-        border: `1px solid ${blend(done, palette.slate200, tones[tone].border)}`,
-        backgroundColor: blend(done, palette.slate50, tones[tone].tint),
+        border: `1px solid ${blend(done, palette.zinc200, tones[tone].border)}`,
+        backgroundColor: blend(done, palette.zinc50, tones[tone].tint),
       }}
     >
       <div style={{ minWidth: 0 }}>
@@ -134,7 +132,7 @@ export const ResultRow: React.FC<{
             fontFamily: uiFont,
             fontSize: 30,
             fontWeight: 600,
-            color: dropped && lit ? palette.slate400 : palette.slate900,
+            color: dropped && lit ? palette.zinc400 : palette.zinc900,
             textDecoration: struck && lit ? "line-through" : "none",
             whiteSpace: "nowrap",
           }}
@@ -147,7 +145,7 @@ export const ResultRow: React.FC<{
               marginTop: 6,
               fontFamily: mono,
               fontSize: 24,
-              color: palette.slate500,
+              color: palette.zinc500,
               whiteSpace: "nowrap",
             }}
           >
@@ -165,7 +163,7 @@ export const ResultRow: React.FC<{
             fontFamily: uiFont,
             fontSize: 27,
             fontWeight: 500,
-            color: palette.slate400,
+            color: palette.zinc400,
             whiteSpace: "nowrap",
             opacity: fade(frame, [start, start + 8], [1, 0]),
           }}
@@ -223,8 +221,8 @@ export const QueueRow: React.FC<{
         gap: 26,
         padding: "20px 28px",
         borderRadius: 12,
-        border: `1px solid ${blend(picked, palette.slate200, palette.amber500)}`,
-        backgroundColor: blend(gone, blend(picked, "#ffffff", palette.amber50), palette.slate50),
+        border: `1px solid ${blend(picked, palette.zinc200, palette.amber500)}`,
+        backgroundColor: blend(gone, blend(picked, "#ffffff", palette.amber50), palette.zinc50),
         opacity: fade(frame, [start, start + 10], [0, 1]),
       }}
     >
@@ -233,7 +231,7 @@ export const QueueRow: React.FC<{
           fontFamily: uiFont,
           fontSize: 30,
           fontWeight: 600,
-          color: gone > 0.5 ? palette.slate400 : palette.slate900,
+          color: gone > 0.5 ? palette.zinc400 : palette.zinc900,
           textDecoration: gone > 0.5 ? "line-through" : "none",
           opacity: 1 - gone * 0.35,
         }}
@@ -241,10 +239,10 @@ export const QueueRow: React.FC<{
         {account}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 34, opacity: 1 - gone * 0.45 }}>
-        <div style={{ fontFamily: uiFont, fontSize: 27, fontWeight: 500, color: blend(picked, palette.slate500, palette.amber700) }}>
+        <div style={{ fontFamily: uiFont, fontSize: 27, fontWeight: 500, color: blend(picked, palette.zinc500, palette.amber700) }}>
           {overdue}
         </div>
-        <div style={{ fontFamily: mono, fontSize: 27, color: palette.slate700, width: 210, textAlign: "right" }}>
+        <div style={{ fontFamily: mono, fontSize: 27, color: palette.zinc700, width: 210, textAlign: "right" }}>
           {amount}
         </div>
       </div>
@@ -270,12 +268,12 @@ export const Bubble: React.FC<{
         borderBottomRightRadius: incoming ? 18 : 5,
         borderBottomLeftRadius: incoming ? 5 : 18,
         backgroundColor: incoming ? "#ffffff" : palette.emerald50,
-        border: `1px solid ${incoming ? palette.slate200 : palette.emerald200}`,
+        border: `1px solid ${incoming ? palette.zinc200 : palette.emerald200}`,
         fontFamily: uiFont,
         fontSize: 28,
         fontWeight: 500,
         lineHeight: 1.34,
-        color: palette.slate700,
+        color: palette.zinc700,
         opacity: fade(frame, [start, start + 11], [0, 1]),
         translate: `0px ${fade(frame, [start, start + 13], [12, 0])}px`,
       }}
@@ -306,15 +304,13 @@ export const Lane: React.FC<{
           fontFamily: uiFont,
           fontSize: 25,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
           color: tones[tone].accent,
         }}
       >
         {label}
       </div>
       <div style={{ position: "relative", height: 78 }}>
-        <div style={{ position: "absolute", left: 90, right: 90, top: 15, height: 3, backgroundColor: palette.slate200 }}>
+        <div style={{ position: "absolute", left: 90, right: 90, top: 15, height: 3, backgroundColor: palette.zinc200 }}>
           <div
             style={{
               position: "absolute",
@@ -339,7 +335,7 @@ export const Lane: React.FC<{
                     height: 26,
                     borderRadius: "50%",
                     backgroundColor: blend(reached, "#ffffff", tones[tone].accent),
-                    border: `3px solid ${blend(reached, palette.slate300, tones[tone].accent)}`,
+                    border: `3px solid ${blend(reached, palette.zinc300, tones[tone].accent)}`,
                   }}
                 />
                 <div
@@ -348,7 +344,7 @@ export const Lane: React.FC<{
                     fontFamily: mono,
                     fontSize: 25,
                     fontWeight: on ? 600 : 400,
-                    color: blend(reached, palette.slate400, palette.slate900),
+                    color: blend(reached, palette.zinc400, palette.zinc900),
                     whiteSpace: "nowrap",
                   }}
                 >

@@ -75,7 +75,7 @@ export const projects: Project[] = [
     role: 'Identity and access governance',
     stack: ['Node.js', 'BullMQ', 'RBAC', 'PostgreSQL'],
     summary:
-      'NDA-safe prototype for identity-driven provisioning, RBAC, and audit logs — the same access patterns I ship in regulated products.',
+      'NDA-safe prototype for identity-driven provisioning, RBAC, and audit logs. I ship the same access patterns in regulated products.',
     title: 'Authentication and access management',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import {
   ArrowUpRight,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Download,
@@ -336,70 +335,9 @@ function EmailActionMenu() {
   );
 }
 
-type HeroGlowBlob = {
-  id: string;
-  className: string;
-  animate: { x: number[]; y: number[]; scale: number[] };
-  duration: number;
-  delay: number;
-};
-
-const heroGlowBlobs: HeroGlowBlob[] = [
-  {
-    id: 'violet',
-    className:
-      '-bottom-[22%] -left-[8%] w-[60%] bg-[radial-gradient(circle,--alpha(var(--color-violet-400)/20%),--alpha(var(--color-violet-400)/0%)_70%)]',
-    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(38px, -24px) scale(1.08)'] },
-    duration: 18,
-    delay: 0
-  },
-  {
-    id: 'sky',
-    className:
-      '-bottom-[26%] left-[28%] w-[48%] bg-[radial-gradient(circle,--alpha(var(--color-sky-400)/14%),--alpha(var(--color-sky-400)/0%)_70%)]',
-    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(-28px, 18px) scale(1.06)'] },
-    duration: 14,
-    delay: 1.6
-  },
-  {
-    id: 'pink',
-    className:
-      '-right-[8%] top-[38%] w-[42%] bg-[radial-gradient(circle,--alpha(var(--color-pink-400)/10%),--alpha(var(--color-pink-400)/0%)_70%)]',
-    animate: { transform: ['translate(0px, 0px) scale(1)', 'translate(22px, 34px) scale(1.07)'] },
-    duration: 22,
-    delay: 3.4
-  }
-];
-
 function HeroPreviewBand() {
-  const shouldReduceMotion = useReducedMotion();
-  const glowRef = useRef<HTMLDivElement>(null);
-  const isGlowInView = useInView(glowRef, { amount: 0.1 });
-  const isGlowBreathing = isGlowInView && !shouldReduceMotion;
-
   return (
     <div className="relative isolate">
-      <div
-        ref={glowRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-8 -bottom-8 top-1/3 -z-10 sm:-inset-x-12 sm:-bottom-12"
-      >
-        {heroGlowBlobs.map((blob) => (
-          <motion.div
-            key={blob.id}
-            className={`absolute aspect-[10/7] rounded-full blur-3xl ${isGlowBreathing ? 'will-change-transform' : ''} ${blob.className}`}
-            animate={isGlowBreathing ? blob.animate : false}
-            transition={{
-              duration: blob.duration,
-              delay: blob.delay,
-              repeat: Infinity,
-              repeatType: 'mirror',
-              ease: 'easeInOut'
-            }}
-          />
-        ))}
-      </div>
-
       <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5">
         <picture>
           <source
@@ -506,7 +444,7 @@ function HeroSection() {
                 View work samples
                 <ChevronDown data-icon="inline-end" className="size-4" />
               </Button>
-              <Button asChild variant="secondary" size="lg" className="min-h-11 px-3 sm:px-4">
+              <Button asChild variant="outline" size="lg" className="min-h-11 px-3 sm:px-4">
                 <a href="/resume.pdf" rel="noopener" target="_blank">
                   <Download data-icon="inline-start" />
                   Download resume
@@ -698,7 +636,7 @@ function LayerPills({ className, layers }: { className?: string; layers: StageLa
       {layers.map((id) => (
         <span
           key={id}
-          className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700"
+          className="inline-flex items-center rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600"
         >
           {stageLayerLabel(id)}
         </span>
@@ -708,7 +646,7 @@ function LayerPills({ className, layers }: { className?: string; layers: StageLa
 }
 
 const projectMediaClassName =
-  'aspect-[3/2] w-full rounded-xl object-cover shadow-sm';
+  'aspect-[3/2] w-full rounded-2xl object-cover ring-1 ring-zinc-900/10';
 
 function ProjectMedia({ project }: { project: Project }) {
   const shouldReduceMotion = useReducedMotion();
@@ -792,21 +730,14 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
           <ul className={`grid ${listGapClassName}`}>
             {project.bullets.map((bullet) => (
               <li key={bullet} className="flex gap-3 text-sm font-normal leading-6 text-zinc-700">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-sky-600" />
+                <PlayBulletMarker className="text-zinc-500" />
                 <span>{bullet}</span>
               </li>
             ))}
           </ul>
         </RevealItem>
-        <RevealItem className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-zinc-600">
-          {project.stack.map((tech, stackIndex) => (
-            <span key={tech} className="inline-flex items-center gap-2">
-              {stackIndex > 0 ? (
-                <span aria-hidden="true" className="size-1 rounded-full bg-zinc-300" />
-              ) : null}
-              <span>{tech}</span>
-            </span>
-          ))}
+        <RevealItem>
+          <p className="text-sm text-zinc-500">{project.stack.join(', ')}</p>
         </RevealItem>
       </RevealGroup>
 
@@ -845,12 +776,12 @@ function WorkSamplesSection() {
   );
 }
 
-function PlayBulletMarker() {
+function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: string }) {
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="mt-[0.3125rem] size-3.5 shrink-0 text-zinc-400"
+      className={`mt-[0.3125rem] size-3.5 shrink-0 ${className}`}
     >
       <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/45" />
       <path

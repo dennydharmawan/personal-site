@@ -1,8 +1,8 @@
 import "./index.css";
 import { Composition } from "remotion";
-import { AuthAccess } from "./clips/AuthAccess";
-import { EcommercePayment } from "./clips/EcommercePayment";
-import { LoanCollection } from "./clips/LoanCollection";
+import { AUTH_DURATION, AuthAccess } from "./clips/AuthAccess";
+import { ECOMMERCE_DURATION, EcommercePayment } from "./clips/EcommercePayment";
+import { LOAN_DURATION, LoanCollection } from "./clips/LoanCollection";
 import { PrReviewer } from "./clips/PrReviewer";
 import {
   heroDurationInFrames,
@@ -20,9 +20,24 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition {...clipConfig} component={PrReviewer} id="PrReviewer" />
-      <Composition {...clipConfig} component={AuthAccess} id="AuthAccess" />
-      <Composition {...clipConfig} component={LoanCollection} id="LoanCollection" />
-      <Composition {...clipConfig} component={EcommercePayment} id="EcommercePayment" />
+      <Composition
+        {...clipConfig}
+        component={AuthAccess}
+        durationInFrames={AUTH_DURATION}
+        id="AuthAccess"
+      />
+      <Composition
+        {...clipConfig}
+        component={LoanCollection}
+        durationInFrames={LOAN_DURATION}
+        id="LoanCollection"
+      />
+      <Composition
+        {...clipConfig}
+        component={EcommercePayment}
+        durationInFrames={ECOMMERCE_DURATION}
+        id="EcommercePayment"
+      />
       <Composition
         component={HeroTopologyWide}
         durationInFrames={heroDurationInFrames}

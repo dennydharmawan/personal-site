@@ -5,16 +5,15 @@ cd "$(dirname "$0")"
 
 out=../public/portfolio-previews
 clips=(
-  "PrReviewer:work-sample-pr-reviewer"
-  "AuthAccess:work-sample-auth-access"
-  "LoanCollection:work-sample-loan-collection"
-  "EcommercePayment:work-sample-ecommerce-payment"
+  "PrReviewer:work-sample-pr-reviewer:400"
+  "AuthAccess:work-sample-auth-access:490"
+  "LoanCollection:work-sample-loan-collection:470"
+  "EcommercePayment:work-sample-ecommerce-payment:490"
 )
 
 for entry in "${clips[@]}"; do
-  id="${entry%%:*}"
-  name="${entry##*:}"
+  IFS=: read -r id name poster <<<"$entry"
   npx remotion render "$id" "$out/motion/$name.mp4" --log=error
-  # Frame 400 sits in act three with every row settled, before the card fades out.
-  npx remotion still "$id" "$out/$name.png" --frame=400 --log=error
+  # The poster frame sits in the last beat with everything settled, before the reset.
+  npx remotion still "$id" "$out/$name.png" --frame="$poster" --log=error
 done

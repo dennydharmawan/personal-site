@@ -53,7 +53,7 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
     >
       <defs>
         <marker id="hero-arrowhead" markerHeight={6} markerWidth={6} orient="auto" refX={5.5} refY={3}>
-          <path fill={palette.slate300} d="M0 0 L6 3 L0 6 Z" />
+          <path fill={palette.zinc300} d="M0 0 L6 3 L0 6 Z" />
         </marker>
         {/* User-space regions: a straight trail has a zero-height bbox, which would
             collapse a bbox-relative filter region and hide the element entirely. */}
@@ -77,14 +77,14 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
           <g key={edge.id}>
             <polyline
               fill="none"
-              stroke={palette.slate300}
+              stroke={palette.zinc300}
               strokeWidth={1.5}
               markerEnd="url(#hero-arrowhead)"
               points={polyline(layout.routes[edge.id])}
             />
             {edge.label && label ? (
               <text
-                fill={palette.slate500}
+                fill={palette.zinc500}
                 fontSize={layout.type.edgeLabel}
                 textAnchor={label.anchor}
                 transform={label.rotate ? `rotate(${label.rotate} ${label.x} ${label.y})` : undefined}
@@ -143,7 +143,7 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
           <g key={node.id}>
             <rect
               fill="#ffffff"
-              stroke={palette.slate200}
+              stroke={palette.zinc200}
               height={size.height}
               rx={10}
               width={size.width}
@@ -151,7 +151,7 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
               y={center.y - size.height / 2}
             />
             <text
-              fill={palette.slate800}
+              fill={palette.zinc800}
               fontSize={layout.type.label}
               fontWeight={500}
               textAnchor="middle"
@@ -162,7 +162,7 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
             </text>
             {isSmall ? null : (
               <text
-                fill={palette.slate500}
+                fill={palette.zinc500}
                 fontSize={layout.type.sublabel}
                 textAnchor="middle"
                 x={center.x}
@@ -189,7 +189,7 @@ export const HeroTopology: React.FC<{ layout: Layout }> = ({ layout }) => {
       ))}
 
       {scene.dots.map((point, index) => (
-        <circle key={`dedupe-${index}`} fill={palette.slate400} cx={point.x} cy={point.y} r={3} />
+        <circle key={`dedupe-${index}`} fill={palette.zinc400} cx={point.x} cy={point.y} r={3} />
       ))}
 
       {scene.pulses.map((pulse) => {

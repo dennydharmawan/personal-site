@@ -6,14 +6,14 @@ import { timing } from "../timing";
 /** Brief's easing: settles without overshoot. */
 export const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-export type Tone = "sky" | "emerald" | "amber" | "rose" | "slate";
+export type Tone = "sky" | "emerald" | "amber" | "rose" | "zinc";
 
 export const tones: Record<Tone, { accent: string; bar: string; border: string; tint: string }> = {
   amber: { accent: palette.amber700, bar: palette.amber500, border: palette.amber500, tint: palette.amber50 },
   emerald: { accent: palette.emerald600, bar: palette.emerald600, border: palette.emerald200, tint: palette.emerald50 },
   rose: { accent: palette.rose600, bar: palette.rose600, border: palette.rose100, tint: palette.rose50 },
   sky: { accent: palette.sky700, bar: palette.sky600, border: palette.sky200, tint: palette.sky50 },
-  slate: { accent: palette.slate500, bar: palette.slate400, border: palette.slate200, tint: palette.slate50 },
+  zinc: { accent: palette.zinc500, bar: palette.zinc400, border: palette.zinc200, tint: palette.zinc50 },
 };
 
 const fade = (frame: number, range: readonly number[], values: readonly number[]) =>
@@ -40,7 +40,7 @@ export const ClipCard: React.FC<{ readonly children: React.ReactNode }> = ({ chi
         padding: 64,
         borderRadius: 16,
         backgroundColor: "#ffffff",
-        border: `1px solid ${palette.slate200}`,
+        border: `1px solid ${palette.zinc200}`,
         boxShadow: "none",
         opacity: fade(frame, [timing.cardIn[0], timing.cardIn[1], timing.cardOut[0], timing.cardOut[1]], [0, 1, 1, 0]),
         scale: interpolate(frame, [0, 16], [0.985, 1], {
@@ -57,7 +57,7 @@ export const ClipCard: React.FC<{ readonly children: React.ReactNode }> = ({ chi
   );
 };
 
-/** Uppercase category tag in the card header. */
+/** Category tag in the card header. */
 export const Chip: React.FC<{ readonly label: string; readonly tone: Tone }> = ({ label, tone }) => (
   <div
     style={{
@@ -70,8 +70,6 @@ export const Chip: React.FC<{ readonly label: string; readonly tone: Tone }> = (
       fontFamily: uiFont,
       fontSize: 24,
       fontWeight: 600,
-      letterSpacing: "0.06em",
-      textTransform: "uppercase",
       color: tones[tone].accent,
     }}
   >
@@ -88,7 +86,7 @@ export const CardTitle: React.FC<{ readonly children: React.ReactNode }> = ({ ch
       fontWeight: 600,
       lineHeight: 1.16,
       letterSpacing: "-0.022em",
-      color: palette.slate900,
+      color: palette.zinc900,
     }}
   >
     {children}
@@ -101,7 +99,7 @@ export const CardSubject: React.FC<{ readonly children: React.ReactNode }> = ({ 
       marginTop: 16,
       fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
       fontSize: 30,
-      color: palette.slate500,
+      color: palette.zinc500,
     }}
   >
     {children}
