@@ -1,4 +1,4 @@
-import { createElement, type ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 import { SiteFooter } from '@/components/portfolio-home';
 import { AboutSection } from '@/components/sections/about';
@@ -29,13 +29,6 @@ export const labSections: LabSection[] = [
     section: 'expertise',
     variants: [{ Component: CapabilitiesSection, id: 'current', label: 'Current' }]
   },
-  {
-    section: 'about',
-    variants: [
-      { Component: AboutSection, id: 'current', label: 'Current' },
-      { Component: () => createElement(AboutSection, { variant: 'bento' }), id: 'bento', label: 'Bento' },
-      { Component: () => createElement(AboutSection, { variant: 'band' }), id: 'band', label: 'Band' }
-    ]
-  },
+  { section: 'about', variants: [{ Component: AboutSection, id: 'current', label: 'Current' }] },
   { section: 'footer', variants: [{ Component: SiteFooter, id: 'current', label: 'Current' }] }
 ];
