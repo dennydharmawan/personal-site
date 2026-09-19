@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import {
   ArrowUpRight,
@@ -161,6 +161,9 @@ function scrollToTarget(
   }
 }
 
+// The lab renders sections already revealed. A hidden browser tab freezes animations at frame 0, so a reveal would screenshot blank.
+export const RevealedContext = createContext(false);
+
 function Reveal({
   children,
   className,
@@ -171,13 +174,15 @@ function Reveal({
   delay?: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const revealed = useContext(RevealedContext);
+  const activationProps: HTMLMotionProps<'div'> = revealed
+    ? { initial: false, animate: revealVisible }
+    : { initial: revealHidden, whileInView: revealVisible, viewport: revealViewport };
 
   return (
     <motion.div
       className={className}
-      initial={revealHidden}
-      whileInView={revealVisible}
-      viewport={revealViewport}
+      {...activationProps}
       transition={shouldReduceMotion ? { duration: 0 } : { delay, ...revealTransition }}
     >
       {children}
@@ -201,14 +206,16 @@ function RevealGroup({
   stagger?: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
-  const activationProps: HTMLMotionProps<'div'> = onMount
-    ? { animate: 'visible' }
-    : { whileInView: 'visible', viewport: revealViewport };
+  const revealed = useContext(RevealedContext);
+  const activationProps: HTMLMotionProps<'div'> = revealed
+    ? { initial: false, animate: 'visible' }
+    : onMount
+      ? { initial: 'hidden', animate: 'visible' }
+      : { initial: 'hidden', whileInView: 'visible', viewport: revealViewport };
 
   return (
     <motion.div
       className={className}
-      initial="hidden"
       variants={{ hidden: {}, visible: {} }}
       transition={
         shouldReduceMotion
@@ -393,7 +400,7 @@ function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-function HeroSection() {
+export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
   const yearsExperience = getYearsExperience();
 
@@ -748,7 +755,7 @@ function ProjectArticle({ index, project }: { index: number; project: Project })
   );
 }
 
-function WorkSamplesSection() {
+export function WorkSamplesSection() {
   return (
     <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
@@ -860,7 +867,7 @@ function TimelineEntry({
   );
 }
 
-function ExperienceSection() {
+export function ExperienceSection() {
   const listRef = useRef<HTMLOListElement>(null);
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -998,7 +1005,7 @@ function CapabilityCards() {
   );
 }
 
-function CapabilitiesSection() {
+export function CapabilitiesSection() {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
@@ -1116,7 +1123,7 @@ function AboutCard({ yearsExperience }: { yearsExperience: number }) {
   );
 }
 
-function AboutSection() {
+export function AboutSection() {
   return (
     <section className={sectionPaddingBottomClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
@@ -1219,7 +1226,7 @@ function FooterHeadline() {
   );
 }
 
-function SiteFooter() {
+export function SiteFooter() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
