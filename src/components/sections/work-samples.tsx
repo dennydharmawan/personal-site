@@ -1,18 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useInView, useReducedMotion } from 'motion/react';
+import { useEffect, useRef } from 'react';
+import { useInView, useReducedMotion } from 'motion/react';
 import { projects, type Project } from '@/components/portfolio-home-data';
 import {
   PlayBulletMarker,
-  Reveal,
   RevealGroup,
   RevealItem,
-  detailStackGapClassName,
   listGapClassName,
   pageShellClassName,
-  sectionContentGapClassName,
   sectionHeaderCenteredClassName,
-  sectionPaddingClassName,
-  spring
+  sectionPaddingClassName
 } from '@/components/sections/shared';
 import { stageLayers, type StageLayerId } from '@/components/system-stage-data';
 
@@ -89,8 +85,6 @@ function ProjectMedia({ project }: { project: Project }) {
   );
 }
 
-type WorkVariant = 'current' | 'stack' | 'grid' | 'index';
-
 function ProjectBullets({ project }: { project: Project }) {
   return (
     <ul className={`grid ${listGapClassName}`}>
@@ -101,66 +95,6 @@ function ProjectBullets({ project }: { project: Project }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-function ProjectArticle({
-  compact,
-  index,
-  project
-}: {
-  compact: boolean;
-  index: number;
-  project: Project;
-}) {
-  const isMediaFirst = index % 2 === 1;
-
-  return (
-    <article
-      className={`grid lg:items-center ${
-        compact
-          ? 'gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:gap-12'
-          : 'gap-10 lg:grid-cols-2 lg:gap-16'
-      }`}
-      data-scroll-target={`project-${index}`}
-    >
-      <RevealGroup
-        className={`grid ${compact ? 'gap-4' : detailStackGapClassName} ${isMediaFirst ? 'lg:order-2' : ''}`}
-      >
-        <div className="grid gap-3">
-          <RevealItem>
-            <p className="text-sm font-medium text-sky-700">{project.role}</p>
-          </RevealItem>
-          <RevealItem>
-            <LayerPills layers={project.layers} />
-          </RevealItem>
-          <RevealItem>
-            <h3
-              className={`max-w-xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance ${
-                compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'
-              }`}
-            >
-              {project.title}
-            </h3>
-          </RevealItem>
-          <RevealItem>
-            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              {project.summary}
-            </p>
-          </RevealItem>
-        </div>
-        <RevealItem>
-          <ProjectBullets project={project} />
-        </RevealItem>
-        <RevealItem>
-          <p className="text-sm text-zinc-500">{project.stack.join(', ')}</p>
-        </RevealItem>
-      </RevealGroup>
-
-      <Reveal className={isMediaFirst ? 'lg:order-1' : undefined} delay={0.15}>
-        <ProjectMedia project={project} />
-      </Reveal>
-    </article>
   );
 }
 
@@ -192,73 +126,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-function ProjectIndex() {
-  const [openIndex, setOpenIndex] = useState(0);
-  const shouldReduceMotion = useReducedMotion();
-
-  return (
-    <RevealGroup className="grid border-t border-zinc-200">
-      {projects.map((project, index) => {
-        const isOpen = index === openIndex;
-        const panelId = `work-panel-${index}`;
-
-        return (
-          <RevealItem key={project.title} className="border-b border-zinc-200">
-            <h3>
-              <button
-                type="button"
-                aria-controls={panelId}
-                aria-expanded={isOpen}
-                className="grid w-full grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1 py-5 text-left outline-hidden focus-visible:ring-2 focus-visible:ring-sky-300 md:grid-cols-[3rem_minmax(0,1fr)_minmax(0,0.6fr)]"
-                onClick={() => setOpenIndex(index)}
-              >
-                <span className="font-mono text-xs text-zinc-400 tabular-nums">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span
-                  className={`font-heading text-2xl font-normal tracking-tight transition-colors sm:text-3xl ${
-                    isOpen ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-900'
-                  }`}
-                >
-                  {project.title}
-                </span>
-                <span className="col-start-2 text-sm font-medium text-sky-700 md:col-start-3 md:text-right">
-                  {project.role}
-                </span>
-              </button>
-            </h3>
-            <AnimatePresence initial={false}>
-              {isOpen ? (
-                <motion.div
-                  id={panelId}
-                  className="overflow-hidden"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={shouldReduceMotion ? { duration: 0 } : spring}
-                >
-                  <div className="grid gap-8 pb-8 pt-2 md:pl-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
-                    <div className="grid gap-4">
-                      <LayerPills layers={project.layers} />
-                      <p className="text-base font-normal leading-7 text-zinc-600 text-pretty">
-                        {project.summary}
-                      </p>
-                      <ProjectBullets project={project} />
-                      <p className="text-sm text-zinc-500">{project.stack.join(', ')}</p>
-                    </div>
-                    <ProjectMedia project={project} />
-                  </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </RevealItem>
-        );
-      })}
-    </RevealGroup>
-  );
-}
-
-export function WorkSamplesSection({ variant = 'current' }: { variant?: WorkVariant }) {
+export function WorkSamplesSection() {
   return (
     <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
@@ -276,26 +144,11 @@ export function WorkSamplesSection({ variant = 'current' }: { variant?: WorkVari
           </RevealItem>
         </RevealGroup>
 
-        {variant === 'grid' ? (
-          <RevealGroup className="grid gap-6 md:grid-cols-2 lg:gap-8">
-            {projects.map((project) => (
-              <ProjectCard key={project.title} project={project} />
-            ))}
-          </RevealGroup>
-        ) : variant === 'index' ? (
-          <ProjectIndex />
-        ) : (
-          <div className={`grid ${variant === 'stack' ? 'gap-14 lg:gap-16' : sectionContentGapClassName}`}>
-            {projects.map((project, index) => (
-              <ProjectArticle
-                key={project.title}
-                compact={variant === 'stack'}
-                index={index}
-                project={project}
-              />
-            ))}
-          </div>
-        )}
+        <RevealGroup className="grid gap-6 md:grid-cols-2 lg:gap-8">
+          {projects.map((project) => (
+            <ProjectCard key={project.title} project={project} />
+          ))}
+        </RevealGroup>
       </div>
     </section>
   );
