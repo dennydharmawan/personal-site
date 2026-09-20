@@ -1,8 +1,6 @@
 import type { CapabilityKind } from '@/components/capability-instruments';
 import type { StageLayerId } from '@/components/system-stage-data';
 
-export const aboutSystemsImage = '/portfolio-previews/about-evening-workspace-relume.png';
-
 export type ExpertiseItem = {
   kind: CapabilityKind;
   tail: string;

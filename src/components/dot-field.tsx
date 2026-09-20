@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 
 const SPACING = 12;
 const MOUSE_RADIUS = 150;
@@ -7,7 +8,7 @@ const SPRING = 0.018;
 const DAMPING = 0.8;
 const RIPPLE_SPEED = 420;
 const RIPPLE_WIDTH = 500;
-const RIPPLE_FORCE = 10;
+const RIPPLE_FORCE = 3;
 const RIPPLE_DECAY = 2.2;
 const MAX_RIPPLES = 6;
 const INTERACTIVE = 'a, button, input, select, textarea, label, [role="button"], form, video';
@@ -36,6 +37,7 @@ uniform float u_rippleSpeed;
 uniform float u_rippleWidth;
 uniform float u_rippleForce;
 uniform float u_rippleDecay;
+uniform float u_step;
 uniform sampler2D u_prevState;
 
 out vec4 fragColor;
@@ -56,7 +58,7 @@ void main() {
   vec2 pos = home + offset;
 
   float idHash = hash11(float(cell.x) * 1.7 + float(cell.y) * 73.0);
-  vel += -offset * (u_spring * (0.8 + idHash * 0.4));
+  vel += -offset * (u_spring * (0.8 + idHash * 0.4)) * u_step;
 
   if (u_mouseActive > 0.001) {
     vec2 away = pos - u_mouse;
@@ -65,7 +67,7 @@ void main() {
     if (dist2 < r2 && dist2 > 0.01) {
       float dist = sqrt(dist2);
       float t = 1.0 - dist / u_radius;
-      vel += (away / dist) * (t * t * u_force * u_mouseActive);
+      vel += (away / dist) * (t * t * u_force * u_mouseActive) * u_step;
     }
   }
 
@@ -79,15 +81,15 @@ void main() {
     float diff = dist - age * u_rippleSpeed;
     float amp = exp(-(diff * diff) / u_rippleWidth) * exp(-age * u_rippleDecay) * u_rippleForce;
     if (dist > 0.01) {
-      vel += (r / dist) * amp;
+      vel += (r / dist) * amp * u_step;
     } else {
       float ang = hash11(idHash + float(i) * 7.0) * TAU;
-      vel += vec2(cos(ang), sin(ang)) * amp;
+      vel += vec2(cos(ang), sin(ang)) * amp * u_step;
     }
   }
 
-  vel *= u_damping;
-  offset += vel;
+  vel *= pow(u_damping, u_step);
+  offset += vel * u_step;
   fragColor = vec4(offset, vel);
 }
 `;
@@ -232,14 +234,16 @@ export function DotField({
   className,
   colorVar = '--color-zinc-400',
   density = 1,
-  pulse
+  pulseFrom,
+  pulseSeconds
 }: {
   className?: string;
   colorVar?: string;
   // Share of grid cells that draw a dot. 1 is the full grid.
   density?: number;
-  // A ripple fired on a timer from a point given as fractions of the field box.
-  pulse?: { everySeconds: number; origin: [number, number] };
+  // The element a timed ripple starts from. Measured per pulse, so it holds at every breakpoint.
+  pulseFrom?: RefObject<HTMLElement | null>;
+  pulseSeconds?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -284,6 +288,7 @@ export function DotField({
       rippleWidth: gl.getUniformLocation(simProgram, 'u_rippleWidth'),
       rippleForce: gl.getUniformLocation(simProgram, 'u_rippleForce'),
       rippleDecay: gl.getUniformLocation(simProgram, 'u_rippleDecay'),
+      step: gl.getUniformLocation(simProgram, 'u_step'),
       prevState: gl.getUniformLocation(simProgram, 'u_prevState')
     };
 
@@ -478,7 +483,16 @@ export function DotField({
     let lastFrame = 0;
     let clock = 0;
     let skipClock = true;
-    let nextPulseAt = pulse ? 1.5 : Infinity;
+    let nextPulseAt = pulseFrom && pulseSeconds ? 1.5 : Infinity;
+
+    const pulseOrigin = () => {
+      const rect = pulseFrom?.current?.getBoundingClientRect();
+      if (!rect) return { x: cssW / 2, y: cssH / 2 };
+      return {
+        x: rect.left + rect.width / 2 - bounds.left,
+        y: rect.top + rect.height / 2 - bounds.top
+      };
+    };
 
     const paint = (time = 0) => {
       if (!targets) return;
@@ -516,11 +530,11 @@ export function DotField({
       clock += dt;
       measure();
 
-      if (pulse && clock >= nextPulseAt) {
-        ripples.push({ x: pulse.origin[0] * cssW, y: pulse.origin[1] * cssH, born: clock });
+      if (clock >= nextPulseAt) {
+        ripples.push({ ...pulseOrigin(), born: clock });
         if (ripples.length > MAX_RIPPLES) ripples.shift();
         lastSimAt = clock;
-        nextPulseAt = clock + pulse.everySeconds;
+        nextPulseAt = clock + (pulseSeconds ?? 0);
       }
 
       if (interacting) {
@@ -560,6 +574,8 @@ export function DotField({
         gl.uniform2f(sim.mouse, smooth.x, smooth.y);
         gl.uniform1f(sim.mouseActive, mouseActive > 0.001 ? mouseActive : 0);
         gl.uniform1i(sim.rippleCount, count);
+        // Forces and damping are per step, so a 120 Hz frame must push half as hard as a 60 Hz one.
+        gl.uniform1f(sim.step, dt * 60);
         gl.uniform3fv(sim.ripples, rippleData);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, prev.tex);
@@ -610,7 +626,7 @@ export function DotField({
         gl.deleteTexture(targets[1].tex);
       }
     };
-  }, [colorVar, density, pulse]);
+  }, [colorVar, density, pulseFrom, pulseSeconds]);
 
   return (
     <div ref={wrapRef} className={className} aria-hidden="true">
