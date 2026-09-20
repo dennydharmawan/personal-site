@@ -1,4 +1,4 @@
-import { useCurrentFrame } from "remotion";
+import { Easing, interpolate, useCurrentFrame } from "remotion";
 import { handFont } from "../theme";
 import { fade } from "./shapes";
 
@@ -8,9 +8,44 @@ import { fade } from "./shapes";
  */
 export const OUT = [426, 446] as const;
 
+/**
+ * The rewind runs on an ease-in-out. The kit's ease-out puts most of the change
+ * into the first few frames, which reads as a wipe rather than a rewind.
+ */
+export const reset = (
+  frame: number,
+  range: readonly [number, number],
+  values: readonly [number, number],
+) =>
+  interpolate(frame, [range[0], range[1]], [values[0], values[1]], {
+    easing: Easing.bezier(0.65, 0, 0.35, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
 /** 1 while the story plays, 0 once the clip is back in its opening state. */
 export const useSettle = (out: readonly [number, number] = OUT) =>
-  fade(useCurrentFrame(), [...out], [1, 0]);
+  reset(useCurrentFrame(), out, [1, 0]);
+
+/** Frames the outgoing label of a swap gets to itself before the next one starts. */
+export const LEAD = 6;
+
+/**
+ * One slot, one label. The outgoing string reaches zero on the frame the
+ * incoming one starts, so no frame carries both.
+ */
+export const swapAt = (frame: number, at: number) =>
+  [
+    fade(frame, [at - LEAD, at], [1, 0]),
+    fade(frame, [at, at + 8], [0, 1]),
+  ] as const;
+
+/** The same sequenced swap, run backwards inside a slot's settle window. */
+export const settleSwap = (frame: number, range: readonly [number, number]) =>
+  [
+    reset(frame, [range[0], range[0] + LEAD], [1, 0]),
+    reset(frame, [range[0] + LEAD, range[1]], [0, 1]),
+  ] as const;
 
 /** A pen stroke that draws itself. `length` is the path length in user units, measured by hand. */
 export const DrawnPath: React.FC<{

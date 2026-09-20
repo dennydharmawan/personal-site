@@ -21,10 +21,11 @@ const PHONE = { left: 840, top: 190, width: 544, height: 712, border: 10 };
 
 /** Runs 18 s so each chat message has time to be read. */
 export const LOAN_DURATION = 540;
-const OUT = [504, 530] as const;
+/** The rewind runs to the last frame; a settled tail before the wrap reads as a stall. */
+const OUT = [508, 538] as const;
 /** The log clears first, then the rows return, so the two never print over each other. */
-const LOG_OUT = [502, 508] as const;
-const ROWS_OUT = [508, 530] as const;
+const LOG_OUT = [504, 512] as const;
+const ROWS_OUT = [512, 538] as const;
 const useSettle = () => useSettleAt(OUT);
 
 const CAPTIONS = [

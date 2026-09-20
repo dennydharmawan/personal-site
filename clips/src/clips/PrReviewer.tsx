@@ -1,5 +1,6 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { ease } from "../components/kit";
+import { useSettle } from "../components/loop";
 import { Check, Cross, fade, mono } from "../components/shapes";
 import { displayFont, palette, uiFont } from "../theme";
 
@@ -28,7 +29,7 @@ const shots = {
   verify: 234,
   route: 348,
   outcome: 462,
-  reset: [564, 588],
+  reset: [566, 598],
 } as const;
 
 type Row =
@@ -278,23 +279,13 @@ const CommentBox: React.FC<{
 
 const Diff: React.FC = () => {
   const frame = useCurrentFrame();
+  const settle = useSettle(shots.reset);
   const clear = fade(frame, CLEAR, [1, 0]);
-  const droppedDim = fade(
-    frame,
-    [DIM[0], DIM[1], shots.reset[0], shots.reset[1]],
-    [1, 0.4, 0.4, 1],
-  );
+  const dimmed = fade(frame, DIM, [1, 0.4]);
+  const droppedDim = 1 - (1 - dimmed) * settle;
   const lockLit = fade(frame, LOCK_LIT, [0, 1]) * clear;
-  const commentBox = fade(
-    frame,
-    [COMMENT_BOX_IN[0], COMMENT_BOX_IN[1], shots.reset[0], shots.reset[1]],
-    [0, 1, 1, 0],
-  );
-  const commentOpen = fade(
-    frame,
-    [COMMENT_IN[0], COMMENT_IN[1], shots.reset[0], shots.reset[1]],
-    [0, 1, 1, 0],
-  );
+  const commentBox = fade(frame, COMMENT_BOX_IN, [0, 1]) * settle;
+  const commentOpen = fade(frame, COMMENT_IN, [0, 1]) * settle;
   const cited = (index: number) => {
     const finding = findings.find((item) => item.row === index);
     if (finding) {
@@ -519,6 +510,7 @@ const Connector: React.FC<{ readonly index: number }> = ({ index }) => {
 
 const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
   const frame = useCurrentFrame();
+  const settle = useSettle(shots.reset);
   const finding = findings[index];
   const dropped = index === DROPPED;
   const judged = fade(frame, [finding.checkAt, finding.checkAt + 12], [0, 1]);
@@ -532,7 +524,7 @@ const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
         )
       : index === TESTING
         ? fade(frame, CARD_LIFT, [1, 0])
-        : fade(frame, [...shots.reset], [1, 0]);
+        : settle;
   const toTray =
     index === SECURITY
       ? travel(frame, TO_TRAY, TRAY_CARD_TOP - cardTop(SECURITY))
@@ -643,6 +635,7 @@ const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
 
 const Tray: React.FC = () => {
   const frame = useCurrentFrame();
+  const settle = useSettle(shots.reset);
   return (
     <div
       style={{
@@ -655,11 +648,7 @@ const Tray: React.FC = () => {
         borderRadius: 18,
         border: `2px dashed ${palette.zinc300}`,
         backgroundColor: palette.sky100,
-        opacity: fade(
-          frame,
-          [TRAY_IN[0], TRAY_IN[1], shots.reset[0], shots.reset[1]],
-          [0, 1, 1, 0],
-        ),
+        opacity: fade(frame, TRAY_IN, [0, 1]) * settle,
       }}
     >
       <div

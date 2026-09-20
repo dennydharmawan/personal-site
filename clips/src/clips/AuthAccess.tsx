@@ -1,10 +1,5 @@
-import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  interpolateColors,
-  useCurrentFrame,
-} from "remotion";
+import { AbsoluteFill, interpolateColors, useCurrentFrame } from "remotion";
+import { settleSwap, swapAt, useSettle } from "../components/loop";
 import { Check, Cross, fade } from "../components/shapes";
 import { codeFont, displayFont, palette, uiFont } from "../theme";
 
@@ -21,48 +16,10 @@ export const AUTH_DURATION = 540;
 // frames instead of every crossfade landing at once. All end by 536 so the
 // last frames match frame 0.
 const SETTLE = {
-  overlay: [510, 522],
-  row: (index: number) => [512 + 4 * index, 526 + 4 * index] as const,
-  profile: [520, 536],
+  overlay: [510, 524],
+  row: (index: number) => [512 + 4 * index, 530 + 4 * index] as const,
+  profile: [522, 538],
 } as const;
-
-/**
- * The reset runs on an ease-in-out. The shared ease-out put 89% of the change
- * into its first five frames, which read as a wipe rather than a rewind.
- */
-const reset = (
-  frame: number,
-  range: readonly [number, number],
-  values: readonly [number, number],
-) =>
-  interpolate(frame, [range[0], range[1]], [values[0], values[1]], {
-    easing: Easing.bezier(0.65, 0, 0.35, 1),
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-const useSettle = (range: readonly [number, number]) =>
-  reset(useCurrentFrame(), range, [1, 0]);
-
-/** Frames the outgoing label of a swap gets to itself before the next one starts. */
-const LEAD = 6;
-
-/**
- * One slot, one label. The outgoing string reaches zero on the frame the
- * incoming one starts, so no frame carries both.
- */
-const swapAt = (frame: number, at: number) =>
-  [
-    fade(frame, [at - LEAD, at], [1, 0]),
-    fade(frame, [at, at + 8], [0, 1]),
-  ] as const;
-
-/** The same sequenced swap, run backwards inside a slot's settle window. */
-const settleSwap = (frame: number, range: readonly [number, number]) =>
-  [
-    reset(frame, [range[0], range[0] + LEAD], [1, 0]),
-    reset(frame, [range[0] + LEAD, range[1]], [0, 1]),
-  ] as const;
 
 const MARGIN = 56;
 const PROFILE = { left: MARGIN, top: 214, width: 420, height: 560 };

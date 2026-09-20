@@ -16,7 +16,7 @@ import { codeFont, displayFont, palette, uiFont } from "../theme";
 
 /** Runs 18 s, longer than the default, so only one thing changes at a time. */
 export const ECOMMERCE_DURATION = 540;
-const OUT = [512, 536] as const;
+const OUT = [512, 538] as const;
 const useSettle = () => useSettleAt(OUT);
 
 const MARGIN = 56;
