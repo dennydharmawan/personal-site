@@ -109,6 +109,8 @@ function TrustedLogos({ className = '' }: { className?: string }) {
             alt={`${team.name} logo`}
             className={`${team.logoClassName} ${trustedLogoToneClassName} w-auto object-contain`}
             decoding="async"
+            height={team.logoHeight}
+            width={team.logoWidth}
           />
         </span>
       ))}
