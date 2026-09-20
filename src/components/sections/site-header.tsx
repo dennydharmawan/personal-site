@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import type { FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,10 @@ async function writeClipboardText(value: string) {
 export function EmailActionMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const shouldReduceMotion = useReducedMotion();
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
   let copyLabel = 'Copy email';
 
   if (copyState === 'copied') {
@@ -80,6 +84,7 @@ export function EmailActionMenu() {
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
+        triggerRef.current?.focus({ preventScroll: true });
       }
     };
 
@@ -103,15 +108,24 @@ export function EmailActionMenu() {
     }
   };
 
+  const closeOnFocusLeaving = (event: FocusEvent<HTMLDivElement>) => {
+    const { relatedTarget } = event;
+
+    if (relatedTarget instanceof Node && !event.currentTarget.contains(relatedTarget)) {
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <div ref={menuRef} className="relative w-fit max-w-full">
+    <div ref={menuRef} className="relative w-fit max-w-full" onBlur={closeOnFocusLeaving}>
       <Button
+        ref={triggerRef}
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 max-w-full gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900"
+        className="h-11 max-w-full gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900 aria-expanded:border-zinc-900/20 aria-expanded:bg-white aria-expanded:text-zinc-900"
+        aria-controls={panelId}
         aria-expanded={isOpen}
-        aria-haspopup="menu"
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="truncate">{contactEmail}</span>
@@ -123,29 +137,37 @@ export function EmailActionMenu() {
         />
       </Button>
 
-      {isOpen ? (
-        <div
-          role="menu"
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 overflow-hidden rounded-2xl border border-zinc-900/8 bg-white p-1 text-sm font-medium text-zinc-700 shadow-lg"
-        >
-          <button
-            type="button"
-            role="menuitem"
-            className="rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:bg-zinc-50 focus-visible:text-zinc-900 focus-visible:outline-none"
-            onClick={copyEmail}
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            id={panelId}
+            className="absolute left-0 top-[calc(100%+0.5rem)] z-20 grid w-full min-w-64 origin-top overflow-hidden rounded-2xl border border-zinc-900/8 bg-white p-1 text-sm font-medium text-zinc-700 shadow-lg"
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: -4 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.16, ease: easeOut }}
           >
-            {copyLabel}
-          </button>
-          <a
-            role="menuitem"
-            className="rounded-xl px-3 py-2.5 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:bg-zinc-50 focus-visible:text-zinc-900 focus-visible:outline-none"
-            href={`mailto:${contactEmail}`}
-            onClick={() => setIsOpen(false)}
-          >
-            Send email
-          </a>
-        </div>
-      ) : null}
+            <button
+              type="button"
+              className="flex min-h-11 items-center rounded-xl px-3 text-left transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              onClick={copyEmail}
+            >
+              {copyLabel}
+            </button>
+            <a
+              className="flex min-h-11 items-center rounded-xl px-3 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              href={`mailto:${contactEmail}`}
+              onClick={() => setIsOpen(false)}
+            >
+              Send email
+            </a>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <span aria-live="polite" className="sr-only">
+        {copyState === 'idle' ? '' : copyLabel}
+      </span>
     </div>
   );
 }
