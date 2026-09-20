@@ -9,15 +9,14 @@ import { Check, fade } from "../components/shapes";
 import { codeFont, displayFont, palette, uiFont } from "../theme";
 
 /**
- * One order seen from three seats. The customer is confirmed in 0.4 s, the payment
- * settles behind them, and the parcel stays on hold until the ledger matches. The
- * webhook then arrives a second time and the shipped count stays at one, which is the
- * part of the system a customer never sees and a finance team cares about most.
+ * One order seen from three seats. The storefront waits on a payment it cannot see,
+ * the payment intent moves through explicit states, the provider's webhook confirms
+ * the order, and reconciliation matches the captured amount to the order total.
  */
 
 /** Runs 18 s, longer than the default, so only one thing changes at a time. */
 export const ECOMMERCE_DURATION = 540;
-const OUT = [516, 536] as const;
+const OUT = [512, 536] as const;
 const useSettle = () => useSettleAt(OUT);
 
 const MARGIN = 56;
@@ -25,58 +24,49 @@ const CARD = { top: 214, height: 666 };
 const COLS = {
   customer: { left: 56, width: 392 },
   payment: { left: 500, width: 440 },
-  warehouse: { left: 992, width: 392 },
+  ledger: { left: 992, width: 392 },
 };
 
 const beats = {
-  confirm: [24, 130],
-  settle: [130, 300],
-  ship: [300, 404],
-  repeat: [404, 516],
+  problem: [4, 138],
+  states: [138, 252],
+  webhook: [252, 396],
+  reconcile: [396, 512],
 } as const;
 
-const PAY_AT = 50;
-const CONFIRMED_AT = 80;
-const RELEASED_AT = 346;
-const IGNORED_AT = 446;
-const NOTE_AT = 462;
+const PAY_AT = 40;
+const NOTE = [66, 138] as const;
+const CONFIRM_ARROW = [308, 326] as const;
+const CONFIRMED_AT = 330;
+const HANDOFF = [408, 426] as const;
+/** The ledger draws its bracket around the two amounts before it compares them. */
+const COMPARE = [428, 452] as const;
+const MATCHED_AT = 452;
 
-type StepTone = "amber" | "emerald" | "zinc";
-
+/**
+ * Each rail step is pending, then active (accent ring), then done (emerald disc).
+ * The webhook step also waits on the provider before it becomes active.
+ */
 const steps: ReadonlyArray<{
   readonly at: number;
+  readonly doneAt: number;
   readonly label: string;
   readonly sub?: string;
-  readonly time: string;
-  readonly tone: StepTone;
+  readonly waitingAt?: number;
   readonly y: number;
 }> = [
-  { at: 146, label: "authorized", time: "0.3 s", tone: "amber", y: 318 },
-  { at: 190, label: "captured", time: "1.4 s", tone: "amber", y: 418 },
+  { at: 146, doneAt: 186, label: "authorized", y: 318 },
+  { at: 200, doneAt: 228, label: "captured", y: 428 },
   {
-    at: 234,
+    at: 296,
+    doneAt: 326,
     label: "webhook received",
     sub: "evt_81f2",
-    time: "1.9 s",
-    tone: "amber",
-    y: 518,
+    waitingAt: 242,
+    y: 538,
   },
-  { at: 306, label: "ledger matches", time: "3.0 s", tone: "emerald", y: 638 },
-  {
-    at: 416,
-    label: "webhook again",
-    sub: "evt_81f2, same id",
-    time: "3.6 s",
-    tone: "zinc",
-    y: 738,
-  },
+  { at: 400, doneAt: MATCHED_AT, label: "reconciled", y: 668 },
 ];
-
-const stepColor: Record<StepTone, string> = {
-  amber: palette.amber500,
-  emerald: palette.emerald500,
-  zinc: palette.zinc400,
-};
 
 const Panel: React.FC<{
   readonly children: React.ReactNode;
@@ -92,7 +82,7 @@ const Panel: React.FC<{
       height: CARD.height,
       boxSizing: "border-box",
       borderRadius: 28,
-      border: `1px solid ${palette.amber200}`,
+      border: `1px solid ${palette.zinc200}`,
       backgroundColor: "#ffffff",
       fontFamily: uiFont,
     }}
@@ -134,7 +124,7 @@ const LineItem: React.FC<{
         width: 64,
         height: 64,
         borderRadius: 14,
-        backgroundColor: palette.amber100,
+        backgroundColor: palette.fuchsia100,
       }}
     />
     <div>
@@ -154,11 +144,16 @@ const Customer: React.FC = () => {
   const frame = useCurrentFrame();
   const settle = useSettle();
   const press = fade(frame, [PAY_AT, PAY_AT + 5, PAY_AT + 10], [0, 1, 0]);
+  /**
+   * The three button labels never share the slot. "Pay now" is out before the
+   * spinner fades in, and the spinner is out before the check starts.
+   */
   const busy = fade(
     frame,
-    [PAY_AT + 8, PAY_AT + 14, CONFIRMED_AT - 4, CONFIRMED_AT],
+    [PAY_AT + 8, PAY_AT + 16, CONFIRMED_AT - 10, CONFIRMED_AT - 1],
     [0, 1, 1, 0],
   );
+  const started = fade(frame, [PAY_AT + 2, PAY_AT + 12], [0, 1]) * settle;
   const done = fade(frame, [CONFIRMED_AT, CONFIRMED_AT + 10], [0, 1]) * settle;
   const label: React.CSSProperties = {
     position: "absolute",
@@ -203,7 +198,7 @@ const Customer: React.FC = () => {
           backgroundColor: interpolateColors(
             done,
             [0, 1],
-            [palette.zinc900, palette.emerald600],
+            [palette.fuchsia700, palette.emerald600],
           ),
           fontSize: 30,
           fontWeight: 600,
@@ -213,13 +208,20 @@ const Customer: React.FC = () => {
           }),
         }}
       >
-        <div style={{ ...label, opacity: 1 - Math.max(busy, done) }}>
+        <div
+          style={{
+            ...label,
+            opacity: interpolate(Math.max(started, done), [0, 0.45], [1, 0], {
+              extrapolateRight: "clamp",
+            }),
+          }}
+        >
           Pay now
         </div>
         <div style={{ ...label, opacity: busy }}>
           <svg
             height={30}
-            style={{ rotate: `${frame * 14}deg` }}
+            style={{ rotate: `${frame * 9}deg` }}
             viewBox="0 0 30 30"
             width={30}
           >
@@ -231,11 +233,22 @@ const Customer: React.FC = () => {
               strokeWidth={3.5}
             />
           </svg>
-          Placing order
+          Payment pending
         </div>
-        <div style={{ ...label, opacity: done }}>
-          <Check color="#ffffff" size={30} />
-          Order confirmed
+        <div
+          style={{
+            ...label,
+            // During the reset "Pay now" returns below 0.45, so the higher
+            // threshold keeps the check and the label from overlapping.
+            opacity: interpolate(
+              done,
+              [frame < OUT[0] ? 0.1 : 0.55, 1],
+              [0, 1],
+              { extrapolateLeft: "clamp" },
+            ),
+          }}
+        >
+          <Check color="#ffffff" size={40} />
         </div>
       </div>
       <div
@@ -243,14 +256,15 @@ const Customer: React.FC = () => {
           position: "absolute",
           left: 32,
           right: 32,
-          bottom: 48,
+          bottom: 44,
           textAlign: "center",
-          fontSize: 26,
-          color: palette.zinc600,
+          fontSize: 28,
+          fontWeight: 600,
+          color: palette.zinc900,
           opacity: done,
         }}
       >
-        confirmed in 0.4 s
+        Order confirmed
       </div>
     </Panel>
   );
@@ -260,27 +274,39 @@ const Step: React.FC<{ readonly index: number }> = ({ index }) => {
   const frame = useCurrentFrame();
   const settle = useSettle();
   const step = steps[index];
-  const on = fade(frame, [step.at, step.at + 10], [0, 1]) * settle;
-  const ignored =
-    step.tone === "zinc"
-      ? fade(frame, [IGNORED_AT, IGNORED_AT + 12], [0, 1]) * settle
-      : 0;
-  const top = step.y - CARD.top;
   const next = steps[index + 1];
+  const on = fade(frame, [step.at, step.at + 10], [0, 1]) * settle;
+  const done = fade(frame, [step.doneAt, step.doneAt + 10], [0, 1]) * settle;
+  /** Out before the label arrives, so the pill and the label never overlap. */
+  const waiting =
+    step.waitingAt === undefined
+      ? 0
+      : fade(
+          frame,
+          [step.waitingAt, step.waitingAt + 10, step.at - 12, step.at - 4],
+          [0, 1, 1, 0],
+        ) * settle;
+  const present =
+    fade(
+      frame,
+      [step.waitingAt ?? step.at, (step.waitingAt ?? step.at) + 10],
+      [0, 1],
+    ) * settle;
+  const pulse = ((frame - step.at) % 30) / 30;
+  const top = step.y - CARD.top;
+  const ring = interpolateColors(
+    done,
+    [0, 1],
+    [
+      interpolateColors(on, [0, 1], [palette.zinc300, palette.fuchsia700]),
+      palette.emerald600,
+    ],
+  );
 
   return (
     <>
       {next ? (
-        <div
-          style={{
-            position: "absolute",
-            left: 47,
-            top: top + 16,
-            width: 4,
-            height: next.y - step.y,
-            backgroundColor: palette.zinc200,
-          }}
-        />
+        <Connector from={step} next={next} top={top} />
       ) : null}
       <div
         style={{
@@ -291,272 +317,285 @@ const Step: React.FC<{ readonly index: number }> = ({ index }) => {
           height: 34,
           boxSizing: "border-box",
           borderRadius: 17,
-          border: "4px solid #ffffff",
+          border: `4px solid ${ring}`,
+          opacity: on * (1 - done) * (1 - pulse),
+          scale: 1 + pulse * 0.7,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 32,
+          top,
+          width: 34,
+          height: 34,
+          boxSizing: "border-box",
+          borderRadius: 17,
+          border: `4px solid ${ring}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: interpolateColors(
-            on,
+            done,
             [0, 1],
-            [palette.zinc200, stepColor[step.tone]],
+            ["#ffffff", palette.emerald600],
           ),
-          scale: interpolate(on, [0, 1], [0.8, 1], {
+          scale: interpolate(present, [0, 1], [0.8, 1], {
             output: "perceptual-scale",
           }),
         }}
       >
-        {step.tone === "emerald" ? (
-          <div style={{ display: "flex", opacity: on }}>
-            <Check color="#ffffff" size={18} />
-          </div>
-        ) : null}
+        <div
+          style={{
+            position: "absolute",
+            width: 14,
+            height: 14,
+            borderRadius: 7,
+            backgroundColor: palette.amber500,
+            opacity: waiting,
+          }}
+        />
+        <div style={{ display: "flex", opacity: done }}>
+          <Check color="#ffffff" size={22} />
+        </div>
       </div>
+      {step.waitingAt === undefined ? null : (
+        <div
+          style={{
+            position: "absolute",
+            left: 88,
+            top: top - 4,
+            padding: "3px 14px",
+            borderRadius: 999,
+            border: `2px solid ${palette.amber200}`,
+            backgroundColor: palette.amber50,
+            color: palette.amber700,
+            fontSize: 22,
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            opacity: waiting,
+          }}
+        >
+          awaiting provider
+        </div>
+      )}
       <div
         style={{
           position: "absolute",
           left: 88,
           right: 32,
           top: top - 5,
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
           opacity: on,
         }}
       >
-        <div>
-          <div
-            style={{
-              position: "relative",
-              display: "inline-block",
-              whiteSpace: "nowrap",
-              fontSize: 27,
-              fontWeight: 600,
-              color: interpolateColors(
-                ignored,
-                [0, 1],
-                [palette.zinc900, palette.zinc400],
-              ),
-            }}
-          >
-            {step.label}
-            <div
-              style={{
-                position: "absolute",
-                left: 0,
-                top: "56%",
-                width: `${ignored * 100}%`,
-                height: 3,
-                backgroundColor: palette.zinc500,
-              }}
-            />
-          </div>
-          {step.sub ? (
-            <div
-              style={{
-                fontFamily: codeFont,
-                fontSize: 22,
-                whiteSpace: "nowrap",
-                color: palette.zinc500,
-              }}
-            >
-              {step.sub}
-            </div>
-          ) : null}
+        <div
+          style={{
+            whiteSpace: "nowrap",
+            fontSize: 27,
+            fontWeight: 600,
+            color: palette.zinc900,
+          }}
+        >
+          {step.label}
         </div>
-        <div style={{ position: "relative", width: 80, height: 40 }}>
+        {step.sub ? (
           <div
             style={{
-              position: "absolute",
-              right: 0,
-              top: 6,
+              display: "inline-block",
+              marginTop: 6,
+              padding: "2px 10px",
+              borderRadius: 8,
+              backgroundColor: palette.zinc100,
               fontFamily: codeFont,
               fontSize: 22,
-              color: palette.zinc500,
-              opacity: 1 - ignored,
-            }}
-          >
-            {step.time}
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 0,
-              padding: "5px 14px",
-              borderRadius: 999,
-              backgroundColor: palette.zinc200,
-              fontSize: 23,
-              fontWeight: 600,
+              whiteSpace: "nowrap",
               color: palette.zinc700,
-              opacity: ignored,
             }}
           >
-            ignored
+            {step.sub}
           </div>
-        </div>
+        ) : null}
       </div>
     </>
   );
 };
 
-const Warehouse: React.FC = () => {
+/** The track fills in the accent as the next step arrives, then greys out once it is done. */
+const Connector: React.FC<{
+  readonly from: (typeof steps)[number];
+  readonly next: (typeof steps)[number];
+  readonly top: number;
+}> = ({ from, next, top }) => {
   const frame = useCurrentFrame();
   const settle = useSettle();
-  const released =
-    fade(frame, [RELEASED_AT, RELEASED_AT + 12], [0, 1]) * settle;
-  const recount = fade(
-    frame,
-    [IGNORED_AT, IGNORED_AT + 8, IGNORED_AT + 18],
-    [0, 1, 0],
-  );
-  const tag: React.CSSProperties = {
+  const fill = fade(frame, [next.at - 20, next.at], [0, 1]) * settle;
+  const nextDone = fade(frame, [next.doneAt, next.doneAt + 10], [0, 1]);
+  const height = next.y - from.y - 34;
+  const track: React.CSSProperties = {
     position: "absolute",
-    left: 0,
-    right: 0,
-    top: 300,
-    display: "flex",
-    justifyContent: "center",
-  };
-  const pill: React.CSSProperties = {
-    padding: "8px 20px",
-    borderRadius: 999,
-    fontSize: 26,
-    fontWeight: 600,
-  };
-  const numeral: React.CSSProperties = {
-    position: "absolute",
-    left: 32,
-    bottom: 36,
-    fontFamily: displayFont,
-    fontSize: 120,
-    fontWeight: 600,
-    lineHeight: 1,
-    letterSpacing: "-0.03em",
+    left: 47,
+    top: top + 34,
+    width: 4,
+    height,
   };
 
   return (
-    <Panel col={COLS.warehouse} title="Warehouse">
-      <svg
-        height={170}
+    <>
+      <div style={{ ...track, backgroundColor: palette.zinc200 }} />
+      <div
         style={{
-          position: "absolute",
-          left: 86,
-          top: 104,
-          translate: `0px ${released * -6}px`,
+          ...track,
+          height: height * fill,
+          backgroundColor: interpolateColors(
+            nextDone,
+            [0, 1],
+            [palette.fuchsia700, palette.zinc300],
+          ),
         }}
-        viewBox="0 0 220 170"
-        width={220}
-      >
-        <rect
-          fill={palette.amber300}
-          height={112}
-          rx={8}
-          width={196}
-          x={12}
-          y={58}
-        />
-        <rect
-          fill={palette.amber400}
-          height={44}
-          rx={8}
-          width={220}
-          x={0}
-          y={20}
-        />
-        <rect fill={palette.amber100} height={72} width={24} x={98} y={20} />
-        <rect fill="#ffffff" height={36} rx={4} width={60} x={134} y={118} />
-        <rect
-          fill={palette.zinc300}
-          height={4}
-          rx={2}
-          width={40}
-          x={144}
-          y={128}
-        />
-        <rect
-          fill={palette.zinc300}
-          height={4}
-          rx={2}
-          width={28}
-          x={144}
-          y={140}
-        />
-      </svg>
+      />
+    </>
+  );
+};
+
+const Amount: React.FC<{
+  readonly children: React.ReactNode;
+  readonly label: string;
+  readonly top: number;
+}> = ({ children, label, top }) => (
+  <div style={{ position: "absolute", left: 64, right: 32, top }}>
+    <div style={{ fontSize: 24, color: palette.zinc500 }}>{label}</div>
+    <div
+      style={{
+        position: "relative",
+        height: 44,
+        marginTop: 6,
+        fontFamily: codeFont,
+        fontSize: 32,
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </div>
+  </div>
+);
+
+const Reconciliation: React.FC = () => {
+  const frame = useCurrentFrame();
+  const settle = useSettle();
+  const matched = fade(frame, [MATCHED_AT, MATCHED_AT + 12], [0, 1]) * settle;
+  const compared = fade(frame, [COMPARE[0], COMPARE[1]], [0, 1]) * settle;
+  /** The mark arrives with the handoff, so no unlabelled shape waits on screen. */
+  const mark = fade(frame, [HANDOFF[1], HANDOFF[1] + 10], [0, 1]) * settle;
+  const layer: React.CSSProperties = { position: "absolute", left: 0, top: 0 };
+
+  return (
+    <Panel col={COLS.ledger} title="Reconciliation">
       <div
         style={{
           position: "absolute",
-          left: 278,
-          top: 96,
-          width: 52,
-          height: 52,
-          borderRadius: 26,
-          border: "5px solid #ffffff",
-          boxSizing: "border-box",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: palette.emerald500,
-          opacity: released,
-          scale: interpolate(released, [0, 1], [0.5, 1], {
-            output: "perceptual-scale",
-          }),
+          left: 32,
+          top: 124,
+          width: 8,
+          height: interpolate(compared, [0, 1], [0, 170]),
+          borderRadius: 4,
+          backgroundColor: interpolateColors(
+            matched,
+            [0, 1],
+            [palette.fuchsia700, palette.emerald600],
+          ),
         }}
-      >
-        <Check color="#ffffff" size={26} />
-      </div>
-      <div style={{ ...tag, opacity: 1 - released }}>
+      />
+      <Amount label="Order total" top={108}>
+        <div style={{ ...layer, color: palette.zinc900 }}>IDR 1,240,000</div>
+      </Amount>
+      <Amount label="Captured payment" top={218}>
         <div
           style={{
-            ...pill,
-            backgroundColor: palette.amber100,
-            color: palette.amber900,
+            ...layer,
+            color: palette.zinc300,
+            opacity: fade(matched, [0, 0.5], [1, 0]),
           }}
         >
-          on hold until paid
+          IDR —
         </div>
-      </div>
-      <div style={{ ...tag, opacity: released }}>
         <div
           style={{
-            ...pill,
-            backgroundColor: palette.emerald100,
-            color: palette.emerald800,
+            ...layer,
+            color: palette.zinc900,
+            opacity: fade(matched, [0.5, 1], [0, 1]),
           }}
         >
-          released to ship
+          IDR 1,240,000
         </div>
-      </div>
+      </Amount>
       <div
         style={{
           position: "absolute",
           left: 32,
           right: 32,
-          bottom: 172,
-          paddingTop: 24,
+          top: 409,
+          paddingTop: 36,
           borderTop: `1px solid ${palette.zinc200}`,
-          fontSize: 28,
-          color: palette.zinc600,
+          display: "flex",
+          alignItems: "center",
+          gap: 18,
         }}
       >
-        Parcels shipped
-      </div>
-      <div
-        style={{ ...numeral, color: palette.zinc300, opacity: 1 - released }}
-      >
-        0
-      </div>
-      <div
-        style={{
-          ...numeral,
-          color: palette.zinc900,
-          opacity: released,
-          transformOrigin: "left bottom",
-          scale: interpolate(recount, [0, 1], [1, 1.08], {
-            output: "perceptual-scale",
-          }),
-        }}
-      >
-        1
+        <div
+          style={{
+            position: "absolute",
+            left: -14,
+            right: -14,
+            top: 22,
+            bottom: -22,
+            borderRadius: 18,
+            border: `1px solid ${palette.emerald200}`,
+            backgroundColor: palette.emerald50,
+            opacity: matched,
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            width: 52,
+            height: 52,
+            boxSizing: "border-box",
+            borderRadius: 26,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: `4px solid ${interpolateColors(
+              matched,
+              [0, 1],
+              [palette.zinc300, palette.emerald600],
+            )}`,
+            backgroundColor: interpolateColors(
+              matched,
+              [0, 1],
+              ["#ffffff", palette.emerald600],
+            ),
+            opacity: mark,
+            scale: interpolate(mark, [0, 1], [0.85, 1], {
+              output: "perceptual-scale",
+            }),
+          }}
+        >
+          <div style={{ display: "flex", opacity: matched }}>
+            <Check color="#ffffff" size={28} />
+          </div>
+        </div>
+        <div
+          style={{
+            position: "relative",
+            color: palette.zinc700,
+            fontSize: 28,
+            fontWeight: 600,
+            opacity: matched,
+          }}
+        >
+          matched
+        </div>
       </div>
     </Panel>
   );
@@ -574,12 +613,13 @@ const Caption: React.FC<{
         left: MARGIN,
         top: 124,
         fontFamily: uiFont,
-        fontSize: 38,
+        fontSize: 44,
         fontWeight: 500,
+        whiteSpace: "nowrap",
         color: palette.zinc700,
         opacity: fade(
           frame,
-          [range[0], range[0] + 12, range[1] - 12, range[1]],
+          [range[0], range[0] + 10, range[1] - 10, range[1]],
           [0, 1, 1, 0],
         ),
         translate: `0px ${fade(frame, [range[0], range[0] + 14], [10, 0])}px`,
@@ -593,11 +633,17 @@ const Caption: React.FC<{
 export const EcommercePayment: React.FC = () => {
   const frame = useCurrentFrame();
   const settle = useSettle();
-  const ledgerY = steps[3].y + 17;
+  const webhookY = steps[2].y + 17;
+  const reconciledY = steps[3].y + 17;
   const handoffX = COLS.payment.left + COLS.payment.width;
+  const noteOpacity = fade(
+    frame,
+    [NOTE[0], NOTE[0] + 10, NOTE[1] - 10, NOTE[1]],
+    [0, 1, 1, 0],
+  );
 
   return (
-    <AbsoluteFill style={{ backgroundColor: palette.amber50 }}>
+    <AbsoluteFill style={{ backgroundColor: palette.fuchsia50 }}>
       <div
         style={{
           position: "absolute",
@@ -621,9 +667,13 @@ export const EcommercePayment: React.FC = () => {
           Order 20418
         </div>
         <div
-          style={{ fontFamily: uiFont, fontSize: 28, color: palette.zinc500 }}
+          style={{
+            fontFamily: uiFont,
+            fontSize: 28,
+            color: palette.fuchsia800,
+          }}
         >
-          from cart to shipped parcel
+          from cart to reconciled payment
         </div>
       </div>
 
@@ -633,7 +683,7 @@ export const EcommercePayment: React.FC = () => {
           <Step index={index} key={index} />
         ))}
       </Panel>
-      <Warehouse />
+      <Reconciliation />
 
       <AbsoluteFill style={{ opacity: settle }}>
         <svg
@@ -641,61 +691,62 @@ export const EcommercePayment: React.FC = () => {
           style={{ position: "absolute", inset: 0 }}
           width={1440}
         >
-          <DrawnPath
-            color={palette.emerald500}
-            d={`M ${handoffX + 6} ${ledgerY} L ${COLS.warehouse.left - 8} ${ledgerY} m -14 -12 l 14 12 l -14 12`}
-            from={322}
-            length={80}
-            to={340}
-          />
-          <g
-            opacity={fade(
-              frame,
-              [NOTE_AT, NOTE_AT + 6, OUT[0] - 10, OUT[0]],
-              [0, 1, 1, 0],
-            )}
-          >
+          <g opacity={noteOpacity}>
             <DrawnPath
-              color={palette.amber700}
-              d="M 1196 800 C 1160 812, 1130 806, 1106 786"
-              from={NOTE_AT + 6}
-              length={100}
-              to={NOTE_AT + 20}
+              color={palette.fuchsia700}
+              d="M 664 470 C 636 474, 606 456, 578 444"
+              from={NOTE[0] + 8}
+              length={96}
+              to={NOTE[0] + 20}
             />
             <DrawnPath
-              color={palette.amber700}
-              d="M 1106 786 L 1132 788 M 1106 786 L 1114 810"
-              from={NOTE_AT + 20}
-              length={54}
-              to={NOTE_AT + 26}
+              color={palette.fuchsia700}
+              d="M 578 444 L 596 458 M 578 444 L 602 440"
+              from={NOTE[0] + 20}
+              length={52}
+              to={NOTE[0] + 26}
             />
           </g>
+          <DrawnPath
+            color={palette.fuchsia700}
+            d={`M ${COLS.payment.left + 14} ${webhookY + 40} C ${COLS.payment.left - 20} ${webhookY + 90}, 470 700, 426 728 m 4 -22 l -4 22 l 22 4`}
+            from={CONFIRM_ARROW[0]}
+            length={260}
+            to={CONFIRM_ARROW[1]}
+          />
+          <DrawnPath
+            color={palette.fuchsia700}
+            d={`M ${handoffX + 6} ${reconciledY} L ${COLS.ledger.left - 8} ${reconciledY} m -14 -12 l 14 12 l -14 12`}
+            from={HANDOFF[0]}
+            length={80}
+            to={HANDOFF[1]}
+          />
         </svg>
         <Hand
-          color={palette.amber700}
-          from={NOTE_AT}
-          left={1204}
-          size={42}
-          text="still one"
-          to={OUT[0]}
-          top={778}
+          color={palette.fuchsia700}
+          from={NOTE[0]}
+          left={676}
+          size={46}
+          text="paid?"
+          to={NOTE[1]}
+          top={450}
         />
 
         <Caption
-          range={beats.confirm}
-          text="The customer gets a confirmation in 0.4 s."
+          range={beats.problem}
+          text="The store can't tell if it's paid."
         />
         <Caption
-          range={beats.settle}
-          text="The payment settles in the background."
+          range={beats.states}
+          text="The payment moves through explicit states."
         />
         <Caption
-          range={beats.ship}
-          text="The parcel ships once the ledger matches."
+          range={beats.webhook}
+          text="The provider's update confirms the order."
         />
         <Caption
-          range={beats.repeat}
-          text="The same webhook arrives again. It counts once."
+          range={beats.reconcile}
+          text="Every order matches its payment."
         />
       </AbsoluteFill>
     </AbsoluteFill>

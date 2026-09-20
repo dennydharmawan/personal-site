@@ -1,10 +1,15 @@
-import { AbsoluteFill, interpolateColors, useCurrentFrame } from "remotion";
-import { useSettle as useSettleAt } from "../components/loop";
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  interpolateColors,
+  useCurrentFrame,
+} from "remotion";
 import { Check, Cross, fade } from "../components/shapes";
 import { codeFont, displayFont, palette, uiFont } from "../theme";
 
 /**
- * A new hire's first morning. HR records the joiner, the accounts create themselves,
+ * A new hire's first morning. HR records the new hire, the accounts create themselves,
  * one provider times out, and the retry finishes the job without making a second copy
  * of the account that already exists. The person on the left is the point: she can sign
  * in on day one, and the audit log says how it happened.
@@ -12,8 +17,52 @@ import { codeFont, displayFont, palette, uiFont } from "../theme";
 
 /** Runs 18 s, longer than the default, so each account changes state on its own. */
 export const AUTH_DURATION = 540;
-const OUT = [516, 536] as const;
-const useSettle = () => useSettleAt(OUT);
+// The return to the opening state is staggered so each slot swaps on its own
+// frames instead of every crossfade landing at once. All end by 536 so the
+// last frames match frame 0.
+const SETTLE = {
+  overlay: [510, 522],
+  row: (index: number) => [512 + 4 * index, 526 + 4 * index] as const,
+  profile: [520, 536],
+} as const;
+
+/**
+ * The reset runs on an ease-in-out. The shared ease-out put 89% of the change
+ * into its first five frames, which read as a wipe rather than a rewind.
+ */
+const reset = (
+  frame: number,
+  range: readonly [number, number],
+  values: readonly [number, number],
+) =>
+  interpolate(frame, [range[0], range[1]], [values[0], values[1]], {
+    easing: Easing.bezier(0.65, 0, 0.35, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+const useSettle = (range: readonly [number, number]) =>
+  reset(useCurrentFrame(), range, [1, 0]);
+
+/** Frames the outgoing label of a swap gets to itself before the next one starts. */
+const LEAD = 6;
+
+/**
+ * One slot, one label. The outgoing string reaches zero on the frame the
+ * incoming one starts, so no frame carries both.
+ */
+const swapAt = (frame: number, at: number) =>
+  [
+    fade(frame, [at - LEAD, at], [1, 0]),
+    fade(frame, [at, at + 8], [0, 1]),
+  ] as const;
+
+/** The same sequenced swap, run backwards inside a slot's settle window. */
+const settleSwap = (frame: number, range: readonly [number, number]) =>
+  [
+    reset(frame, [range[0], range[0] + LEAD], [1, 0]),
+    reset(frame, [range[0] + LEAD, range[1]], [0, 1]),
+  ] as const;
 
 const MARGIN = 56;
 const PROFILE = { left: MARGIN, top: 214, width: 420, height: 560 };
@@ -21,16 +70,26 @@ const ROWS = { left: 520, top: 286, width: 864, height: 136, gap: 26 };
 const RESULT = { top: 800, height: 96 };
 
 const beats = {
-  start: [24, 150],
-  fail: [150, 290],
-  retry: [290, 424],
-  done: [424, 516],
+  fail: [0, 130],
+  retry: [130, 256],
+  resume: [256, 382],
+  done: [382, 510],
 } as const;
 
-const EVENT_AT = 40;
-const RETRY_AT = 296;
-const SKIPPED_AT = 310;
-const DONE_AT = 432;
+const EVENT_AT = 10;
+const ATTEMPT_AT = 14;
+const FAIL_AT = 58;
+const PROFILE_FAIL_AT = 62;
+const RETRY_AT = 136;
+// The retry beat's claim is "skips accounts already created", so the retry has
+// to be seen reaching the directory row and turning away: its accent re-runs
+// there, leaves, and the skip note lands in the gap it left.
+const SCAN_AT = 168;
+const SKIPPED_AT = 190;
+// The person resolves as the last account lands, not 40 frames later.
+const DONE_AT = 350;
+const RESULT_AT = 396;
+const ENTRY_AT = 440;
 
 type Kind = "waiting" | "creating" | "failed" | "ready";
 
@@ -39,58 +98,81 @@ const providers: ReadonlyArray<{
   readonly states: ReadonlyArray<{ readonly at: number; readonly kind: Kind }>;
 }> = [
   {
-    name: "JumpCloud",
+    name: "Directory",
     states: [
       { at: -1, kind: "waiting" },
-      { at: 62, kind: "creating" },
-      { at: 100, kind: "ready" },
+      { at: 18, kind: "creating" },
+      { at: 36, kind: "ready" },
     ],
   },
   {
-    name: "Google Workspace",
+    name: "Email & docs",
     states: [
       { at: -1, kind: "waiting" },
-      { at: 164, kind: "creating" },
-      { at: 210, kind: "failed" },
-      { at: 340, kind: "creating" },
-      { at: 370, kind: "ready" },
+      { at: 40, kind: "creating" },
+      { at: FAIL_AT, kind: "failed" },
+      { at: 262, kind: "creating" },
+      { at: 292, kind: "ready" },
     ],
   },
   {
-    name: "Atlassian",
+    name: "Issue tracker",
     states: [
       { at: -1, kind: "waiting" },
-      { at: 384, kind: "creating" },
-      { at: 412, kind: "ready" },
+      { at: 304, kind: "creating" },
+      { at: 340, kind: "ready" },
     ],
   },
 ];
 
 const kindStyle: Record<
   Kind,
-  { readonly bg: string; readonly ink: string; readonly text: string }
+  {
+    readonly bg: string;
+    readonly ink: string;
+    readonly line: string;
+    readonly text: string;
+  }
 > = {
   creating: {
-    bg: palette.violet100,
-    ink: palette.violet700,
+    bg: palette.indigo100,
+    ink: palette.indigo800,
+    line: palette.indigo100,
     text: "creating account",
   },
-  failed: { bg: palette.rose100, ink: palette.rose600, text: "timed out" },
-  ready: { bg: palette.emerald100, ink: palette.emerald800, text: "ready" },
-  waiting: { bg: palette.zinc100, ink: palette.zinc500, text: "waiting" },
+  failed: {
+    bg: palette.rose50,
+    ink: palette.rose700,
+    line: palette.rose200,
+    text: "timed out",
+  },
+  ready: {
+    bg: palette.zinc100,
+    ink: palette.zinc700,
+    line: palette.zinc100,
+    text: "ready",
+  },
+  waiting: {
+    bg: palette.amber50,
+    ink: palette.amber700,
+    line: palette.amber200,
+    text: "waiting",
+  },
 };
 
 const Pill: React.FC<{
   readonly bg: string;
   readonly children: React.ReactNode;
   readonly ink: string;
-}> = ({ bg, children, ink }) => (
+  readonly line?: string;
+}> = ({ bg, children, ink, line = bg }) => (
   <div
     style={{
       display: "flex",
       alignItems: "center",
       gap: 10,
-      padding: "9px 20px",
+      padding: "7px 18px",
+      border: `2px solid ${line}`,
       borderRadius: 999,
       whiteSpace: "nowrap",
       backgroundColor: bg,
@@ -108,17 +190,17 @@ const Spinner: React.FC<{ readonly color: string }> = ({ color }) => {
   const frame = useCurrentFrame();
   return (
     <svg
-      height={24}
+      height={28}
       style={{ rotate: `${frame * 14}deg` }}
       viewBox="0 0 30 30"
-      width={24}
+      width={28}
     >
       <path
         d="M15 3 A12 12 0 1 1 3 15"
         fill="none"
         stroke={color}
         strokeLinecap="round"
-        strokeWidth={4}
+        strokeWidth={4.5}
       />
     </svg>
   );
@@ -126,13 +208,24 @@ const Spinner: React.FC<{ readonly color: string }> = ({ color }) => {
 
 const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
   const frame = useCurrentFrame();
-  const settle = useSettle();
+  const settle = useSettle(SETTLE.row(index));
+  const overlay = useSettle(SETTLE.overlay);
+  const [settleOut, settleIn] = settleSwap(frame, SETTLE.row(index));
   const { name, states } = providers[index];
-  const on = (at: number) =>
-    at < 0 ? 1 : fade(frame, [at, at + 8], [0, 1]) * settle;
+  const on = (at: number) => (at < 0 ? 1 : swapAt(frame, at)[1]);
+  const off = (at: number) => swapAt(frame, at)[0];
+  // Tints cross-fade, so a row changes colour without a gap. Settle blends the
+  // whole row straight back to "waiting" instead of replaying the states.
   const weights = states.map(
     (state, i) =>
-      on(state.at) * (1 - (states[i + 1] ? on(states[i + 1].at) : 0)),
+      on(state.at) * (1 - (states[i + 1] ? on(states[i + 1].at) : 0)) * settle +
+      (i === 0 ? 1 - settle : 0),
+  );
+  // Labels do not cross-fade: each pill is gone before the next one inks.
+  const pillWeights = states.map(
+    (state, i) =>
+      on(state.at) * (states[i + 1] ? off(states[i + 1].at) : 1) * settleOut +
+      (i === 0 ? settleIn : 0),
   );
   const weightOf = (kind: Kind) =>
     states.reduce(
@@ -140,22 +233,25 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
       0,
     );
   const ready = weightOf("ready");
-  const skipped =
-    index === 0
-      ? fade(frame, [SKIPPED_AT, SKIPPED_AT + 10], [0, 1]) * settle
-      : 0;
-  const border = interpolateColors(
-    weightOf("failed"),
-    [0, 1],
-    [
-      interpolateColors(
-        weightOf("creating"),
-        [0, 1],
-        [palette.violet200, palette.violet500],
-      ),
-      palette.rose400,
-    ],
+  const failed = weightOf("failed");
+  // Every provider ends ready, and that is the frame its slots swap on.
+  const [leaveWaiting, enterHandle] = swapAt(
+    frame,
+    states[states.length - 1].at,
   );
+  const waitingInk = leaveWaiting + settleIn;
+  const handleInk = enterHandle * settleOut;
+  const arriving =
+    index === 0
+      ? fade(
+          frame,
+          [SCAN_AT, SCAN_AT + 8, SCAN_AT + 18, SCAN_AT + 26],
+          [0, 1, 1, 0],
+        ) * overlay
+      : 0;
+  const skippedIn =
+    index === 0 ? fade(frame, [SKIPPED_AT, SKIPPED_AT + 10], [0, 1]) : 0;
+  const skipped = skippedIn * overlay;
 
   return (
     <div
@@ -168,7 +264,7 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
         boxSizing: "border-box",
         padding: "0 32px",
         borderRadius: 24,
-        border: `2px solid ${border}`,
+        border: `2px solid ${palette.zinc200}`,
         backgroundColor: "#ffffff",
         display: "flex",
         alignItems: "center",
@@ -176,6 +272,15 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
         fontFamily: uiFont,
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          inset: -2,
+          borderRadius: 24,
+          border: `4px solid ${interpolateColors(failed, [0, 1], [palette.indigo700, palette.rose600])}`,
+          opacity: Math.min(1, weightOf("creating") + failed + arriving),
+        }}
+      />
       <div
         style={{
           width: 72,
@@ -187,18 +292,18 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
           backgroundColor: interpolateColors(
             ready,
             [0, 1],
-            [palette.violet100, palette.emerald500],
+            [palette.indigo100, palette.emerald600],
           ),
           fontFamily: displayFont,
           fontSize: 34,
           fontWeight: 600,
-          color: palette.violet700,
+          color: palette.indigo800,
         }}
       >
-        <div style={{ position: "absolute", opacity: 1 - ready }}>
+        <div style={{ position: "absolute", opacity: waitingInk }}>
           {name[0]}
         </div>
-        <div style={{ display: "flex", opacity: ready }}>
+        <div style={{ display: "flex", opacity: handleInk }}>
           <Check color="#ffffff" size={36} />
         </div>
       </div>
@@ -220,7 +325,7 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
             whiteSpace: "nowrap",
             fontSize: 24,
             color: palette.zinc500,
-            opacity: 1 - ready,
+            opacity: waitingInk,
           }}
         >
           no account yet
@@ -233,7 +338,7 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
             fontFamily: codeFont,
             fontSize: 24,
             color: palette.zinc600,
-            opacity: ready,
+            opacity: handleInk,
           }}
         >
           m.santoso
@@ -245,9 +350,10 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
           left: 340,
           top: 40,
           opacity: skipped,
+          translate: `${(1 - skippedIn) * -18}px 0px`,
         }}
       >
-        <Pill bg={palette.zinc100} ink={palette.zinc600}>
+        <Pill bg={palette.indigo100} ink={palette.indigo800}>
           already exists, skipped
         </Pill>
       </div>
@@ -261,15 +367,25 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
                 position: "absolute",
                 right: 0,
                 top: 0,
-                opacity: weights[i],
+                opacity: pillWeights[i],
               }}
             >
-              <Pill bg={style.bg} ink={style.ink}>
+              <Pill bg={style.bg} ink={style.ink} line={style.line}>
+                {state.kind === "waiting" ? (
+                  <div
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 6,
+                      backgroundColor: palette.amber500,
+                    }}
+                  />
+                ) : null}
                 {state.kind === "creating" ? (
-                  <Spinner color={style.ink} />
+                  <Spinner color={palette.indigo700} />
                 ) : null}
                 {state.kind === "failed" ? (
-                  <Cross color={style.ink} size={22} />
+                  <Cross color={palette.rose600} size={22} />
                 ) : null}
                 {style.text}
               </Pill>
@@ -283,9 +399,12 @@ const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
 
 const Profile: React.FC = () => {
   const frame = useCurrentFrame();
-  const settle = useSettle();
-  const event = fade(frame, [EVENT_AT, EVENT_AT + 10], [0, 1]) * settle;
-  const done = fade(frame, [DONE_AT, DONE_AT + 12], [0, 1]) * settle;
+  const [settleOut, settleIn] = settleSwap(frame, SETTLE.profile);
+  const [noRecord, record] = swapAt(frame, EVENT_AT);
+  const [blocked, done] = swapAt(frame, DONE_AT);
+  const failed =
+    fade(frame, [PROFILE_FAIL_AT, PROFILE_FAIL_AT + 10], [0, 1]) *
+    fade(frame, [DONE_AT, DONE_AT + 12], [1, 0]);
   const field: React.CSSProperties = {
     display: "flex",
     justifyContent: "space-between",
@@ -306,7 +425,7 @@ const Profile: React.FC = () => {
         boxSizing: "border-box",
         padding: 36,
         borderRadius: 28,
-        border: `2px solid ${palette.violet200}`,
+        border: `2px solid ${palette.zinc200}`,
         backgroundColor: "#ffffff",
         fontFamily: uiFont,
       }}
@@ -319,11 +438,11 @@ const Profile: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: palette.violet200,
+          backgroundColor: palette.indigo100,
           fontFamily: displayFont,
           fontSize: 44,
           fontWeight: 600,
-          color: palette.violet900,
+          color: palette.indigo800,
         }}
       >
         MS
@@ -361,7 +480,11 @@ const Profile: React.FC = () => {
           <span>HR record</span>
           <span style={{ position: "relative", width: 200, height: 34 }}>
             <span
-              style={{ position: "absolute", right: 0, opacity: 1 - event }}
+              style={{
+                position: "absolute",
+                right: 0,
+                opacity: noRecord + settleIn,
+              }}
             >
               none yet
             </span>
@@ -371,23 +494,51 @@ const Profile: React.FC = () => {
                 right: 0,
                 whiteSpace: "nowrap",
                 fontWeight: 600,
-                color: palette.violet700,
-                opacity: event,
+                color: palette.indigo800,
+                opacity: record * settleOut,
               }}
             >
-              joiner, 08:02
+              new hire, 08:02
             </span>
           </span>
         </div>
       </div>
-      <div style={{ ...status, opacity: 1 - done }}>
-        <Pill bg={palette.zinc100} ink={palette.zinc500}>
+      <div style={{ ...status, opacity: blocked + settleIn }}>
+        <Pill
+          bg={interpolateColors(
+            failed,
+            [0, 1],
+            [palette.zinc100, palette.rose50],
+          )}
+          ink={interpolateColors(
+            failed,
+            [0, 1],
+            [palette.zinc700, palette.rose700],
+          )}
+          line={interpolateColors(
+            failed,
+            [0, 1],
+            [palette.zinc100, palette.rose200],
+          )}
+        >
           cannot sign in yet
         </Pill>
       </div>
-      <div style={{ ...status, opacity: done }}>
-        <Pill bg={palette.emerald100} ink={palette.emerald800}>
-          <Check color={palette.emerald800} size={24} />
+      <div style={{ ...status, opacity: done * settleOut }}>
+        <Pill bg={palette.zinc100} ink={palette.zinc700}>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: palette.emerald600,
+            }}
+          >
+            <Check color="#ffffff" size={24} />
+          </div>
           ready for day one
         </Pill>
       </div>
@@ -397,27 +548,29 @@ const Profile: React.FC = () => {
 
 const Attempt: React.FC = () => {
   const frame = useCurrentFrame();
-  const settle = useSettle();
-  const started = fade(frame, [EVENT_AT + 12, EVENT_AT + 22], [0, 1]) * settle;
-  const retry = fade(frame, [RETRY_AT, RETRY_AT + 10], [0, 1]) * settle;
-  const slot: React.CSSProperties = {
-    position: "absolute",
-    left: ROWS.left,
-    top: PROFILE.top,
-  };
+  const started = fade(frame, [ATTEMPT_AT, ATTEMPT_AT + 10], [0, 1]);
+  const [first, second] = swapAt(frame, RETRY_AT);
+  const label: React.CSSProperties = { gridArea: "1 / 1" };
+  // Both labels share one grid cell, so the pill keeps the wider label's
+  // footprint while the sequenced swap hands the cell from one to the other.
   return (
-    <>
-      <div style={{ ...slot, opacity: started * (1 - retry) }}>
-        <Pill bg={palette.violet900} ink="#ffffff">
-          provisioning, attempt 1
-        </Pill>
-      </div>
-      <div style={{ ...slot, opacity: retry }}>
-        <Pill bg={palette.violet900} ink="#ffffff">
-          automatic retry, same request key
-        </Pill>
-      </div>
-    </>
+    <div
+      style={{
+        position: "absolute",
+        left: ROWS.left,
+        top: PROFILE.top,
+        opacity: started,
+      }}
+    >
+      <Pill bg={palette.indigo700} ink="#ffffff">
+        <div style={{ display: "grid" }}>
+          <span style={{ ...label, opacity: first }}>
+            provisioning, attempt 1
+          </span>
+          <span style={{ ...label, opacity: second }}>retry, attempt 2</span>
+        </div>
+      </Pill>
+    </div>
   );
 };
 
@@ -433,9 +586,10 @@ const Caption: React.FC<{
         left: MARGIN,
         top: 124,
         fontFamily: uiFont,
-        fontSize: 38,
+        fontSize: 44,
         fontWeight: 500,
-        color: palette.violet900,
+        whiteSpace: "nowrap",
+        color: palette.zinc700,
         opacity: fade(
           frame,
           [range[0], range[0] + 12, range[1] - 12, range[1]],
@@ -451,11 +605,14 @@ const Caption: React.FC<{
 
 export const AuthAccess: React.FC = () => {
   const frame = useCurrentFrame();
-  const settle = useSettle();
-  const result = fade(frame, [DONE_AT + 10, DONE_AT + 24], [0, 1]);
+  const settle = useSettle(SETTLE.overlay);
+  // The log opens first and the line lands after it, so the closing beat keeps
+  // changing instead of holding one frame for three seconds.
+  const result = fade(frame, [RESULT_AT, RESULT_AT + 14], [0, 1]);
+  const entry = fade(frame, [ENTRY_AT, ENTRY_AT + 14], [0, 1]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: palette.violet100 }}>
+    <AbsoluteFill style={{ backgroundColor: palette.indigo50 }}>
       <div
         style={{
           position: "absolute",
@@ -473,13 +630,13 @@ export const AuthAccess: React.FC = () => {
             fontSize: 52,
             fontWeight: 600,
             letterSpacing: "-0.022em",
-            color: palette.violet950,
+            color: palette.zinc900,
           }}
         >
           A new hire starts today
         </div>
         <div
-          style={{ fontFamily: uiFont, fontSize: 28, color: palette.violet600 }}
+          style={{ fontFamily: uiFont, fontSize: 28, color: palette.indigo800 }}
         >
           accounts created from the HR record
         </div>
@@ -505,7 +662,7 @@ export const AuthAccess: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: palette.violet950,
+            backgroundColor: palette.zinc700,
             opacity: result,
             translate: `0px ${(1 - result) * 16}px`,
           }}
@@ -514,7 +671,7 @@ export const AuthAccess: React.FC = () => {
             style={{
               fontFamily: uiFont,
               fontSize: 28,
-              color: palette.violet200,
+              color: palette.zinc300,
             }}
           >
             Audit log
@@ -525,25 +682,24 @@ export const AuthAccess: React.FC = () => {
               fontSize: 36,
               fontWeight: 600,
               color: "#ffffff",
+              opacity: entry,
+              translate: `0px ${(1 - entry) * 8}px`,
             }}
           >
-            2 attempts, 3 accounts, 0 duplicates
+            m.santoso: 3 accounts, 0 duplicates
           </div>
         </div>
 
-        <Caption
-          range={beats.start}
-          text="HR records the joiner. Her accounts start on their own."
-        />
-        <Caption range={beats.fail} text="One provider times out halfway." />
+        <Caption range={beats.fail} text="A new hire's setup fails halfway." />
         <Caption
           range={beats.retry}
-          text="The retry continues from the account that failed."
+          text="The retry skips accounts already created."
         />
         <Caption
-          range={beats.done}
-          text="Three accounts are ready before her first login."
+          range={beats.resume}
+          text="Setup resumes at the failed step."
         />
+        <Caption range={beats.done} text="Ready on day one. No duplicates." />
       </AbsoluteFill>
     </AbsoluteFill>
   );

@@ -3,13 +3,7 @@ import { Composition } from "remotion";
 import { AUTH_DURATION, AuthAccess } from "./clips/AuthAccess";
 import { ECOMMERCE_DURATION, EcommercePayment } from "./clips/EcommercePayment";
 import { LOAN_DURATION, LoanCollection } from "./clips/LoanCollection";
-import { PrReviewer } from "./clips/PrReviewer";
-import {
-  heroDurationInFrames,
-  heroFps,
-  HeroTopologyNarrow,
-  HeroTopologyWide,
-} from "./hero/compositions";
+import { PR_DURATION, PrReviewer } from "./clips/PrReviewer";
 import { clipConfig } from "./theme";
 
 /**
@@ -19,7 +13,12 @@ import { clipConfig } from "./theme";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition {...clipConfig} component={PrReviewer} id="PrReviewer" />
+      <Composition
+        {...clipConfig}
+        component={PrReviewer}
+        durationInFrames={PR_DURATION}
+        id="PrReviewer"
+      />
       <Composition
         {...clipConfig}
         component={AuthAccess}
@@ -37,22 +36,6 @@ export const RemotionRoot: React.FC = () => {
         component={EcommercePayment}
         durationInFrames={ECOMMERCE_DURATION}
         id="EcommercePayment"
-      />
-      <Composition
-        component={HeroTopologyWide}
-        durationInFrames={heroDurationInFrames}
-        fps={heroFps}
-        height={880}
-        id="HeroTopologyWide"
-        width={2000}
-      />
-      <Composition
-        component={HeroTopologyNarrow}
-        durationInFrames={heroDurationInFrames}
-        fps={heroFps}
-        height={1520}
-        id="HeroTopologyNarrow"
-        width={720}
       />
     </>
   );
