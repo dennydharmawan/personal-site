@@ -107,7 +107,7 @@
     }
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 57px;
     @apply font-sans;
     }
   html {

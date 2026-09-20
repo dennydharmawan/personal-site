@@ -28,7 +28,8 @@ export const revealVisible = { opacity: 1, transform: 'translateY(0px)' };
 // Nothing reveals in the last 10% of the viewport; the element has to clear that band first.
 export const revealRootMargin = '0px 0px -10% 0px';
 
-export const anchorScrollOffset = 76;
+// The compact header: 56px tall plus its 1px bottom border. Keep in sync with scroll-padding-top.
+export const anchorScrollOffset = 57;
 export const careerStart = { monthIndex: 11, year: 2017 };
 export const contactEmail = 'contact@dennydharmawan.com';
 
