@@ -15,23 +15,46 @@ function riseDelay(seconds: number) {
   return { '--rise-delay': `${seconds}s` } as CSSProperties;
 }
 
+const shellWidth = 'calc(100vw - 2.5rem)';
+
+// One crop per breakpoint range, each framed for the band height that range renders.
+const heroPhotoBands = [
+  { media: '(max-width: 639px)', sizes: shellWidth, slug: 'mobile', widths: [500, 700, 1000, 1200] },
+  { media: '(max-width: 1023px)', sizes: shellWidth, slug: 'tablet', widths: [1000, 1456, 1774] },
+  { media: undefined, sizes: `min(1280px, ${shellWidth})`, slug: 'desktop', widths: [1280, 1774] }
+];
+
+const heroPhotoFormats = ['avif', 'webp'];
+
+function heroPhotoSrcSet(slug: string, widths: number[], format: string) {
+  return widths
+    .map((width) => `/portfolio-previews/hero-team-${slug}-${width}.${format} ${width}w`)
+    .join(', ');
+}
+
 function HeroPhoto({ className }: { className: string }) {
   return (
     <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5">
       <picture>
-        <source
-          media="(max-width: 639px)"
-          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-mobile-crop.png"
-        />
-        <source
-          media="(min-width: 1024px)"
-          srcSet="/portfolio-previews/team-gaze-hero-final-curiosity-pc-crop.png"
-        />
+        {heroPhotoBands.flatMap((band) =>
+          heroPhotoFormats.map((format) => (
+            <source
+              key={`${band.slug}-${format}`}
+              media={band.media}
+              sizes={band.sizes}
+              srcSet={heroPhotoSrcSet(band.slug, band.widths, format)}
+              type={`image/${format}`}
+            />
+          ))
+        )}
         <img
           alt="Team collaborating around a laptop with attention directed toward the next action"
           className={`block w-full object-cover ${className}`}
           decoding="async"
-          src="/portfolio-previews/team-gaze-hero-final-spec-source.png"
+          fetchPriority="high"
+          height={312}
+          src="/portfolio-previews/hero-team-desktop-1280.jpg"
+          width={1280}
         />
       </picture>
     </div>
