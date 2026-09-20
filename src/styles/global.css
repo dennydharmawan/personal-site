@@ -99,6 +99,7 @@
     --sidebar-accent-foreground: var(--color-sky-800);
     --sidebar-border: var(--color-zinc-200);
     --sidebar-ring: var(--color-sky-600);
+    --focus-ring: var(--color-sky-600);
 }
 
 @layer base {
@@ -146,6 +147,26 @@
       scroll-behavior: auto;
     }
   }
+}
+
+/*
+  One focus ring for the whole page. Unlayered, so it outranks the utilities layer where
+  per-component `outline-hidden` and `focus-visible:ring-*` classes would otherwise win.
+  No single sky step clears 3:1 on both surfaces: sky-600 is 4.0:1 on white and 2.6:1 on
+  zinc-700, sky-300 is 6.3:1 on zinc-700 and 1.7:1 on white. So the color is a token and
+  the surface picks it.
+*/
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.bg-zinc-700, .bg-zinc-800, .bg-zinc-900 {
+  --focus-ring: var(--color-sky-300);
+}
+
+.bg-white, .bg-zinc-50 {
+  --focus-ring: var(--color-sky-600);
 }
 
 @keyframes rise-in {
