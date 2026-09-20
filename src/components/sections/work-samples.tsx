@@ -112,7 +112,7 @@ function ProjectCard({ project }: { project: Project }) {
         </h3>
         <p className="text-sm font-normal leading-6 text-zinc-600 text-pretty">{project.summary}</p>
         <details className="group">
-          <summary className="cursor-pointer list-none rounded-md text-sm font-medium text-zinc-900 outline-hidden focus-visible:ring-2 focus-visible:ring-sky-300">
+          <summary className="w-fit cursor-pointer list-none rounded-md text-sm font-medium text-zinc-900">
             <span className="group-open:hidden">How it works</span>
             <span className="hidden group-open:inline">Hide details</span>
           </summary>

@@ -71,7 +71,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
         ref={triggerRef}
         type="button"
         style={triggerStyle}
-        className="animate-rise-in relative inline-flex size-11 items-center justify-center rounded-lg border border-zinc-900/10 bg-white text-zinc-900 transition-colors hover:border-zinc-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
+        className="animate-rise-in relative inline-flex size-11 items-center justify-center rounded-lg border border-zinc-900/10 bg-white text-zinc-900 transition-colors hover:border-zinc-900/20 sm:hidden"
         aria-controls={panelId}
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
@@ -132,7 +132,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                     <a
                       ref={index === 0 ? firstLinkRef : undefined}
                       href={`#${item.target}`}
-                      className="group flex min-h-16 items-center justify-between gap-4 rounded-lg px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                      className="group flex min-h-16 items-center justify-between gap-4 rounded-lg px-1"
                       onClick={(event) => {
                         event.preventDefault();
                         onOpenChange(false);
@@ -164,7 +164,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
               <a
                 href={`mailto:${contactEmail}`}
                 aria-label={`Email ${contactEmail}`}
-                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-zinc-800"
               >
                 Email me
               </a>
@@ -172,7 +172,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                 href="/resume.pdf"
                 rel="noopener"
                 target="_blank"
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-zinc-900/10 bg-white px-4 text-sm font-medium text-zinc-900 transition-colors hover:border-zinc-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-zinc-900/10 bg-white px-4 text-sm font-medium text-zinc-900 transition-colors hover:border-zinc-900/20"
               >
                 Resume
                 <ArrowUpRight aria-hidden="true" className="size-4 text-zinc-500" />

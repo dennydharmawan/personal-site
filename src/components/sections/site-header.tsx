@@ -150,13 +150,13 @@ export function EmailActionMenu() {
           >
             <button
               type="button"
-              className="flex min-h-11 items-center rounded-xl px-3 text-left transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              className="flex min-h-11 items-center rounded-xl px-3 text-left transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900"
               onClick={copyEmail}
             >
               {copyLabel}
             </button>
             <a
-              className="flex min-h-11 items-center rounded-xl px-3 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              className="flex min-h-11 items-center rounded-xl px-3 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:text-zinc-900"
               href={`mailto:${contactEmail}`}
               onClick={() => setIsOpen(false)}
             >
@@ -221,7 +221,7 @@ export function SiteHeader() {
           }`}
         >
           <a
-            className="animate-rise-in inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="animate-rise-in inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm"
             style={riseDelay(0.04)}
             href="/"
             aria-label="Denny Dharmawan home"
@@ -252,7 +252,7 @@ export function SiteHeader() {
                 <a
                   key={item.target}
                   href={`#${item.target}`}
-                  className="animate-rise-in relative inline-flex min-h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:px-3"
+                  className="animate-rise-in relative inline-flex min-h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 md:px-3"
                   style={riseDelay(0.12 + index * 0.04)}
                   onBlur={() => setHoveredNavHref(null)}
                   onFocus={() => setHoveredNavHref(item.target)}

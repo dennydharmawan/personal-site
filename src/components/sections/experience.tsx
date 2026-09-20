@@ -26,7 +26,7 @@ function ExperienceHeader() {
           ERP integrations, then digital lending backends, then a bank's system of record for access decisions.
         </p>
         <a
-          className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-700"
+          className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm"
           href="/resume.pdf"
           rel="noopener"
           target="_blank"

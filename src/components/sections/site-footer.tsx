@@ -34,7 +34,7 @@ function FooterSocials({ className }: { className?: string }) {
         return (
           <a
             key={item.href}
-            className="group inline-flex min-h-11 w-fit items-center gap-1.5 text-zinc-600 transition-colors hover:text-zinc-900 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="group inline-flex min-h-11 w-fit items-center gap-1.5 text-zinc-600 transition-colors hover:text-zinc-900 rounded-sm"
             href={item.href}
             rel="noopener noreferrer"
             target="_blank"
