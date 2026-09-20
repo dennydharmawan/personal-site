@@ -1,9 +1,8 @@
+import type { CSSProperties } from 'react';
 import { ChevronDown, Download } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { trustedTeams } from '@/components/portfolio-home-data';
 import {
-  RevealGroup,
-  RevealItem,
   detailStackGapClassName,
   getYearsExperience,
   pageShellClassName,
@@ -11,6 +10,10 @@ import {
   trustedLogoToneClassName
 } from '@/components/sections/shared';
 import { Button } from '@/components/ui/button';
+
+function riseDelay(seconds: number) {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
 
 function HeroPhoto({ className }: { className: string }) {
   return (
@@ -58,7 +61,7 @@ function HeroHeadline({ className }: { className: string }) {
 
 function HeroLede({ className = '' }: { className?: string }) {
   return (
-    <p className={`max-w-xl text-base font-normal leading-7 text-zinc-700 text-pretty ${className}`}>
+    <p className={`max-w-xl text-base font-normal leading-7 text-zinc-700 text-balance ${className}`}>
       I&apos;m a full-stack engineer with hands-on experience building{' '}
       <span className="whitespace-nowrap">large-scale</span> financial systems, where scalability,
       reliability, and maintainability are critical.
@@ -70,16 +73,23 @@ function HeroActions({ className = '' }: { className?: string }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+    <div
+      className={`grid w-full gap-3 min-[420px]:flex min-[420px]:flex-wrap min-[420px]:items-center ${className}`}
+    >
       <Button
         size="lg"
-        className="group min-h-11 px-3 has-data-[icon=inline-end]:pr-3 sm:px-4 sm:has-data-[icon=inline-end]:pr-4"
+        className="group min-h-11 w-full px-3 has-data-[icon=inline-end]:pr-3 min-[420px]:w-auto sm:px-4 sm:has-data-[icon=inline-end]:pr-4"
         onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
       >
         View work samples
         <ChevronDown data-icon="inline-end" className="size-4" />
       </Button>
-      <Button asChild variant="outline" size="lg" className="min-h-11 px-3 sm:px-4">
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4"
+      >
         <a href="/resume.pdf" rel="noopener" target="_blank">
           <Download data-icon="inline-start" />
           Download resume
@@ -91,9 +101,9 @@ function HeroActions({ className = '' }: { className?: string }) {
 
 function TrustedLogos({ className = '' }: { className?: string }) {
   return (
-    <div className={`flex flex-wrap items-center gap-x-10 gap-y-3 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-10 ${className}`}>
       {trustedTeams.map((team) => (
-        <span key={team.name} className="inline-flex h-10 min-w-24 items-center justify-start">
+        <span key={team.name} className="inline-flex h-10 items-center justify-start">
           <img
             src={team.logo}
             alt={`${team.name} logo`}
@@ -110,21 +120,19 @@ const trustedLine = "Trusted by teams at Indonesia's leading digital banks";
 
 function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   return (
-    <div className="grid gap-6 pt-2 min-[520px]:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.36fr)] min-[520px]:items-end lg:gap-8">
+    <div className="grid gap-5 pt-2">
+      <p className="flex items-baseline gap-2.5">
+        <span className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
+          {yearsExperience}+
+        </span>
+        <span className="text-sm font-medium leading-5 text-zinc-600">years of experience</span>
+      </p>
+
       <div className="grid gap-3">
         <p className="max-w-md text-sm font-medium leading-6 text-zinc-700 text-pretty">
           {trustedLine}
         </p>
         <TrustedLogos />
-      </div>
-
-      <div className="grid gap-2">
-        <p className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
-          {yearsExperience}+
-        </p>
-        <p className="text-sm font-medium leading-5 text-zinc-600 text-pretty">
-          years of experience
-        </p>
       </div>
     </div>
   );
@@ -136,32 +144,31 @@ export function HeroSection() {
   return (
     <section className="relative isolate border-b border-zinc-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
       <HeroBackdrop />
-      <RevealGroup
-        className={`${pageShellClassName} grid gap-10 md:gap-12`}
-        onMount
-        stagger={0.1}
-      >
+      <div className={`${pageShellClassName} grid gap-10 md:gap-12`}>
         <div className="grid gap-8">
-          <RevealItem>
-            <HeroHeadline className="max-w-6xl text-[2.5rem] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
-          </RevealItem>
+          <div className="animate-rise-in">
+            <HeroHeadline className="max-w-6xl text-[clamp(2rem,8.6vw,2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
+          </div>
 
-          <RevealItem>
+          <div className="animate-rise-in" style={riseDelay(0.08)}>
             <HeroPhoto className="h-[12.5rem] object-[50%_22%] sm:h-[17rem] lg:h-[18rem]" />
-          </RevealItem>
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
-          <RevealItem>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-start">
+          <div className="animate-rise-in" style={riseDelay(0.16)}>
             <HeroProofBlock yearsExperience={yearsExperience} />
-          </RevealItem>
+          </div>
 
-          <RevealItem className={`grid ${detailStackGapClassName} lg:justify-items-start`}>
+          <div
+            className={`animate-rise-in grid ${detailStackGapClassName} lg:justify-items-start`}
+            style={riseDelay(0.24)}
+          >
             <HeroLede />
             <HeroActions />
-          </RevealItem>
+          </div>
         </div>
-      </RevealGroup>
+      </div>
     </section>
   );
 }

@@ -160,17 +160,17 @@ export const experiences = [
 export const trustedTeams = [
   {
     logo: '/company-logos/krom-bank.svg',
-    logoClassName: 'h-7 max-w-[7.75rem]',
+    logoClassName: 'h-6 sm:h-7 max-w-[7.75rem]',
     name: 'Krom Bank'
   },
   {
     logo: '/company-logos/bank-smbc-indonesia.svg',
-    logoClassName: 'h-9 max-w-[8.5rem]',
+    logoClassName: 'h-6 sm:h-7 max-w-[7.75rem]',
     name: 'Bank SMBC Indonesia'
   },
   {
     logo: '/company-logos/jenius.svg',
-    logoClassName: 'h-7 max-w-[7.75rem]',
+    logoClassName: 'h-6 sm:h-7 max-w-[7.75rem]',
     name: 'Jenius'
   }
 ];
