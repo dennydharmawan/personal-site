@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
   detailStackGapClassName,
   pageShellClassName,
-  scrollToTarget,
-  sectionPaddingTopClassName
+  scrollToTargetName
 } from '@/components/sections/shared';
 import { EmailActionMenu } from '@/components/sections/site-header';
 
@@ -65,6 +64,18 @@ function FooterStatus() {
 function FooterBottomBar() {
   const shouldReduceMotion = useReducedMotion();
 
+  const backToTop = () => {
+    scrollToTargetName('top', shouldReduceMotion);
+
+    const pageTop = document.querySelector<HTMLElement>('[data-scroll-target="top"]');
+
+    if (pageTop) {
+      // <main> is not focusable on its own, so without this the next Tab resumes from the footer.
+      pageTop.tabIndex = -1;
+      pageTop.focus({ preventScroll: true });
+    }
+  };
+
   return (
     <div className="border-t border-zinc-900/6">
       <div
@@ -74,9 +85,9 @@ function FooterBottomBar() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="min-h-11 w-fit gap-2 rounded-full px-4 shadow-none transition-colors border-zinc-900/10 bg-white text-zinc-900 hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900"
-          onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
+          size="lg"
+          className={`w-fit ${footerPillClassName}`}
+          onClick={backToTop}
         >
           <ChevronUp aria-hidden="true" className="size-3.5" />
           <span>Back to top</span>
@@ -93,7 +104,7 @@ export function SiteFooter() {
       className="relative isolate overflow-hidden border-t border-zinc-900/6 bg-zinc-50"
     >
       <div
-        className={`${pageShellClassName} grid gap-12 pb-12 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:items-end lg:gap-16 ${sectionPaddingTopClassName}`}
+        className={`${pageShellClassName} grid gap-10 pt-16 pb-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-start md:pt-20 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16 lg:pt-24`}
       >
         <div className={`grid justify-items-start ${detailStackGapClassName}`}>
           <h2 className="max-w-3xl font-heading text-4xl font-normal leading-[1.02] tracking-tight text-zinc-900 sm:text-5xl lg:text-7xl">
