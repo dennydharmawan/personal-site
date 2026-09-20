@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
-import { motion, stagger, useReducedMotion } from 'motion/react';
+import { motion, stagger } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
 
 export const trustedLogoToneClassName = 'grayscale opacity-[0.72] contrast-100';
@@ -24,7 +25,8 @@ export const revealTransition = {
 };
 export const revealHidden = { opacity: 0, transform: 'translateY(12px)' };
 export const revealVisible = { opacity: 1, transform: 'translateY(0px)' };
-export const revealViewport = { margin: '0px 0px -10% 0px', once: true };
+// Nothing reveals in the last 10% of the viewport; the element has to clear that band first.
+export const revealRootMargin = '0px 0px -10% 0px';
 
 export const anchorScrollOffset = 76;
 export const careerStart = { monthIndex: 11, year: 2017 };
@@ -67,6 +69,44 @@ export function scrollToTarget(
   }
 }
 
+type RevealState = 'hidden' | 'visible';
+
+// Content starts visible so the server HTML paints without JS. Only an element the
+// observer measures as entirely below the viewport is pushed back to hidden, off screen,
+// where the jump cannot be seen. Anything already on screen keeps its painted state.
+function useRevealState(skip = false) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<RevealState>('visible');
+
+  useEffect(() => {
+    const element = ref.current;
+
+    if (skip || !element || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setState('visible');
+          observer.disconnect();
+        } else if (entry.boundingClientRect.top >= window.innerHeight) {
+          setState('hidden');
+        }
+      },
+      { rootMargin: revealRootMargin }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [skip]);
+
+  return { ref, state };
+}
+
+const instant = { duration: 0 };
+
 export function Reveal({
   children,
   className,
@@ -76,22 +116,28 @@ export function Reveal({
   className?: string;
   delay?: number;
 }) {
-  const shouldReduceMotion = useReducedMotion();
+  const { ref, state } = useRevealState();
 
   return (
     <motion.div
+      ref={ref}
       className={className}
-      initial={revealHidden}
-      whileInView={revealVisible}
-      viewport={revealViewport}
-      transition={shouldReduceMotion ? { duration: 0 } : { delay, ...revealTransition }}
+      initial={false}
+      animate={state}
+      variants={{
+        hidden: { ...revealHidden, transition: instant },
+        visible: { ...revealVisible, transition: { delay, ...revealTransition } }
+      }}
     >
       {children}
     </motion.div>
   );
 }
 
-export const revealVariants = { hidden: revealHidden, visible: revealVisible };
+export const revealVariants = {
+  hidden: { ...revealHidden, transition: instant },
+  visible: { ...revealVisible, transition: revealTransition }
+};
 
 export function RevealGroup({
   children,
@@ -106,22 +152,18 @@ export function RevealGroup({
   onMount?: boolean;
   stagger?: number;
 }) {
-  const shouldReduceMotion = useReducedMotion();
-  const activationProps: HTMLMotionProps<'div'> = onMount
-    ? { animate: 'visible' }
-    : { whileInView: 'visible', viewport: revealViewport };
+  const { ref, state } = useRevealState(onMount);
 
   return (
     <motion.div
+      ref={ref}
       className={className}
-      initial="hidden"
-      variants={{ hidden: {}, visible: {} }}
-      transition={
-        shouldReduceMotion
-          ? { duration: 0 }
-          : { delayChildren: stagger(interval, { startDelay: delay }) }
-      }
-      {...activationProps}
+      initial={false}
+      animate={state}
+      variants={{
+        hidden: { transition: instant },
+        visible: { transition: { delayChildren: stagger(interval, { startDelay: delay }) } }
+      }}
     >
       {children}
     </motion.div>
@@ -129,20 +171,12 @@ export function RevealGroup({
 }
 
 export function RevealItem({ children, className, ...props }: HTMLMotionProps<'div'>) {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
-    <motion.div
-      className={className}
-      variants={revealVariants}
-      transition={shouldReduceMotion ? { duration: 0 } : revealTransition}
-      {...props}
-    >
+    <motion.div className={className} variants={revealVariants} {...props}>
       {children}
     </motion.div>
   );
 }
-
 
 export function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: string }) {
   return (
