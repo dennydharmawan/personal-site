@@ -16,14 +16,15 @@ pnpm preview
 ## Structure
 
 - `src/pages/index.astro` mounts the homepage.
-- `src/components/portfolio-home.tsx` renders the homepage experience.
+- `src/components/portfolio-home.tsx` composes the sections in order.
+- `src/components/sections/` holds one file per section.
 - `src/components/portfolio-home-data.ts` stores homepage content data.
-- `src/components/portfolio-marquee-images.ts` generates footer marquee images.
 - `public/` contains static images, logos, resume, and favicons.
+- `clips/` is a Remotion package that renders the work-sample videos.
 
 ## Notes
 
 Portfolio copy should stay truthful, NDA-safe, and grounded in real systems,
 scale, reliability, delivery judgment, and cross-team work. Repo-local guidance
-lives in `AGENTS.md` and `CONTEXT.md`. Job-target keyword notes live in the
+lives in `AGENTS.md` and `DESIGN.md`. Job-target keyword notes live in the
 Obsidian career vault; `AGENTS.md` has the path.
