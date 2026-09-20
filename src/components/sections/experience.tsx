@@ -20,7 +20,7 @@ function ExperienceHeader() {
           Experience
         </h2>
       </RevealItem>
-      <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+      <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-4">
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
           ERP consulting, then lending backends, then bank platform engineering.
         </p>
@@ -44,7 +44,7 @@ function Highlights({ item }: { item: ExperienceItem }) {
       {item.highlights.map((highlight) => (
         <li key={highlight} className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-zinc-200">
           <PlayBulletMarker />
-          <span>{highlight}</span>
+          <span className="text-pretty">{highlight}</span>
         </li>
       ))}
     </ul>
@@ -53,8 +53,8 @@ function Highlights({ item }: { item: ExperienceItem }) {
 
 function ExperienceRole({ item }: { item: ExperienceItem }) {
   return (
-    <RevealGroup className="grid gap-3 border-t border-white/15 py-8 first:border-t-0 first:pt-0">
-      <RevealItem className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+    <RevealGroup className="grid gap-3 border-t border-white/15 py-8 first:border-t-0 first:pt-0 last:pb-0">
+      <RevealItem className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-6">
         <p className="text-sm font-medium text-zinc-200">{item.company}</p>
         <p className="text-sm whitespace-nowrap tabular-nums text-zinc-300">{item.period}</p>
       </RevealItem>
@@ -94,7 +94,7 @@ export function ExperienceSection() {
       data-scroll-target="experience"
     >
       <div
-        className={`${pageShellClassName} grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16`}
+        className={`${pageShellClassName} grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16`}
       >
         <div className="lg:sticky lg:top-28 lg:self-start">
           <ExperienceHeader />
