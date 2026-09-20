@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import type { CSSProperties, FocusEvent } from 'react';
+import type { FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import {
   contactEmail,
   easeOut,
   pageShellClassName,
+  riseDelay,
   scrollToTargetName,
   spring
 } from '@/components/sections/shared';
@@ -171,10 +172,6 @@ export function EmailActionMenu() {
       </span>
     </div>
   );
-}
-
-function riseDelay(seconds: number) {
-  return { '--rise-delay': `${seconds}s` } as CSSProperties;
 }
 
 export function SiteHeader() {

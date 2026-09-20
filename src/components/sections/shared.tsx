@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import { motion, stagger } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
 
@@ -196,4 +196,8 @@ export function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: 
       />
     </svg>
   );
+}
+
+export function riseDelay(seconds: number) {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
 }

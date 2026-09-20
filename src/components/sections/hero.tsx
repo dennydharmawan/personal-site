@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { ChevronDown, Download } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { trustedTeams } from '@/components/portfolio-home-data';
@@ -6,14 +5,11 @@ import {
   detailStackGapClassName,
   getYearsExperience,
   pageShellClassName,
+  riseDelay,
   scrollToTarget,
   trustedLogoToneClassName
 } from '@/components/sections/shared';
 import { Button } from '@/components/ui/button';
-
-function riseDelay(seconds: number) {
-  return { '--rise-delay': `${seconds}s` } as CSSProperties;
-}
 
 const shellWidth = 'calc(100vw - 2.5rem)';
 
