@@ -1,6 +1,6 @@
-import { ArrowUpRight, ChevronUp } from 'lucide-react';
+import { ArrowUpRight, ChevronUp, Download } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
-import { LuGithub, LuInstagram, LuLinkedin } from 'react-icons/lu';
+import { LuGithub, LuLinkedin } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import {
   detailStackGapClassName,
@@ -10,16 +10,14 @@ import {
 } from '@/components/sections/shared';
 import { EmailActionMenu } from '@/components/sections/site-header';
 
+const footerPillClassName =
+  'h-11 gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900';
+
 const footerSocialLinks = [
   {
     href: 'https://www.linkedin.com/in/ddharmawan',
     icon: LuLinkedin,
     label: 'LinkedIn'
-  },
-  {
-    href: 'https://www.instagram.com/naiklevel.dev/',
-    icon: LuInstagram,
-    label: 'Instagram'
   },
   {
     href: 'https://github.com/dennydharmawan',
@@ -52,6 +50,15 @@ function FooterSocials({ className }: { className?: string }) {
         );
       })}
     </div>
+  );
+}
+
+function FooterStatus() {
+  return (
+    <p className="flex items-center gap-2.5 text-sm font-medium text-zinc-600">
+      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-emerald-500" />
+      Jakarta · UTC+7 · open to fintech roles
+    </p>
   );
 }
 
@@ -93,12 +100,23 @@ export function SiteFooter() {
             Let&apos;s build something
             <span className="block text-zinc-500">that stays up.</span>
           </h2>
-          <EmailActionMenu />
+          <div className="grid justify-items-start gap-4">
+            <FooterStatus />
+            <div className="flex flex-wrap items-center gap-3">
+              <EmailActionMenu />
+              <Button asChild variant="outline" size="lg" className={footerPillClassName}>
+                <a href="/resume.pdf" rel="noopener" target="_blank">
+                  <Download aria-hidden="true" className="size-4" />
+                  Download resume
+                </a>
+              </Button>
+            </div>
+          </div>
         </div>
         <div className="grid gap-6 border-t border-zinc-900/10 pt-6">
           <p className="max-w-md text-base font-normal leading-7 text-zinc-600 text-pretty">
-            I take on full-stack and platform work where reliability matters. Based in Jakarta,
-            working with teams across time zones.
+            I take on full-stack and platform work in banking and fintech, anywhere access control,
+            audit trails, and uptime matter. Based in Jakarta.
           </p>
           <FooterSocials className="flex-col !items-start gap-y-0" />
         </div>
