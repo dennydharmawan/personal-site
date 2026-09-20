@@ -1,34 +1,45 @@
 ---
 import PortfolioHome from "@/components/portfolio-home";
+import bricolageLatinUrl from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url";
 import instrumentSansLatinUrl from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
+
+const siteUrl = "https://dennydharmawan.com/";
+const title = "Denny Dharmawan | Full-Stack Engineer";
+const description =
+	"Senior full-stack engineer in digital banking, Jakarta. Lending backends at Jenius, access governance at Krom Bank. TypeScript, Node.js, React, Next.js.";
+const ogImageUrl = new URL("/og.png", siteUrl).href;
+const ogImageAlt =
+	"Denny Dharmawan, senior full-stack engineer in digital banking. Building web solutions that actually scale.";
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link
-			rel="preload"
-			href={instrumentSansLatinUrl}
-			as="font"
-			type="font/woff2"
-			crossorigin
-		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<meta name="theme-color" content="white" />
+		<link rel="preload" href={bricolageLatinUrl} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={instrumentSansLatinUrl} as="font" type="font/woff2" crossorigin />
 		<meta name="generator" content={Astro.generator} />
-		<meta
-			name="description"
-			content="Denny Dharmawan, senior full-stack engineer. Digital banking platforms, access control, APIs, and production reliability."
-		/>
-		<meta property="og:title" content="Denny Dharmawan | Full-Stack Engineer" />
-		<meta
-			property="og:description"
-			content="Digital banking platforms, access control, APIs, and production reliability."
-		/>
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={siteUrl} />
 		<meta property="og:type" content="website" />
-		<meta name="twitter:card" content="summary" />
-		<title>Denny Dharmawan | Full-Stack Engineer</title>
+		<meta property="og:url" content={siteUrl} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={ogImageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content={ogImageAlt} />
 	</head>
 	<body>
 		<PortfolioHome client:load />
