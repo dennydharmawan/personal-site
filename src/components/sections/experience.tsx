@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { experiences } from '@/components/portfolio-home-data';
 import {
   PlayBulletMarker,
+  Reveal,
   RevealGroup,
   RevealItem,
   listGapClassName,
@@ -65,12 +66,10 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
       </RevealItem>
       {'titles' in item && item.titles ? (
         <RevealItem>
-          <ol aria-label={`Titles held at ${item.company}`} className="grid max-w-md gap-1.5 border-l border-white/15 pl-4">
-            {item.titles.map((title, index) => (
+          <ol aria-label={`Titles held at ${item.company}`} className="grid gap-1.5 border-l border-white/15 pl-4">
+            {item.titles.map((title) => (
               <li key={title.role} className="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
-                <span className={index === 0 ? 'font-medium text-zinc-50' : 'text-zinc-300'}>
-                  {title.role}
-                </span>
+                <span className="text-zinc-200">{title.role}</span>
                 <span className="whitespace-nowrap tabular-nums text-zinc-300">{title.period}</span>
               </li>
             ))}
@@ -98,14 +97,16 @@ export function ExperienceSection() {
       >
         <div className="lg:sticky lg:top-28 lg:self-start">
           <ExperienceHeader />
-          <ol className="hidden gap-3 lg:grid">
-            {experiences.map((item) => (
-              <li key={item.company} className="flex items-baseline justify-between gap-4 text-sm">
-                <span className="font-medium text-zinc-200">{item.company}</span>
-                <span className="whitespace-nowrap tabular-nums text-zinc-300">{item.period}</span>
-              </li>
-            ))}
-          </ol>
+          <Reveal className="hidden lg:block" delay={0.16}>
+            <ol className="grid gap-3">
+              {experiences.map((item) => (
+                <li key={item.company} className="flex items-baseline justify-between gap-4 text-sm">
+                  <span className="font-medium text-zinc-200">{item.company}</span>
+                  <span className="whitespace-nowrap tabular-nums text-zinc-300">{item.period}</span>
+                </li>
+              ))}
+            </ol>
+          </Reveal>
         </div>
         <div className="grid">
           {experiences.map((item) => (
