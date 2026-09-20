@@ -4,9 +4,10 @@
 # breakpoint range, encoded as AVIF and WebP plus one JPEG fallback.
 set -euo pipefail
 
-root="/Users/denny.dharmawan/portfolios/personal-site/.claude/worktrees/wf_833207a8-e86-1"
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 previews="$root/public/portfolio-previews"
-source_png="$previews/team-gaze-hero-final-spec-source.png"
+source_dir="$root/scripts/assets"
+source_png="$source_dir/team-gaze-hero-final-spec-source.png"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
