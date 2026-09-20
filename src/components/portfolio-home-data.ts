@@ -121,11 +121,11 @@ export const experiences = [
       'Improved API performance 37% by refactoring legacy modules and adding targeted caching',
       'Designed the Datadog dashboards and tracing that became the company monitoring template'
     ],
-    period: 'Jan 2023 - Present',
+    period: 'Jan 2023 – Present',
     role: 'Senior Full-Stack Engineer',
     titles: [
-      { period: 'May 2026 - Present', role: 'Senior Full-Stack Engineer' },
-      { period: 'Jan 2023 - May 2026', role: 'Full-Stack Engineer' }
+      { period: 'May 2026 – Present', role: 'Senior Full-Stack Engineer' },
+      { period: 'Jan 2023 – May 2026', role: 'Full-Stack Engineer' }
     ],
     summary:
       'Platform and product engineering for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers and wrote the Git workflow used by 5+ teams.',
@@ -138,7 +138,7 @@ export const experiences = [
       'Kept origination and disbursement stable while users grew 147% in three years',
       'Built retail partner APIs on Kafka events that widened digital lending distribution'
     ],
-    period: 'Dec 2019 - Dec 2022',
+    period: 'Dec 2019 – Dec 2022',
     role: 'Back End Engineer',
     summary: 'Backend services for Flexi Cash, a digital lending product.',
     years: '2019'
@@ -150,7 +150,7 @@ export const experiences = [
       'Integrated data warehouse, enterprise portal, and point-of-sale systems',
       'Trained 200 professionals on Dynamics AX customization'
     ],
-    period: 'Dec 2017 - Dec 2019',
+    period: 'Dec 2017 – Dec 2019',
     role: 'Technical Consultant',
     summary: 'ERP customization and integration for enterprise clients.',
     years: '2017'
