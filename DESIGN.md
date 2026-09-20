@@ -129,6 +129,32 @@ components:
 
 # Design System: Denny Dharmawan personal site
 
+## Stale since the 2026-09-20 refresh
+
+This document describes the page as it stood at commit 3317266. The refresh that
+followed changed these things and this document has not been rewritten yet.
+
+- First paint. The server HTML now renders visible. Above-the-fold entrances run on the
+  CSS `animate-rise-in` utility in `global.css` with a `--rise-delay` stagger from
+  `riseDelay()` in `shared.tsx`. `Reveal` still animates below-the-fold content on scroll
+  but no longer ships `opacity: 0` from the server. The hero on-mount reveal is gone.
+- Focus. One unlayered `:focus-visible` outline in `global.css`, coloured by the
+  `--focus-ring` token, which flips to sky-300 on `bg-zinc-700`, `bg-zinc-800` and
+  `bg-zinc-900`. Per-component focus rings were removed.
+- Anchors. Nav jumps land at 57 px, matching the compact header, not 76 px.
+- Header. A mobile nav below `sm` in `mobile-nav.tsx`. Section deep links resolve.
+- Hero. The photo is three responsive bands in AVIF and WebP, built by
+  `scripts/build-hero-photo.sh` from `scripts/assets/`. The proof row is top-aligned.
+- Work samples. A request-path strip precedes the grid and highlights the samples that
+  touch a hop. Card bullets are open by default.
+- Expertise. A two-column layout between `md` and `lg`. The instruments now draw the
+  access path, the PR-reviewer pipeline, and the shipped engineering standards.
+- About. Rewritten. No photo. An uptime monitor panel leads with 99.98%, then 2M+
+  transactions a month, then 147% user growth.
+- Footer. A resume link and a Jakarta availability line. Instagram removed.
+- Section heights in the table below are stale.
+
+
 ## Overview
 
 A single-page portfolio built as Astro 7 with React 19 islands and Tailwind v4. The reader is a hiring manager or engineering lead. The page shows working systems before it makes claims. Work samples play real interface recordings. Expertise cards run live instruments. Experience lists every role in full.
