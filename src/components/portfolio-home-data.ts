@@ -15,23 +15,23 @@ export const expertiseItems: ExpertiseItem[] = [
     kind: 'fullstack',
     tail: 'another engineer can change six months later',
     title: 'Full-stack engineering',
-    windowLabel: 'accounts.trace'
+    windowLabel: 'access.decision'
   },
   {
     kind: 'ai',
     tail: 'running in production, not in a demo',
     title: 'AI-assisted delivery',
-    windowLabel: 'agent.run'
+    windowLabel: 'reviewer.run'
   },
   {
     kind: 'production',
-    tail: 'designed to stay up',
+    tail: 'that held steady through 147% user growth',
     title: 'Production systems',
-    windowLabel: 'status'
+    windowLabel: 'reliability'
   },
   {
     kind: 'standards',
-    tail: 'other teams extend',
+    tail: 'that other teams adopted',
     title: 'Engineering standards',
     windowLabel: 'review.gate'
   }

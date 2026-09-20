@@ -1,4 +1,4 @@
-import { useRef, type JSX } from 'react';
+import { useRef, type JSX, type ReactNode } from 'react';
 import {
   motion,
   useInView,
@@ -6,28 +6,38 @@ import {
   type TargetAndTransition,
   type Transition
 } from 'motion/react';
+import { FaAws } from 'react-icons/fa6';
 import {
-  SiAstro,
+  SiApachekafka,
+  SiDatadog,
+  SiGraphql,
+  SiMongodb,
+  SiMysql,
   SiNextdotjs,
   SiNodedotjs,
   SiPostgresql,
   SiReact,
   SiRedis,
-  SiTailwindcss,
   SiTypescript
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
 export type CapabilityKind = 'ai' | 'fullstack' | 'production' | 'standards';
+export type InstrumentSize = 'small' | 'wide';
 
-export const capabilityKinds: CapabilityKind[] = ['fullstack', 'ai', 'production', 'standards'];
+// Below lg the instrument is a fixed band; a 4:3 box there would leave the panel mostly blank.
+const instrumentBoxClassName: Record<InstrumentSize, string> = {
+  small: 'h-60 lg:aspect-[4/3] lg:h-auto',
+  wide: 'h-72 sm:h-64 lg:h-[17.5rem]'
+};
 
 const instrumentLabels: Record<CapabilityKind, string> = {
-  ai: 'Illustration: a terminal running an agent from a spec file and opening a pull request',
+  ai: 'Illustration: four review agents running in parallel, merging into confidence and security gates, then a human approval queue',
   fullstack:
-    'Illustration: a request flowing from a React component to a Node route handler and back',
-  production: 'Illustration: a status board for API latency, queue depth, and error budget',
-  standards: 'Illustration: a merge node ringed by floating labels for passing lint, type, test, and review checks'
+    'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
+  production:
+    'Illustration: a reliability readout for uptime, monthly transactions, and user growth',
+  standards: 'Illustration: three adopted standards merging into one main branch'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -61,312 +71,269 @@ function cycle(
   };
 }
 
-const svgLabelClassName = 'fill-zinc-500 font-medium';
-const svgLabelSize = '10.5';
+const panelClassName = 'flex h-full flex-col justify-center p-4';
+const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
+const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
+const monoClassName = 'font-mono text-[11px]';
 
-const codeClientLines = ['const { data } =', '  useAccounts()', 'fetch(', "  '/api/accounts'"];
-const codeServerLines = [
-  'router.get(',
-  "  '/accounts',",
-  '  requireRole(',
-  "    'admin'),",
-  '  listAccounts)'
+const accessSteps = [
+  { detail: 'from an HR event', state: 'queued', step: 'access.request' },
+  { detail: 'role and resource', state: 'allow', step: 'rbac.check' },
+  { detail: 'who, what, when', state: 'written', step: 'audit.append' },
+  { detail: 'quarterly', state: 'scheduled', step: 'access.review' }
 ];
+const accessRowHeight = 32;
+const accessCycle = 7.2;
 
-function codeLines(lines: string[], x: number, top: number, lit: number): JSX.Element[] {
-  return lines.map((line, index) => (
-    <text
-      className={index === lit ? 'fill-sky-700 font-mono' : 'fill-zinc-500 font-mono'}
-      fontSize="10"
-      key={line}
-      x={x}
-      xmlSpace="preserve"
-      y={top + index * 16}
-    >
-      {line}
-    </text>
-  ));
-}
-
-function RequestFlow({ reduced }: { reduced: boolean }): JSX.Element {
-  const request = cycle(
-    reduced,
-    {
-      opacity: [0, 1, 1, 0, 0],
-      transform: ['translate(0px, 0px)', 'translate(6px, -2px)', 'translate(22px, -32px)', 'translate(28px, -34px)', 'translate(28px, -34px)']
-    },
-    4.8,
-    [0, 0.06, 0.3, 0.38, 1]
-  );
-  const response = cycle(
-    reduced,
-    {
-      transform: ['translate(0px, 0px)', 'translate(0px, 0px)', 'translate(-6px, 2px)', 'translate(-22px, 32px)', 'translate(-28px, 34px)', 'translate(-28px, 34px)'],
-      opacity: [0, 0, 1, 1, 0, 0]
-    },
-    4.8,
-    [0, 0.5, 0.56, 0.8, 0.86, 1]
-  );
+function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
+  const stops = accessSteps.map((_, index) => `translateY(${index * accessRowHeight}px)`);
 
   return (
-    <svg className="size-full" viewBox="0 0 320 240">
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="30">
-        Client
-      </text>
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="174" y="30">
-        Server
-      </text>
-      <rect className="fill-zinc-50 stroke-zinc-900/5" height="118" rx="9" width="132" x="14" y="40" />
-      <rect className="fill-zinc-50 stroke-zinc-900/5" height="118" rx="9" width="132" x="174" y="40" />
-      <rect className="fill-sky-50" height="15" rx="3" width="110" x="20" y="101" />
-      <rect className="fill-sky-50" height="15" rx="3" width="92" x="180" y="65" />
-      {codeLines(codeClientLines, 24, 62, 3)}
-      {codeLines(codeServerLines, 184, 58, 1)}
-      <path
-        className="stroke-sky-200"
-        d="M 146 104 C 158 104 162 70 174 70"
-        fill="none"
-        strokeDasharray="3 3"
-        strokeWidth="1.25"
-      />
-      {reduced ? (
-        <circle className="fill-sky-600" cx="174" cy="70" r="3.2" />
-      ) : (
-        <>
-          <motion.circle className="fill-sky-600" cx={146} cy={104} r="3.2" {...request} />
-          <motion.circle className="fill-sky-400" cx={174} cy={70} r="3.2" {...response} />
-        </>
-      )}
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="192">
-        The client call and the route handler
-      </text>
-      <text className={svgLabelClassName} fontSize={svgLabelSize} x="14" y="208">
-        share one typed contract.
-      </text>
-    </svg>
-  );
-}
-
-const agentLines = [
-  'reading spec: 3 requirements',
-  'plan: 4 files',
-  'tests: 14 passed',
-  'PR #482 opened for review'
-];
-
-function AgentRun({ reduced }: { reduced: boolean }): JSX.Element {
-  return (
-    <div className="flex h-full flex-col gap-2.5 p-4">
-      <div className="flex items-center gap-1.5">
-        <span className="size-1.5 rounded-full bg-zinc-200" />
-        <span className="size-1.5 rounded-full bg-zinc-200" />
-        <span className="size-1.5 rounded-full bg-sky-200" />
-        <span className="ml-1 text-xs font-medium text-zinc-500">Agent run</span>
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1 rounded-xl bg-zinc-50 p-3 font-mono text-[11px] leading-[1.5] text-zinc-500 ring-1 ring-zinc-900/5">
-        <p className="truncate">
-          <span className="text-sky-700">$</span> agent run --spec access-review.md
-        </p>
-        {agentLines.map((line, index) => {
-          const start = 0.04 + index * 0.12;
+    <div className={`${widePanelClassName} gap-3`}>
+      <div className="relative">
+        <span
+          aria-hidden="true"
+          className="absolute top-4 bottom-4 left-[3.5px] w-px bg-zinc-200"
+        />
+        <motion.span
+          aria-hidden="true"
+          className="absolute top-[0.875rem] left-0 size-2 rounded-full bg-sky-500 ring-4 ring-sky-500/10"
+          {...cycle(
+            reduced,
+            { transform: [stops[0], stops[0], stops[1], stops[1], stops[2], stops[2], stops[3], stops[3], stops[0]] },
+            accessCycle,
+            [0, 0.1, 0.2, 0.35, 0.45, 0.6, 0.7, 0.96, 1]
+          )}
+        />
+        {accessSteps.map(({ detail, state, step }, index) => {
+          const lit = 0.16 + index * 0.25;
           return (
-            <motion.p
-              className={cn('truncate', index === 3 ? 'text-sky-700' : undefined)}
-              key={line}
+            <motion.div
+              className="flex h-8 items-center gap-2 pl-6"
+              key={step}
               {...cycle(
                 reduced,
-                {
-                  opacity: [0, 0, 1, 1, 0],
-                  transform: ['translateX(-4px)', 'translateX(-4px)', 'translateX(0px)', 'translateX(0px)', 'translateX(0px)']
-                },
-                6.4,
-                [0, start, start + 0.05, 0.94, 0.99]
+                { opacity: [0.5, 0.5, 1, 1, 0.5, 0.5] },
+                accessCycle,
+                [0, lit - 0.06, lit, lit + 0.12, lit + 0.18, 1]
               )}
             >
-              {line}
-            </motion.p>
+              <span className={`${monoClassName} w-28 shrink-0 truncate text-zinc-900 sm:w-32`}>
+                {step}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-500">{detail}</span>
+              <span
+                className={`${monoClassName} hidden shrink-0 rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-600 ring-1 ring-zinc-900/5 sm:inline-block`}
+              >
+                {state}
+              </span>
+            </motion.div>
           );
         })}
-        <p className="mt-auto flex items-center gap-1">
-          <span className="text-zinc-500">$</span>
-          <motion.span
-            className="inline-block h-3 w-1.5 bg-sky-600"
-            {...cycle(reduced, { opacity: [1, 1, 0, 0] }, 1.1, [0, 0.49, 0.5, 1])}
-          />
-        </p>
       </div>
+      <p className={captionClassName}>
+        One request, from the API call to the audit record it leaves behind.
+      </p>
     </div>
   );
 }
 
-// Both time-series rows repeat every 50 viewBox units and slide by exactly one period, so the
-// snap back to 0 lands on identical pixels.
-const seriesPeriod = 50;
-const seriesDuration = 7;
-const sparkPoints =
-  '0,17 10,11 20,15 30,7 40,13 50,17 60,11 70,15 80,7 90,13 100,17 110,11 120,15 130,7 140,13 150,17';
-const depthHeights = [10, 14, 8, 18, 12, 7, 15, 11];
-const depthBars = Array.from({ length: 24 }, (_, index) => ({
-  height: depthHeights[index % depthHeights.length],
-  x: index * (seriesPeriod / depthHeights.length)
-}));
+const reviewerAgents = ['security', 'correctness', 'tests', 'conventions'];
+const pipelineCycle = 6.8;
 
-function StatusRow({ children, label, value }: { children: JSX.Element; label: string; value: string }) {
+function PipelineLink({ delay, reduced }: { delay: number; reduced: boolean }): JSX.Element {
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-[5.5rem] shrink-0 truncate text-[11px] font-medium text-zinc-600">
-        {label}
+    <span aria-hidden="true" className="relative mx-auto block h-3 w-px bg-zinc-200">
+      <motion.span
+        className="absolute -left-[2px] size-[5px] rounded-full bg-sky-500"
+        {...cycle(
+          reduced,
+          {
+            opacity: [0, 0, 1, 1, 0, 0],
+            transform: ['translateY(-2px)', 'translateY(-2px)', 'translateY(0px)', 'translateY(9px)', 'translateY(11px)', 'translateY(11px)']
+          },
+          pipelineCycle,
+          [0, delay, delay + 0.04, delay + 0.14, delay + 0.18, 1]
+        )}
+      />
+    </span>
+  );
+}
+
+function PipelineNode({ children, tone }: { children: ReactNode; tone?: 'accent' }): JSX.Element {
+  return (
+    <span
+      className={cn(
+        'inline-flex flex-col items-center rounded-lg px-3 py-1.5 text-center ring-1',
+        tone === 'accent'
+          ? 'bg-sky-50 text-sky-700 ring-sky-200/70'
+          : 'bg-white text-zinc-900 ring-zinc-900/5'
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
+  return (
+    <div className={`${widePanelClassName} gap-1`}>
+      <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        {reviewerAgents.map((agent, index) => (
+          <motion.li
+            className={`${monoClassName} rounded-lg bg-zinc-50 px-2 py-1 text-center text-zinc-600 ring-1 ring-zinc-900/5`}
+            key={agent}
+            {...cycle(
+              reduced,
+              { opacity: [0.45, 1, 1, 0.45] },
+              5.2 + index * 0.6,
+              [0, 0.25, 0.65, 1],
+              { delay: index * 0.28 }
+            )}
+          >
+            {agent}
+          </motion.li>
+        ))}
+      </ul>
+      <span aria-hidden="true" className="mx-[12%] mt-2 block border-t border-zinc-200" />
+      <PipelineLink delay={0.08} reduced={reduced} />
+      <PipelineNode>
+        <span className={`${monoClassName} font-medium`}>merger</span>
+        <span className="text-[11px] leading-snug text-zinc-500">
+          drops findings the cited code contradicts
+        </span>
+      </PipelineNode>
+      <PipelineLink delay={0.34} reduced={reduced} />
+      <span className="flex justify-center gap-2">
+        <PipelineNode>
+          <span className={`${monoClassName} text-zinc-600`}>confidence gate</span>
+        </PipelineNode>
+        <PipelineNode>
+          <span className={`${monoClassName} text-zinc-600`}>security gate</span>
+        </PipelineNode>
       </span>
-      <span className="flex h-5 min-w-0 flex-1 items-center">{children}</span>
-      <span className="shrink-0 text-[11px] font-medium tabular-nums text-zinc-600">{value}</span>
+      <PipelineLink delay={0.6} reduced={reduced} />
+      <span className="flex justify-center">
+        <PipelineNode tone="accent">
+          <span className={`${monoClassName} font-medium`}>human approval queue</span>
+        </PipelineNode>
+      </span>
     </div>
   );
 }
 
-function StatusBoard({ reduced }: { reduced: boolean }): JSX.Element {
-  const slide = cycle(
-    reduced,
-    { transform: ['translateX(0px)', `translateX(-${seriesPeriod}px)`] },
-    seriesDuration,
-    [0, 1],
-    { ease: 'linear' }
-  );
+const reliabilityFigures = [
+  { label: 'transactions a month', value: '2M+' },
+  { label: 'user growth, three years', value: '+147%' }
+];
 
+function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className="flex h-full flex-col justify-center gap-3 p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-zinc-500">Production</span>
-        <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+    <div className={`${panelClassName} gap-2.5`}>
+      <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
+        <span>Flexi Cash lending</span>
+        <span className="flex items-center gap-1.5">
           <motion.span
             className="size-1.5 rounded-full bg-emerald-500"
             {...cycle(reduced, { opacity: [0.45, 1, 0.45] }, 3.6, [0, 0.5, 1])}
           />
-          healthy
+          in production
         </span>
       </div>
-      <StatusRow label="API p95" value="142 ms">
-        <svg className="size-full overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 24">
-          <motion.polyline
-            className="stroke-sky-400"
-            fill="none"
-            points={sparkPoints}
-            strokeLinejoin="round"
-            strokeWidth="1.25"
-            vectorEffect="non-scaling-stroke"
-            {...slide}
+      <div className="grid gap-1.5">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[11px] font-medium text-zinc-600">uptime</span>
+          <span className="text-sm font-semibold tabular-nums text-zinc-900">99.98%</span>
+        </div>
+        <span className="relative block h-1 overflow-hidden rounded-full bg-zinc-100">
+          <span className="absolute inset-y-0 left-0 w-[99%] rounded-full bg-emerald-500/70" />
+          <motion.span
+            className="absolute inset-y-0 w-10 bg-linear-to-r from-transparent via-white/70 to-transparent"
+            {...cycle(
+              reduced,
+              { transform: ['translateX(-2.5rem)', 'translateX(22rem)'] },
+              6.4,
+              [0, 1],
+              { ease: 'linear' }
+            )}
           />
-        </svg>
-      </StatusRow>
-      <StatusRow label="Queue depth" value="18">
-        <svg className="size-full overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 24">
-          <motion.g {...slide}>
-            {depthBars.map((bar) => (
-              <rect
-                className="fill-sky-300"
-                height={bar.height}
-                key={bar.x}
-                width="4"
-                x={bar.x}
-                y={24 - bar.height}
-              />
-            ))}
-          </motion.g>
-        </svg>
-      </StatusRow>
-      <StatusRow label="Error budget" value="99.97%">
-        <span className="h-1 w-full overflow-hidden rounded-full bg-zinc-100">
-          <span className="block h-full w-[94%] rounded-full bg-emerald-500/70" />
         </span>
-      </StatusRow>
-      <p className="text-[11px] text-zinc-500">Last 30 days. Alerts page on-call, not customers.</p>
+      </div>
+      {reliabilityFigures.map(({ label, value }) => (
+        <div className="flex items-baseline justify-between gap-2" key={label}>
+          <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">{label}</span>
+          <span className="text-[11px] font-semibold tabular-nums text-zinc-900">{value}</span>
+        </div>
+      ))}
+      <p className={captionClassName}>
+        Datadog dashboards and traces other teams took as their template.
+      </p>
     </div>
   );
 }
 
-type GateChip = {
-  className: string;
-  drift: TargetAndTransition;
-  duration: number;
-  delay: number;
-  id: string;
-  label: string;
-};
-
-const gateChips: GateChip[] = [
-  {
-    className: 'left-[5%] top-[14%] bg-sky-50 text-sky-700 ring-sky-200/70',
-    drift: { transform: ['translate(0px, 0px)', 'translate(6px, -7px)', 'translate(0px, 0px)'] },
-    duration: 9,
-    delay: 0,
-    id: 'types',
-    label: 'types clean'
-  },
-  {
-    className: 'right-[4%] top-[4%] bg-emerald-50 text-emerald-700 ring-emerald-200/70',
-    drift: { transform: ['translate(0px, 0px)', 'translate(-5px, 8px)', 'translate(0px, 0px)'] },
-    duration: 11,
-    delay: 0.7,
-    id: 'lint',
-    label: 'lint 0 errors'
-  },
-  {
-    className: 'left-[3%] top-[50%] bg-rose-50 text-rose-700 ring-rose-200/70',
-    drift: { transform: ['translate(0px, 0px)', 'translate(7px, 6px)', 'translate(0px, 0px)'] },
-    duration: 10,
-    delay: 1.4,
-    id: 'tests',
-    label: 'tests 14/14'
-  },
-  {
-    className: 'right-[3%] top-[62%] bg-violet-50 text-violet-700 ring-violet-200/70',
-    drift: { transform: ['translate(0px, 0px)', 'translate(-6px, -6px)', 'translate(0px, 0px)'] },
-    duration: 12,
-    delay: 2.1,
-    id: 'review',
-    label: 'review approved'
-  }
+const adoptedStandards = [
+  { delay: 0, duration: 5.6, id: 'workflow', label: 'git workflow · 5+ teams' },
+  { delay: 0.9, duration: 6.8, id: 'package', label: 'shared package · 4 apps' },
+  { delay: 1.8, duration: 6.2, id: 'dashboards', label: 'dashboards · team template' }
 ];
+const branchTravel = 32;
 
-function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
+function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className="flex h-full flex-col p-4">
-      <p className="text-sm font-semibold text-zinc-900">Nothing merges on trust.</p>
-      <p className="mt-0.5 text-xs leading-snug text-zinc-500">
-        Every branch carries its own proof before it reaches main.
-      </p>
-      <div className="relative min-h-0 flex-1">
-        <div className="absolute top-1/2 left-1/2 aspect-square h-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-zinc-200/70" />
-        <div className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-zinc-200/70" />
-        <motion.span
-          className="absolute top-1/2 left-1/2 aspect-square h-[62%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-300"
-          {...cycle(reduced, { opacity: [0, 0.9, 0], transform: ['scale(0.72)', 'scale(1.12)', 'scale(1.12)'] }, 5.2, [0, 0.55, 1])}
-        />
-        <div className="absolute top-1/2 left-1/2 flex aspect-square h-[34%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
-          <svg className="h-1/2 w-1/2" fill="none" viewBox="0 0 24 24">
-            <path
-              className="stroke-zinc-900"
-              d="M7 4v7a5 5 0 0 0 5 5h5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.6"
-            />
-            <circle className="fill-white stroke-zinc-900" cx="7" cy="19" r="2.4" strokeWidth="1.6" />
-            <circle className="fill-white stroke-zinc-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.6" />
-            <circle className="fill-zinc-900" cx="18.5" cy="16" r="2.4" />
-          </svg>
+    <div className={`${panelClassName} gap-3`}>
+      <p className="text-sm font-semibold text-zinc-900">One standard, several teams.</p>
+      <div className="flex items-stretch">
+        <ul className="min-w-0 flex-1">
+          {adoptedStandards.map(({ delay, duration, id, label }) => (
+            <li className="flex h-7 items-center gap-1.5" key={id}>
+              <span className="min-w-0 flex-1 truncate text-right text-[11px] font-medium text-zinc-600">
+                {label}
+              </span>
+              <span aria-hidden="true" className="relative h-px w-8 shrink-0 bg-zinc-200">
+                <motion.span
+                  className="absolute -top-[2px] -left-[2px] size-[5px] rounded-full bg-sky-500"
+                  {...cycle(
+                    reduced,
+                    {
+                      opacity: [0, 1, 1, 0],
+                      transform: [
+                        'translateX(0px)',
+                        'translateX(4px)',
+                        `translateX(${branchTravel - 4}px)`,
+                        `translateX(${branchTravel}px)`
+                      ]
+                    },
+                    duration,
+                    [0, 0.12, 0.44, 0.5],
+                    { delay }
+                  )}
+                />
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div aria-hidden="true" className="relative w-16 shrink-0">
+          <span className="absolute top-[14px] bottom-[14px] left-0 w-px bg-zinc-200" />
+          <span className="absolute top-1/2 left-0 h-px w-2.5 -translate-y-1/2 bg-zinc-200" />
+          <span className="absolute top-1/2 left-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
+            <svg className="size-3" fill="none" viewBox="0 0 24 24">
+              <path
+                className="stroke-zinc-900"
+                d="M7 4v7a5 5 0 0 0 5 5h5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+              />
+              <circle className="fill-white stroke-zinc-900" cx="7" cy="19" r="2.4" strokeWidth="1.8" />
+              <circle className="fill-white stroke-zinc-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.8" />
+              <circle className="fill-zinc-900" cx="18.5" cy="16" r="2.4" />
+            </svg>
+          </span>
+          <span className={`${monoClassName} absolute top-1/2 left-8 -translate-y-1/2 text-zinc-900`}>
+            main
+          </span>
         </div>
-        {gateChips.map((chip) => (
-          <motion.span
-            className={cn(
-              'absolute inline-flex items-center rounded-lg px-2 py-1 text-[11px] font-medium whitespace-nowrap ring-1',
-              chip.className
-            )}
-            key={chip.id}
-            {...cycle(reduced, chip.drift, chip.duration, [0, 0.5, 1], { delay: chip.delay })}
-          >
-            {chip.label}
-          </motion.span>
-        ))}
       </div>
     </div>
   );
@@ -374,10 +341,12 @@ function ReviewGate({ reduced }: { reduced: boolean }): JSX.Element {
 
 export function CapabilityInstrument({
   className,
-  kind
+  kind,
+  size
 }: {
   className?: string;
   kind: CapabilityKind;
+  size: InstrumentSize;
 }): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref);
@@ -394,54 +363,65 @@ export function CapabilityInstrument({
       )}
       role="img"
     >
-      <div aria-hidden="true" className="aspect-[4/3] w-full" key={reduced ? 'static' : 'looping'}>
-        {kind === 'fullstack' ? <RequestFlow reduced={reduced} /> : null}
-        {kind === 'ai' ? <AgentRun reduced={reduced} /> : null}
-        {kind === 'production' ? <StatusBoard reduced={reduced} /> : null}
-        {kind === 'standards' ? <ReviewGate reduced={reduced} /> : null}
+      <div
+        aria-hidden="true"
+        className={cn('w-full', instrumentBoxClassName[size])}
+        key={reduced ? 'static' : 'looping'}
+      >
+        {kind === 'fullstack' ? <AccessPath reduced={reduced} /> : null}
+        {kind === 'ai' ? <ReviewerPipeline reduced={reduced} /> : null}
+        {kind === 'production' ? <ReliabilityBoard reduced={reduced} /> : null}
+        {kind === 'standards' ? <AdoptedStandards reduced={reduced} /> : null}
       </div>
     </div>
   );
 }
 
 const stackTiles = [
+  { Icon: SiTypescript, drift: 'translateY(-5px)', duration: 4.6, label: 'TypeScript' },
   { Icon: SiReact, drift: 'translateY(-4px)', duration: 5.2, label: 'React' },
   { Icon: SiNextdotjs, drift: 'translateY(3px)', duration: 6.4, label: 'Next.js' },
-  { Icon: SiTypescript, drift: 'translateY(-5px)', duration: 4.6, label: 'TypeScript' },
   { Icon: SiNodedotjs, drift: 'translateY(4px)', duration: 5.8, label: 'Node.js' },
-  { Icon: SiPostgresql, drift: 'translateY(-3px)', duration: 6.9, label: 'PostgreSQL' },
-  { Icon: SiRedis, drift: 'translateY(5px)', duration: 5.5, label: 'Redis' },
-  { Icon: SiTailwindcss, drift: 'translateY(-4px)', duration: 6.1, label: 'Tailwind CSS' },
-  { Icon: SiAstro, drift: 'translateY(3px)', duration: 4.9, label: 'Astro' }
+  { Icon: SiGraphql, drift: 'translateY(-3px)', duration: 6.9, label: 'GraphQL' },
+  { Icon: SiApachekafka, drift: 'translateY(5px)', duration: 5.5, label: 'Kafka' },
+  { Icon: SiRedis, drift: 'translateY(-4px)', duration: 6.1, label: 'Redis' },
+  { Icon: SiMongodb, drift: 'translateY(3px)', duration: 4.9, label: 'MongoDB' },
+  { Icon: SiPostgresql, drift: 'translateY(-3px)', duration: 5.9, label: 'PostgreSQL' },
+  { Icon: SiMysql, drift: 'translateY(4px)', duration: 6.6, label: 'MySQL' },
+  { Icon: SiDatadog, drift: 'translateY(-5px)', duration: 5.1, label: 'Datadog' },
+  { Icon: FaAws, drift: 'translateY(3px)', duration: 6.3, label: 'AWS' }
 ];
 
+const stackLabels = stackTiles.map((tile) => tile.label).join(', ');
+
 export function StackGrid({ className }: { className?: string }): JSX.Element {
-  const ref = useRef<HTMLUListElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref);
   const reduced = useReducedMotion() === true || !isInView;
 
   return (
-    <ul
-      ref={ref}
-      aria-label="Stack: React, Next.js, TypeScript, Node.js, PostgreSQL, Redis, Tailwind CSS, Astro"
-      className={cn('grid grid-cols-4 gap-3', className)}
-      key={reduced ? 'static' : 'looping'}
-    >
-      {stackTiles.map(({ Icon, drift, duration, label }, index) => (
-        <motion.li
-          key={label}
-          className={cn(
-            'grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5',
-            index === 2 && 'text-sky-600'
-          )}
-          title={label}
-          {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
-            delay: index * 0.37
-          })}
-        >
-          <Icon aria-hidden="true" className="size-[42%]" />
-        </motion.li>
-      ))}
-    </ul>
+    <div className={className} ref={ref}>
+      <ul
+        aria-label={`Stack: ${stackLabels}`}
+        className="grid grid-cols-4 gap-3 md:grid-cols-6 lg:grid-cols-4"
+        key={reduced ? 'static' : 'looping'}
+      >
+        {stackTiles.map(({ Icon, drift, duration, label }, index) => (
+          <motion.li
+            key={label}
+            className={cn(
+              'grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5',
+              index === 0 && 'text-sky-600'
+            )}
+            title={label}
+            {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
+              delay: index * 0.29
+            })}
+          >
+            <Icon aria-hidden="true" className="size-[42%]" />
+          </motion.li>
+        ))}
+      </ul>
+    </div>
   );
 }
