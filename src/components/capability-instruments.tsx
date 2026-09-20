@@ -76,11 +76,12 @@ const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
 const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
 const monoClassName = 'font-mono text-[11px]';
 
+// lit is the point in the cycle where the runner dot reaches that row.
 const accessSteps = [
-  { detail: 'from an HR event', state: 'queued', step: 'access.request' },
-  { detail: 'role and resource', state: 'allow', step: 'rbac.check' },
-  { detail: 'who, what, when', state: 'written', step: 'audit.append' },
-  { detail: 'quarterly', state: 'scheduled', step: 'access.review' }
+  { detail: 'from an HR event', lit: 0.03, state: 'queued', step: 'access.request' },
+  { detail: 'role and resource', lit: 0.22, state: 'allow', step: 'rbac.check' },
+  { detail: 'who, what, when', lit: 0.47, state: 'written', step: 'audit.append' },
+  { detail: 'quarterly', lit: 0.72, state: 'scheduled', step: 'access.review' }
 ];
 const accessRowHeight = 32;
 const accessCycle = 7.2;
@@ -105,31 +106,28 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
             [0, 0.1, 0.2, 0.35, 0.45, 0.6, 0.7, 0.96, 1]
           )}
         />
-        {accessSteps.map(({ detail, state, step }, index) => {
-          const lit = 0.16 + index * 0.25;
-          return (
-            <motion.div
-              className="flex h-8 items-center gap-2 pl-6"
-              key={step}
-              {...cycle(
-                reduced,
-                { opacity: [0.5, 0.5, 1, 1, 0.5, 0.5] },
-                accessCycle,
-                [0, lit - 0.06, lit, lit + 0.12, lit + 0.18, 1]
-              )}
+        {accessSteps.map(({ detail, lit, state, step }) => (
+          <motion.div
+            className="flex h-8 items-center gap-2 pl-6"
+            key={step}
+            {...cycle(
+              reduced,
+              { opacity: [0.5, 0.5, 1, 1, 0.5, 0.5] },
+              accessCycle,
+              [0, Math.max(lit - 0.03, 0), lit, lit + 0.13, lit + 0.17, 1]
+            )}
+          >
+            <span className={`${monoClassName} w-28 shrink-0 truncate text-zinc-900 sm:w-32`}>
+              {step}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-500">{detail}</span>
+            <span
+              className={`${monoClassName} hidden shrink-0 rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-600 ring-1 ring-zinc-900/5 sm:inline-block`}
             >
-              <span className={`${monoClassName} w-28 shrink-0 truncate text-zinc-900 sm:w-32`}>
-                {step}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-500">{detail}</span>
-              <span
-                className={`${monoClassName} hidden shrink-0 rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-600 ring-1 ring-zinc-900/5 sm:inline-block`}
-              >
-                {state}
-              </span>
-            </motion.div>
-          );
-        })}
+              {state}
+            </span>
+          </motion.div>
+        ))}
       </div>
       <p className={captionClassName}>
         One request, from the API call to the audit record it leaves behind.
