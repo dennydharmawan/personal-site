@@ -18,6 +18,7 @@ function riseDelay(seconds: number) {
 const shellWidth = 'calc(100vw - 2.5rem)';
 
 // One crop per breakpoint range, each framed for the band height that range renders.
+// A picture takes the first source whose media matches, so the narrowest range comes first.
 const heroPhotoBands = [
   { media: '(max-width: 639px)', sizes: shellWidth, slug: 'mobile', widths: [500, 700, 1000, 1200] },
   { media: '(max-width: 1023px)', sizes: shellWidth, slug: 'tablet', widths: [1000, 1456, 1774] },
