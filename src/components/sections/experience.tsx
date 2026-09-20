@@ -23,7 +23,7 @@ function ExperienceHeader() {
       </RevealItem>
       <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-4">
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
-          ERP consulting, then lending backends, then bank platform engineering.
+          ERP integrations, then digital lending backends, then a bank's system of record for access decisions.
         </p>
         <a
           className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-700"
