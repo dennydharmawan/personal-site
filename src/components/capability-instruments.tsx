@@ -28,7 +28,7 @@ export type InstrumentSize = 'small' | 'wide';
 // Below lg the instrument is a fixed band; a 4:3 box there would leave the panel mostly blank.
 const instrumentBoxClassName: Record<InstrumentSize, string> = {
   small: 'h-60 lg:aspect-[4/3] lg:h-auto',
-  wide: 'h-72 sm:h-64 lg:h-[17.5rem]'
+  wide: 'h-80 sm:h-64 lg:h-[17.5rem]'
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
@@ -277,7 +277,7 @@ const adoptedStandards = [
   { delay: 0.9, duration: 6.8, id: 'package', label: 'shared package · 4 apps' },
   { delay: 1.8, duration: 6.2, id: 'dashboards', label: 'dashboards · team template' }
 ];
-const branchTravel = 32;
+const branchTravel = 24;
 
 function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
   return (
@@ -290,7 +290,7 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
               <span className="min-w-0 flex-1 truncate text-right text-[11px] font-medium text-zinc-600">
                 {label}
               </span>
-              <span aria-hidden="true" className="relative h-px w-8 shrink-0 bg-zinc-200">
+              <span aria-hidden="true" className="relative h-px w-6 shrink-0 bg-zinc-200">
                 <motion.span
                   className="absolute -top-[2px] -left-[2px] size-[5px] rounded-full bg-sky-500"
                   {...cycle(
@@ -313,10 +313,10 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
             </li>
           ))}
         </ul>
-        <div aria-hidden="true" className="relative w-16 shrink-0">
+        <div aria-hidden="true" className="relative w-8 shrink-0">
           <span className="absolute top-[14px] bottom-[14px] left-0 w-px bg-zinc-200" />
-          <span className="absolute top-1/2 left-0 h-px w-2.5 -translate-y-1/2 bg-zinc-200" />
-          <span className="absolute top-1/2 left-2.5 flex size-5 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
+          <span className="absolute top-1/2 left-0 h-px w-2 -translate-y-1/2 bg-zinc-200" />
+          <span className="absolute top-1/2 left-2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
             <svg className="size-3" fill="none" viewBox="0 0 24 24">
               <path
                 className="stroke-zinc-900"
@@ -329,9 +329,6 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
               <circle className="fill-white stroke-zinc-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.8" />
               <circle className="fill-zinc-900" cx="18.5" cy="16" r="2.4" />
             </svg>
-          </span>
-          <span className={`${monoClassName} absolute top-1/2 left-8 -translate-y-1/2 text-zinc-900`}>
-            main
           </span>
         </div>
       </div>
