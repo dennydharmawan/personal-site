@@ -200,6 +200,13 @@ export function SiteHeader() {
   }, []);
 
   const goToSection = (target: string) => {
+    const hash = navItems.some((item) => item.target === target) ? `#${target}` : '';
+
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${window.location.search}${hash}`
+    );
     scrollToTargetName(target, shouldReduceMotion);
   };
 
@@ -321,21 +328,44 @@ export function SiteHeader() {
 
 export function usePreventHashNavigation() {
   useEffect(() => {
-    const resetHashNavigation = () => {
-      if (window.location.hash) {
+    const routeHash = () => {
+      const target = decodeURIComponent(window.location.hash.slice(1));
+
+      if (!target) {
+        return;
+      }
+
+      // `html` sets scroll-behavior: smooth, which turns a `behavior: 'auto'` jump into a glide.
+      // A deep link should land, not travel, so the jump runs with smoothing switched off.
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+
+      root.style.scrollBehavior = 'auto';
+
+      if (navItems.some((item) => item.target === target)) {
+        scrollToTargetName(target, true);
+      } else {
         window.history.replaceState(
           null,
           '',
           `${window.location.pathname}${window.location.search}`
         );
-        window.scrollTo({ behavior: 'auto', left: 0, top: 0 });
-        window.setTimeout(() => window.scrollTo({ behavior: 'auto', left: 0, top: 0 }), 0);
+        window.scrollTo({ left: 0, top: 0 });
       }
+
+      root.style.scrollBehavior = previousScrollBehavior;
     };
 
-    resetHashNavigation();
-    window.addEventListener('hashchange', resetHashNavigation);
+    routeHash();
 
-    return () => window.removeEventListener('hashchange', resetHashNavigation);
+    // Sections settle after fonts and images land, so the landing offset needs a second pass.
+    const settle = window.setTimeout(routeHash, 250);
+
+    window.addEventListener('hashchange', routeHash);
+
+    return () => {
+      window.clearTimeout(settle);
+      window.removeEventListener('hashchange', routeHash);
+    };
   }, []);
 }
