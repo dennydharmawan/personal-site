@@ -25,7 +25,7 @@ function ExperienceHeader() {
           ERP consulting, then lending backends, then bank platform engineering.
         </p>
         <a
-          className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-700"
+          className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-700"
           href="/resume.pdf"
           rel="noopener"
           target="_blank"
@@ -71,7 +71,7 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
                 <span className={index === 0 ? 'font-medium text-zinc-50' : 'text-zinc-300'}>
                   {title.role}
                 </span>
-                <span className="whitespace-nowrap tabular-nums text-zinc-400">{title.period}</span>
+                <span className="whitespace-nowrap tabular-nums text-zinc-300">{title.period}</span>
               </li>
             ))}
           </ol>
@@ -102,7 +102,7 @@ export function ExperienceSection() {
             {experiences.map((item) => (
               <li key={item.company} className="flex items-baseline justify-between gap-4 text-sm">
                 <span className="font-medium text-zinc-200">{item.company}</span>
-                <span className="whitespace-nowrap tabular-nums text-zinc-400">{item.period}</span>
+                <span className="whitespace-nowrap tabular-nums text-zinc-300">{item.period}</span>
               </li>
             ))}
           </ol>
