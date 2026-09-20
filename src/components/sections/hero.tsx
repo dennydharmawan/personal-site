@@ -124,7 +124,7 @@ function HeroActions({ className = '' }: { className?: string }) {
 
 function TrustedLogos({ className = '' }: { className?: string }) {
   return (
-    <div className={`flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-10 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-8 lg:gap-x-10 ${className}`}>
       {trustedTeams.map((team) => (
         <span key={team.name} className="inline-flex h-10 items-center justify-start">
           <img
@@ -172,7 +172,9 @@ export function HeroSection() {
       <div className={`${pageShellClassName} grid gap-10 md:gap-12`}>
         <div className="grid gap-8">
           <div className="animate-rise-in">
-            <HeroHeadline className="max-w-6xl text-[clamp(2rem,8.6vw,2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
+            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Building web
+                solutions" holds one line and never orphans "solutions". */}
+            <HeroHeadline className="max-w-6xl text-[clamp(1.5rem,calc(9.55vw_-_3.8px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
           </div>
 
           <div className="animate-rise-in" style={riseDelay(0.08)}>
