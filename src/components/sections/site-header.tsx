@@ -1,18 +1,19 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import type { FocusEvent } from 'react';
+import type { CSSProperties, FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Button } from '@/components/ui/button';
+import { MobileNav } from '@/components/sections/mobile-nav';
 import {
   contactEmail,
   easeOut,
   pageShellClassName,
-  scrollToTarget,
+  scrollToTargetName,
   spring
 } from '@/components/sections/shared';
 
-const navItems = [
-  { label: 'Work Samples', target: 'work' },
+const navItems: ReadonlyArray<{ label: string; shortLabel?: string; target: string }> = [
+  { label: 'Work Samples', shortLabel: 'Work', target: 'work' },
   { label: 'Experience', target: 'experience' },
   { label: 'About', target: 'about' },
   { label: 'Contact', target: 'contact' }
@@ -172,10 +173,22 @@ export function EmailActionMenu() {
   );
 }
 
+function riseDelay(seconds: number) {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
+
 export function SiteHeader() {
   const shouldReduceMotion = useReducedMotion();
   const [isNavCompact, setIsNavCompact] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hoveredNavHref, setHoveredNavHref] = useState<string | null>(null);
+  let surfaceClassName = 'border-transparent bg-white/0';
+
+  if (isMenuOpen) {
+    surfaceClassName = 'border-zinc-200 bg-white';
+  } else if (isNavCompact) {
+    surfaceClassName = 'border-zinc-200/90 bg-white/86';
+  }
 
   useEffect(() => {
     const updateCompactState = () => setIsNavCompact(window.scrollY > 28);
@@ -186,48 +199,30 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', updateCompactState);
   }, []);
 
+  const goToSection = (target: string) => {
+    scrollToTargetName(target, shouldReduceMotion);
+  };
+
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
-      <motion.div
-        className="pointer-events-auto border-b backdrop-blur"
-        initial={shouldReduceMotion ? false : { opacity: 0 }}
-        animate={{
-          backgroundColor: isNavCompact ? 'rgba(255,255,255,0.86)' : 'rgba(255,255,255,0)',
-          borderColor: isNavCompact ? 'rgba(228,228,231,0.9)' : 'rgba(228,228,231,0)',
-          opacity: 1
-        }}
-        transition={
-          shouldReduceMotion
-            ? { duration: 0 }
-            : {
-                backgroundColor: { duration: 0.28, ease: easeOut },
-                borderColor: { duration: 0.28, ease: easeOut },
-                opacity: { duration: 0.36, ease: easeOut }
-              }
-        }
+      <div
+        className={`pointer-events-auto relative border-b backdrop-blur transition-[background-color,border-color] duration-[280ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none ${surfaceClassName}`}
       >
-        <motion.div
-          className={`${pageShellClassName} flex items-center justify-between gap-4 px-0 md:px-0`}
-          initial={shouldReduceMotion ? false : { filter: 'blur(3px)', y: -8 }}
-          animate={{ filter: 'blur(0px)', height: isNavCompact ? 56 : 72, y: 0 }}
-          transition={
-            shouldReduceMotion
-              ? { duration: 0 }
-              : {
-                  filter: { delay: 0.04, duration: 0.32, ease: easeOut },
-                  height: { duration: 0.28, ease: easeOut },
-                  y: { delay: 0.04, duration: 0.32, ease: easeOut }
-                }
-          }
+        <div
+          className={`${pageShellClassName} flex items-center justify-between gap-4 px-0 transition-[height] duration-[280ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none md:px-0 ${
+            isNavCompact ? 'h-14' : 'h-18'
+          }`}
         >
-          <motion.a
-            className="inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          <a
+            className="animate-rise-in inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            style={riseDelay(0.04)}
             href="/"
             aria-label="Denny Dharmawan home"
-            onClick={(event) => scrollToTarget(event, 'top', shouldReduceMotion)}
-            initial={shouldReduceMotion ? false : { opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.08, ...spring }}
+            onClick={(event) => {
+              event.preventDefault();
+              setIsMenuOpen(false);
+              goToSection('top');
+            }}
           >
             <img
               aria-hidden="true"
@@ -238,83 +233,88 @@ export function SiteHeader() {
             />
             <span className="grid gap-px leading-none">
               <span className="text-base font-semibold">Denny Dharmawan</span>
-              <span className="text-xs font-medium text-zinc-500">Full-Stack Engineer</span>
+              <span className="text-xs font-medium text-zinc-600">Full-Stack Engineer</span>
             </span>
-          </motion.a>
-          <motion.nav
-            className="flex items-center justify-end gap-1.5"
+          </a>
+          <nav
+            className="hidden items-center justify-end gap-1 sm:flex md:gap-1.5"
             aria-label="Main navigation"
-            onMouseLeave={() => setHoveredNavHref(null)}
-            initial={shouldReduceMotion ? false : { opacity: 0, x: 6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.14, ...spring }}
           >
-            {navItems.map((item, index) => (
-              <motion.button
-                key={item.target}
-                type="button"
-                className="relative hidden min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 sm:inline-flex"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                onBlur={() => setHoveredNavHref(null)}
-                onFocus={() => setHoveredNavHref(item.target)}
-                onClick={(event) => scrollToTarget(event, item.target, shouldReduceMotion)}
-                onMouseEnter={() => setHoveredNavHref(item.target)}
-                transition={
-                  shouldReduceMotion ? { duration: 0 } : { delay: 0.18 + index * 0.04, ...spring }
-                }
-              >
-                <AnimatePresence initial={false} mode="popLayout">
-                  {hoveredNavHref === item.target ? (
-                    <motion.span
-                      layoutId="nav-hover-pill"
-                      aria-hidden="true"
-                      className="absolute inset-0 rounded-xl bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
-                      initial={
-                        shouldReduceMotion
-                          ? false
-                          : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }
-                      }
-                      animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
-                      exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
-                      transition={
-                        shouldReduceMotion
-                          ? { duration: 0 }
-                          : {
-                              ...spring,
-                              duration: 0.38,
-                              filter: { duration: 0.3, ease: easeOut },
-                              opacity: { duration: 0.3, ease: easeOut }
-                            }
-                      }
-                    />
-                  ) : null}
-                </AnimatePresence>
-                <span className="relative z-10">{item.label}</span>
-              </motion.button>
-            ))}
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={
-                shouldReduceMotion
-                  ? { duration: 0 }
-                  : { delay: 0.18 + navItems.length * 0.04, ...spring }
-              }
-            >
-              <Button asChild variant="outline" size="sm" className="ml-1 min-h-10 px-4">
+            <div className="flex items-center gap-0.5 md:gap-1.5" onMouseLeave={() => setHoveredNavHref(null)}>
+              {navItems.map((item, index) => (
                 <a
-                  href="mailto:contact@dennydharmawan.com"
-                  aria-label="Email contact@dennydharmawan.com"
+                  key={item.target}
+                  href={`#${item.target}`}
+                  className="animate-rise-in relative inline-flex min-h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:px-3"
+                  style={riseDelay(0.12 + index * 0.04)}
+                  onBlur={() => setHoveredNavHref(null)}
+                  onFocus={() => setHoveredNavHref(item.target)}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    goToSection(item.target);
+                  }}
+                  onMouseEnter={() => setHoveredNavHref(item.target)}
                 >
-                  <span className="lg:hidden">Email</span>
-                  <span className="hidden lg:inline">contact@dennydharmawan.com</span>
+                  <AnimatePresence initial={false} mode="popLayout">
+                    {hoveredNavHref === item.target ? (
+                      <motion.span
+                        layoutId="nav-hover-pill"
+                        aria-hidden="true"
+                        className="absolute inset-0 rounded-lg bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
+                        initial={
+                          shouldReduceMotion
+                            ? false
+                            : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }
+                        }
+                        animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
+                        exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
+                        transition={
+                          shouldReduceMotion
+                            ? { duration: 0 }
+                            : {
+                                ...spring,
+                                duration: 0.38,
+                                filter: { duration: 0.3, ease: easeOut },
+                                opacity: { duration: 0.3, ease: easeOut }
+                              }
+                        }
+                      />
+                    ) : null}
+                  </AnimatePresence>
+                  <span className="relative z-10">
+                    {item.shortLabel ? (
+                      <>
+                        <span className="md:hidden">{item.shortLabel}</span>
+                        <span className="hidden md:inline">{item.label}</span>
+                      </>
+                    ) : (
+                      item.label
+                    )}
+                  </span>
                 </a>
-              </Button>
-            </motion.div>
-          </motion.nav>
-        </motion.div>
-      </motion.div>
+              ))}
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              className="animate-rise-in ml-1 h-10 px-4"
+              style={riseDelay(0.12 + navItems.length * 0.04)}
+            >
+              <a href={`mailto:${contactEmail}`} aria-label={`Email ${contactEmail}`}>
+                <span className="lg:hidden">Email</span>
+                <span className="hidden lg:inline">{contactEmail}</span>
+              </a>
+            </Button>
+          </nav>
+          <MobileNav
+            items={navItems}
+            isOpen={isMenuOpen}
+            onOpenChange={setIsMenuOpen}
+            onSelect={goToSection}
+            triggerStyle={riseDelay(0.12)}
+          />
+        </div>
+      </div>
     </header>
   );
 }
