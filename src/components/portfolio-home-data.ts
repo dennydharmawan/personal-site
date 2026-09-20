@@ -60,7 +60,7 @@ export const projects: Project[] = [
     role: 'Internal developer tooling',
     stack: ['TypeScript', 'AWS Bedrock', 'Webhooks', 'AST analysis'],
     summary:
-      'Production pull-request reviewer. Four agents score a diff in parallel. A merger keeps only evidence-backed findings and controls what can auto-post.',
+      'Production pull-request reviewer on AWS Bedrock, Bitbucket, and Slack. Four agents review a diff in parallel against retrieved repository context, and a merger keeps only evidence-backed findings.',
     title: 'Multi-agent PR reviewer',
     video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
   },
@@ -75,7 +75,7 @@ export const projects: Project[] = [
     role: 'Identity and access governance',
     stack: ['Node.js', 'BullMQ', 'RBAC', 'PostgreSQL'],
     summary:
-      'NDA-safe sample of identity-driven provisioning, RBAC, and audit logs. I ship the same access patterns in regulated products.',
+      "NDA-safe prototype for HR-driven provisioning, RBAC, and audit logs. In production, the same patterns decide who can access a bank's internal applications, with periodic user access reviews on top.",
     title: 'Authentication and access management',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
@@ -90,7 +90,7 @@ export const projects: Project[] = [
     role: 'Collections operations and messaging',
     stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
     summary:
-      'Collections workspace for overdue accounts. Queues give every account an owner, WhatsApp handles the follow-ups, and one log records the outcomes.',
+      'Collections workspace for overdue loans, the stage after the origination and disbursement backends I built at Jenius. Queues give every account an owner, WhatsApp handles the follow-ups, and one log records the outcomes.',
     title: 'Loan collection system',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
@@ -105,7 +105,7 @@ export const projects: Project[] = [
     role: 'Commerce checkout and payments',
     stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     summary:
-      'Storefront and checkout built on payment intents and webhooks, with reconciliation and a clean split between customer UX and fulfillment.',
+      'Checkout built on payment intents and provider webhooks. Each payment moves through explicit states, and reconciliation matches every order to a captured payment.',
     title: 'E-commerce payment platform',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
