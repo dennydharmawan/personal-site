@@ -137,6 +137,7 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
 }
 
 const reviewerAgents = ['security', 'correctness', 'tests', 'conventions'];
+const reviewerGridClassName = 'grid grid-cols-2 gap-1.5 sm:grid-cols-4';
 const pipelineCycle = 6.8;
 
 function PipelineLink({ delay, reduced }: { delay: number; reduced: boolean }): JSX.Element {
@@ -173,10 +174,42 @@ function PipelineNode({ children, tone }: { children: ReactNode; tone?: 'accent'
   );
 }
 
+// The rail ends on the outer stems, half a column in from each edge. A column is
+// (100% - gaps) / columns: one gap-1.5 across two columns, three across four.
+function ReviewerRail(): JSX.Element {
+  return (
+    <div aria-hidden="true" className={`${reviewerGridClassName} relative h-2.5`}>
+      {reviewerAgents.map((agent, column) => (
+        <span className={cn('mx-auto w-px bg-zinc-200', column > 1 && 'max-sm:hidden')} key={agent} />
+      ))}
+      <span className="absolute inset-x-[calc((100%-var(--spacing)*1.5)/4)] bottom-0 h-px bg-zinc-200 sm:inset-x-[calc((100%-var(--spacing)*4.5)/8)]" />
+    </div>
+  );
+}
+
+// Each gate draws its half of the fork above it and of the join below it. A half reaches
+// past the gate's inner edge by half the gap-x-2 between gates, so the two halves meet.
+function PipelineGate({ label, side }: { label: string; side: 'left' | 'right' }): JSX.Element {
+  const elbowClassName = cn(
+    'absolute h-2.5 border-zinc-200',
+    side === 'left' ? 'left-1/2 -right-1 border-l' : '-left-1 right-1/2 border-r'
+  );
+
+  return (
+    <span className="relative grid">
+      <span aria-hidden="true" className={cn(elbowClassName, 'bottom-full border-t')} />
+      <PipelineNode>
+        <span className={`${monoClassName} text-zinc-600`}>{label}</span>
+      </PipelineNode>
+      <span aria-hidden="true" className={cn(elbowClassName, 'top-full border-b')} />
+    </span>
+  );
+}
+
 function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className={`${widePanelClassName} gap-1`}>
-      <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+    <div className={widePanelClassName}>
+      <ul className={reviewerGridClassName}>
         {reviewerAgents.map((agent, index) => (
           <motion.li
             className={`${monoClassName} rounded-lg bg-zinc-50 px-2 py-1 text-center text-zinc-600 ring-1 ring-zinc-900/5`}
@@ -193,7 +226,7 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
           </motion.li>
         ))}
       </ul>
-      <span aria-hidden="true" className="mx-[12%] mt-2 block border-t border-zinc-200" />
+      <ReviewerRail />
       <PipelineLink delay={0.08} reduced={reduced} />
       <PipelineNode>
         <span className={`${monoClassName} font-medium`}>merger</span>
@@ -202,14 +235,12 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
         </span>
       </PipelineNode>
       <PipelineLink delay={0.34} reduced={reduced} />
-      <span className="flex justify-center gap-2">
-        <PipelineNode>
-          <span className={`${monoClassName} text-zinc-600`}>confidence gate</span>
-        </PipelineNode>
-        <PipelineNode>
-          <span className={`${monoClassName} text-zinc-600`}>security gate</span>
-        </PipelineNode>
-      </span>
+      {/* Equal columns from sm put the fork's midpoint under the trunk. Phones keep content
+          widths because two equal columns would wrap the confidence gate label. */}
+      <div className="mx-auto my-2.5 grid w-fit grid-cols-[auto_auto] gap-x-2 sm:grid-cols-2">
+        <PipelineGate label="confidence gate" side="left" />
+        <PipelineGate label="security gate" side="right" />
+      </div>
       <PipelineLink delay={0.6} reduced={reduced} />
       <span className="flex justify-center">
         <PipelineNode tone="accent">

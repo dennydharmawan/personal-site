@@ -149,8 +149,10 @@ followed changed these things and this document has not been rewritten yet.
   touch a hop. Card bullets are open by default.
 - Expertise. A two-column layout between `md` and `lg`. The instruments now draw the
   access path, the PR-reviewer pipeline, and the shipped engineering standards.
-- About. Rewritten. No photo. An uptime monitor panel leads with 99.98%, then 2M+
-  transactions a month, then 147% user growth.
+- About. Rewritten again as a portrait and bio on white, with no figures. A DD monogram
+  holds the 4:5 portrait frame until a photo is supplied. The night-sky card, `DotField`,
+  and the uptime monitor are gone, so the surface rhythm is now light, light, dark, light,
+  light, light.
 - Footer. A resume link and a Jakarta availability line. Instagram removed.
 - Section heights in the table below are stale.
 
