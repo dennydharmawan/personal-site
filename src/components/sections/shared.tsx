@@ -127,7 +127,14 @@ export function Reveal({
       animate={state}
       variants={{
         hidden: { ...revealHidden, transition: instant },
-        visible: { ...revealVisible, transition: { delay, ...revealTransition } }
+        // Per-value transitions don't inherit root keys, so the delay goes inside each one.
+        visible: {
+          ...revealVisible,
+          transition: {
+            opacity: { ...revealTransition.opacity, delay },
+            transform: { ...revealTransition.transform, delay }
+          }
+        }
       }}
     >
       {children}
