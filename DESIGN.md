@@ -149,10 +149,13 @@ followed changed these things and this document has not been rewritten yet.
   clip sits beside the write-up. Card bullets are open by default.
 - Expertise. A two-column layout between `md` and `lg`. The instruments now draw the
   access path, the PR-reviewer pipeline, and the shipped engineering standards.
-- About. Rewritten again as a portrait and bio on white, with no figures. A DD monogram
-  holds the 4:5 portrait frame until a photo is supplied. The night-sky card, `DotField`,
-  and the uptime monitor are gone, so the surface rhythm is now light, light, dark, light,
-  light, light.
+- About. A preface, not a portrait. The belief is the heading, career facts sit in a
+  margin colophon, and the three working habits are a ruled list. The night-sky card,
+  `DotField`, and the uptime monitor are gone, so the surface rhythm is now light, light,
+  dark, light, light, light. About has no buttons; the footer carries the resume and
+  LinkedIn links. On reveal, the heading's second line wipes in left to right and the sky
+  rule draws after it. Each hairline in the colophon and the habits list draws left to
+  right, then its row fades up.
 - Footer. A resume link and a Jakarta availability line. Instagram removed.
 - Section heights in the table below are stale.
 

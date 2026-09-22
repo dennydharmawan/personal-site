@@ -1,13 +1,20 @@
-import { Download } from 'lucide-react';
-import { LuLinkedin } from 'react-icons/lu';
+import { motion, stagger } from 'motion/react';
 import {
   RevealGroup,
   RevealItem,
+  instant,
   pageShellClassName,
-  sectionPaddingBottomClassName,
-  twoColumnGapClassName
+  revealEase,
+  revealVariants,
+  sectionPaddingBottomClassName
 } from '@/components/sections/shared';
-import { Button } from '@/components/ui/button';
+
+const aboutFacts: { term: string; detail: string }[] = [
+  { term: 'Now', detail: 'Senior full-stack engineer at Krom Bank, Jakarta' },
+  { term: 'Before', detail: 'Lending backends at Jenius' },
+  { term: 'First', detail: 'Programming labs, then ERP for enterprise clients' },
+  { term: 'Stack', detail: 'TypeScript, React, Next.js, and Node.js' }
+];
 
 const aboutHabits: { title: string; body: string }[] = [
   {
@@ -24,38 +31,38 @@ const aboutHabits: { title: string; body: string }[] = [
   }
 ];
 
-function AboutPortrait() {
-  return (
-    <div
-      aria-hidden="true"
-      className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[1.5rem] bg-zinc-100 ring-1 ring-zinc-900/5"
-    >
-      <span className="font-heading text-7xl tracking-tight text-zinc-400 sm:text-8xl">DD</span>
-    </div>
-  );
-}
+const ruleVariants = {
+  hidden: { transform: 'scaleX(0)', transition: instant },
+  visible: { transform: 'scaleX(1)', transition: { duration: 0.7, ease: revealEase } }
+};
 
-function AboutActions() {
+const ruledRowVariants = {
+  hidden: { transition: instant },
+  visible: { transition: { delayChildren: stagger(0.1) } }
+};
+
+// Tight leading can put ink outside the line box, so the clip extends past it vertically.
+const writeInVariants = {
+  hidden: { clipPath: 'inset(-0.25em 100% -0.25em 0)', transition: instant },
+  visible: {
+    clipPath: 'inset(-0.25em 0% -0.25em 0)',
+    transition: { delay: 0.2, duration: 0.6, ease: revealEase },
+    transitionEnd: { clipPath: 'none' }
+  }
+};
+
+const accentRuleVariants = {
+  hidden: ruleVariants.hidden,
+  visible: { ...ruleVariants.visible, transition: { delay: 0.65, duration: 0.45, ease: revealEase } }
+};
+
+function Rule({ className }: { className: string }) {
   return (
-    <div className="grid w-full gap-3 min-[420px]:flex min-[420px]:flex-wrap min-[420px]:items-center">
-      <Button asChild size="lg" className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4">
-        <a href="/resume.pdf" rel="noopener" target="_blank">
-          <Download data-icon="inline-start" />
-          Download resume
-        </a>
-      </Button>
-      <Button
-        asChild
-        variant="outline"
-        size="lg"
-        className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4"
-      >
-        <a href="https://www.linkedin.com/in/ddharmawan" rel="noopener noreferrer" target="_blank">
-          <LuLinkedin aria-hidden="true" data-icon="inline-start" />
-          LinkedIn
-        </a>
-      </Button>
-    </div>
+    <motion.span
+      aria-hidden="true"
+      className={`h-px origin-left bg-zinc-200 ${className}`}
+      variants={ruleVariants}
+    />
   );
 }
 
@@ -64,26 +71,28 @@ export function AboutSection() {
     <section className={sectionPaddingBottomClassName} data-scroll-target="about">
       <div className={pageShellClassName}>
         <RevealGroup
-          stagger={0.1}
-          className={`grid items-start ${twoColumnGapClassName} md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)]`}
+          className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.7fr)] lg:gap-20"
+          stagger={0.08}
         >
-          <RevealItem className="w-40 sm:w-52 md:w-full">
-            <AboutPortrait />
-          </RevealItem>
-
-          <div className="grid gap-6">
+          <div className="grid gap-8">
             <RevealItem>
-              <p className="text-sm font-medium text-zinc-500">About me</p>
-            </RevealItem>
-
-            <RevealItem>
-              <h2 className="font-heading text-4xl font-normal tracking-tight text-balance text-zinc-900 sm:text-5xl">
-                I build products and platforms{' '}
-                <span className="text-zinc-500">for digital banks and fintech companies.</span>
+              <h2 className="max-w-[12em] font-heading text-4xl font-normal leading-[1.02] tracking-tight text-balance text-zinc-900 sm:text-5xl">
+                I learn how a business works
+                <motion.span
+                  className="mt-2 block w-fit text-balance text-zinc-500"
+                  variants={writeInVariants}
+                >
+                  before I write the code.
+                </motion.span>
               </h2>
+              <motion.span
+                aria-hidden="true"
+                className="mt-8 block h-px w-12 origin-left bg-sky-600"
+                variants={accentRuleVariants}
+              />
             </RevealItem>
 
-            <RevealItem className="grid max-w-xl gap-4 text-base leading-7 text-pretty text-zinc-600">
+            <RevealItem className="grid max-w-[68ch] gap-4 text-base leading-7 text-pretty text-zinc-600">
               <p>
                 I&apos;m a senior full-stack engineer at Krom Bank, a digital bank in Jakarta. I work
                 across the stack in TypeScript, React, Next.js, and Node.js, on regulated products
@@ -91,29 +100,48 @@ export function AboutSection() {
               </p>
               <p>
                 Before Krom, I built lending backends for Jenius. I started out teaching programming
-                labs at university, then customized ERP systems for enterprise clients. That path
-                taught me to learn how a business works before I write code.
+                labs at university, then customized ERP systems for enterprise clients.
               </p>
             </RevealItem>
-
-            <RevealItem className="grid max-w-xl gap-3">
-              <p className="text-sm font-medium text-zinc-500">How I work</p>
-              <ul>
-                {aboutHabits.map((habit) => (
-                  <li key={habit.title} className="grid gap-1 border-t border-zinc-200 py-4">
-                    <h3 className="text-base font-medium text-zinc-900">{habit.title}</h3>
-                    <p className="text-[0.9375rem] leading-6 text-pretty text-zinc-600">
-                      {habit.body}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </RevealItem>
-
-            <RevealItem>
-              <AboutActions />
-            </RevealItem>
           </div>
+
+          <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 lg:gap-8 lg:pt-3">
+            {aboutFacts.map((fact) => (
+              <motion.div key={fact.term} className="grid gap-1" variants={ruledRowVariants}>
+                <dt className="relative pt-4 text-sm font-medium text-zinc-500">
+                  <Rule className="absolute inset-x-0 top-0" />
+                  <motion.span className="block" variants={revealVariants}>
+                    {fact.term}
+                  </motion.span>
+                </dt>
+                <motion.dd
+                  className="text-base leading-6 text-pretty text-zinc-900"
+                  variants={revealVariants}
+                >
+                  {fact.detail}
+                </motion.dd>
+              </motion.div>
+            ))}
+          </dl>
+        </RevealGroup>
+
+        <RevealGroup className="mt-16 lg:mt-24" stagger={0.1}>
+          <ul>
+            {aboutHabits.map((habit) => (
+              <motion.li key={habit.title} className="relative" variants={ruledRowVariants}>
+                <Rule className="absolute inset-x-0 top-0" />
+                <RevealItem className="grid gap-3 py-7 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-baseline md:gap-16 md:py-9">
+                  <h3 className="font-heading text-2xl font-normal leading-tight tracking-tight text-zinc-900 sm:text-3xl">
+                    {habit.title}
+                  </h3>
+                  <p className="max-w-[62ch] text-base leading-7 text-pretty text-zinc-600">
+                    {habit.body}
+                  </p>
+                </RevealItem>
+              </motion.li>
+            ))}
+          </ul>
+          <Rule className="block" />
         </RevealGroup>
       </div>
     </section>

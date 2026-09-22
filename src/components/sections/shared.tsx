@@ -106,7 +106,7 @@ function useRevealState(skip = false) {
   return { ref, state };
 }
 
-const instant = { duration: 0 };
+export const instant = { duration: 0 };
 
 export function Reveal({
   children,
