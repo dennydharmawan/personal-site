@@ -136,7 +136,7 @@ function ProjectCard({
     <RevealItem>
       <article
         className={cn(
-          'grid content-start gap-5 rounded-3xl bg-white p-4 ring-1 ring-zinc-900/5 transition duration-300 sm:p-5',
+          'grid content-start gap-5 rounded-3xl bg-white p-4 ring-1 ring-zinc-900/5 transition duration-300 sm:p-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8 lg:p-6',
           isDimmed && 'opacity-45',
           activeHop !== null && !isDimmed && 'ring-sky-600/30'
         )}
@@ -214,7 +214,7 @@ export function WorkSamplesSection() {
           </RevealItem>
         </RevealGroup>
 
-        <RevealGroup className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
+        <RevealGroup className="grid items-start gap-6 lg:gap-8">
           {projects.map((project, index) => (
             <ProjectCard
               key={project.title}

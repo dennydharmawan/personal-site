@@ -145,8 +145,8 @@ followed changed these things and this document has not been rewritten yet.
 - Header. A mobile nav below `sm` in `mobile-nav.tsx`. Section deep links resolve.
 - Hero. The photo is three responsive bands in AVIF and WebP, built by
   `scripts/build-hero-photo.sh` from `scripts/assets/`. The proof row is top-aligned.
-- Work samples. A request-path strip precedes the grid and highlights the samples that
-  touch a hop. Card bullets are open by default.
+- Work samples. A request-path strip precedes a single column of cards. From `lg` the
+  clip sits beside the write-up. Card bullets are open by default.
 - Expertise. A two-column layout between `md` and `lg`. The instruments now draw the
   access path, the PR-reviewer pipeline, and the shipped engineering standards.
 - About. Rewritten again as a portrait and bio on white, with no figures. A DD monogram
