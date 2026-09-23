@@ -18,6 +18,7 @@ export const listGapClassName = 'gap-3';
 export const spring = { bounce: 0, duration: 0.3, type: 'spring' as const };
 export const easeOut = [0.2, 0, 0, 1] as const;
 export const revealEase = [0.22, 1, 0.36, 1] as const;
+export const overshootEase = [0.34, 1.56, 0.64, 1] as const;
 // A transform string runs on the compositor through WAAPI. Motion's independent y would tick on the main thread.
 export const revealTransition = {
   opacity: { duration: 0.4, ease: 'linear' as const },
@@ -89,8 +90,11 @@ type RevealState = 'hidden' | 'visible';
 // Content starts visible so the server HTML paints without JS. Only an element the
 // observer measures as entirely below the viewport is pushed back to hidden, off screen,
 // where the jump cannot be seen. Anything already on screen keeps its painted state.
-function useRevealState(skip = false) {
-  const ref = useRef<HTMLDivElement>(null);
+export function useRevealState<T extends Element = HTMLDivElement>(
+  skip = false,
+  rootMargin = revealRootMargin
+) {
+  const ref = useRef<T>(null);
   const [state, setState] = useState<RevealState>('visible');
 
   useEffect(() => {
@@ -109,13 +113,13 @@ function useRevealState(skip = false) {
           setState('hidden');
         }
       },
-      { rootMargin: revealRootMargin }
+      { rootMargin }
     );
 
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [skip]);
+  }, [rootMargin, skip]);
 
   return { ref, state };
 }

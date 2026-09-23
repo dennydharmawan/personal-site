@@ -1,4 +1,14 @@
-import { useLayoutEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FocusEvent,
+  type MouseEvent,
+  type PointerEvent,
+  type RefObject
+} from 'react';
+import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GlyphTile } from '@/components/about-glyphs';
 import {
   aboutEvidence,
@@ -6,9 +16,13 @@ import {
   type EvidenceTarget
 } from '@/components/portfolio-home-data';
 import {
+  instant,
+  overshootEase,
   pageShellClassName,
+  revealEase,
   scrollToTargetName,
-  sectionPaddingBottomClassName
+  sectionPaddingBottomClassName,
+  useRevealState
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -40,10 +54,56 @@ const marginQuery = '(min-width: 80rem)';
 const noteGap = 20;
 const noteMetaCenter = 14;
 
+// The entrance plays once, when the paragraph's top clears the lower 30% of the viewport.
+// Phrases go in reading order: the tile pops, its glyph plays, its underline draws, then its note lands.
+const entranceRootMargin = '0px 0px -30% 0px';
+const firstBeat = 0.35;
+const beatGap = 0.42;
+const underlineDraw = 0.5;
+const beat = (index: number) => firstBeat + index * beatGap;
+const underlineStart = (index: number) => beat(index) + 0.12;
+
+const fadeIn = (delay: number, duration: number): Variants => ({
+  hidden: { opacity: 0, transition: instant },
+  visible: { opacity: 1, transition: { delay, duration, ease: 'linear' } }
+});
+
+const tilePop = (at: number): Variants => ({
+  hidden: { opacity: 0, transform: 'scale(0.4) rotate(-12deg)', transition: instant },
+  visible: {
+    opacity: 1,
+    transform: 'scale(1) rotate(0deg)',
+    transition: {
+      opacity: { delay: at, duration: 0.25, ease: 'linear' },
+      transform: { delay: at, duration: 0.55, ease: overshootEase }
+    }
+  }
+});
+
+const drawUnderline = (at: number, duration: number): Variants => ({
+  hidden: { backgroundSize: '0% 2px', transition: instant },
+  visible: { backgroundSize: '100% 2px', transition: { delay: at, duration, ease: 'linear' } }
+});
+
+const noteIn = (at: number): Variants => ({
+  hidden: { opacity: 0, transform: 'translateX(-6px)', transition: instant },
+  visible: {
+    opacity: 1,
+    transform: 'translateX(0px)',
+    transition: { delay: at, duration: 0.45, ease: revealEase }
+  }
+});
+
+// Motion only propagates a parent's variant to children that mounted with variants, so notes
+// below xl hold a variant that keeps them shown instead of dropping the prop.
+const noteStays: Variants = {
+  hidden: { opacity: 1, transform: 'translateX(0px)', transition: instant },
+  visible: { opacity: 1, transform: 'translateX(0px)', transition: instant }
+};
+
 type NoteLayout = { height: number; tops: Partial<Record<EvidenceTarget, number>> };
 
-function useMarginNotes() {
-  const paragraphRef = useRef<HTMLParagraphElement>(null);
+function useMarginNotes(paragraphRef: RefObject<HTMLParagraphElement | null>) {
   const listRef = useRef<HTMLOListElement>(null);
   const phraseStarts = useRef(new Map<EvidenceTarget, HTMLElement>());
   const notes = useRef(new Map<EvidenceTarget, HTMLLIElement>());
@@ -97,22 +157,59 @@ function useMarginNotes() {
       media.removeEventListener('change', place);
       window.removeEventListener('resize', place);
     };
-  }, []);
+  }, [paragraphRef]);
 
-  return { layout, listRef, notes, paragraphRef, phraseStarts };
+  return { layout, listRef, notes, phraseStarts };
 }
 
 export function AboutSection() {
+  const shouldReduceMotion = useReducedMotion();
   const [active, setActive] = useState<EvidenceTarget | null>(null);
-  const { layout, listRef, notes, paragraphRef, phraseStarts } = useMarginNotes();
+  const [entrancePlaying, setEntrancePlaying] = useState(false);
+  const [focusedWhileHidden, setFocusedWhileHidden] = useState(false);
+  const [replays, setReplays] = useState<Partial<Record<EvidenceTarget, number>>>({});
+  const { ref: paragraphRef, state } = useRevealState<HTMLParagraphElement>(
+    false,
+    entranceRootMargin
+  );
+  const { layout, listRef, notes, phraseStarts } = useMarginNotes(paragraphRef);
+  // Keyboard focus can land on a link in the band below the trigger; a focused link must be visible.
+  const phase = focusedWhileHidden ? 'visible' : state;
+
+  useEffect(() => {
+    if (phase === 'hidden') {
+      setEntrancePlaying(true);
+    }
+  }, [phase]);
+
+  const replay = (target: EvidenceTarget) => {
+    if (shouldReduceMotion || entrancePlaying) {
+      return;
+    }
+
+    setReplays((current) => ({ ...current, [target]: (current[target] ?? 0) + 1 }));
+  };
 
   // Touch fires pointerenter on every scroll that starts on a phrase; pairing is for a hovering pointer.
-  const pair = (target: EvidenceTarget) => ({
+  // A mouse click focuses the link right after the pointer entered it, so only keyboard focus replays.
+  const pair = (target: EvidenceTarget, replays = false) => ({
     onBlur: () => setActive(null),
-    onFocus: () => setActive(target),
+    onFocus: (event: FocusEvent<HTMLElement>) => {
+      setActive(target);
+
+      if (replays && event.currentTarget.matches(':focus-visible')) {
+        replay(target);
+      }
+    },
     onPointerEnter: (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') {
-        setActive(target);
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      setActive(target);
+
+      if (replays) {
+        replay(target);
       }
     },
     onPointerLeave: () => setActive(null)
@@ -123,17 +220,29 @@ export function AboutSection() {
       aria-labelledby="about-heading"
       className={sectionPaddingBottomClassName}
       data-scroll-target="about"
+      onFocusCapture={() => setFocusedWhileHidden((current) => current || state === 'hidden')}
     >
       <div className={pageShellClassName}>
         <h2 className="sr-only" id="about-heading">
           About me
         </h2>
 
-        <div className="grid gap-y-12 xl:grid-cols-[minmax(0,62fr)_minmax(0,38fr)] xl:gap-x-24">
+        <motion.div
+          animate={phase}
+          className="grid gap-y-12 xl:grid-cols-[minmax(0,62fr)_minmax(0,38fr)] xl:gap-x-24"
+          initial={false}
+          variants={{ hidden: {}, visible: {} }}
+          onAnimationComplete={(definition) => {
+            if (definition === 'visible') {
+              setEntrancePlaying(false);
+            }
+          }}
+        >
           <div className="grid content-start gap-8">
-            <p
+            <motion.p
               ref={paragraphRef}
               className="max-w-[34em] font-heading text-[clamp(1.5rem,2.4vw,2.25rem)] font-normal leading-[1.36] tracking-tight text-pretty text-zinc-900"
+              variants={fadeIn(0, 0.5)}
             >
               {aboutParagraph.map((segment) => {
                 if (typeof segment === 'string') {
@@ -141,10 +250,13 @@ export function AboutSection() {
                 }
 
                 const target = segment.evidence;
+                const index = noteOrder.indexOf(target);
                 const { glyph, phrase } = aboutEvidence[target];
                 const firstSpace = phrase.indexOf(' ');
                 const firstWord = firstSpace === -1 ? phrase : phrase.slice(0, firstSpace);
                 const rest = firstSpace === -1 ? '' : phrase.slice(firstSpace);
+                // Character share stands in for width share, so the underline keeps one speed across both spans.
+                const firstDraw = underlineDraw * (firstWord.length / phrase.length);
 
                 return (
                   <a
@@ -155,31 +267,48 @@ export function AboutSection() {
                     data-active={active === target}
                     href={`#${target}`}
                     onClick={(event) => jumpToEvidence(event, target)}
-                    {...pair(target)}
+                    {...pair(target, true)}
                   >
                     <span className="whitespace-nowrap">
                       <GlyphTile
-                        className="mr-[0.22em] align-[-0.17em] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]:-translate-y-[0.06em] group-data-[active=true]:-rotate-6"
+                        at={beat(index) + 0.15}
+                        className="mr-[0.22em] align-[-0.17em] transition-[rotate,translate] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]:-translate-y-[0.06em] group-data-[active=true]:-rotate-6"
                         glyph={glyph}
+                        replay={replays[target]}
+                        variants={tilePop(beat(index))}
                       />
-                      <span
+                      <motion.span
                         ref={(node) => {
                           if (node) {
                             phraseStarts.current.set(target, node);
                           }
                         }}
                         className={underline}
+                        variants={drawUnderline(underlineStart(index), firstDraw)}
                       >
                         {firstWord}
-                      </span>
+                      </motion.span>
                     </span>
-                    {rest ? <span className={underline}>{rest}</span> : null}
+                    {rest ? (
+                      <motion.span
+                        className={underline}
+                        variants={drawUnderline(
+                          underlineStart(index) + firstDraw,
+                          underlineDraw - firstDraw
+                        )}
+                      >
+                        {rest}
+                      </motion.span>
+                    ) : null}
                   </a>
                 );
               })}
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-base">
+            <motion.div
+              className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-base"
+              variants={fadeIn(0.2, 0.4)}
+            >
               <a
                 className={cn(
                   'font-medium text-sky-700 underline decoration-sky-600/40 decoration-2 underline-offset-[5px] transition-colors hover:text-sky-800 hover:decoration-sky-600',
@@ -192,7 +321,7 @@ export function AboutSection() {
                 Download resume
               </a>
               <span className="text-zinc-500">Jakarta, UTC+7</span>
-            </div>
+            </motion.div>
           </div>
 
           <ol
@@ -201,12 +330,12 @@ export function AboutSection() {
             className="relative grid gap-6 border-t border-zinc-200 pt-8 md:grid-cols-2 md:gap-x-12 xl:block xl:border-t-0 xl:pt-0"
             style={layout ? { height: layout.height } : undefined}
           >
-            {noteOrder.map((target) => {
+            {noteOrder.map((target, index) => {
               const { glyph, proof, source } = aboutEvidence[target];
               const top = layout?.tops[target];
 
               return (
-                <li
+                <motion.li
                   key={target}
                   ref={(node) => {
                     if (node) {
@@ -217,6 +346,9 @@ export function AboutSection() {
                   data-active={active === target}
                   data-dim={active !== null && active !== target}
                   style={top === undefined ? undefined : { left: 0, position: 'absolute', right: 0, top }}
+                  // In the margin a note lands as its underline ends. Under the paragraph it is usually
+                  // still off screen during the entrance, so it skips it rather than arrive late.
+                  variants={layout ? noteIn(underlineStart(index) + underlineDraw) : noteStays}
                   {...pair(target)}
                 >
                   <GlyphTile
@@ -247,11 +379,11 @@ export function AboutSection() {
                       </a>
                     </p>
                   </div>
-                </li>
+                </motion.li>
               );
             })}
           </ol>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
