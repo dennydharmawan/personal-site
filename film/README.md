@@ -26,6 +26,21 @@ Run these from `film/`.
 
 To scrub the film by hand, open `film.html` in a browser. `film.html?t=13.4` opens on a given second.
 
+## Web media
+
+`npm run media` renders the master, then writes the site's four files to `public/film/`. It encodes an AV1 video at 720px and an H.264 fallback at 540px, both silent. It also shoots the night frame at t=13.4 as a 720px AVIF and JPEG poster.
+
+The run then checks the files against their budgets and fails when one is over.
+
+| File | Budget |
+| --- | --- |
+| `stays-up-av1.mp4` | 5,000,000 bytes, no audio stream |
+| `stays-up-h264.mp4` | 5,000,000 bytes, no audio stream |
+| `stays-up-poster.avif` | 160 KB |
+| `stays-up-poster.jpg` | 280 KB |
+
+Each run adds about 8.5 MB to git history, so commit the media once per approved art state.
+
 ## Toolchain
 
 The committed output was made with these versions. A newer Chromium or encoder can change output bytes.

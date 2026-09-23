@@ -5,7 +5,8 @@
     "shoot": "node shoot.mjs",
     "render": "node render.mjs",
     "palette": "node scripts/gen-palette.mjs",
-    "check": "node scripts/check-determinism.mjs"
+    "check": "node scripts/check-determinism.mjs",
+    "media": "bash scripts/encode.sh && node scripts/check-budget.mjs"
   },
   "dependencies": {
     "playwright-core": "^1.63.0"
