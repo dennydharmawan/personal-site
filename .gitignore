@@ -39,3 +39,8 @@ clips/out/
 
 # LaTeX build output (published copy lives in public/)
 /resume.pdf
+
+# stays-up film package (own dependencies + render output)
+film/node_modules/
+film/out/
+film/frames/

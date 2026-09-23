@@ -1,0 +1,47 @@
+import { chromium } from 'playwright-core';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+const TIMES = [2.4, 13.4, 25.03, 40.9];
+const film = new URL('../film.html', import.meta.url).href;
+let failed = false;
+
+// film.js names Math.random in a comment, so comments are stripped before matching.
+for (const file of ['film.js', 'engine.js']) {
+  const code = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, '');
+  for (const banned of code.match(/\bMath\s*\.\s*random\b|\bDate\s*\.\s*now\b/g) ?? []) {
+    console.error(`FAIL ${file} uses ${banned}`);
+    failed = true;
+  }
+}
+
+async function hashes(browser) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push(String(e)));
+  await page.goto(film);
+  await page.waitForFunction(() => window.__riso && window.__riso.ready, null, { timeout: 60000 });
+  const out = [];
+  for (const t of TIMES) {
+    const url = await page.evaluate(t => { window.__riso.seek(t); return document.getElementById('c').toDataURL('image/png'); }, t);
+    out.push(createHash('sha256').update(Buffer.from(url.split(',')[1], 'base64')).digest('hex'));
+  }
+  await context.close();
+  if (errors.length) throw new Error(`page errors:\n${errors.join('\n')}`);
+  return out;
+}
+
+const browser = await chromium.launch();
+try {
+  const a = await hashes(browser);
+  const b = await hashes(browser);
+  TIMES.forEach((t, i) => {
+    const match = a[i] === b[i];
+    if (!match) failed = true;
+    console.log(`${match ? 'ok  ' : 'FAIL'} t=${t} ${a[i]} ${b[i]}`);
+  });
+} finally {
+  await browser.close();
+}
+process.exitCode = failed ? 1 : 0;

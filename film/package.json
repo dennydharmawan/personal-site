@@ -1,0 +1,13 @@
+{
+  "name": "stays-up-film",
+  "private": true,
+  "scripts": {
+    "shoot": "node shoot.mjs",
+    "render": "node render.mjs",
+    "palette": "node scripts/gen-palette.mjs",
+    "check": "node scripts/check-determinism.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

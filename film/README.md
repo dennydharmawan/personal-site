@@ -1,0 +1,40 @@
+# Stays up
+
+A 41 second silent riso print film of one night over Merdeka Square, drawn in code. Every frame is a pure function of `t`, so the film rebuilds from this folder.
+
+This folder is its own npm package. The site build does not read it.
+
+## Setup
+
+```sh
+cd film
+npm ci
+npx playwright-core install chromium
+```
+
+## Commands
+
+Run these from `film/`.
+
+| Command | What it does |
+| --- | --- |
+| `npm run check` | Renders t=2.4, 13.4, 25.03, and 40.9 in two fresh pages and compares SHA-256 hashes. Also fails if `film.js` or `engine.js` calls `Math.random` or `Date.now`. |
+| `npm run palette` | Rebuilds `palette.js` from the root's `node_modules/tailwindcss/theme.css`. Run `pnpm install` at the root first. |
+| `npm run shoot -- --out out` | Writes a PNG for each beat in `SHOTS`, plus `out/meta.json`. Pass `--times 13.4,25.03` for other frames. |
+| `npm run render -- 30 out/master.mp4` | Renders every frame at 30 fps into `frames/` and encodes a 1080 H.264 master with ffmpeg. |
+| `python3 sheet.py out out/sheet.jpg 4 360` | Builds a contact sheet from a `shoot` run. |
+
+To scrub the film by hand, open `film.html` in a browser. `film.html?t=13.4` opens on a given second.
+
+## Toolchain
+
+The committed output was made with these versions. A newer Chromium or encoder can change output bytes.
+
+- Node 22
+- playwright-core 1.63 (Chromium)
+- ffmpeg 9.0.1 with SVT-AV1 4.2.0 and libx264
+- Pillow 12.3
+
+## Credit
+
+The print engine in `engine.js` is adapted from [sevenevesai/riso-windowseat](https://github.com/sevenevesai/riso-windowseat), under the MIT license in `LICENSE-riso-windowseat`.
