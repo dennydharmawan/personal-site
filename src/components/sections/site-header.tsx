@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion, useScroll } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { isEvidenceTarget } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/sections/mobile-nav';
@@ -223,7 +223,6 @@ function useActiveSection() {
 export function SiteHeader() {
   const shouldReduceMotion = useReducedMotion();
   const activeSection = useActiveSection();
-  const { scrollYProgress } = useScroll();
   const [isNavCompact, setIsNavCompact] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hoveredNavHref, setHoveredNavHref] = useState<string | null>(null);
@@ -334,14 +333,6 @@ export function SiteHeader() {
                       />
                     ) : null}
                   </AnimatePresence>
-                  {activeSection === item.target ? (
-                    <motion.span
-                      layoutId="nav-active-mark"
-                      aria-hidden="true"
-                      className="absolute inset-x-2.5 bottom-1 z-10 h-0.5 rounded-full bg-sky-600 md:inset-x-3"
-                      transition={shouldReduceMotion ? { duration: 0 } : spring}
-                    />
-                  ) : null}
                   <span className="relative z-10">
                     {item.shortLabel ? (
                       <>
@@ -375,13 +366,6 @@ export function SiteHeader() {
             triggerStyle={riseDelay(0.12)}
           />
         </div>
-        <motion.div
-          aria-hidden="true"
-          className={`absolute inset-x-0 -bottom-px h-0.5 origin-left bg-sky-600 transition-opacity duration-300 ${
-            isNavCompact && !isMenuOpen ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ scaleX: scrollYProgress }}
-        />
       </div>
     </header>
   );
