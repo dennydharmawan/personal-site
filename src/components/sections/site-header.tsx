@@ -387,10 +387,19 @@ export function SiteHeader() {
   );
 }
 
+// A malformed escape keeps the raw hash, whose `%` matches no target, so it takes the unknown-hash path.
+function decodeHash(hash: string) {
+  try {
+    return decodeURIComponent(hash);
+  } catch {
+    return hash;
+  }
+}
+
 export function usePreventHashNavigation() {
   useEffect(() => {
     const routeHash = () => {
-      const target = decodeURIComponent(window.location.hash.slice(1));
+      const target = decodeHash(window.location.hash.slice(1));
 
       if (!target) {
         return;
