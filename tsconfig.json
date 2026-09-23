@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "clips"
+    "clips",
+    "film"
   ],
   "compilerOptions": {
     "baseUrl": ".",
