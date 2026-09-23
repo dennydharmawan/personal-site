@@ -73,8 +73,8 @@ function HeroBackdrop() {
 function HeroHeadline({ className }: { className: string }) {
   return (
     <h1 className={`font-heading font-normal tracking-tight text-zinc-900 ${className}`}>
-      Senior Full-Stack Engineer
-      <span className="block pt-1 text-balance text-zinc-500 sm:pt-2">for Indonesian digital banks.</span>
+      Building web solutions
+      <span className="block pt-1 text-zinc-500 sm:pt-2">that actually scale.</span>
     </h1>
   );
 }
@@ -82,8 +82,9 @@ function HeroHeadline({ className }: { className: string }) {
 function HeroLede({ className = '' }: { className?: string }) {
   return (
     <p className={`max-w-xl text-base font-normal leading-7 text-zinc-700 text-balance ${className}`}>
-      I build access control at Krom Bank. Before that I ran lending backends at Jenius at 2M+
-      transactions a month and 99.98% uptime.
+      I&apos;m a full-stack engineer with hands-on experience building{' '}
+      <span className="whitespace-nowrap">large-scale</span> financial systems, where scalability,
+      reliability, and maintainability are critical.
     </p>
   );
 }
@@ -126,7 +127,7 @@ function HeroActions({ className = '' }: { className?: string }) {
 
 function TrustedLogos({ className = '' }: { className?: string }) {
   return (
-    <div className={`flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-8 lg:gap-x-10 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-8 lg:gap-x-6 xl:gap-x-10 ${className}`}>
       {trustedTeams.map((team) => (
         <span key={team.name} className="inline-flex h-10 items-center justify-start">
           <img
@@ -143,23 +144,25 @@ function TrustedLogos({ className = '' }: { className?: string }) {
   );
 }
 
-const trustedLine = "Where I've built banking systems";
+const trustedLine = "Trusted by teams at Indonesia's leading digital banks";
 
 function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   return (
-    <div className="grid gap-5 pt-2">
-      <p className="flex items-baseline gap-2.5">
-        <span className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
-          {yearsExperience}+
-        </span>
-        <span className="text-sm font-medium leading-5 text-zinc-600">years of experience</span>
-      </p>
-
+    <div className="grid gap-6 pt-2 min-[520px]:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.36fr)] min-[520px]:items-end lg:gap-8">
       <div className="grid gap-3">
         <p className="max-w-md text-sm font-medium leading-6 text-zinc-700 text-pretty">
           {trustedLine}
         </p>
         <TrustedLogos />
+      </div>
+
+      <div className="grid gap-2">
+        <p className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
+          {yearsExperience}+
+        </p>
+        <p className="text-sm font-medium leading-5 text-zinc-600 text-pretty">
+          years of experience
+        </p>
       </div>
     </div>
   );
@@ -174,9 +177,9 @@ export function HeroSection() {
       <div className={`${pageShellClassName} grid gap-10 md:gap-12`}>
         <div className="grid gap-8">
           <div className="animate-rise-in">
-            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Senior
-                Full-Stack Engineer" holds one line and never orphans "Engineer". */}
-            <HeroHeadline className="max-w-6xl text-[clamp(1.25rem,calc(8.1vw_-_3.2px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
+            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Building web
+                solutions" holds one line and never orphans "solutions". */}
+            <HeroHeadline className="max-w-6xl text-[clamp(1.5rem,calc(9.55vw_-_3.8px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
           </div>
 
           <div className="animate-rise-in" style={riseDelay(0.08)}>
@@ -184,7 +187,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
           <div className="animate-rise-in" style={riseDelay(0.16)}>
             <HeroProofBlock yearsExperience={yearsExperience} />
           </div>
