@@ -23,7 +23,7 @@ function ExperienceHeader() {
       </RevealItem>
       <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-4">
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
-          ERP integrations, then digital lending backends, then a bank's system of record for access decisions.
+          ERP integrations, then digital lending backends, then a bank's system of record for who can access its internal apps.
         </p>
         <a
           className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm"
@@ -43,9 +43,13 @@ function Highlights({ item }: { item: ExperienceItem }) {
   return (
     <ul className={`grid max-w-[60ch] ${listGapClassName}`}>
       {item.highlights.map((highlight) => (
-        <li key={highlight} className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-zinc-200">
+        <li
+          key={highlight.text}
+          className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-zinc-200"
+          data-scroll-target={highlight.target}
+        >
           <PlayBulletMarker />
-          <span className="text-pretty">{highlight}</span>
+          <span className="text-pretty">{highlight.text}</span>
         </li>
       ))}
     </ul>
@@ -64,7 +68,7 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
           {item.role}
         </h3>
       </RevealItem>
-      {'titles' in item && item.titles ? (
+      {item.titles ? (
         <RevealItem>
           <ol aria-label={`Titles held at ${item.company}`} className="grid gap-1.5 border-l border-white/15 pl-4">
             {item.titles.map((title) => (

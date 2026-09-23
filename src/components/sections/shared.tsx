@@ -38,6 +38,20 @@ export function getYearsExperience(date = new Date()) {
   return date.getMonth() >= careerStart.monthIndex ? completedYears : completedYears - 1;
 }
 
+// A target inside a reveal is still offset by its hidden transform when the jump starts, and
+// the rect includes that offset. offsetTop does not, so the jump lands where the target settles.
+function layoutTop(element: HTMLElement) {
+  let top = element.offsetTop;
+  let parent = element.offsetParent as HTMLElement | null;
+
+  while (parent) {
+    top += parent.offsetTop + parent.clientTop;
+    parent = parent.offsetParent as HTMLElement | null;
+  }
+
+  return top;
+}
+
 export function scrollToTargetName(targetName: string, shouldReduceMotion?: boolean | null) {
   const target = document.querySelector<HTMLElement>(`[data-scroll-target="${targetName}"]`);
 
@@ -48,7 +62,7 @@ export function scrollToTargetName(targetName: string, shouldReduceMotion?: bool
   const targetTop =
     targetName === 'top'
       ? 0
-      : target.getBoundingClientRect().top + window.scrollY - anchorScrollOffset;
+      : layoutTop(target) - anchorScrollOffset;
   const prefersReducedMotion =
     shouldReduceMotion ?? window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

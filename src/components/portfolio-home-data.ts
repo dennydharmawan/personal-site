@@ -36,6 +36,14 @@ export const expertiseItems: ExpertiseItem[] = [
 
 export type Chapter = { at: number; label: string };
 
+export const evidenceTargets = ['krom-access', 'krom-shared-package', 'pr-reviewer', 'jenius-lending'] as const;
+
+export type EvidenceTarget = (typeof evidenceTargets)[number];
+
+export function isEvidenceTarget(value: string): value is EvidenceTarget {
+  return (evidenceTargets as readonly string[]).includes(value);
+}
+
 export type Project = {
   built: string;
   chapters: readonly [Chapter, Chapter, Chapter];
@@ -43,6 +51,7 @@ export type Project = {
   problem: string;
   role: string;
   stack: string[];
+  target?: EvidenceTarget;
   title: string;
   video: string;
 };
@@ -60,6 +69,7 @@ export const projects: Project[] = [
     problem: 'AI review bots post every finding, right or wrong.',
     role: 'Internal developer tooling',
     stack: ['TypeScript', 'AWS Bedrock', 'Bitbucket', 'Slack'],
+    target: 'pr-reviewer',
     title: 'Multi-agent PR reviewer',
     video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
   },
@@ -111,15 +121,32 @@ export const projects: Project[] = [
   }
 ];
 
-export const experiences = [
+export type Highlight = { target?: EvidenceTarget; text: string };
+
+export const experiences: ReadonlyArray<{
+  company: string;
+  current?: boolean;
+  highlights: Highlight[];
+  period: string;
+  role: string;
+  summary: string;
+  titles?: ReadonlyArray<{ period: string; role: string }>;
+  years: string;
+}> = [
   {
     company: 'Krom Bank',
     current: true,
     highlights: [
-      'Built the access governance platform that automates onboarding, rehire, and offboarding access, with continuous reconciliation and an audit trail',
-      'Shipped a shared auth, logging, and feature-flag package adopted by four production apps',
-      'Improved API performance 37% by refactoring legacy modules and adding targeted caching',
-      'Designed the Datadog dashboards and tracing that became the company monitoring template'
+      {
+        target: 'krom-access',
+        text: 'Built the access governance platform that automates onboarding, rehire, and offboarding access, with continuous reconciliation and an audit trail'
+      },
+      {
+        target: 'krom-shared-package',
+        text: 'Shipped a shared auth, logging, and feature-flag package adopted by four production apps'
+      },
+      { text: 'Improved API performance 37% by refactoring legacy modules and adding targeted caching' },
+      { text: 'Designed the Datadog dashboards and tracing that became the company monitoring template' }
     ],
     period: 'Jan 2023 – Present',
     role: 'Senior Full-Stack Engineer',
@@ -134,9 +161,12 @@ export const experiences = [
   {
     company: 'Jenius / Bank SMBC Indonesia',
     highlights: [
-      'Ran the lending backends at 2M+ transactions a month and 99.98% uptime on Node.js, GraphQL, and Kafka',
-      'Kept origination and disbursement stable while users grew 147% in three years',
-      'Built retail partner APIs on Kafka events that widened digital lending distribution'
+      {
+        target: 'jenius-lending',
+        text: 'Ran the lending backends at 2M+ transactions a month and 99.98% uptime on Node.js, GraphQL, and Kafka'
+      },
+      { text: 'Kept origination and disbursement stable while users grew 147% in three years' },
+      { text: 'Built retail partner APIs on Kafka events that widened digital lending distribution' }
     ],
     period: 'Dec 2019 – Dec 2022',
     role: 'Back End Engineer',
@@ -146,9 +176,9 @@ export const experiences = [
   {
     company: 'Iverson Technology',
     highlights: [
-      'Customized Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia',
-      'Integrated data warehouse, enterprise portal, and point-of-sale systems',
-      'Trained 200 professionals on Dynamics AX customization'
+      { text: 'Customized Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia' },
+      { text: 'Integrated data warehouse, enterprise portal, and point-of-sale systems' },
+      { text: 'Trained 200 professionals on Dynamics AX customization' }
     ],
     period: 'Dec 2017 – Dec 2019',
     role: 'Technical Consultant',

@@ -213,7 +213,10 @@ function ProjectClip({ project }: { project: Project }) {
 function ProjectCard({ project }: { project: Project }) {
   return (
     <RevealItem>
-      <article className="grid content-start gap-5 rounded-3xl bg-white p-4 ring-1 ring-zinc-900/5 sm:p-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8 lg:p-6">
+      <article
+        data-scroll-target={project.target}
+        className="grid content-start gap-5 rounded-3xl bg-white p-4 ring-1 ring-zinc-900/5 sm:p-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8 lg:p-6"
+      >
         <ProjectClip project={project} />
         <div className="grid gap-3 px-1 pb-2">
           <p className="text-sm font-medium text-sky-700">{project.role}</p>

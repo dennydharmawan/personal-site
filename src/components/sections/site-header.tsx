@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { isEvidenceTarget } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/sections/mobile-nav';
 import {
@@ -339,7 +340,7 @@ export function usePreventHashNavigation() {
 
       root.style.scrollBehavior = 'auto';
 
-      if (navItems.some((item) => item.target === target)) {
+      if (navItems.some((item) => item.target === target) || isEvidenceTarget(target)) {
         scrollToTargetName(target, true);
       } else {
         window.history.replaceState(
