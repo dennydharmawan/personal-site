@@ -10,6 +10,7 @@ import {
 import {
   RevealGroup,
   RevealItem,
+  focusTargetName,
   instant,
   overshootEase,
   pageShellClassName,
@@ -28,6 +29,11 @@ const focusRing =
 
 // The router only hears hashchange, which a second click on the same hash never fires.
 function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTarget) {
+  // A modified click opens the hash in a new tab or window, where the router lands it.
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return;
+  }
+
   if (!scrollToTargetName(target)) {
     return;
   }
@@ -38,6 +44,7 @@ function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTa
     '',
     `${window.location.pathname}${window.location.search}#${target}`
   );
+  focusTargetName(target);
 }
 
 const underline =
@@ -103,12 +110,12 @@ export function AboutSection() {
 
   // Touch fires pointerenter on every scroll that starts on a phrase; pairing is for a hovering pointer.
   // A mouse click focuses the link right after the pointer entered it, so only keyboard focus replays.
-  const pair = (target: EvidenceTarget, replays = false) => ({
+  const pair = (target: EvidenceTarget, replayOnEnter = false) => ({
     onBlur: () => setActive(null),
     onFocus: (event: FocusEvent<HTMLElement>) => {
       setActive(target);
 
-      if (replays && event.currentTarget.matches(':focus-visible')) {
+      if (replayOnEnter && event.currentTarget.matches(':focus-visible')) {
         replay(target);
       }
     },
@@ -119,7 +126,7 @@ export function AboutSection() {
 
       setActive(target);
 
-      if (replays) {
+      if (replayOnEnter) {
         replay(target);
       }
     },
@@ -257,11 +264,11 @@ export function AboutSection() {
                       glyph={glyph}
                     />
                     <div className="grid gap-1.5">
-                      <p className="text-sm text-zinc-500 transition-colors duration-200 group-data-[dim=true]:text-zinc-400">
+                      <p className="text-sm text-zinc-500">
                         {source}
                       </p>
                       <p
-                        className="text-[0.9375rem] leading-6 text-pretty text-zinc-700 transition-colors duration-200 group-data-[active=true]:text-zinc-900 group-data-[dim=true]:text-zinc-400"
+                        className="text-[0.9375rem] leading-6 text-pretty text-zinc-700 transition-colors duration-200 group-data-[active=true]:text-zinc-900 group-data-[dim=true]:text-zinc-500"
                         id={`about-proof-${target}`}
                       >
                         {proof}
@@ -270,7 +277,7 @@ export function AboutSection() {
                     <a
                       aria-label={`See it: ${phrase}`}
                       className={cn(
-                        'group/see mt-auto -mb-1 inline-flex w-fit items-center gap-1 py-1 text-sm font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-400',
+                        'group/see mt-auto -mb-1 inline-flex w-fit items-center gap-1 py-1 text-sm font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-500',
                         focusRing
                       )}
                       href={`#${target}`}

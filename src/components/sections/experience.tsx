@@ -7,9 +7,11 @@ import {
   Reveal,
   RevealGroup,
   RevealItem,
+  focusTargetName,
   instant,
   listGapClassName,
   pageShellClassName,
+  readingBandTop,
   revealEase,
   scrollToTargetName,
   sectionHeaderClassName,
@@ -52,6 +54,7 @@ function Highlights({ item }: { item: ExperienceItem }) {
         <li
           key={highlight.text}
           className="flex gap-3 text-[0.9375rem] font-normal leading-6 text-zinc-200"
+          data-scroll-landing="reading-band"
           data-scroll-target={highlight.target}
         >
           <PlayBulletMarker />
@@ -98,7 +101,7 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
 
 const roleTarget = (index: number) => `experience-role-${index}`;
 
-// The role whose top sits in a band a third of the way down the viewport is the one being read.
+// The role crossing a band a third of the way down the viewport is the one being read.
 function useRoleInView() {
   const rolesRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -113,7 +116,7 @@ function useRoleInView() {
           }
         }
       },
-      { rootMargin: '-33% 0px -60% 0px' }
+      { rootMargin: `-${readingBandTop * 100}% 0px -60% 0px` }
     );
 
     roles.forEach((role) => observer.observe(role));
@@ -158,7 +161,10 @@ function RoleRail({ active }: { active: number }) {
               type="button"
               aria-current={index === active ? 'step' : undefined}
               className="grid w-full gap-0.5 rounded-sm text-left text-sm"
-              onClick={() => scrollToTargetName(roleTarget(index))}
+              onClick={() => {
+                scrollToTargetName(roleTarget(index));
+                focusTargetName(roleTarget(index));
+              }}
             >
               <span
                 className={cn(
@@ -168,7 +174,7 @@ function RoleRail({ active }: { active: number }) {
               >
                 {item.company}
               </span>
-              <span className="tabular-nums text-zinc-500">{item.period}</span>
+              <span className="tabular-nums text-zinc-400">{item.period}</span>
             </button>
           </li>
         );

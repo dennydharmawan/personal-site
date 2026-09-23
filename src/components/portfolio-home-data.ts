@@ -36,7 +36,7 @@ export const expertiseItems: ExpertiseItem[] = [
 
 export type Chapter = { at: number; label: string };
 
-export const evidenceTargets = ['krom-access', 'krom-shared-package', 'pr-reviewer', 'jenius-lending'] as const;
+const evidenceTargets = ['krom-access', 'krom-shared-package', 'pr-reviewer', 'jenius-lending'] as const;
 
 export type EvidenceTarget = (typeof evidenceTargets)[number];
 

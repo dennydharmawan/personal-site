@@ -242,7 +242,7 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
               <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
             </div>
           </dl>
-          <ul aria-label="Stack" className="flex flex-wrap gap-1.5 pt-1">
+          <ul aria-label={`${project.title} stack`} className="flex flex-wrap gap-1.5 pt-1">
             {project.stack.map((item) => (
               <li
                 key={item}

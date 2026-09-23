@@ -10,7 +10,6 @@ export const sectionPaddingBottomClassName = 'pb-20 md:pb-28 lg:pb-32';
 export const sectionPaddingClassName = `${sectionPaddingTopClassName} ${sectionPaddingBottomClassName}`;
 export const sectionHeaderMarginClassName = 'mb-12 md:mb-16';
 export const sectionHeaderClassName = `grid max-w-3xl gap-4 ${sectionHeaderMarginClassName}`;
-export const sectionHeaderCenteredClassName = `${sectionHeaderClassName} mx-auto justify-items-center text-center`;
 export const sectionContentGapClassName = 'gap-16 md:gap-20 lg:gap-28';
 export const twoColumnGapClassName = 'gap-10 lg:gap-16';
 export const detailStackGapClassName = 'gap-6';
@@ -31,6 +30,10 @@ export const revealRootMargin = '0px 0px -10% 0px';
 
 // The compact header: 56px tall plus its 1px bottom border. Keep in sync with scroll-padding-top.
 export const anchorScrollOffset = 57;
+// The Experience rail marks the role crossing a band from here to 40% down the viewport. A target
+// marked `data-scroll-landing="reading-band"` lands on the band's top edge instead of under the
+// header, so the rail names that target's own role.
+export const readingBandTop = 0.33;
 export const careerStart = { monthIndex: 11, year: 2017 };
 export const contactEmail = 'contact@dennydharmawan.com';
 
@@ -60,10 +63,14 @@ export function scrollToTargetName(targetName: string, shouldReduceMotion?: bool
     return false;
   }
 
-  const targetTop =
-    targetName === 'top'
-      ? 0
-      : layoutTop(target) - anchorScrollOffset;
+  let targetTop = layoutTop(target) - anchorScrollOffset;
+
+  if (targetName === 'top') {
+    targetTop = 0;
+  } else if (target.dataset.scrollLanding === 'reading-band') {
+    targetTop = layoutTop(target) - window.innerHeight * readingBandTop;
+  }
+
   const prefersReducedMotion =
     shouldReduceMotion ?? window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -73,6 +80,17 @@ export function scrollToTargetName(targetName: string, shouldReduceMotion?: bool
   });
 
   return true;
+}
+
+// A jump that only scrolls leaves focus on the link, so the next Tab scrolls back to it and a
+// screen reader never reaches the target.
+export function focusTargetName(targetName: string) {
+  const target = document.querySelector<HTMLElement>(`[data-scroll-target="${targetName}"]`);
+
+  if (target) {
+    target.tabIndex = -1;
+    target.focus({ preventScroll: true });
+  }
 }
 
 export function scrollToTarget(
