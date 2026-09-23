@@ -73,8 +73,8 @@ function HeroBackdrop() {
 function HeroHeadline({ className }: { className: string }) {
   return (
     <h1 className={`font-heading font-normal tracking-tight text-zinc-900 ${className}`}>
-      Building web solutions
-      <span className="block pt-1 text-zinc-500 sm:pt-2">that actually scale.</span>
+      Senior Full-Stack Engineer
+      <span className="block pt-1 text-balance text-zinc-500 sm:pt-2">for Indonesian digital banks.</span>
     </h1>
   );
 }
@@ -82,9 +82,8 @@ function HeroHeadline({ className }: { className: string }) {
 function HeroLede({ className = '' }: { className?: string }) {
   return (
     <p className={`max-w-xl text-base font-normal leading-7 text-zinc-700 text-balance ${className}`}>
-      I&apos;m a full-stack engineer with hands-on experience building{' '}
-      <span className="whitespace-nowrap">large-scale</span> financial systems, where scalability,
-      reliability, and maintainability are critical.
+      I build access control at Krom Bank. Before that I ran lending backends at Jenius at 2M+
+      transactions a month and 99.98% uptime.
     </p>
   );
 }
@@ -138,7 +137,7 @@ function TrustedLogos({ className = '' }: { className?: string }) {
   );
 }
 
-const trustedLine = "Trusted by teams at Indonesia's leading digital banks";
+const trustedLine = "Where I've built banking systems";
 
 function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
   return (
@@ -169,9 +168,9 @@ export function HeroSection() {
       <div className={`${pageShellClassName} grid gap-10 md:gap-12`}>
         <div className="grid gap-8">
           <div className="animate-rise-in">
-            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Building web
-                solutions" holds one line and never orphans "solutions". */}
-            <HeroHeadline className="max-w-6xl text-[clamp(1.5rem,calc(9.55vw_-_3.8px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
+            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Senior
+                Full-Stack Engineer" holds one line and never orphans "Engineer". */}
+            <HeroHeadline className="max-w-6xl text-[clamp(1.25rem,calc(8.1vw_-_3.2px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
           </div>
 
           <div className="animate-rise-in" style={riseDelay(0.08)}>

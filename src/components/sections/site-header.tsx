@@ -237,7 +237,7 @@ export function SiteHeader() {
             />
             <span className="grid gap-px leading-none">
               <span className="text-base font-semibold">Denny Dharmawan</span>
-              <span className="text-xs font-medium text-zinc-600">Full-Stack Engineer</span>
+              <span className="text-xs font-medium text-zinc-600">Senior Full-Stack Engineer</span>
             </span>
           </a>
           <nav
