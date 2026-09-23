@@ -1,5 +1,5 @@
 import { useEffect, useState, type FocusEvent, type MouseEvent, type PointerEvent } from 'react';
-import { ArrowRight, Download } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GlyphTile } from '@/components/about-glyphs';
 import {
@@ -151,21 +151,6 @@ export function AboutSection() {
             </h2>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
               <span className="text-zinc-500">Jakarta, UTC+7</span>
-              <a
-                className={cn(
-                  'group/resume -my-2 inline-flex items-center gap-1.5 py-2 font-medium text-sky-700 transition-colors hover:text-sky-800',
-                  focusRing
-                )}
-                href="/resume.pdf"
-                rel="noopener"
-                target="_blank"
-              >
-                <Download
-                  aria-hidden="true"
-                  className="size-4 transition-transform duration-200 group-hover/resume:translate-y-0.5"
-                />
-                Download resume
-              </a>
             </div>
           </div>
 

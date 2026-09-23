@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { experiences } from '@/components/portfolio-home-data';
 import {
@@ -33,15 +32,6 @@ function ExperienceHeader() {
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
           ERP integrations, then digital lending backends, then a bank's system of record for who can access its internal apps.
         </p>
-        <a
-          className="-my-3 inline-flex items-center gap-1 py-3 text-sm font-medium text-sky-300 underline-offset-4 hover:underline rounded-sm"
-          href="/resume.pdf"
-          rel="noopener"
-          target="_blank"
-        >
-          Full detail in resume
-          <ArrowUpRight aria-hidden="true" className="size-4" />
-        </a>
       </RevealItem>
     </RevealGroup>
   );
