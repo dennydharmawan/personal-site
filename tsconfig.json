@@ -5,7 +5,8 @@
     "**/*"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "clips"
   ],
   "compilerOptions": {
     "baseUrl": ".",
