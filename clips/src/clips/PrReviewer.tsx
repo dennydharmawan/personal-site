@@ -1,7 +1,13 @@
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  interpolateColors,
+  useCurrentFrame,
+} from "remotion";
 import { ease } from "../components/kit";
-import { useSettle } from "../components/loop";
-import { Check, Cross, fade, mono } from "../components/shapes";
+import { LEAD, swapAt, useSettle } from "../components/loop";
+import { Check, Cross, fade, Lock, mono } from "../components/shapes";
 import { displayFont, palette, uiFont } from "../theme";
 
 /**
@@ -159,6 +165,8 @@ const COMMENT_BOX_IN = [409, 410];
 const CARD_LIFT = [410, 414];
 const COMMENT_IN = [410, 424];
 const TO_TRAY = [478, 508];
+/** The security card's check turns into a lock once it sits in the held tray. */
+const HELD_AT = TO_TRAY[1] + 8;
 /**
  * Card travel. The kit's ease covers 99% of the distance in its first third,
  * which leaves a card sitting still while its trip is nominally still running;
@@ -184,7 +192,7 @@ const captions = [
   { at: [348, 358, 450, 460], text: "Security findings never auto-post." },
   {
     at: [462, 470, 560, 572],
-    text: "Only evidence-backed findings reach a human.",
+    text: "Real findings post. Security waits for a human.",
   },
 ];
 
@@ -286,6 +294,13 @@ const Diff: React.FC = () => {
   const lockLit = fade(frame, LOCK_LIT, [0, 1]) * clear;
   const commentBox = fade(frame, COMMENT_BOX_IN, [0, 1]) * settle;
   const commentOpen = fade(frame, COMMENT_IN, [0, 1]) * settle;
+  /** Line 51 is the evidence the drop rests on, so it stays lit until the reason chip clears. */
+  const rowOpacity = (index: number) => {
+    if (index < DROPPED_HUNK_FROM) {
+      return 1;
+    }
+    return index === LOCK_ROW ? 1 - (1 - droppedDim) * (1 - clear) : droppedDim;
+  };
   const cited = (index: number) => {
     const finding = findings.find((item) => item.row === index);
     if (finding) {
@@ -318,7 +333,7 @@ const Diff: React.FC = () => {
           <div
             key={index}
             style={{
-              opacity: index >= DROPPED_HUNK_FROM ? droppedDim : 1,
+              opacity: rowOpacity(index),
             }}
           >
             {row.kind === "file" ? (
@@ -356,8 +371,9 @@ const Diff: React.FC = () => {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundColor: palette.sky100,
-                    borderLeft: `${SCAN}px solid ${palette.sky700}`,
+                    backgroundColor:
+                      index === LOCK_ROW ? palette.sky200 : palette.sky100,
+                    borderLeft: `${index === LOCK_ROW ? 2 * SCAN : SCAN}px solid ${palette.sky700}`,
                     opacity: citedProgress,
                   }}
                 />
@@ -535,6 +551,10 @@ const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
   const toComment = index === TESTING ? travel(frame, TO_COMMENT, 1) : 0;
   const morph = (from: number, to: number) => from + (to - from) * toComment;
   const text = index === TESTING ? fade(frame, CARD_TEXT_OUT, [1, 0]) : 1;
+  const [checkShown, lockShown] =
+    index === SECURITY ? swapAt(frame, HELD_AT) : [1, 0];
+  const held =
+    index === SECURITY ? fade(frame, [HELD_AT - LEAD, HELD_AT + 8], [0, 1]) : 0;
 
   return (
     <div
@@ -615,7 +635,13 @@ const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: dropped ? palette.zinc500 : palette.emerald600,
+          backgroundColor: dropped
+            ? palette.zinc500
+            : interpolateColors(
+                held,
+                [0, 1],
+                [palette.emerald600, palette.amber500],
+              ),
           opacity: judged * text,
           scale: interpolate(judged, [0, 1], [0.6, 1], {
             easing: ease,
@@ -626,9 +652,48 @@ const FindingCard: React.FC<{ readonly index: number }> = ({ index }) => {
         {dropped ? (
           <Cross color="#ffffff" size={24} />
         ) : (
-          <Check color="#ffffff" size={24} />
+          <>
+            <div style={{ position: "absolute", opacity: checkShown }}>
+              <Check color="#ffffff" size={24} />
+            </div>
+            <div style={{ position: "absolute", opacity: lockShown }}>
+              <Lock color="#ffffff" size={24} />
+            </div>
+          </>
         )}
       </div>
+    </div>
+  );
+};
+
+/** Why the merger dropped the race finding: the line above it already takes the lock. */
+const DropReason: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { checkAt } = findings[DROPPED];
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: CARDS.left,
+        top: cardTop(DROPPED) + CARDS.height + 14,
+        padding: "6px 18px",
+        borderRadius: 999,
+        border: `2px solid ${palette.sky700}`,
+        backgroundColor: "#ffffff",
+        fontFamily: uiFont,
+        fontSize: 27,
+        fontWeight: 600,
+        color: palette.sky800,
+        whiteSpace: "nowrap",
+        opacity: fade(
+          frame,
+          [checkAt + 4, checkAt + 14, CLEAR[0], CLEAR[1]],
+          [0, 1, 1, 0],
+        ),
+        translate: `0px ${fade(frame, [checkAt + 4, checkAt + 16], [-8, 0])}px`,
+      }}
+    >
+      line 51 already locks the row
     </div>
   );
 };
@@ -724,6 +789,7 @@ export const PrReviewer: React.FC = () => {
       {findings.map((_, index) => (
         <FindingCard index={index} key={index} />
       ))}
+      <DropReason />
 
       {captions.map((caption) => (
         <Caption at={caption.at} key={caption.text} text={caption.text} />

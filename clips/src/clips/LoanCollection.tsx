@@ -30,7 +30,7 @@ const useSettle = () => useSettleAt(OUT);
 
 const CAPTIONS = [
   { range: [6, 120], text: "Collectors retype every reminder by hand." },
-  { range: [120, 258], text: "The queue gives every account an owner." },
+  { range: [120, 258], text: "Every account gets an owner and next step." },
   { range: [258, 372], text: "Reminders go out as WhatsApp templates." },
   {
     range: [372, 504],
@@ -38,7 +38,7 @@ const CAPTIONS = [
   },
 ] as const;
 
-const DRAFT = "Hi Budi, your instalment of IDR 1,240,000 is 32 days overdue.";
+const DRAFT = "Hi Budi, your instalment of IDR 1,180,000 is 32 days overdue.";
 /** The whole sentence is typed out: the line outgrowing the field is what sells the manual work. */
 const TYPING = [24, 112] as const;
 const DRAFT_OUT = [122, 136] as const;
@@ -59,41 +59,72 @@ const CHIP_AT = 442;
 
 const DIM = 0.55;
 
-const accounts = [
+/** How far overdue an account is decides both its edge colour and the next step it is given. */
+const tiers = {
+  escalate: {
+    bar: palette.rose600,
+    step: "Escalated",
+    border: palette.rose200,
+    fill: palette.rose50,
+    text: palette.rose700,
+  },
+  due: {
+    bar: palette.amber500,
+    step: "Due today",
+    border: palette.amber200,
+    fill: palette.amber50,
+    text: palette.amber700,
+  },
+  remind: {
+    bar: palette.zinc300,
+    step: "Reminder",
+    border: palette.zinc200,
+    fill: palette.zinc100,
+    text: palette.zinc600,
+  },
+} as const;
+
+const accounts: readonly {
+  readonly amount: string;
+  readonly id: string;
+  readonly name: string;
+  readonly overdue: string;
+  readonly tier: keyof typeof tiers;
+}[] = [
   {
-    amount: "IDR 1.24m",
+    amount: "IDR 1.18m",
     id: "4471",
     name: "Budi S.",
     overdue: "32 days",
-    risk: palette.rose600,
+    tier: "escalate",
   },
   {
     amount: "IDR 640k",
     id: "2208",
     name: "Andi P.",
     overdue: "18 days",
-    risk: palette.amber500,
+    tier: "due",
   },
   {
     amount: "IDR 2.10m",
     id: "9130",
     name: "Sari W.",
     overdue: "9 days",
-    risk: palette.amber500,
+    tier: "due",
   },
   {
     amount: "IDR 310k",
     id: "5567",
     name: "Rina T.",
     overdue: "4 days",
-    risk: palette.zinc300,
+    tier: "remind",
   },
   {
     amount: "IDR 220k",
     id: "7314",
     name: "Dewi K.",
     overdue: "3 days",
-    risk: palette.zinc300,
+    tier: "remind",
   },
 ];
 
@@ -111,6 +142,8 @@ const MARK = 30;
 const ENTRY_GAP = 16;
 const ENTRY_TEXT_LEFT = QUEUE.left + ENTRY_PAD + MARK + ENTRY_GAP;
 const CHIP_HEIGHT = 44;
+const STEP_HEIGHT = 36;
+const STEP_GAP = 6;
 
 const Avatar: React.FC<{ readonly label: string; readonly size: number }> = ({
   label,
@@ -140,12 +173,15 @@ const QueueRow: React.FC<{ readonly index: number }> = ({ index }) => {
   const frame = useCurrentFrame();
   const settle = useSettleAt(ROWS_OUT);
   const account = accounts[index];
+  const tier = tiers[account.tier];
   const bright =
     index === 0
       ? fade(frame, [...BRIGHTEN], [DIM, 1])
       : fade(frame, [BRIGHTEN[0], BRIGHTEN[1], ...OTHERS_OUT], [DIM, 1, 1, 0]);
   const opacity = DIM + (bright - DIM) * settle;
   const stamp = BADGE_AT + index * BADGE_STEP;
+  /** The step chip opens room under the name as the owner badge lands, so the name rises to make space. */
+  const step = fade(frame, [stamp, stamp + 10], [0, 1]) * settle;
   const selected =
     index === 0 ? fade(frame, [SELECT_AT, SELECT_AT + 12], [0, 1]) * settle : 0;
 
@@ -180,7 +216,7 @@ const QueueRow: React.FC<{ readonly index: number }> = ({ index }) => {
           bottom: 24,
           width: 6,
           borderRadius: 3,
-          backgroundColor: account.risk,
+          backgroundColor: tier.bar,
         }}
       />
       <div
@@ -207,17 +243,50 @@ const QueueRow: React.FC<{ readonly index: number }> = ({ index }) => {
       >
         <Avatar label="RW" size={48} />
       </div>
-      <div
-        style={{
-          fontFamily: codeFont,
-          fontSize: 24,
-          color: palette.zinc500,
-          width: 80,
-        }}
-      >
-        {account.id}
+      <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              fontFamily: codeFont,
+              fontSize: 24,
+              color: palette.zinc500,
+              width: 80,
+            }}
+          >
+            {account.id}
+          </div>
+          <div style={{ fontSize: 33, fontWeight: 600 }}>{account.name}</div>
+        </div>
+        <div
+          style={{
+            height: step * STEP_HEIGHT,
+            marginTop: step * STEP_GAP,
+            marginLeft: 80,
+            display: "flex",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: STEP_HEIGHT,
+              boxSizing: "border-box",
+              padding: "0 14px",
+              display: "flex",
+              alignItems: "center",
+              borderRadius: 999,
+              border: `2px solid ${tier.border}`,
+              backgroundColor: tier.fill,
+              fontSize: 22,
+              fontWeight: 600,
+              color: tier.text,
+              whiteSpace: "nowrap",
+              opacity: fade(frame, [stamp + 3, stamp + 10], [0, 1]) * settle,
+            }}
+          >
+            {tier.step}
+          </div>
+        </div>
       </div>
-      <div style={{ fontSize: 33, fontWeight: 600 }}>{account.name}</div>
       <div
         style={{
           marginLeft: "auto",
@@ -503,7 +572,7 @@ const Phone: React.FC = () => {
       >
         <Bubble at={SENT_AT}>
           Hi <Field>Budi</Field>, your instalment of{" "}
-          <Field>IDR 1,240,000</Field> is <Field>32 days</Field> overdue.
+          <Field>IDR 1,180,000</Field> is <Field>32 days</Field> overdue.
           <ReadTicks />
         </Bubble>
         <Bubble at={REPLY_AT} incoming>

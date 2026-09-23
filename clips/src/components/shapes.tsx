@@ -23,6 +23,18 @@ export const Cross: React.FC<{ readonly color: string; readonly size: number }> 
   </svg>
 );
 
+export const Lock: React.FC<{ readonly color: string; readonly size: number }> = ({ color, size }) => (
+  <svg fill="none" height={size} viewBox="0 0 24 24" width={size}>
+    <path
+      d="M8 10.5 V8 a4 4 0 0 1 8 0 V10.5 M5.5 10.5 H18.5 V20 H5.5 Z"
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2.6}
+    />
+  </svg>
+);
+
 export const Dash: React.FC<{ readonly color: string; readonly size: number }> = ({ color, size }) => (
   <svg fill="none" height={size} viewBox="0 0 24 24" width={size}>
     <path d="M6 12 L18 12" stroke={color} strokeLinecap="round" strokeWidth={2.6} />
