@@ -101,7 +101,10 @@ function HeroActions({ className = '' }: { className?: string }) {
         onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
       >
         View work samples
-        <ChevronDown data-icon="inline-end" className="size-4" />
+        <ChevronDown
+          data-icon="inline-end"
+          className="size-4 transition-transform duration-200 group-hover/button:translate-y-0.5"
+        />
       </Button>
       <Button
         asChild
@@ -110,7 +113,10 @@ function HeroActions({ className = '' }: { className?: string }) {
         className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4"
       >
         <a href="/resume.pdf" rel="noopener" target="_blank">
-          <Download data-icon="inline-start" />
+          <Download
+            data-icon="inline-start"
+            className="transition-transform duration-200 group-hover/button:translate-y-0.5"
+          />
           Download resume
         </a>
       </Button>

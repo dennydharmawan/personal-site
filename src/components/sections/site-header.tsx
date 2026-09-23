@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion, useScroll } from 'motion/react';
 import { isEvidenceTarget } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/sections/mobile-nav';
@@ -175,8 +175,55 @@ export function EmailActionMenu() {
   );
 }
 
+// The section whose top has passed 40% of the viewport is the one being read; the page end
+// counts as the last section, because the footer is too short to reach that line.
+function useActiveSection() {
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.4;
+      const atEnd =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      let current: string | null = null;
+
+      for (const item of navItems) {
+        const section = document.querySelector(`[data-scroll-target="${item.target}"]`);
+
+        if (section && section.getBoundingClientRect().top <= line) {
+          current = item.target;
+        }
+      }
+
+      setActive(atEnd ? navItems[navItems.length - 1].target : current);
+    };
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(measure);
+      }
+    };
+
+    measure();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, []);
+
+  return active;
+}
+
 export function SiteHeader() {
   const shouldReduceMotion = useReducedMotion();
+  const activeSection = useActiveSection();
+  const { scrollYProgress } = useScroll();
   const [isNavCompact, setIsNavCompact] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hoveredNavHref, setHoveredNavHref] = useState<string | null>(null);
@@ -249,6 +296,7 @@ export function SiteHeader() {
               {navItems.map((item, index) => (
                 <a
                   key={item.target}
+                  aria-current={activeSection === item.target ? 'location' : undefined}
                   href={`#${item.target}`}
                   className="animate-rise-in relative inline-flex min-h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 md:px-3"
                   style={riseDelay(0.12 + index * 0.04)}
@@ -286,6 +334,14 @@ export function SiteHeader() {
                       />
                     ) : null}
                   </AnimatePresence>
+                  {activeSection === item.target ? (
+                    <motion.span
+                      layoutId="nav-active-mark"
+                      aria-hidden="true"
+                      className="absolute inset-x-2.5 bottom-1 z-10 h-0.5 rounded-full bg-sky-600 md:inset-x-3"
+                      transition={shouldReduceMotion ? { duration: 0 } : spring}
+                    />
+                  ) : null}
                   <span className="relative z-10">
                     {item.shortLabel ? (
                       <>
@@ -319,6 +375,13 @@ export function SiteHeader() {
             triggerStyle={riseDelay(0.12)}
           />
         </div>
+        <motion.div
+          aria-hidden="true"
+          className={`absolute inset-x-0 -bottom-px h-0.5 origin-left bg-sky-600 transition-opacity duration-300 ${
+            isNavCompact && !isMenuOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ scaleX: scrollYProgress }}
+        />
       </div>
     </header>
   );

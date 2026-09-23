@@ -12,8 +12,9 @@ import {
   RevealGroup,
   RevealItem,
   pageShellClassName,
-  sectionHeaderCenteredClassName,
-  sectionPaddingClassName
+  sectionHeaderMarginClassName,
+  sectionPaddingClassName,
+  twoColumnGapClassName
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -261,20 +262,20 @@ export function WorkSamplesSection() {
   return (
     <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
-        <RevealGroup className={sectionHeaderCenteredClassName}>
+        <RevealGroup
+          className={`grid items-end ${sectionHeaderMarginClassName} ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}
+        >
           <RevealItem>
-            <h2 className="text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
+            <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples
             </h2>
           </RevealItem>
-          <RevealItem>
-            <p className="max-w-2xl text-base font-normal leading-7 text-zinc-600 text-pretty">
+          <RevealItem className="grid gap-3">
+            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
               Four systems, shown as short animations with sample data: access provisioning,
               collections operations, checkout and payments, and automated code review.
             </p>
-          </RevealItem>
-          <RevealItem>
-            <p className="max-w-2xl text-sm leading-6 text-zinc-500 text-pretty">
+            <p className="max-w-xl text-sm leading-6 text-zinc-500 text-pretty">
               The PR reviewer runs in production at Krom Bank. The other three are NDA-safe builds.
             </p>
           </RevealItem>
