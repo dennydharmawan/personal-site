@@ -137,7 +137,7 @@ export function SiteFooter() {
           </dl>
         </div>
         <figure className="grid w-full max-w-md content-start gap-3 lg:max-w-none">
-          <StaysUpFilm pillClassName={footerPillClassName} />
+          <StaysUpFilm />
           <figcaption className="text-sm leading-6 text-zinc-600">
             <span className="font-medium text-zinc-900">Stays up.</span> One night at my desk in
             Jakarta, drawn in code.
