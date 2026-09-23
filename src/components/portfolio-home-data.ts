@@ -1,5 +1,4 @@
 import type { CapabilityKind } from '@/components/capability-instruments';
-import type { StageLayerId } from '@/components/system-stage-data';
 
 export type ExpertiseItem = {
   kind: CapabilityKind;
@@ -35,75 +34,78 @@ export const expertiseItems: ExpertiseItem[] = [
   }
 ];
 
+export type Chapter = { at: number; label: string };
+
 export type Project = {
-  bullets: string[];
-  layers: StageLayerId[];
+  built: string;
+  chapters: readonly [Chapter, Chapter, Chapter];
   preview: string;
+  problem: string;
   role: string;
   stack: string[];
-  summary: string;
   title: string;
   video: string;
 };
 
 export const projects: Project[] = [
   {
-    bullets: [
-      'Four specialist agents review a diff in parallel for security, correctness, testing, and conventions',
-      'A merger drops findings whose cited code does not support the claim, then routes the rest through confidence gates',
-      'Security findings never auto-post. Low-confidence notes go to a private approval queue before a human spends attention on them'
+    built:
+      'Four agents review each diff in parallel for security, correctness, tests, and conventions, with context pulled from the repository. A merger drops any finding the cited code does not support. Security findings never post on their own, and low-confidence notes go to a private queue for a person to approve.',
+    chapters: [
+      { at: 0, label: 'AI agents review code' },
+      { at: 7.8, label: 'False alarm dropped' },
+      { at: 11.6, label: 'Human checks security' }
     ],
-    layers: ['delivery'],
     preview: '/portfolio-previews/work-sample-pr-reviewer.png',
+    problem: 'AI review bots post every finding, right or wrong.',
     role: 'Internal developer tooling',
-    stack: ['TypeScript', 'AWS Bedrock', 'Webhooks', 'AST analysis'],
-    summary:
-      'Production pull-request reviewer on AWS Bedrock, Bitbucket, and Slack. Four agents review a diff in parallel against retrieved repository context, and a merger keeps only evidence-backed findings.',
+    stack: ['TypeScript', 'AWS Bedrock', 'Bitbucket', 'Slack'],
     title: 'Multi-agent PR reviewer',
     video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
   },
   {
-    bullets: [
-      'Identity events dispatch a durable workflow that provisions accounts across several third-party providers',
-      'Every step is checkpointed and idempotent, so a retry after a halfway failure never creates a duplicate account',
-      'Roles, permissions, and an audit log that stays the system of record for who has access to what'
+    built:
+      'HR events start a durable, idempotent workflow on BullMQ. Each step records its result, so a retry skips accounts that already exist and resumes at the step that failed. Roles, permissions, and an audit log sit on top.',
+    chapters: [
+      { at: 0, label: 'Setup fails halfway' },
+      { at: 4.3, label: 'Retry, no duplicates' },
+      { at: 12.7, label: 'Ready on day one' }
     ],
-    layers: ['access', 'data'],
     preview: '/portfolio-previews/work-sample-auth-access.png',
+    problem:
+      'A new hire needs accounts in several systems on day one, and a setup that fails halfway must not leave duplicates.',
     role: 'Identity and access governance',
     stack: ['Node.js', 'BullMQ', 'RBAC', 'PostgreSQL'],
-    summary:
-      "NDA-safe prototype for HR-driven provisioning, RBAC, and audit logs. In production, the same patterns decide who can access a bank's internal applications, with periodic user access reviews on top.",
     title: 'Authentication and access management',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
   {
-    bullets: [
-      'Overdue accounts land in prioritized queues, each with an owner, a due date, and an escalation state',
-      'Reminders, payment promises, and follow-ups go out as WhatsApp API templates, so collectors stop retyping messages',
-      'One activity log records collector actions, customer replies, promises, and outcomes'
+    built:
+      'Overdue accounts land in prioritized queues, each with an owner and a next step. Reminders go out as WhatsApp templates, and replies, payment promises, and follow-ups land in one activity log.',
+    chapters: [
+      { at: 0, label: 'Overdue accounts queued' },
+      { at: 8.6, label: 'WhatsApp reminder sent' },
+      { at: 12.4, label: 'Promise to pay logged' }
     ],
-    layers: ['queue', 'client'],
     preview: '/portfolio-previews/work-sample-loan-collection.png',
+    problem: 'Collectors retype every payment reminder by hand.',
     role: 'Collections operations and messaging',
-    stack: ['React', 'Node.js', 'WhatsApp API', 'Queues'],
-    summary:
-      'Collections workspace for overdue loans, the stage after the origination and disbursement backends I built at Jenius. Queues give every account an owner, WhatsApp handles the follow-ups, and one log records the outcomes.',
+    stack: ['React', 'Node.js', 'WhatsApp API', 'queues'],
     title: 'Loan collection system',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
   {
-    bullets: [
-      'Catalog, cart, checkout, and order status for customers, with inventory and admin operations behind them',
-      'Payment intents move through explicit states. Webhooks drive reconciliation and the customer confirmation',
-      'Storefront UX stays separate from payment and fulfillment, so either side can change alone'
+    built:
+      "Each payment moves through explicit states. The payment provider's webhook confirms the order, and reconciliation matches every order to a captured payment.",
+    chapters: [
+      { at: 0, label: 'Customer pays' },
+      { at: 4.6, label: 'Order waits' },
+      { at: 13.2, label: 'Payment matched' }
     ],
-    layers: ['client', 'data'],
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
+    problem: 'After a customer pays, the store cannot tell whether the payment went through.',
     role: 'Commerce checkout and payments',
-    stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
-    summary:
-      'Checkout built on payment intents and provider webhooks. Each payment moves through explicit states, and reconciliation matches every order to a captured payment.',
+    stack: ['Next.js', 'payment API', 'webhooks', 'SQL'],
     title: 'E-commerce payment platform',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
