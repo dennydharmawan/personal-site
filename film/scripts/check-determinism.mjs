@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const TIMES = [2.4, 13.4, 25.03, 40.9];
+// The film loops, so its last instant has to render the same bytes as its first.
+const SEAM = [0, 'DUR'];
 const film = new URL('../film.html', import.meta.url).href;
 let failed = false;
 
@@ -23,8 +25,8 @@ async function hashes(browser) {
   await page.goto(film);
   await page.waitForFunction(() => window.__riso && window.__riso.ready, null, { timeout: 60000 });
   const out = [];
-  for (const t of TIMES) {
-    const url = await page.evaluate(t => { window.__riso.seek(t); return document.getElementById('c').toDataURL('image/png'); }, t);
+  for (const t of [...TIMES, ...SEAM]) {
+    const url = await page.evaluate(t => { window.__riso.seek(t === 'DUR' ? window.__riso.duration : t); return document.getElementById('c').toDataURL('image/png'); }, t);
     out.push(createHash('sha256').update(Buffer.from(url.split(',')[1], 'base64')).digest('hex'));
   }
   await context.close();
@@ -41,6 +43,9 @@ try {
     if (!match) failed = true;
     console.log(`${match ? 'ok  ' : 'FAIL'} t=${t} ${a[i]} ${b[i]}`);
   });
+  const [first, last] = a.slice(TIMES.length);
+  if (first !== last) failed = true;
+  console.log(`${first === last ? 'ok  ' : 'FAIL'} loop seam t=0 ${first} t=DUR ${last}`);
 } finally {
   await browser.close();
 }

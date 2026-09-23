@@ -19,14 +19,15 @@ ffmpeg -y -loglevel error -i out/master.mp4 \
   -vf scale=540:540:flags=lanczos -c:v libx264 -crf 28 -preset slow \
   -pix_fmt yuv420p -an -movflags +faststart "$web/stays-up-h264.mp4"
 
-node shoot.mjs --times 13.4 --out out/poster
+# The poster is frame 0, so the swap from poster to playing video does not jump.
+node shoot.mjs --times 0 --out out/poster
 
-python3 - "$film/out/poster/t_013.40.png" "$web" <<'PY'
+python3 - "$film/out/poster/t_000.00.png" "$web" <<'PY'
 import sys
 from PIL import Image
 
 src, web = sys.argv[1], sys.argv[2]
 poster = Image.open(src).convert("RGB").resize((720, 720), Image.LANCZOS)
 poster.save(f"{web}/stays-up-poster.avif", quality=55)
-poster.save(f"{web}/stays-up-poster.jpg", quality=78, optimize=True, progressive=True)
+poster.save(f"{web}/stays-up-poster.jpg", quality=74, optimize=True, progressive=True)
 PY

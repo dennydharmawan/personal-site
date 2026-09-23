@@ -139,8 +139,8 @@ export function SiteFooter() {
         <figure className="grid w-full max-w-md content-start gap-3 lg:max-w-none">
           <StaysUpFilm />
           <figcaption className="text-sm leading-6 text-zinc-600">
-            <span className="font-medium text-zinc-900">Stays up.</span> One night at my desk in
-            Jakarta, drawn in code.
+            <span className="font-medium text-zinc-900">Stays up.</span> One day at my desk in Jakarta,
+            drawn in code.
           </figcaption>
         </figure>
       </div>
