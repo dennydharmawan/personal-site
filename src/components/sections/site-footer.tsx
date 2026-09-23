@@ -1,12 +1,9 @@
-import { ArrowUpRight, ChevronUp, Download } from 'lucide-react';
+import { ArrowUpRight, ChevronUp } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { LuGithub, LuLinkedin } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
-import {
-  detailStackGapClassName,
-  pageShellClassName,
-  scrollToTargetName
-} from '@/components/sections/shared';
+import { pageShellClassName, scrollToTargetName } from '@/components/sections/shared';
 import { EmailActionMenu } from '@/components/sections/site-header';
 import { StaysUpFilm } from '@/components/stays-up-film';
 
@@ -55,10 +52,19 @@ function FooterSocials({ className }: { className?: string }) {
 
 function FooterStatus() {
   return (
-    <p className="flex items-center gap-2.5 text-sm font-medium text-zinc-600">
+    <p className="flex items-center gap-2.5 font-medium text-zinc-700">
       <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-emerald-500" />
-      Jakarta · UTC+7 · open to fintech roles
+      Open to fintech roles · Jakarta, UTC+7
     </p>
+  );
+}
+
+function FooterContactRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid gap-1.5 border-b border-zinc-900/10 py-3 sm:min-h-16 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-center sm:gap-4 sm:py-2.5">
+      <dt className="text-zinc-500">{label}</dt>
+      <dd className="min-w-0">{children}</dd>
+    </div>
   );
 }
 
@@ -105,53 +111,36 @@ export function SiteFooter() {
       className="relative isolate overflow-hidden border-t border-zinc-900/6 bg-zinc-50"
     >
       <div
-        className={`${pageShellClassName} grid gap-10 pt-16 pb-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-start md:pt-20 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-16 lg:pt-24`}
+        className={`${pageShellClassName} grid gap-14 pt-16 pb-16 md:pt-20 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-16 lg:pt-24 lg:pb-20`}
       >
-        <div className="grid gap-8">
-          <div className={`grid justify-items-start ${detailStackGapClassName}`}>
+        <div className="flex flex-col gap-10 lg:justify-between">
+          <div className="grid gap-6">
             <h2 className="max-w-3xl font-heading text-4xl font-normal leading-[1.02] tracking-tight text-zinc-900 sm:text-5xl lg:text-7xl">
               Let&apos;s build something
               <span className="block text-zinc-500">that stays up.</span>
             </h2>
-            <div className="grid justify-items-start gap-4">
-              <FooterStatus />
-              <div className="flex flex-wrap items-center gap-3">
-                <EmailActionMenu />
-                <Button asChild variant="outline" size="lg" className={footerPillClassName}>
-                  <a href="/resume.pdf" rel="noopener" target="_blank">
-                    <Download aria-hidden="true" className="size-4" />
-                    Download resume
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="grid max-w-md gap-6 border-t border-zinc-900/10 pt-6">
-            <p className="text-base font-normal leading-7 text-zinc-600 text-pretty">
+            <p className="max-w-md text-base font-normal leading-7 text-zinc-600 text-pretty">
               I take on full-stack and platform work in banking and fintech, anywhere access control,
-              audit trails, and uptime matter. Based in Jakarta.
+              audit trails, and uptime matter.
             </p>
-            <FooterSocials className="flex-col !items-start gap-y-0" />
           </div>
+          <dl className="grid border-t border-zinc-900/10 text-sm">
+            <FooterContactRow label="Email">
+              <EmailActionMenu />
+            </FooterContactRow>
+            <FooterContactRow label="Elsewhere">
+              <FooterSocials />
+            </FooterContactRow>
+            <FooterContactRow label="Status">
+              <FooterStatus />
+            </FooterContactRow>
+          </dl>
         </div>
-        <figure className="grid gap-3">
+        <figure className="grid w-full max-w-md content-start gap-3 lg:max-w-none">
           <StaysUpFilm pillClassName={footerPillClassName} />
-          <figcaption className="grid gap-1.5 text-sm leading-6 text-zinc-600 text-pretty">
-            <p>
-              <span className="font-medium text-zinc-900">Stays up.</span> The view from my desk in
-              Jakarta, dusk to dawn, as a riso print film drawn in code.
-            </p>
-            <p className="text-xs leading-5">
-              Print engine after{' '}
-              <a
-                className="rounded-sm underline decoration-zinc-900/20 underline-offset-2 transition-colors hover:text-zinc-900 hover:decoration-zinc-900/40"
-                href="https://github.com/sevenevesai/riso-windowseat"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                riso-windowseat (MIT)
-              </a>
-            </p>
+          <figcaption className="text-sm leading-6 text-zinc-600">
+            <span className="font-medium text-zinc-900">Stays up.</span> One night at my desk in
+            Jakarta, drawn in code.
           </figcaption>
         </figure>
       </div>
