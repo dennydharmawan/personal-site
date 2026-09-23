@@ -210,34 +210,47 @@ function ProjectClip({ project }: { project: Project }) {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+// Rows alternate the clip's side so four samples read as a sequence of stories, not a stack of cards.
+function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
   return (
     <RevealItem>
       <article
         data-scroll-target={project.target}
-        className="grid content-start gap-5 rounded-3xl bg-white p-4 ring-1 ring-zinc-900/5 sm:p-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8 lg:p-6"
+        className={cn(
+          'grid content-start gap-6 lg:items-center lg:gap-16',
+          flip
+            ? 'lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]'
+            : 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]'
+        )}
       >
-        <ProjectClip project={project} />
-        <div className="grid gap-3 px-1 pb-2">
+        <div className={flip ? 'lg:order-2' : undefined}>
+          <ProjectClip project={project} />
+        </div>
+        <div className="grid gap-4 px-1">
           <p className="text-sm font-medium text-sky-700">{project.role}</p>
-          <h3 className="font-heading text-2xl font-normal leading-tight tracking-tight text-zinc-900 text-balance">
+          <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
             {project.title}
           </h3>
-          <dl className="grid gap-4">
+          <dl className="grid gap-4 border-t border-zinc-200 pt-5">
             <div className="grid gap-1">
               <dt className="text-sm font-medium text-zinc-500">Problem</dt>
-              <dd className="text-sm leading-6 text-zinc-700 text-pretty sm:text-base">
-                {project.problem}
-              </dd>
+              <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.problem}</dd>
             </div>
             <div className="grid gap-1">
               <dt className="text-sm font-medium text-zinc-500">What I built</dt>
-              <dd className="text-sm leading-6 text-zinc-700 text-pretty sm:text-base">
-                {project.built}
-              </dd>
+              <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
             </div>
           </dl>
-          <p className="text-xs text-zinc-500">{project.stack.join(', ')}</p>
+          <ul aria-label="Stack" className="flex flex-wrap gap-1.5 pt-1">
+            {project.stack.map((item) => (
+              <li
+                key={item}
+                className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 ring-1 ring-zinc-900/10"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </article>
     </RevealItem>
@@ -267,9 +280,9 @@ export function WorkSamplesSection() {
           </RevealItem>
         </RevealGroup>
 
-        <RevealGroup className="grid items-start gap-6 lg:gap-8">
-          {projects.map((project) => (
-            <ProjectCard key={project.title} project={project} />
+        <RevealGroup className="grid gap-16 lg:gap-24">
+          {projects.map((project, index) => (
+            <ProjectRow key={project.title} flip={index % 2 === 1} project={project} />
           ))}
         </RevealGroup>
       </div>
