@@ -1,148 +1,257 @@
-import { motion, stagger } from 'motion/react';
+import { useLayoutEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import { GlyphTile } from '@/components/about-glyphs';
 import {
-  RevealGroup,
-  RevealItem,
-  instant,
+  aboutEvidence,
+  aboutParagraph,
+  type EvidenceTarget
+} from '@/components/portfolio-home-data';
+import {
   pageShellClassName,
-  revealEase,
-  revealVariants,
+  scrollToTargetName,
   sectionPaddingBottomClassName
 } from '@/components/sections/shared';
+import { cn } from '@/lib/utils';
 
-const aboutFacts: { term: string; detail: string }[] = [
-  { term: 'Now', detail: 'Senior full-stack engineer at Krom Bank, Jakarta' },
-  { term: 'Before', detail: 'Lending backends at Jenius' },
-  { term: 'First', detail: 'Programming labs, then ERP for enterprise clients' },
-  { term: 'Stack', detail: 'TypeScript, React, Next.js, and Node.js' }
-];
+const noteOrder = aboutParagraph.flatMap((segment) =>
+  typeof segment === 'string' ? [] : [segment.evidence]
+);
 
-const aboutHabits: { title: string; body: string }[] = [
-  {
-    title: 'I plan for failure first',
-    body: 'Retries, timeouts, and third-party outages are in the design from the first draft.'
-  },
-  {
-    title: 'I build what other teams reuse',
-    body: "Several production apps run on my shared package for auth, logging, and feature flags, and my Datadog dashboards became the company's monitoring template."
-  },
-  {
-    title: 'I use AI with judgment',
-    body: 'After winning an internal AI engineering competition, I brought spec-driven development to our engineering teams. I use AI every day, and I check what it writes.'
+const focusRing =
+  'rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-600';
+// The router only hears hashchange, which a second click on the same hash never fires.
+function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTarget) {
+  if (!scrollToTargetName(target)) {
+    return;
   }
-];
 
-const ruleVariants = {
-  hidden: { transform: 'scaleX(0)', transition: instant },
-  visible: { transform: 'scaleX(1)', transition: { duration: 0.7, ease: revealEase } }
-};
-
-const ruledRowVariants = {
-  hidden: { transition: instant },
-  visible: { transition: { delayChildren: stagger(0.1) } }
-};
-
-// Tight leading can put ink outside the line box, so the clip extends past it vertically.
-const writeInVariants = {
-  hidden: { clipPath: 'inset(-0.25em 100% -0.25em 0)', transition: instant },
-  visible: {
-    clipPath: 'inset(-0.25em 0% -0.25em 0)',
-    transition: { delay: 0.2, duration: 0.6, ease: revealEase },
-    transitionEnd: { clipPath: 'none' }
-  }
-};
-
-const accentRuleVariants = {
-  hidden: ruleVariants.hidden,
-  visible: { ...ruleVariants.visible, transition: { delay: 0.65, duration: 0.45, ease: revealEase } }
-};
-
-function Rule({ className }: { className: string }) {
-  return (
-    <motion.span
-      aria-hidden="true"
-      className={`h-px origin-left bg-zinc-200 ${className}`}
-      variants={ruleVariants}
-    />
+  event.preventDefault();
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}#${target}`
   );
 }
 
-export function AboutSection() {
-  return (
-    <section className={sectionPaddingBottomClassName} data-scroll-target="about">
-      <div className={pageShellClassName}>
-        <RevealGroup
-          className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.7fr)] lg:gap-20"
-          stagger={0.08}
-        >
-          <div className="grid gap-8">
-            <RevealItem>
-              <h2 className="max-w-[12em] font-heading text-4xl font-normal leading-[1.02] tracking-tight text-balance text-zinc-900 sm:text-5xl">
-                I learn how a business works
-                <motion.span
-                  className="mt-2 block w-fit text-balance text-zinc-500"
-                  variants={writeInVariants}
-                >
-                  before I write the code.
-                </motion.span>
-              </h2>
-              <motion.span
-                aria-hidden="true"
-                className="mt-8 block h-px w-12 origin-left bg-sky-600"
-                variants={accentRuleVariants}
-              />
-            </RevealItem>
+const underline =
+  'bg-no-repeat transition-colors duration-200 [background-image:linear-gradient(var(--color-sky-600),var(--color-sky-600))] [background-position:0_calc(100%-0.04em)] [background-size:100%_2px] group-data-[active=true]:bg-sky-50';
 
-            <RevealItem className="grid max-w-[68ch] gap-4 text-base leading-7 text-pretty text-zinc-600">
-              <p>
-                I&apos;m a senior full-stack engineer at Krom Bank, a digital bank in Jakarta. I work
-                across the stack in TypeScript, React, Next.js, and Node.js, on regulated products
-                where security and uptime matter as much as the feature.
-              </p>
-              <p>
-                Before Krom, I built lending backends for Jenius. I started out teaching programming
-                labs at university, then customized ERP systems for enterprise clients.
-              </p>
-            </RevealItem>
+// Margin notes need real line positions, which only exist once the paragraph has wrapped.
+const marginQuery = '(min-width: 80rem)';
+const noteGap = 20;
+const noteMetaCenter = 14;
+
+type NoteLayout = { height: number; tops: Partial<Record<EvidenceTarget, number>> };
+
+function useMarginNotes() {
+  const paragraphRef = useRef<HTMLParagraphElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  const phraseStarts = useRef(new Map<EvidenceTarget, HTMLElement>());
+  const notes = useRef(new Map<EvidenceTarget, HTMLLIElement>());
+  const [layout, setLayout] = useState<NoteLayout | null>(null);
+
+  useLayoutEffect(() => {
+    const paragraph = paragraphRef.current;
+    const list = listRef.current;
+
+    if (!paragraph || !list) {
+      return;
+    }
+
+    const media = window.matchMedia(marginQuery);
+
+    const place = () => {
+      if (!media.matches) {
+        setLayout(null);
+        return;
+      }
+
+      const base = list.getBoundingClientRect().top;
+      const tops: NoteLayout['tops'] = {};
+      let floor = 0;
+
+      for (const target of noteOrder) {
+        const start = phraseStarts.current.get(target)?.getClientRects()[0];
+        const note = notes.current.get(target);
+
+        if (!start || !note) {
+          return;
+        }
+
+        const top = Math.max(start.top + start.height / 2 - noteMetaCenter - base, floor);
+        tops[target] = top;
+        floor = top + note.offsetHeight + noteGap;
+      }
+
+      setLayout({ height: floor, tops });
+    };
+
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(paragraph);
+    media.addEventListener('change', place);
+    window.addEventListener('resize', place);
+    document.fonts.ready.then(place);
+
+    return () => {
+      observer.disconnect();
+      media.removeEventListener('change', place);
+      window.removeEventListener('resize', place);
+    };
+  }, []);
+
+  return { layout, listRef, notes, paragraphRef, phraseStarts };
+}
+
+export function AboutSection() {
+  const [active, setActive] = useState<EvidenceTarget | null>(null);
+  const { layout, listRef, notes, paragraphRef, phraseStarts } = useMarginNotes();
+
+  // Touch fires pointerenter on every scroll that starts on a phrase; pairing is for a hovering pointer.
+  const pair = (target: EvidenceTarget) => ({
+    onBlur: () => setActive(null),
+    onFocus: () => setActive(target),
+    onPointerEnter: (event: PointerEvent) => {
+      if (event.pointerType !== 'touch') {
+        setActive(target);
+      }
+    },
+    onPointerLeave: () => setActive(null)
+  });
+
+  return (
+    <section
+      aria-labelledby="about-heading"
+      className={sectionPaddingBottomClassName}
+      data-scroll-target="about"
+    >
+      <div className={pageShellClassName}>
+        <h2 className="sr-only" id="about-heading">
+          About me
+        </h2>
+
+        <div className="grid gap-y-12 xl:grid-cols-[minmax(0,62fr)_minmax(0,38fr)] xl:gap-x-24">
+          <div className="grid content-start gap-8">
+            <p
+              ref={paragraphRef}
+              className="max-w-[34em] font-heading text-[clamp(1.5rem,2.4vw,2.25rem)] font-normal leading-[1.36] tracking-tight text-pretty text-zinc-900"
+            >
+              {aboutParagraph.map((segment) => {
+                if (typeof segment === 'string') {
+                  return segment;
+                }
+
+                const target = segment.evidence;
+                const { glyph, phrase } = aboutEvidence[target];
+                const firstSpace = phrase.indexOf(' ');
+                const firstWord = firstSpace === -1 ? phrase : phrase.slice(0, firstSpace);
+                const rest = firstSpace === -1 ? '' : phrase.slice(firstSpace);
+
+                return (
+                  <a
+                    key={target}
+                    aria-describedby={`about-proof-${target}`}
+                    // The padding closes the leading between wrapped lines, so the pointer never leaves the phrase mid-read.
+                    className={cn('group py-[0.12em]', focusRing)}
+                    data-active={active === target}
+                    href={`#${target}`}
+                    onClick={(event) => jumpToEvidence(event, target)}
+                    {...pair(target)}
+                  >
+                    <span className="whitespace-nowrap">
+                      <GlyphTile
+                        className="mr-[0.22em] align-[-0.17em] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]:-translate-y-[0.06em] group-data-[active=true]:-rotate-6"
+                        glyph={glyph}
+                      />
+                      <span
+                        ref={(node) => {
+                          if (node) {
+                            phraseStarts.current.set(target, node);
+                          }
+                        }}
+                        className={underline}
+                      >
+                        {firstWord}
+                      </span>
+                    </span>
+                    {rest ? <span className={underline}>{rest}</span> : null}
+                  </a>
+                );
+              })}
+            </p>
+
+            <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-base">
+              <a
+                className={cn(
+                  'font-medium text-sky-700 underline decoration-sky-600/40 decoration-2 underline-offset-[5px] transition-colors hover:text-sky-800 hover:decoration-sky-600',
+                  focusRing
+                )}
+                href="/resume.pdf"
+                rel="noopener"
+                target="_blank"
+              >
+                Download resume
+              </a>
+              <span className="text-zinc-500">Jakarta, UTC+7</span>
+            </div>
           </div>
 
-          <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 lg:gap-8 lg:pt-3">
-            {aboutFacts.map((fact) => (
-              <motion.div key={fact.term} className="grid gap-1" variants={ruledRowVariants}>
-                <dt className="relative pt-4 text-sm font-medium text-zinc-500">
-                  <Rule className="absolute inset-x-0 top-0" />
-                  <motion.span className="block" variants={revealVariants}>
-                    {fact.term}
-                  </motion.span>
-                </dt>
-                <motion.dd
-                  className="text-base leading-6 text-pretty text-zinc-900"
-                  variants={revealVariants}
-                >
-                  {fact.detail}
-                </motion.dd>
-              </motion.div>
-            ))}
-          </dl>
-        </RevealGroup>
+          <ol
+            ref={listRef}
+            aria-label="Evidence for each linked phrase"
+            className="relative grid gap-6 border-t border-zinc-200 pt-8 md:grid-cols-2 md:gap-x-12 xl:block xl:border-t-0 xl:pt-0"
+            style={layout ? { height: layout.height } : undefined}
+          >
+            {noteOrder.map((target) => {
+              const { glyph, proof, source } = aboutEvidence[target];
+              const top = layout?.tops[target];
 
-        <RevealGroup className="mt-16 lg:mt-24" stagger={0.1}>
-          <ul>
-            {aboutHabits.map((habit) => (
-              <motion.li key={habit.title} className="relative" variants={ruledRowVariants}>
-                <Rule className="absolute inset-x-0 top-0" />
-                <RevealItem className="grid gap-3 py-7 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-baseline md:gap-16 md:py-9">
-                  <h3 className="font-heading text-2xl font-normal leading-tight tracking-tight text-zinc-900 sm:text-3xl">
-                    {habit.title}
-                  </h3>
-                  <p className="max-w-[62ch] text-base leading-7 text-pretty text-zinc-600">
-                    {habit.body}
-                  </p>
-                </RevealItem>
-              </motion.li>
-            ))}
-          </ul>
-          <Rule className="block" />
-        </RevealGroup>
+              return (
+                <li
+                  key={target}
+                  ref={(node) => {
+                    if (node) {
+                      notes.current.set(target, node);
+                    }
+                  }}
+                  className="group grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-1 transition-colors duration-200 xl:border-l xl:border-zinc-200 xl:pl-5 data-[active=true]:xl:border-sky-600"
+                  data-active={active === target}
+                  data-dim={active !== null && active !== target}
+                  style={top === undefined ? undefined : { left: 0, position: 'absolute', right: 0, top }}
+                  {...pair(target)}
+                >
+                  <GlyphTile
+                    className="text-[1.375rem] transition-opacity duration-200 group-data-[dim=true]:opacity-45"
+                    glyph={glyph}
+                  />
+                  <div>
+                    <p className="text-sm text-zinc-500 transition-colors duration-200 group-data-[dim=true]:text-zinc-400">
+                      {source}
+                    </p>
+                    <p className="mt-1 text-[0.9375rem] leading-6 text-pretty">
+                      <span
+                        className="text-zinc-700 transition-colors duration-200 group-data-[active=true]:text-zinc-900 group-data-[dim=true]:text-zinc-400"
+                        id={`about-proof-${target}`}
+                      >
+                        {proof}
+                      </span>{' '}
+                      <a
+                        className={cn(
+                          'whitespace-nowrap font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-400',
+                          focusRing
+                        )}
+                        aria-label={`See it: ${aboutEvidence[target].phrase}`}
+                        href={`#${target}`}
+                        onClick={(event) => jumpToEvidence(event, target)}
+                      >
+                        See it
+                      </a>
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </div>
     </section>
   );

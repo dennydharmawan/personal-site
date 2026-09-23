@@ -44,6 +44,57 @@ export function isEvidenceTarget(value: string): value is EvidenceTarget {
   return (evidenceTargets as readonly string[]).includes(value);
 }
 
+export type GlyphId = 'access' | 'hub' | 'review' | 'lending';
+
+export type AboutEvidence = {
+  glyph: GlyphId;
+  phrase: string;
+  proof: string;
+  source: string;
+};
+
+export type AboutSegment = string | { evidence: EvidenceTarget };
+
+export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
+  'krom-access': {
+    glyph: 'access',
+    phrase: "the system that grants and removes access to the bank's internal apps",
+    proof: 'Onboarding, rehire, and offboarding update access automatically, with an audit trail.',
+    source: 'Krom Bank, 2023 to now'
+  },
+  'krom-shared-package': {
+    glyph: 'hub',
+    phrase: 'a shared package for auth, logging, and feature flags',
+    proof: 'Apps share one setup for sign-in, logs, and flags instead of each building its own.',
+    source: 'Krom Bank, 2023 to now'
+  },
+  'pr-reviewer': {
+    glyph: 'review',
+    phrase: 'a multi-agent pull-request reviewer',
+    proof:
+      'Specialist agents review each diff in parallel. Findings the code does not support get dropped, and security findings wait for a person.',
+    source: 'Krom Bank, in production'
+  },
+  'jenius-lending': {
+    glyph: 'lending',
+    phrase: 'lending backends at Jenius',
+    proof: 'Loan origination and disbursement stayed stable through three years of user growth.',
+    source: 'Jenius, 2019 to 2022'
+  }
+};
+
+export const aboutParagraph: AboutSegment[] = [
+  "I'm a senior full-stack engineer at Krom Bank in Jakarta, looking for a Senior Full-Stack Engineer role in fintech or digital banking, with Tech Lead as the next step. I learn how a business works before I write the code. At Krom I built ",
+  { evidence: 'krom-access' },
+  ', and ',
+  { evidence: 'krom-shared-package' },
+  ' that several production apps run on. I also built ',
+  { evidence: 'pr-reviewer' },
+  ' that runs in production. Before Krom, I ran ',
+  { evidence: 'jenius-lending' },
+  ' for three years.'
+];
+
 export type Project = {
   built: string;
   chapters: readonly [Chapter, Chapter, Chapter];
