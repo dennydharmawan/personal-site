@@ -111,8 +111,8 @@ function StackCard({ className }: { className: string }) {
         pattern="dust"
         seed={expertiseItems.length + 1}
       />
-      <BentoHeading tail="from the interface to the queue" title="One TypeScript stack" />
-      <StackGrid className="mx-7 mt-auto [mask-image:linear-gradient(black_82%,transparent)] sm:mx-9" />
+      <BentoHeading tail="from the interface to the queue" title={'One TypeScript\u00a0stack'} />
+      <StackGrid className="mx-7 mt-auto [mask-image:linear-gradient(black_58%,transparent)] md:[mask-image:linear-gradient(black_70%,transparent)] lg:[mask-image:linear-gradient(black_58%,transparent)] sm:mx-9" />
     </RevealItem>
   );
 }

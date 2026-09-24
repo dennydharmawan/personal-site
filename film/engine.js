@@ -196,7 +196,8 @@ function compose(ctx, paper) {
 
 /* ── plate operations ─────────────────────────────────────────────────────────
    cov maps plate → number | {ys:[..], as:[..]} (a vertical coverage ramp).
-   put:   the shape owns its value on every plate (occludes what is behind).
+   put:   the shape owns its value on every plate (occludes what is behind);
+          at opacity a < 1 it blends toward that value by a.
    add:   overprint onto the listed plates.
    knock: take the listed plates back toward paper by the given fraction.   */
 
@@ -217,10 +218,11 @@ function style(g, c) {
   c.ys.forEach((y, i) => gr.addColorStop((y - y0) / (y1 - y0), 'rgba(0,0,0,' + clamp(c.as[i], 0, 1) + ')'));
   return gr;
 }
-function put(path, cov, rule) {
+function put(path, cov, rule, a = 1) {
+  if (a < 1) cov = scaleCov(cov, a);
   for (const n of PL) {
     const g = PG[n];
-    g.globalCompositeOperation = 'destination-out'; g.globalAlpha = 1; g.fillStyle = '#000';
+    g.globalCompositeOperation = 'destination-out'; g.globalAlpha = a; g.fillStyle = '#000';
     g.fill(path, rule || 'nonzero');
     const c = cov[n];
     if (c) { g.globalCompositeOperation = 'lighter'; g.fillStyle = style(g, c); g.fill(path, rule || 'nonzero'); }

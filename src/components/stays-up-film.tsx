@@ -60,7 +60,7 @@ export function StaysUpFilm() {
         </picture>
         <video
           ref={videoRef}
-          aria-label="Stays up, a 48 second silent loop of one day at my desk in Jakarta"
+          aria-label="Stays up, a 42 second silent loop of one day at my desk in Jakarta"
           className={cn(layerClassName, 'absolute inset-0 size-full cursor-pointer')}
           disablePictureInPicture
           disableRemotePlayback
@@ -81,8 +81,8 @@ export function StaysUpFilm() {
         type="button"
         aria-label={isPlaying ? 'Pause film' : 'Play film'}
         className={cn(
-          'absolute right-4 bottom-4 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-zinc-900 ring-1 ring-zinc-900/10 transition-opacity duration-200 hover:bg-white focus-visible:opacity-100',
-          isPlaying && 'opacity-0 group-hover:opacity-100'
+          'absolute right-4 bottom-4 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-zinc-900 ring-1 ring-zinc-900/10 transition-opacity duration-200 hover:bg-white focus-visible:opacity-100 after:absolute after:-inset-1',
+          isPlaying && 'opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100'
         )}
         onClick={toggle}
       >

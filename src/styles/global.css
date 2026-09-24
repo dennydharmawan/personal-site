@@ -158,7 +158,12 @@
 */
 :focus-visible {
   outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+  outline-offset: var(--focus-offset, 2px);
+}
+
+/* Section jump targets take focus so the next Tab starts there; a section-sized ring is noise. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 
 .bg-zinc-700, .bg-zinc-800, .bg-zinc-900 {

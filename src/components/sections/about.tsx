@@ -25,7 +25,7 @@ const proofOrder = aboutParagraph.flatMap((segment) =>
 );
 
 const focusRing =
-  'rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-600';
+  'rounded-sm [--focus-offset:4px]';
 
 // The router only hears hashchange, which a second click on the same hash never fires.
 function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTarget) {
@@ -48,7 +48,7 @@ function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTa
 }
 
 const underline =
-  'bg-no-repeat transition-colors duration-200 [background-image:linear-gradient(var(--color-sky-600),var(--color-sky-600))] [background-position:0_calc(100%-0.04em)] [background-size:100%_2px] group-data-[active=true]:bg-sky-50';
+  'bg-no-repeat transition-colors duration-200 [background-image:linear-gradient(var(--color-sky-600),var(--color-sky-600))] [background-position:0_100%] [background-size:100%_2px] pb-[0.12em] group-data-[active=true]:bg-sky-50';
 
 // The entrance plays once, when the paragraph's top clears the lower 30% of the viewport.
 // Phrases go in reading order: the tile pops, its glyph plays, then its underline draws.
@@ -136,7 +136,7 @@ export function AboutSection() {
   return (
     <section
       aria-labelledby="about-heading"
-      className={sectionPaddingBottomClassName}
+      className={cn(sectionPaddingBottomClassName, 'scroll-mt-20 md:scroll-mt-28 lg:scroll-mt-32')}
       data-scroll-target="about"
       onFocusCapture={() => setFocusedWhileHidden((current) => current || state === 'hidden')}
     >

@@ -8,6 +8,7 @@ import { MobileNav } from '@/components/sections/mobile-nav';
 import {
   contactEmail,
   easeOut,
+  focusTargetName,
   pageShellClassName,
   riseDelay,
   scrollToTargetName,
@@ -43,6 +44,7 @@ async function writeClipboardText(value: string) {
   textArea.setAttribute('readonly', '');
   textArea.style.left = '-9999px';
   textArea.style.position = 'fixed';
+  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   document.body.append(textArea);
   textArea.focus({ preventScroll: true });
   textArea.select();
@@ -50,6 +52,7 @@ async function writeClipboardText(value: string) {
 
   const didCopy = document.execCommand('copy');
   textArea.remove();
+  previousFocus?.focus({ preventScroll: true });
 
   if (!didCopy) {
     throw new Error('Email copy command failed');
@@ -114,7 +117,10 @@ export function EmailActionMenu() {
   const closeOnFocusLeaving = (event: FocusEvent<HTMLDivElement>) => {
     const { relatedTarget } = event;
 
-    if (relatedTarget instanceof Node && !event.currentTarget.contains(relatedTarget)) {
+    // The copy fallback briefly focuses a detached textarea; that is not the menu losing focus.
+    const isCopyFallback = relatedTarget instanceof HTMLTextAreaElement && relatedTarget.readOnly;
+
+    if (relatedTarget instanceof Node && !event.currentTarget.contains(relatedTarget) && !isCopyFallback) {
       setIsOpen(false);
     }
   };
@@ -252,6 +258,7 @@ export function SiteHeader() {
       `${window.location.pathname}${window.location.search}${hash}`
     );
     scrollToTargetName(target, shouldReduceMotion);
+    focusTargetName(target);
   };
 
   return (

@@ -28,7 +28,7 @@ export default function PortfolioHome() {
 
       <SiteHeader />
 
-      <main id="content" tabIndex={-1} className="outline-none" data-scroll-target="top">
+      <main id="content" tabIndex={-1} data-scroll-target="top">
         <HeroSection />
 
         <WorkSamplesSection />

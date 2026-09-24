@@ -63,7 +63,8 @@ export function scrollToTargetName(targetName: string, shouldReduceMotion?: bool
     return false;
   }
 
-  let targetTop = layoutTop(target) - anchorScrollOffset;
+  let targetTop =
+    layoutTop(target) - anchorScrollOffset - (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
 
   if (targetName === 'top') {
     targetTop = 0;

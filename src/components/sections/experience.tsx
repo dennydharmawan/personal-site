@@ -150,7 +150,7 @@ function RoleRail({ active }: { active: number }) {
             <button
               type="button"
               aria-current={index === active ? 'step' : undefined}
-              className="grid w-full gap-0.5 rounded-sm text-left text-sm"
+              className="group grid w-full gap-0.5 rounded-sm text-left text-sm [--focus-offset:4px]"
               onClick={() => {
                 scrollToTargetName(roleTarget(index));
                 focusTargetName(roleTarget(index));
@@ -159,7 +159,7 @@ function RoleRail({ active }: { active: number }) {
               <span
                 className={cn(
                   'font-medium transition-colors duration-300',
-                  index === active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+                  index === active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'
                 )}
               >
                 {item.company}

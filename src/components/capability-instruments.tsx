@@ -112,7 +112,7 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
             key={step}
             {...cycle(
               reduced,
-              { opacity: [0.5, 0.5, 1, 1, 0.5, 0.5] },
+              { opacity: [0.7, 0.7, 1, 1, 0.7, 0.7] },
               accessCycle,
               [0, Math.max(lit - 0.03, 0), lit, lit + 0.13, lit + 0.17, 1]
             )}
@@ -120,7 +120,7 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
             <span className={`${monoClassName} w-28 shrink-0 truncate text-zinc-900 sm:w-32`}>
               {step}
             </span>
-            <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-500">{detail}</span>
+            <span className="hidden min-w-0 flex-1 truncate text-[11px] text-zinc-500 min-[380px]:block">{detail}</span>
             <span
               className={`${monoClassName} hidden shrink-0 rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-600 ring-1 ring-zinc-900/5 sm:inline-block`}
             >
@@ -216,7 +216,7 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
             key={agent}
             {...cycle(
               reduced,
-              { opacity: [0.45, 1, 1, 0.45] },
+              { opacity: [0.7, 1, 1, 0.7] },
               5.2 + index * 0.6,
               [0, 0.25, 0.65, 1],
               { delay: index * 0.28 }
@@ -302,9 +302,9 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
 }
 
 const adoptedStandards = [
-  { delay: 0, duration: 5.6, id: 'workflow', label: 'git workflow · 5+ teams' },
-  { delay: 0.9, duration: 6.8, id: 'package', label: 'shared package · 4 apps' },
-  { delay: 1.8, duration: 6.2, id: 'dashboards', label: 'dashboards · team template' }
+  { delay: 0, duration: 5.6, id: 'workflow', name: 'git workflow', reach: '5+ teams' },
+  { delay: 0.9, duration: 6.8, id: 'package', name: 'shared package', reach: '4 apps' },
+  { delay: 1.8, duration: 6.2, id: 'dashboards', name: 'dashboards', reach: 'team template' }
 ];
 const branchTravel = 24;
 
@@ -314,10 +314,11 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
       <p className="text-sm font-semibold text-zinc-900">One standard, several teams.</p>
       <div className="flex items-stretch">
         <ul className="min-w-0 flex-1">
-          {adoptedStandards.map(({ delay, duration, id, label }) => (
+          {adoptedStandards.map(({ delay, duration, id, name, reach }) => (
             <li className="flex h-7 items-center gap-1.5" key={id}>
               <span className="min-w-0 flex-1 truncate text-right text-[11px] font-medium text-zinc-600">
-                {label}
+                {name}
+                <span className="max-[359px]:hidden"> · {reach}</span>
               </span>
               <span aria-hidden="true" className="relative h-px w-6 shrink-0 bg-zinc-200">
                 <motion.span

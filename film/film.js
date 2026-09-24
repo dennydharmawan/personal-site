@@ -13,7 +13,7 @@
    Every frame is a pure function of t (seek(t)); no Math.random in render.
    Every oscillator runs whole cycles per DUR (cyc) so the seam is exact. */
 
-const DUR = 48;
+const DUR = 42;
 
 /* Beats. Every scene event keys off this table. */
 const T = {
@@ -23,27 +23,27 @@ const T = {
   streetOn: [7.2, 8.4],
   flood: 8.8,            // Monas floodlights
   train: [11.0, 17.4],
-  plane: [12.2, 20.0],
-  cloudsIn: [16.2, 22.6],
-  distant: [[19.3, 900], [19.42, 900], [20.6, 250], [21.35, 640], [21.44, 640], [23.1, 180], [24.15, 520], [26.4, 330], [27.18, 700], [27.3, 700], [28.5, 470]],
-  drops: 20.9,
-  pour: [22.0, 23.4],
-  bolt: 25.0,
+  plane: [11.4, 17.0],
+  cloudsIn: [11.6, 16.6],   // the storm follows the log-off; no idle night between
+  distant: [[13.3, 900], [13.42, 900], [14.6, 250], [15.35, 640], [15.44, 640], [17.1, 180], [18.15, 520], [20.4, 330], [21.18, 700], [21.3, 700], [22.5, 470]],
+  drops: 14.9,
+  pour: [16.0, 17.4],
+  bolt: 19.0,
   boltX: 862,
-  restore: [29.2, 31.8],
-  rainOff: [27.8, 30.4],
-  cloudsOut: [30.8, 34.6],
-  floodOff: 35.2,
-  firstLight: 36.1,      // the first sun reaches the flame
+  restore: [23.2, 25.8],
+  rainOff: [21.8, 24.4],
+  cloudsOut: [24.8, 28.6],
+  floodOff: 29.2,
+  firstLight: 30.1,      // the first sun reaches the flame
   lampOff: 10.4,          // logged off: the deploy lands, the screen sleeps, the lamp clicks off
   deploy: 7.9,
   sleep: [8.9, 9.8],      // the screen dims, then goes dark
-  wake: 38.6,             // back at dawn with a fresh glass; the screen wakes
-  dayTrain: [41.4, 46.0],
-  day: 40.5,              // morning to the next dusk, compressed
+  wake: 32.6,             // back at dawn with a fresh glass; the screen wakes
+  dayTrain: [35.4, 40.0],
+  day: 34.5,              // morning to the next dusk, compressed
 };
 /* Morning look (1) against the evening look (0); they meet again at the loop. */
-const morn = t => (t > 30 ? 1 : 0) * (1 - sm(ramp(t, 42.5, 46)));
+const morn = t => (t > 24 ? 1 : 0) * (1 - sm(ramp(t, 36.5, 40)));
 /* Loop-safe oscillators: every one of them completes whole cycles in DUR. */
 const cyc = (t, hz) => t * TAU * Math.max(1, Math.round(hz * DUR)) / DUR;
 
@@ -55,10 +55,10 @@ const GLASS = rect(GL.x0, GL.y0, GL.x1, GL.y1);
 const HY = 600;                                         // horizon: base of the far city
 const DESK = 830;
 
-const nightness = t => ramp(t, 4.2, 10.5) * (1 - ramp(t, 33.5, 39.5));
-const roomDark = t => ramp(t, 3.2, 9.5) * (1 - ramp(t, 35.2, 39.8));
+const nightness = t => ramp(t, 4.2, 10.5) * (1 - ramp(t, 27.5, 33.5));
+const roomDark = t => ramp(t, 3.2, 9.5) * (1 - ramp(t, 29.2, 33.8));
 const lampAt = t => (t >= T.lampOn && t < T.lampOff) ? 1 : 0;
-const steamAt = t => t < 30 ? 1 - ramp(t, 6.5, 13) : ramp(t, T.wake - 0.2, T.wake + 0.8);
+const steamAt = t => t < 24 ? 1 - ramp(t, 6.5, 13) : ramp(t, T.wake - 0.2, T.wake + 0.8);
 const rainAt = t => ramp(t, T.pour[0], T.pour[1]) * (1 - ramp(t, T.rainOff[0], T.rainOff[1]));
 const cloudAt = t => ramp(t, T.cloudsIn[0], T.cloudsIn[1]) * (1 - ramp(t, T.cloudsOut[0], T.cloudsOut[1]));
 
@@ -100,8 +100,8 @@ const PAL = {
   noon:    { yellow: [0, .06, .2], pink: [0, .05, .1], blue: [.56, .4, .22], indigo: [.04, 0, 0] },
   afternoon: { yellow: [.02, .14, .42], pink: [.06, .14, .24], blue: [.44, .26, .1], indigo: [0, 0, 0] },
 };
-const SKYK = [[0, 'gold'], [5, 'late'], [9, 'blue'], [13, 'night'], [19, 'night'], [22.5, 'heavy'],
-  [25.1, 'heavy'], [25.8, 'dark'], [29.4, 'dark'], [31.8, 'heavy'], [33.8, 'predawn'], [37.2, 'dawn'], [40, 'morning'], [43, 'noon'], [45.4, 'afternoon'], [DUR, 'gold']];
+const SKYK = [[0, 'gold'], [5, 'late'], [9, 'blue'], [13, 'night'], [16.5, 'heavy'],
+  [19.1, 'heavy'], [19.8, 'dark'], [23.4, 'dark'], [25.8, 'heavy'], [27.8, 'predawn'], [31.2, 'dawn'], [34, 'morning'], [37, 'noon'], [39.4, 'afternoon'], [DUR, 'gold']];
 const SKY_YS = [GL.y0, 360, HY + 10];
 function skyCov(a, b, u) {
   const o = {};
@@ -123,12 +123,12 @@ function sunAt(t) {
     const u = t / 5.6;
     return { x: 388 + 6 * u, y: lerp(446, 640, Math.pow(u, 1.2)), red: sm(u), a: 1 - ramp(t, 5.2, 6.2) };
   }
-  if (t > 34.5 && t < 43) {
-    const u = clamp((t - 35.3) / 4.7, 0, 1), rise = sm(ramp(t, 39.6, 42.6));
-    return { x: 892 - 6 * u - 90 * rise, y: lerp(640, 470, u) - 600 * rise, red: 1 - sm(u), a: ramp(t, 34.5, 35.6) };
+  if (t > 28.5 && t < 37) {
+    const u = clamp((t - 29.3) / 4.7, 0, 1), rise = sm(ramp(t, 33.6, 36.6));
+    return { x: 892 - 6 * u - 90 * rise, y: lerp(640, 470, u) - 600 * rise, red: 1 - sm(u), a: ramp(t, 28.5, 29.6) };
   }
-  if (t > 44.8) {
-    const s = ramp(t, 44.8, DUR), f = s + 0.8 * s * (1 - s);
+  if (t > 38.8) {
+    const s = ramp(t, 38.8, DUR), f = s + 0.8 * s * (1 - s);
     return { x: lerp(300, 388, f), y: lerp(-130, 446, f), red: 0, a: 1 };
   }
   return null;
@@ -175,23 +175,10 @@ function cloudPath(c, x, base, k) {
   return p;
 }
 /* look: body(top, base) → cov; light [lx, ly]; hi plates knocked on each billow's lit side; hiAdd inked there. */
-function skyVal(t, y) {
-  const sk = skyAt(t), o = {}, u = clamp((y - SKY_YS[0]) / (SKY_YS[1] - SKY_YS[0]), 0, 2);
-  for (const pl of PL) { const as = sk[pl].as; o[pl] = u <= 1 ? lerp(as[0], as[1], u) : lerp(as[1], as[2], u - 1); }
-  return o;
-}
-function drawCloud(c, x, base, k, look, a, t) {
+function drawCloud(c, x, base, k, look, a) {
   if (a <= 0.01) return;
   const p = cloudPath(c, x, base, k), top = base - c.h * 1.15 * k;
-  const body = look.body(top, base);
-  if (a < 1) {
-    const s0 = skyVal(t, top), s1 = skyVal(t, base);
-    for (const pl of PL) {
-      const v = body[pl] || 0, v0 = typeof v === 'number' ? v : v.as[0], v1 = typeof v === 'number' ? v : v.as[1];
-      body[pl] = ramp2(top, base, lerp(s0[pl], v0, a), lerp(s1[pl], v1, a));
-    }
-  }
-  put(p, body);
+  put(p, look.body(top, base), undefined, a);
   withClip(p, () => {
     for (const b of c.billows) {
       const bx = x + (b.dx + look.light[0] * b.r * 0.42) * k, by = base + (b.dy + look.light[1] * b.r * 0.42) * k;
@@ -231,14 +218,14 @@ const FAIR = [
   { c: cloudShape('fairC', 180, 66, { n: 5 }), x: 250, base: 206, v: 3.5 },
 ];
 function fairClouds(t) {
-  const a = 1 - cloudAt(t) * 1.4 - ramp(t, 16, 19) * (1 - ramp(t, 31, 34));
+  const a = 1 - cloudAt(t) * 1.4 - ramp(t, 11.6, 13.6) * (1 - ramp(t, 25, 28));
   if (a <= 0.01) return;
   const look = lookAt(t), A = clamp(a, 0, 1);
   const L0 = GL.x0 - 170, WRAP = GL.x1 - GL.x0 + 340;
   for (const f of FAIR) {
     const drift = f.v * Math.min(t, T.day) + (WRAP - f.v * T.day) * sm(ramp(t, T.day, DUR));
     const x = L0 + (((f.x - L0 - drift) % WRAP) + WRAP) % WRAP;
-    drawCloud(f.c, x, f.base, 1, look, A, t);
+    drawCloud(f.c, x, f.base, 1, look, A);
   }
 }
 
@@ -268,7 +255,7 @@ function storm(t) {
       body: (t0, b) => ({ indigo: ramp2(t0, b, .94 * dim, .6 * dim), blue: ramp2(t0, b, .6 * dim, .5 * dim), pink: ramp2(t0, b, .04, .1 + .3 * glowOn), yellow: ramp2(t0, b, 0, .1 * glowOn) }),
       under: (y0, y1) => ({ pink: ramp2(y0, y1, 0, .14 * glowOn), yellow: ramp2(y0, y1, 0, .06 * glowOn) }),
     };
-    drawCloud(m.c, m.x - t * (3 + m.far * 3), base, k, look, 1, t);
+    drawCloud(m.c, m.x - t * (3 + m.far * 3), base, k, look, 1);
   }
   const f = flickerAt(t);
   if (f) {
@@ -284,7 +271,7 @@ function storm(t) {
    wingbeat and a slow drift, so the group breathes instead of marching. */
 const FLOCKS = [
   { t0: 0.3, t1: 6.6, n: 12, from: [-80, 420], via: [420, 300], to: [1160, 250], spread: [140, 56], s: 1, seed: 'dusk' },
-  { t0: 37.0, t1: 41.0, n: 9, from: [1150, 330], via: [700, 250], to: [-80, 210], spread: [110, 40], s: 0.85, seed: 'dawn' },
+  { t0: 31.0, t1: 35.0, n: 9, from: [1150, 330], via: [700, 250], to: [-80, 210], spread: [110, 40], s: 0.85, seed: 'dawn' },
 ].map(f => {
   const r = rngFor('flock:' + f.seed), birds = [];
   for (let i = 0; i < f.n; i++) birds.push({ dx: (r() - 0.5) * f.spread[0], dy: (r() - 0.5) * f.spread[1], ph: r() * TAU, s: 0.75 + r() * 0.45, f: 3.2 + r() * 1.6, lag: r() * 0.08, wob: r() * TAU });
@@ -331,9 +318,9 @@ function plane(t) {
 const BOW = { x: 250, y: 830, r: 560 };
 const WEST = cloudShape('west', 720, 150, { n: 10, mammatus: 8 });
 function westCell(t) {
-  const a = ramp(t, 32.5, 35) * (1 - ramp(t, 41, 43.5));
+  const a = ramp(t, 26.5, 29) * (1 - ramp(t, 35, 37.5));
   if (a <= 0.01) return;
-  const x = 170 - (t - 32.5) * 7, base = 206, lit = ramp(t, 35.2, 37.5);
+  const x = 170 - (t - 26.5) * 7, base = 206, lit = ramp(t, 29.2, 31.5);
   const look = {
     light: [0.8, -0.35], hi: { indigo: .4 * lit, blue: .26 * lit }, hiAdd: { pink: .26 * lit, yellow: .2 * lit },
     body: (t0, b) => ({ indigo: ramp2(t0, b, .5 - .24 * lit, .54 - .06 * lit), blue: ramp2(t0, b, .48 - .1 * lit, .46), pink: ramp2(t0, b, .14 + .12 * lit, .16 + .04 * lit), yellow: ramp2(t0, b, 0, .02 * lit) }),
@@ -345,10 +332,11 @@ function westCell(t) {
   const curtain = new Path2D(), r = rngFor('curtain');
   for (let i = 0; i < 90; i++) { const cx = x - 330 + r() * 600, y0 = base + 4 + r() * 20, L = 180 + r() * 240; curtain.moveTo(cx, y0); curtain.lineTo(cx - 24, y0 + L); }
   strokeOn('blue', curtain, 2.4, .14 * a); strokeOn('indigo', curtain, 2.4, .08 * a);
-  drawCloud(WEST, x, base, 1, look, a, t);
+  drawCloud(WEST, x, base, 1, look, a);
 }
+/* A bow faces away from the sun, so it is gone before the sun clears the towers. */
 function rainbow(t) {
-  const a = ramp(t, 36.3, 38.4) * (1 - ramp(t, 41, 43));
+  const a = ramp(t, 30.3, 32.4) * (1 - ramp(t, 33.6, 34.8));
   if (a <= 0.01) return;
   const { x, y, r } = BOW;
   const bands = [['red', { pink: .78, yellow: .62 }], ['orange', { yellow: .8, pink: .42 }], ['yellow', { yellow: .82 }],
@@ -396,7 +384,7 @@ function farCity(t) {
   const c = mixCov(day, night, n);
   put(p, { yellow: c.yellow, pink: c.pink, blue: { ys: [HY - 90, HY + 30], as: [c.blue * 0.9, c.blue * 1.1] }, indigo: { ys: [HY - 90, HY + 30], as: [c.indigo * 0.85, c.indigo * 1.15] } });
   const lit = new Path2D();
-  const rate = n * (1 - 0.55 * ramp(t, 16, 26)) * (1 - 0.6 * R);
+  const rate = n * (1 - 0.55 * ramp(t, 11.6, 20)) * (1 - 0.6 * R);
   for (let i = 0; i < FAR.length; i++) {
     const b = FAR[i];
     if (!powered(b.x, t, 'far' + (i >> 2))) continue;
@@ -432,7 +420,7 @@ const WIN = TOWERS.map((b, i) => {
   for (let y = b.top + 8; y < TBASE - 8; y += ch) for (let x = b.x0 + 4; x < b.x1 - 5; x += cw) {
     const late = r();
     const on = lerp(T.towersOn[0], T.towersOn[1], Math.pow(r(), 0.8)) + (b.far ? 0.4 : 0);
-    const off = late < 0.34 ? 37 + r() * 4 : 14.5 + Math.pow(r(), 0.9) * 10.5;
+    const off = late < 0.34 ? 31 + r() * 4 : 11.5 + Math.pow(r(), 0.9) * 7.5;
     out.push({ x, y, on, off, cool: r() < 0.45, q: r() });
   }
   return out;
@@ -471,7 +459,7 @@ function towers(t) {
       if (!powered(wd.x, t, 'tower' + i)) continue;
       (wd.cool ? cool : warm).rect(wd.x, wd.y, 3.6, 5.2);
     }
-    const lf = ramp(t, T.towersOn[0], T.towersOn[0] + 1.5) * (1 - 0.85 * ramp(t, 36.5, 39.5));
+    const lf = ramp(t, T.towersOn[0], T.towersOn[0] + 1.5) * (1 - 0.85 * ramp(t, 30.5, 33.5));
     knock(warm, { indigo: lf, blue: lf, pink: .6 * lf }); add(warm, { yellow: .95 * lf, pink: .28 * lf });
     knock(cool, { indigo: lf, blue: .85 * lf, pink: lf }); add(cool, { blue: .18 * lf, yellow: .12 * lf });
     if (tip && n > 0.3 && powered(tip[0], t, 'tower' + i) && Math.sin(TAU * (t * 0.8 + i * 0.37)) > 0.2) {
@@ -557,7 +545,7 @@ const MON = (() => {
    At dusk it climbs from the ground to the flame; at dawn it comes down. */
 function sunLine(t) {
   if (t < 6.2) return { y: mY(terminatorAt(t)), a: 1 - ramp(t, 5.3, 5.9), side: -1 };
-  if (t > 35.5) return { y: mY(terminatorAt(t)), a: ramp(t, T.firstLight - 0.4, T.firstLight + 0.3), side: 1 - 2 * sm(ramp(t, 43.2, 45.2)) };
+  if (t > 29.5) return { y: mY(terminatorAt(t)), a: ramp(t, T.firstLight - 0.4, T.firstLight + 0.3), side: 1 - 2 * sm(ramp(t, 37.2, 39.2)) };
   return null;
 }
 /* Runs fn(clip, weight) over the region above y with a soft 28 px edge. */
@@ -568,14 +556,14 @@ function softAbove(y, fn) {
 /* The height (m) above which Monas is in direct sun. */
 function terminatorAt(t) {
   if (t < 6) return lerp(-5, 134, sm(ramp(t, 1.8, T.lastLight)));
-  if (t > 35) return lerp(133, -5, ramp(t, T.firstLight, 39.6));
+  if (t > 29) return lerp(133, -5, ramp(t, T.firstLight, 33.6));
   return 200;
 }
 function floodAt(t) {
   if (t < T.flood) return 0;
   const on = ramp(t, T.flood, T.flood + 0.35);
-  const out = t >= offAt(M.x) && t < 30.6 ? 0 : 1;
-  const warm = t >= 30.6 && t < 31.2 ? ramp(t, 30.6, 31.2) : 1;
+  const out = t >= offAt(M.x) && t < 24.6 ? 0 : 1;
+  const warm = t >= 24.6 && t < 25.2 ? ramp(t, 24.6, 25.2) : 1;
   return on * out * warm * (1 - ramp(t, T.floodOff, T.floodOff + 0.4));
 }
 function monas(t) {
@@ -619,8 +607,8 @@ function monas(t) {
   else add(MON.slit, { indigo: .6, blue: .3 });
 
   /* the flame: bright when the sun or the floodlights reach it, and through the blackout */
-  const blackout = t >= offAt(M.x) && t < 31;
-  const sunFlame = t < 6 ? (hT < 132 ? 1 : 0) * (1 - ramp(t, 5.2, 5.8)) : (t > 35 ? ramp(t, T.firstLight - 0.2, T.firstLight + 0.4) : 0);
+  const blackout = t >= offAt(M.x) && t < 25;
+  const sunFlame = t < 6 ? (hT < 132 ? 1 : 0) * (1 - ramp(t, 5.2, 5.8)) : (t > 29 ? ramp(t, T.firstLight - 0.2, T.firstLight + 0.4) : 0);
   const bright = Math.max(F, sunFlame, blackout ? 0.9 : 0);
   const dull = { yellow: .55, pink: .36, blue: .24, indigo: .1 };
   const gold = { yellow: 1, pink: .42, blue: 0, indigo: .03 };
@@ -639,7 +627,7 @@ function monas(t) {
     glow('pink', fx, fy, 6, 40, .1 * halo * pulse);
   }
   /* first light: a glint on the flame */
-  const glint = t > 35 ? Math.max(0, 1 - Math.abs(t - T.firstLight - 0.35) / 0.55) : (t < 6 ? Math.max(0, 1 - Math.abs(t - T.lastLight + 0.35) / 0.5) : 0);
+  const glint = t > 29 ? Math.max(0, 1 - Math.abs(t - T.firstLight - 0.35) / 0.55) : (t < 6 ? Math.max(0, 1 - Math.abs(t - T.lastLight + 0.35) / 0.5) : 0);
   if (glint > 0) {
     const [fx, fy] = MON.flameC, g = new Path2D(), L = 26 * glint;
     g.moveTo(fx - L, fy - 8); g.lineTo(fx + L, fy - 8); g.moveTo(fx, fy - 8 - L); g.lineTo(fx, fy - 8 + L);
@@ -691,7 +679,7 @@ function greens(t, which) {
   if (n < 0.8) {
     const tops = new Path2D();
     for (const [x, y, r] of T0.tops) tops.addPath(cut(ringPts(x - r * 0.2, y + r * 0.1, r * 0.5, r * 0.28, 8), rngFor('top' + x), { amp: 2 }));
-    const sunlit = t < 6 ? 1 - ramp(t, 3.5, 5.4) : ramp(t, 37, 39.5);
+    const sunlit = t < 6 ? 1 - ramp(t, 3.5, 5.4) : ramp(t, 31, 33.5);
     knock(tops, { blue: .16 * (1 - n), indigo: .06 * (1 - n) }); add(tops, { yellow: .16 * (1 - n) * (0.4 + sunlit) });
   }
   if (which === 'front') {
@@ -711,7 +699,7 @@ function streetLamps(t) {
   add(poles, { indigo: .5, blue: .3 });
   for (let i = 0; i < LAMPS.length; i++) {
     const x = LAMPS[i];
-    const on = t > lerp(T.streetOn[0], T.streetOn[1], (x - GL.x0) / (GL.x1 - GL.x0)) && t < 37.2 + h01('lampoff' + i) * 1.6;
+    const on = t > lerp(T.streetOn[0], T.streetOn[1], (x - GL.x0) / (GL.x1 - GL.x0)) && t < 31.2 + h01('lampoff' + i) * 1.6;
     if (!on || !powered(x, t, 'street' + (i >> 2))) continue;
     const warm = ramp(t, T.streetOn[0], T.streetOn[1] + 0.8);
     glow('indigo', x, LAMP_Y, 2, 14, .9, 'destination-out'); glow('blue', x, LAMP_Y, 2, 12, .8, 'destination-out');
@@ -732,12 +720,12 @@ const VEH = (() => {
   return out;
 })();
 function road(t) {
-  const n = nightness(t), R = rainAt(t), wet = Math.max(R, 1 - ramp(t, 29, 36)) * (t > 22 ? 1 : 0);
+  const n = nightness(t), R = rainAt(t), wet = Math.max(R, 1 - ramp(t, 23, 30)) * (t > 16 ? 1 : 0);
   const rd = rect(GL.x0 - 4, ROAD[0], GL.x1 + 4, ROAD[1]);
   put(rd, mixCov({ blue: .3, pink: .2, indigo: .12, yellow: .04 }, { indigo: .72, blue: .5, pink: .08 }, n));
   const kerb = rect(GL.x0 - 4, ROAD[0], GL.x1 + 4, ROAD[0] + 2);
   knock(kerb, { indigo: .4, blue: .4 });
-  const density = lerp(1, 0.28, ramp(t, 16, 25) * (1 - ramp(t, 34, 40)));
+  const density = lerp(1, 0.28, ramp(t, 11.6, 19) * (1 - ramp(t, 28, 34)));
   const heads = new Path2D(), tails = new Path2D(), bodies = new Path2D(), refl = new Path2D(), busWin = new Path2D();
   for (const v of VEH) {
     if (v.q > density * 0.62) continue;
@@ -805,15 +793,15 @@ function rainOutside(t) {
     const d = RAIN[i], y = GL.y0 - 60 + fract(d.y + t * d.v * 1.6) * H, x = d.x + (y - GL.y0) * 0.14 - 40;
     p.moveTo(x, y); p.lineTo(x + d.l * 0.14, y + d.l);
   }
-  for (const [pl, a] of [['indigo', .32], ['blue', .2], ['pink', .12]]) strokeOn(pl, p, 1.3, a * R, 'destination-out');
-  strokeOn('blue', p, 1, .1 * R);
+  for (const [pl, a] of [['indigo', .56], ['blue', .36], ['pink', .18]]) strokeOn(pl, p, 2.8, a * R, 'destination-out');
+  strokeOn('blue', p, 1.2, .1 * R);
 }
 function haze(t) {
-  const R = rainAt(t), pre = ramp(t, 31, 34) * (1 - ramp(t, 35.5, 39));
+  const R = rainAt(t), pre = ramp(t, 25, 28) * (1 - ramp(t, 29.5, 33));
   const D = Math.max(R * 0.46, pre * 0.3);
   if (D <= 0.01) return;
   const out = t >= offAt(540) && t < T.restore[1] ? 1 - ramp(t, T.restore[0], T.restore[1]) : 0;
-  const col = t < 31 ? mixCov({ blue: .34, indigo: .3, pink: .08, yellow: .02 }, { blue: .42, indigo: .62, pink: .02 }, out) : { pink: .2, blue: .22, yellow: .06, indigo: .04 };
+  const col = t < 25 ? mixCov({ blue: .34, indigo: .3, pink: .08, yellow: .02 }, { blue: .42, indigo: .62, pink: .02 }, out) : { pink: .2, blue: .22, yellow: .06, indigo: .04 };
   const area = rect(GL.x0 - 4, 300, GL.x1 + 4, GL.y1 + 4);
   const e = { ys: [300, HY, GL.y1], as: [0.2 * D, D, D * 0.7] };
   knock(area, { yellow: e, pink: e, blue: e, indigo: e });
@@ -852,7 +840,7 @@ const DROPS = (() => {
   for (let i = 0; i < 78; i++) {
     const b = T.drops + Math.pow(r(), 1.5) * 8.2, rad = 7 + r() * r() * 15;
     const stick = r() < 0.5 ? Infinity : 0.3 + r() * 3.2 / (rad / 5);
-    out.push({ b, x: GL.x0 + 10 + r() * (GL.x1 - GL.x0 - 20), y: GL.y0 + 10 + r() * (GL.y1 - GL.y0 - 30), rad, stick, fall: 14 + rad * 8 + r() * 16, wob: r() * TAU, dry: 31 + r() * 2.6 });
+    out.push({ b, x: GL.x0 + 10 + r() * (GL.x1 - GL.x0 - 20), y: GL.y0 + 10 + r() * (GL.y1 - GL.y0 - 30), rad, stick, fall: 14 + rad * 8 + r() * 16, wob: r() * TAU, dry: 25 + r() * 2.6 });
   }
   return out;
 })();
@@ -891,13 +879,13 @@ function drops(t) {
     if (lens < 0.6) continue;
     body.moveTo(x + r, y); body.ellipse(x, y, r, r * st, 0, 0, TAU);
     const e = new Path2D(); e.ellipse(x, y, r, r * st, 0, 0.15 * Math.PI, 0.95 * Math.PI); rims.addPath(e);
-    const hr = Math.max(1.5, r * 0.2);
+    const hr = Math.max(2, r * 0.3);
     hi.moveTo(x - r * 0.36 + hr, y - r * 0.4); hi.ellipse(x - r * 0.36, y - r * 0.4, hr * 1.3, hr, -0.6, 0, TAU);
     if (L > 0 && Math.hypot(x - MIRROR_LAMP[0], y - MIRROR_LAMP[1]) < 260) { warm.moveTo(x + r * 0.3 + hr, y + r * 0.3); warm.ellipse(x + r * 0.3, y + r * 0.3, hr, hr * 0.8, 0, 0, TAU); }
   }
   for (const [n, a] of [['indigo', .28], ['blue', .2]]) strokeOn(n, trails, 3, a, 'destination-out');
   strokeOn('blue', trails, 2, .14);
-  knock(body, { indigo: .1, blue: .05 });
+  knock(body, { indigo: .24, blue: .12 });
   strokeOn('indigo', rims, 1.4, .22); strokeOn('blue', rims, 1.4, .2);
   knock(hi, { yellow: 1, pink: 1, blue: 1, indigo: 1 });
   if (L > 0) { knock(warm, { indigo: L, blue: L }); add(warm, { yellow: .9 * L, pink: .3 * L }); }
@@ -1020,7 +1008,9 @@ function lamp(t) {
   const armA2 = nib([[px + 5, py], [ex + 5, ey + 2]], () => 2.2, { per: 2 });
   const armB = nib([[ex, ey - 3], [hx - 6, hy - 6]], () => 2.4, { per: 2 });
   const armB2 = nib([[ex + 2, ey + 5], [hx - 4, hy + 3]], () => 2, { per: 2 });
-  for (const a of [armA, armA2, armB, armB2]) put(a, { indigo: .72, blue: .5, pink: .06 });
+  /* at night the rods catch the window glow, or they vanish into the wall */
+  const rod = mixCov({ indigo: .72, blue: .5, pink: .06 }, { indigo: .3, blue: .56, pink: .04 }, d);
+  for (const a of [armA, armA2, armB, armB2]) put(a, rod);
   const spring = new Path2D();
   for (const [[x0, y0], [x1, y1]] of [[[px + 12, py - 30], [ex + 10, ey + 60]], [[ex + 16, ey + 10], [hx - 30, hy - 4]]]) {
     const N = 14; spring.moveTo(x0, y0);
@@ -1065,7 +1055,13 @@ function lamp(t) {
 }
 
 /* A gelas belimbing of sweet tea: faceted, heavy-footed, the warung glass. */
-const TEA = { x: 800, yb: 1012, h: 166, tw: 50, bw: 41 };
+const TEA = { x: 800, yb: 1012, h: 166, tw: 50, bw: 41, full: .62, low: .18 };
+/* Drunk down from the fresh glass at dawn until the log-off at dusk, left low overnight. */
+function teaLevel(t) {
+  const since = t >= T.wake ? t - T.wake : t + DUR - T.wake;
+  const drunk = clamp(since / (DUR - T.wake + T.lampOff), 0, 1);
+  return lerp(TEA.low, lerp(TEA.full, TEA.low, drunk), sm(since / 0.6));
+}
 function teaProfile(y) {
   const { yb, h, tw, bw } = TEA, u = clamp((yb - y) / h, 0, 1);
   const lobe = 5.5 * Math.pow(Math.sin(Math.min(1, u / 0.64) * Math.PI), 0.8) * (u < 0.64 ? 1 : 0);
@@ -1085,7 +1081,7 @@ function teaGlass(t) {
   if (L > 0.05) { const ca = new Path2D(); ca.ellipse(x + 50, yb + 5, 30, 6, 0, 0, TAU); knock(ca, { indigo: .6 * L, blue: .4 * L }); add(ca, { yellow: .55 * L, pink: .3 * L }); }
   /* glass seen against the desk: slightly lighter, slightly cooler */
   knock(body, { indigo: .2, pink: .12 }); add(body, { blue: .1 });
-  const lvl = 0.62, ys = yb - 12 - lvl * (h - 22);
+  const ys = yb - 12 - teaLevel(t) * (h - 22);
   const teaPts = [];
   for (let k = 0; k <= 16; k++) { const y = lerp(ys, yb - 12, k / 16); teaPts.push([x - teaProfile(y) + 3, y]); }
   for (let k = 16; k >= 0; k--) { const y = lerp(ys, yb - 12, k / 16); teaPts.push([x + teaProfile(y) - 3, y]); }
@@ -1334,7 +1330,7 @@ function cat(t) {
   const wake = sm(ramp(t, T.bolt, T.bolt + 0.25)) * (1 - sm(ramp(t, T.bolt + 2.4, T.bolt + 3.4)));
   const sh = new Path2D(); sh.ellipse(cx + 8, cy + 26, 96, 11, 0, 0, TAU);
   add(sh, { indigo: .3, blue: .18, pink: .08 });
-  const fur = mixCov({ blue: .1, indigo: .03, pink: .06, yellow: .04 }, { indigo: .34, blue: .3, pink: .1 }, d);
+  const fur = mixCov({ blue: .1, indigo: .03, pink: .06, yellow: .04 }, { indigo: .24, blue: .26, pink: .08, yellow: .02 }, d);
   const body = cut(ringPts(cx, cy, 80, 36 * br, 18), r, { amp: 1.4 });
   const haunch = cut(ringPts(cx + 36, cy - 6 * br, 46, 34 * br, 14), rngFor('haunch'), { amp: 1 });
   const hx = cx - 64, hy = cy - 16 - 18 * wake;
@@ -1352,7 +1348,8 @@ function cat(t) {
   for (let i = 0; i < 6; i++) { const x = cx - 30 + i * 20; stripes.addPath(nib([[x, cy - 34 * br + 2], [x + 6, cy - 18], [x + 2, cy - 6]], wTip(4), { per: 3 })); }
   const patch = cut(ringPts(cx + 20, cy - 22 * br, 44, 18, 12), rngFor('patch'), { amp: 3 });
   patch.addPath(cut(ringPts(hx + 6, hy - 14, 18, 12, 10), rngFor('patch2'), { amp: 2 }));
-  withClip(cat, () => { add(patch, { indigo: .34, blue: .26, pink: .1, yellow: .08 }); add(stripes, { indigo: .16, blue: .06 }); });
+  /* at night the white fur drops toward the room, so the markings darken to keep the cat's shape */
+  withClip(cat, () => { add(patch, { indigo: .34 + .32 * d, blue: .26 + .1 * d, pink: .1, yellow: .08 * (1 - d) }); add(stripes, { indigo: .16 + .14 * d, blue: .06 }); });
   withClip(cat, () => add(rect(cx - 120, cy + 4, cx + 120, cy + 60), { blue: { ys: [cy + 4, cy + 40], as: [0, .16] }, indigo: { ys: [cy + 4, cy + 40], as: [0, .08] } }));
   const inner = new Path2D();
   inner.addPath(poly([[hx - 19, hy - 12], [hx - 17, hy - 30], [hx - 8, hy - 20]])); inner.addPath(poly([[hx + 8, hy - 20], [hx + 15, hy - 30], [hx + 19, hy - 12]]));
@@ -1399,14 +1396,14 @@ const SHOTS = [
   { at: 8.2, beat: 'The deploy lands.' },
   { at: 9.3, beat: 'The screen dims and sleeps.' },
   { at: 11.0, beat: 'Lamp off. Blue hour; the city takes over.' },
-  { at: 13.4, beat: 'Night. The KRL crosses behind the square.' },
-  { at: 23.8, beat: 'Downpour on the glass.' },
-  { at: 25.2, beat: 'Lightning strike. The cat looks up.' },
-  { at: 27.4, beat: 'Blackout. Only the flame stays lit.' },
-  { at: 30.9, beat: 'Power returns, block by block.' },
-  { at: 36.6, beat: 'First light lands on the flame.' },
-  { at: 38.8, beat: 'Fresh tea. The screen wakes.' },
-  { at: 41.0, beat: 'Morning.' },
-  { at: 44.0, beat: 'Noon slides into afternoon; the day train.' },
-  { at: 47.0, beat: 'Afternoon gold, meeting the dusk it started from.' },
+  { at: 13.4, beat: 'Night. The KRL crosses as the storm rolls in.' },
+  { at: 17.8, beat: 'Downpour on the glass.' },
+  { at: 19.2, beat: 'Lightning strike. The cat looks up.' },
+  { at: 21.4, beat: 'Blackout. Only the flame stays lit.' },
+  { at: 24.9, beat: 'Power returns, block by block.' },
+  { at: 30.6, beat: 'First light lands on the flame.' },
+  { at: 32.8, beat: 'Fresh tea. The screen wakes.' },
+  { at: 35.0, beat: 'Morning.' },
+  { at: 38.0, beat: 'Noon slides into afternoon; the day train.' },
+  { at: 41.0, beat: 'Afternoon gold, meeting the dusk it started from.' },
 ];

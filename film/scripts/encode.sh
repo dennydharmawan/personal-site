@@ -16,7 +16,7 @@ SVT_LOG=1 ffmpeg -y -loglevel error -i out/master.mp4 \
   -pix_fmt yuv420p -an -movflags +faststart "$web/stays-up-av1.mp4"
 
 ffmpeg -y -loglevel error -i out/master.mp4 \
-  -vf scale=540:540:flags=lanczos -c:v libx264 -crf 28 -preset slow \
+  -vf scale=720:720:flags=lanczos -c:v libx264 -crf 34 -preset slow \
   -pix_fmt yuv420p -an -movflags +faststart "$web/stays-up-h264.mp4"
 
 # The poster is frame 0, so the swap from poster to playing video does not jump.

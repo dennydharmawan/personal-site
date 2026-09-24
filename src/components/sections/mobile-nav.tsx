@@ -19,6 +19,8 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const wasOpenRef = useRef(false);
+  // A chosen link hands focus to its section, so closing must not pull it back to the trigger.
+  const selectedRef = useRef(false);
   const panelId = useId();
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
       return;
     }
 
-    const main = document.querySelector('main');
+    const blocked = document.querySelectorAll('main, footer');
     const root = document.documentElement;
     const wideEnoughForNav = window.matchMedia('(min-width: 640px)');
     const close = () => onOpenChange(false);
@@ -36,14 +38,14 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
       }
     };
 
-    main?.setAttribute('inert', '');
+    blocked.forEach((element) => element.setAttribute('inert', ''));
     root.style.overflow = 'hidden';
     firstLinkRef.current?.focus({ preventScroll: true });
     document.addEventListener('keydown', handleKeyDown);
     wideEnoughForNav.addEventListener('change', close);
 
     return () => {
-      main?.removeAttribute('inert');
+      blocked.forEach((element) => element.removeAttribute('inert'));
       root.style.overflow = '';
       document.removeEventListener('keydown', handleKeyDown);
       wideEnoughForNav.removeEventListener('change', close);
@@ -58,7 +60,12 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
 
     if (wasOpenRef.current) {
       wasOpenRef.current = false;
-      triggerRef.current?.focus({ preventScroll: true });
+
+      if (selectedRef.current) {
+        selectedRef.current = false;
+      } else {
+        triggerRef.current?.focus({ preventScroll: true });
+      }
     }
   }, [isOpen]);
 
@@ -135,6 +142,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                       className="group flex min-h-16 items-center justify-between gap-4 rounded-lg px-1"
                       onClick={(event) => {
                         event.preventDefault();
+                        selectedRef.current = true;
                         onOpenChange(false);
                         // The panel locks page scroll, so the jump waits for the unlock to commit.
                         window.setTimeout(() => onSelect(item.target), 0);

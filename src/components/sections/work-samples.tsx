@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Pause, Play } from 'lucide-react';
 import {
   motion,
   useInView,
@@ -60,7 +61,7 @@ function ChapterButton({
         type="button"
         aria-current={isActive ? 'step' : undefined}
         className={cn(
-          'grid min-h-11 w-full content-start gap-2 rounded-md pb-1 text-left text-xs leading-5 transition-colors duration-200 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:text-sm',
+          'grid min-h-11 w-full content-start gap-2 rounded-md pb-1 text-left text-xs leading-5 transition-colors duration-200 h-full hover:text-zinc-900 [--focus-offset:4px] sm:text-sm',
           isActive ? 'text-zinc-900' : 'text-zinc-500'
         )}
         onClick={onSelect}
@@ -78,6 +79,10 @@ function ProjectClip({ project }: { project: Project }) {
   const shouldReduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const isInView = useInView(videoRef, { amount: 0.4 });
+  // Posters are about 160 KB each; a `poster` attribute loads with the page, so it waits until the clip is close.
+  const isNear = useInView(videoRef, { margin: '800px 0px', once: true });
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isUserPaused, setIsUserPaused] = useState(false);
   const time = useMotionValue(0);
   const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -145,12 +150,28 @@ function ProjectClip({ project }: { project: Project }) {
       return;
     }
 
-    if (isInView && !shouldReduceMotion) {
+    if (isInView && !shouldReduceMotion && !isUserPaused) {
       playMuted(video);
     } else {
       video.pause();
     }
-  }, [isInView, shouldReduceMotion]);
+  }, [isInView, isUserPaused, shouldReduceMotion]);
+
+  function togglePlayback() {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    if (video.paused) {
+      setIsUserPaused(false);
+      playMuted(video);
+    } else {
+      setIsUserPaused(true);
+      video.pause();
+    }
+  }
 
   function selectChapter(chapter: Chapter) {
     const video = videoRef.current;
@@ -162,7 +183,7 @@ function ProjectClip({ project }: { project: Project }) {
     const seek = () => {
       video.currentTime = chapter.at;
 
-      if (!shouldReduceMotion) {
+      if (!shouldReduceMotion && !isUserPaused) {
         playMuted(video);
       }
     };
@@ -180,7 +201,7 @@ function ProjectClip({ project }: { project: Project }) {
 
   return (
     <div className="grid content-start gap-3">
-      <div className={clipFrameClassName}>
+      <div className={cn(clipFrameClassName, 'group relative')}>
         <video
           ref={videoRef}
           aria-label={`${project.title}, animated walkthrough with sample data`}
@@ -190,10 +211,27 @@ function ProjectClip({ project }: { project: Project }) {
           loop
           muted
           playsInline
-          poster={project.preview}
+          poster={isNear ? project.preview : undefined}
           preload="none"
           src={project.video}
+          onPause={() => setIsPlaying(false)}
+          onPlaying={() => setIsPlaying(true)}
         />
+        <button
+          type="button"
+          aria-label={`${isPlaying ? 'Pause' : 'Play'} ${project.title} walkthrough`}
+          className={cn(
+            'absolute right-4 bottom-4 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-zinc-900 ring-1 ring-zinc-900/10 transition-opacity duration-200 after:absolute after:-inset-1 hover:bg-white focus-visible:opacity-100',
+            isPlaying && 'opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100'
+          )}
+          onClick={togglePlayback}
+        >
+          {isPlaying ? (
+            <Pause aria-hidden="true" className="size-3.5 fill-current" />
+          ) : (
+            <Play aria-hidden="true" className="size-3.5 translate-x-px fill-current" />
+          )}
+        </button>
       </div>
       <ol aria-label={`${project.title} chapters`} className="grid grid-cols-3 gap-3 px-1 sm:gap-4">
         {chapters.map((chapter, index) => (

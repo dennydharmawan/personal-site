@@ -3,6 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { trustedTeams } from '@/components/portfolio-home-data';
 import {
   detailStackGapClassName,
+  focusTargetName,
   getYearsExperience,
   pageShellClassName,
   riseDelay,
@@ -99,7 +100,10 @@ function HeroActions({ className = '' }: { className?: string }) {
       <Button
         size="lg"
         className="group min-h-11 w-full px-3 has-data-[icon=inline-end]:pr-3 min-[420px]:w-auto sm:px-4 sm:has-data-[icon=inline-end]:pr-4"
-        onClick={(event) => scrollToTarget(event, 'work', shouldReduceMotion)}
+        onClick={(event) => {
+          scrollToTarget(event, 'work', shouldReduceMotion);
+          focusTargetName('work');
+        }}
       >
         View work samples
         <ChevronDown
