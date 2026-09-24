@@ -1,5 +1,5 @@
 {
-  "name": "stays-up-film",
+  "name": "desk-scenery",
   "private": true,
   "scripts": {
     "shoot": "node shoot.mjs",

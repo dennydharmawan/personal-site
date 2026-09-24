@@ -13,11 +13,11 @@ node render.mjs 30 out/master.mp4
 # SVT-AV1 ignores ffmpeg's -loglevel, so SVT_LOG=1 keeps its banner out of the log.
 SVT_LOG=1 ffmpeg -y -loglevel error -i out/master.mp4 \
   -vf scale=720:720:flags=lanczos -c:v libsvtav1 -crf 60 -preset 5 \
-  -pix_fmt yuv420p -an -movflags +faststart "$web/stays-up-av1.mp4"
+  -pix_fmt yuv420p -an -movflags +faststart "$web/desk-scenery-av1.mp4"
 
 ffmpeg -y -loglevel error -i out/master.mp4 \
   -vf scale=720:720:flags=lanczos -c:v libx264 -crf 34 -preset slow \
-  -pix_fmt yuv420p -an -movflags +faststart "$web/stays-up-h264.mp4"
+  -pix_fmt yuv420p -an -movflags +faststart "$web/desk-scenery-h264.mp4"
 
 # The poster is frame 0, so the swap from poster to playing video does not jump.
 node shoot.mjs --times 0 --out out/poster
@@ -28,6 +28,6 @@ from PIL import Image
 
 src, web = sys.argv[1], sys.argv[2]
 poster = Image.open(src).convert("RGB").resize((720, 720), Image.LANCZOS)
-poster.save(f"{web}/stays-up-poster.avif", quality=55)
-poster.save(f"{web}/stays-up-poster.jpg", quality=74, optimize=True, progressive=True)
+poster.save(f"{web}/desk-scenery-poster.avif", quality=55)
+poster.save(f"{web}/desk-scenery-poster.jpg", quality=74, optimize=True, progressive=True)
 PY

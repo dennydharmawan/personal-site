@@ -1,4 +1,4 @@
-# Stays up
+# Desk scenery
 
 A 42 second silent riso print film of one day over Merdeka Square, drawn in code. It loops: the last frame is the first. Every frame is a pure function of `t`, so the film rebuilds from this folder.
 
@@ -34,10 +34,10 @@ The run then checks the files against their budgets and fails when one is over.
 
 | File | Budget |
 | --- | --- |
-| `stays-up-av1.mp4` | 5,000,000 bytes, no audio stream |
-| `stays-up-h264.mp4` | 5,000,000 bytes, no audio stream |
-| `stays-up-poster.avif` | 160 KB |
-| `stays-up-poster.jpg` | 280 KB |
+| `desk-scenery-av1.mp4` | 5,000,000 bytes, no audio stream |
+| `desk-scenery-h264.mp4` | 5,000,000 bytes, no audio stream |
+| `desk-scenery-poster.avif` | 160 KB |
+| `desk-scenery-poster.jpg` | 280 KB |
 
 Each run adds about 8.5 MB to git history, so commit the media once per approved art state.
 

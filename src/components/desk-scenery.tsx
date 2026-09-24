@@ -3,8 +3,8 @@ import { Pause, Play } from 'lucide-react';
 import { useInView, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
-const posterAvif = '/film/stays-up-poster.avif';
-const posterJpg = '/film/stays-up-poster.jpg';
+const posterAvif = '/film/desk-scenery-poster.avif';
+const posterJpg = '/film/desk-scenery-poster.jpg';
 
 const frameClassName = 'group relative rounded-2xl bg-zinc-100 p-1.5 ring-1 ring-zinc-900/5';
 const layerClassName = 'block aspect-square w-full rounded-xl object-cover';
@@ -18,7 +18,7 @@ function playMuted(video: HTMLVideoElement) {
   video.play().catch(() => {});
 }
 
-export function StaysUpFilm() {
+export function DeskScenery() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isInView = useInView(videoRef, { amount: 0.4 });
   const shouldReduceMotion = useReducedMotion();
@@ -60,7 +60,7 @@ export function StaysUpFilm() {
         </picture>
         <video
           ref={videoRef}
-          aria-label="Stays up, a 42 second silent loop of one day at my desk in Jakarta"
+          aria-label="A 42 second silent loop of one day at my desk in Jakarta"
           className={cn(layerClassName, 'absolute inset-0 size-full cursor-pointer')}
           disablePictureInPicture
           disableRemotePlayback
@@ -72,8 +72,8 @@ export function StaysUpFilm() {
           onPause={() => setIsPlaying(false)}
           onPlaying={() => setIsPlaying(true)}
         >
-          <source src="/film/stays-up-av1.mp4" type='video/mp4; codecs="av01.0.04M.08"' />
-          <source src="/film/stays-up-h264.mp4" type="video/mp4" />
+          <source src="/film/desk-scenery-av1.mp4" type='video/mp4; codecs="av01.0.04M.08"' />
+          <source src="/film/desk-scenery-h264.mp4" type="video/mp4" />
         </video>
         <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-zinc-900/10 ring-inset" />
       </div>

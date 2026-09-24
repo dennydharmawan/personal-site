@@ -1,5 +1,5 @@
 'use strict';
-/* Stays up. One window over Merdeka Square, Jakarta, for one full turn of the day.
+/* Desk scenery. One window over Merdeka Square, Jakarta, for one full turn of the day.
 
    The film is a loop: the last frame is the first. At dusk the last sun
    climbs Monas and leaves the gold flame; the lamp clicks on while the day's

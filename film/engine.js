@@ -1,5 +1,5 @@
 'use strict';
-/* Print engine for "Stays up".
+/* Print engine for the desk scenery film.
    Adapted from sevenevesai/riso-windowseat (MIT): halftone screens, live plates
    screened per pixel in compose(), and the craft kit (curve, cut, nib, ...).
    Changes here: inks and paper are stock Tailwind v4 palette values from

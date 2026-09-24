@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
-const fps = Number(process.argv[2] || 30), outFile = process.argv[3] || 'stays-up.mp4';
+const fps = Number(process.argv[2] || 30), outFile = process.argv[3] || 'desk-scenery.mp4';
 const from = Number(process.argv[4] || 0);
 const dir = resolve('frames'); rmSync(dir, { recursive: true, force: true }); mkdirSync(dir);
 const browser = await chromium.launch();

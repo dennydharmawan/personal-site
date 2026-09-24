@@ -3,10 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const BUDGETS = [
-  { file: 'stays-up-av1.mp4', max: 5_000_000, video: true },
-  { file: 'stays-up-h264.mp4', max: 5_000_000, video: true },
-  { file: 'stays-up-poster.avif', max: 160 * 1024 },
-  { file: 'stays-up-poster.jpg', max: 280 * 1024 },
+  { file: 'desk-scenery-av1.mp4', max: 5_000_000, video: true },
+  { file: 'desk-scenery-h264.mp4', max: 5_000_000, video: true },
+  { file: 'desk-scenery-poster.avif', max: 160 * 1024 },
+  { file: 'desk-scenery-poster.jpg', max: 280 * 1024 },
 ];
 
 let failed = false;

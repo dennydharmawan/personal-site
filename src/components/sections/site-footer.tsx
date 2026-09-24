@@ -5,7 +5,7 @@ import { LuGithub, LuLinkedin } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { pageShellClassName, scrollToTargetName } from '@/components/sections/shared';
 import { EmailActionMenu } from '@/components/sections/site-header';
-import { StaysUpFilm } from '@/components/stays-up-film';
+import { DeskScenery } from '@/components/desk-scenery';
 
 const footerPillClassName =
   'h-11 gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900';
@@ -137,10 +137,9 @@ export function SiteFooter() {
           </dl>
         </div>
         <figure className="grid w-full max-w-md content-start gap-3 lg:max-w-none">
-          <StaysUpFilm />
+          <DeskScenery />
           <figcaption className="text-sm leading-6 text-zinc-600">
-            <span className="font-medium text-zinc-900">Stays up.</span> One day at my desk in Jakarta,
-            drawn in code.
+            One day at my desk in Jakarta, drawn in code.
           </figcaption>
         </figure>
       </div>
