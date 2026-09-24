@@ -10,9 +10,8 @@ import {
   RevealGroup,
   RevealItem,
   pageShellClassName,
-  sectionHeaderMarginClassName,
   sectionPaddingClassName,
-  twoColumnGapClassName
+  sectionSplitHeaderClassName
 } from '@/components/sections/shared';
 
 const bentoCardClassName =
@@ -121,7 +120,7 @@ export function CapabilitiesSection() {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
-        <RevealGroup className={`grid items-end ${sectionHeaderMarginClassName} ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}>
+        <RevealGroup className={sectionSplitHeaderClassName}>
           <RevealItem className="grid gap-4">
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Expertise that holds up in production.

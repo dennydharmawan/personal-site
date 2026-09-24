@@ -262,7 +262,7 @@ export function AboutSection() {
                     <a
                       aria-label={`See it: ${phrase}`}
                       className={cn(
-                        'group/see mt-auto -mb-1 inline-flex w-fit items-center gap-1 py-1 text-sm font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-500',
+                        'group/see relative mt-auto -mb-1 inline-flex w-fit items-center gap-1 py-1 text-sm after:absolute after:-inset-2 font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-500',
                         focusRing
                       )}
                       href={`#${target}`}

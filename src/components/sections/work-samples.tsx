@@ -13,9 +13,8 @@ import {
   RevealGroup,
   RevealItem,
   pageShellClassName,
-  sectionHeaderMarginClassName,
   sectionPaddingClassName,
-  twoColumnGapClassName
+  sectionSplitHeaderClassName
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -300,9 +299,7 @@ export function WorkSamplesSection() {
   return (
     <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
-        <RevealGroup
-          className={`grid items-end ${sectionHeaderMarginClassName} ${twoColumnGapClassName} lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)]`}
-        >
+        <RevealGroup className={sectionSplitHeaderClassName}>
           <RevealItem>
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples

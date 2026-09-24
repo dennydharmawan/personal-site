@@ -25,10 +25,12 @@ import { cn } from '@/lib/utils';
 export type CapabilityKind = 'ai' | 'fullstack' | 'production' | 'standards';
 export type InstrumentSize = 'small' | 'wide';
 
-// Below lg the instrument is a fixed band; a 4:3 box there would leave the panel mostly blank.
+// Below md each card stands alone, so the instrument takes its own height; a shared band there
+// floats the shorter diagrams in up to 150px of blank window. From md cards share rows, so the
+// band is fixed, and a 4:3 box below lg would leave the panel mostly blank.
 const instrumentBoxClassName: Record<InstrumentSize, string> = {
-  small: 'h-60 lg:aspect-[4/3] lg:h-auto',
-  wide: 'h-80 sm:h-64 lg:h-[17.5rem]'
+  small: 'py-2 md:h-60 md:py-0 lg:aspect-[4/3] lg:h-auto',
+  wide: 'py-2 md:h-64 md:py-0 lg:h-[17.5rem]'
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
