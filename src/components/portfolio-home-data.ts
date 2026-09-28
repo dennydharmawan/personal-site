@@ -50,8 +50,6 @@ export type GlyphId = 'access' | 'hub' | 'review' | 'lending';
 export type AboutEvidence = {
   glyph: GlyphId;
   phrase: string;
-  proof: string;
-  source: string;
 };
 
 export type AboutSegment = string | { evidence: EvidenceTarget };
@@ -59,28 +57,19 @@ export type AboutSegment = string | { evidence: EvidenceTarget };
 export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
   'krom-access': {
     glyph: 'access',
-    phrase: "the workflow engine that grants and removes access to the bank's internal apps",
-    proof: 'Hires, rehires, and exits update access on their own. Every change is on record.',
-    source: 'Krom Bank, 2023 to now'
+    phrase: "the workflow engine that grants and removes access to the bank's internal apps"
   },
   'krom-shared-package': {
     glyph: 'hub',
-    phrase: 'a shared package for auth, logging, and feature flags',
-    proof: 'Four apps share one setup for sign-in, logs, and flags. None of them builds its own.',
-    source: 'Krom Bank, 2023 to now'
+    phrase: 'a shared package for auth, logging, and feature flags'
   },
   // 'pr-reviewer': {
   //   glyph: 'review',
-  //   phrase: 'a multi-agent pull-request reviewer',
-  //   proof:
-  //     'Specialist agents review each diff in parallel. Findings the code does not support get dropped, and security findings wait for a person.',
-  //   source: 'Krom Bank, in production'
+  //   phrase: 'a multi-agent pull-request reviewer'
   // },
   'jenius-lending': {
     glyph: 'lending',
-    phrase: 'lending backends at Jenius',
-    proof: '99.98% uptime at 2M+ transactions a month, through 147% user growth.',
-    source: 'Jenius, 2019 to 2022'
+    phrase: 'lending backends at Jenius'
   }
 };
 
@@ -92,9 +81,9 @@ export const aboutParagraph: AboutSegment[] = [
   // ' that several production apps run on. I also built ',
   // { evidence: 'pr-reviewer' },
   // ' that runs in production. Before Krom, I ran ',
-  ' that four production apps run on. Before Krom, I ran ',
+  ' that multiple internal apps run on. Before Krom, I ran ',
   { evidence: 'jenius-lending' },
-  " for three years. I'm looking for a senior software engineer role, full-stack or backend, in fintech or digital banking, with tech lead as the next step."
+  " for three years. Next, I want a senior full-stack or backend role in fintech or digital banking, with a path to tech lead."
 ];
 
 export type Project = {
@@ -204,7 +193,7 @@ export const experiences: ReadonlyArray<{
       },
       {
         target: 'krom-shared-package',
-        text: 'Shipped a shared auth, logging, and feature-flag package adopted by four production apps'
+        text: 'Shipped a shared auth, logging, and feature-flag package adopted by multiple internal apps'
       },
       { text: 'Designed the Datadog dashboards and tracing that became the company monitoring template' },
       {

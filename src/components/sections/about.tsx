@@ -1,5 +1,4 @@
 import { useEffect, useState, type FocusEvent, type MouseEvent, type PointerEvent } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GlyphTile } from '@/components/about-glyphs';
 import {
@@ -8,8 +7,6 @@ import {
   type EvidenceTarget
 } from '@/components/portfolio-home-data';
 import {
-  RevealGroup,
-  RevealItem,
   focusTargetName,
   instant,
   overshootEase,
@@ -183,7 +180,6 @@ export function AboutSection() {
                 return (
                   <a
                     key={target}
-                    aria-describedby={`about-proof-${target}`}
                     // The padding closes the leading between wrapped lines, so the pointer never leaves the phrase mid-read.
                     className={cn('group py-[0.12em]', focusRing)}
                     data-active={active === target}
@@ -224,59 +220,6 @@ export function AboutSection() {
           </motion.div>
         </div>
 
-        <RevealGroup className="mt-12 lg:mt-16">
-          <ol
-            aria-label="Evidence for each linked phrase"
-            className="grid gap-4 md:grid-cols-3"
-          >
-            {proofOrder.map((target) => {
-              const { glyph, phrase, proof, source } = aboutEvidence[target];
-
-              return (
-                <li
-                  key={target}
-                  className="group"
-                  data-active={active === target}
-                  data-dim={active !== null && active !== target}
-                  {...pair(target)}
-                >
-                  <RevealItem className="flex h-full flex-col gap-4 rounded-2xl bg-zinc-50 p-5 ring-1 ring-zinc-900/5 transition-[background-color,box-shadow] duration-200 group-data-[active=true]:bg-white group-data-[active=true]:shadow-md group-data-[active=true]:shadow-zinc-900/5 group-data-[active=true]:ring-sky-600/30">
-                    <GlyphTile
-                      className="text-[1.75rem] transition-opacity duration-200 group-data-[dim=true]:opacity-45"
-                      glyph={glyph}
-                    />
-                    <div className="grid gap-1.5">
-                      <p className="text-sm text-zinc-500">
-                        {source}
-                      </p>
-                      <p
-                        className="text-[0.9375rem] leading-6 text-pretty text-zinc-700 transition-colors duration-200 group-data-[active=true]:text-zinc-900 group-data-[dim=true]:text-zinc-500"
-                        id={`about-proof-${target}`}
-                      >
-                        {proof}
-                      </p>
-                    </div>
-                    <a
-                      aria-label={`See it: ${phrase}`}
-                      className={cn(
-                        'group/see relative mt-auto -mb-1 inline-flex w-fit items-center gap-1 py-1 text-sm after:absolute after:-inset-2 font-medium text-sky-700 transition-colors duration-200 hover:text-sky-800 group-data-[dim=true]:text-zinc-500',
-                        focusRing
-                      )}
-                      href={`#${target}`}
-                      onClick={(event) => jumpToEvidence(event, target)}
-                    >
-                      See it
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="size-4 transition-transform duration-200 group-hover/see:translate-x-0.5"
-                      />
-                    </a>
-                  </RevealItem>
-                </li>
-              );
-            })}
-          </ol>
-        </RevealGroup>
       </div>
     </section>
   );

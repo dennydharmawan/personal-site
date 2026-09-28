@@ -40,7 +40,7 @@ const instrumentLabels: Record<CapabilityKind, string> = {
     'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
   production:
     'Illustration: a status strip of daily uptime with one bad day, monthly transactions, and a rising user-growth line',
-  standards: 'Illustration: a shared package for auth, logging, and flags fanning out to four apps, and dashboards that became the company monitoring template'
+  standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -335,13 +335,14 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
-// The package fans out to the four apps that run on it. Each app lights when the dot reaches
-// it, on its own duration and delay so the four never land together.
+// The package fans out to the internal apps that run on it. Each app lights when the dot
+// reaches it, on its own duration and delay so they never land together. The last row stands
+// for the rest, so the diagram doesn't claim an exact count.
 const adoptingApps = [
-  { delay: 0, duration: 5.4 },
-  { delay: 0.7, duration: 6.1 },
-  { delay: 1.4, duration: 5.8 },
-  { delay: 2.1, duration: 6.5 }
+  { delay: 0, duration: 5.4, label: 'internal app' },
+  { delay: 0.7, duration: 6.1, label: 'internal app' },
+  { delay: 1.4, duration: 5.8, label: 'internal app' },
+  { delay: 2.1, duration: 6.5, label: 'more' }
 ];
 const fanTravel = 28;
 
@@ -357,7 +358,7 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
         <span aria-hidden="true" className="h-px w-2 shrink-0 bg-zinc-200" />
         <div className="relative grid flex-1 gap-1">
           <span aria-hidden="true" className="absolute top-2.5 bottom-2.5 left-0 w-px bg-zinc-200" />
-          {adoptingApps.map(({ delay, duration }, index) => (
+          {adoptingApps.map(({ delay, duration, label }) => (
             <div className="flex h-5 items-center" key={delay}>
               <span aria-hidden="true" className="relative h-px shrink-0 bg-zinc-200" style={{ width: fanTravel }}>
                 <motion.span
@@ -385,7 +386,7 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
                 )}
               >
                 <span className="size-1.5 rounded-full bg-sky-500" />
-                app {index + 1}
+                {label}
               </motion.span>
             </div>
           ))}
