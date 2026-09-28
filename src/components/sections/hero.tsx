@@ -16,7 +16,7 @@ function HeroHeadline({ className }: { className: string }) {
   return (
     <h1 className={`font-heading font-normal tracking-tight text-zinc-900 ${className}`}>
       Building systems
-      <span className="block text-zinc-500">to grow revenue.</span>
+      <span className="block">to grow revenue.</span>
     </h1>
   );
 }
