@@ -845,7 +845,7 @@ const DROPS = (() => {
   return out;
 })();
 const SNAP = PL.map(() => cv(W, W).getContext('2d', { willReadFrequently: true }));
-const MIRROR_LAMP = [336, 690];
+const MIRROR_LAMP = [292, 690];
 function drops(t) {
   const live = DROPS.filter(dp => t >= dp.b && t < dp.dry + 3);
   if (!live.length) return;
@@ -908,7 +908,7 @@ function mirror(t) {
 
 /* ── the room ─────────────────────────────────────────────────────────────── */
 
-const LAMP = { base: [196, 1006], pivot: [196, 984], elbow: [244, 700], head: [378, 744], aim: [520, 948] };
+const LAMP = { base: [168, 894], elbow: [212, 700], head: [334, 700], aim: [430, 962], k: 0.8 };
 function room(t) {
   const d = roomDark(t), L = lampAt(t);
   const wall = rect(0, 0, W, DESK); wall.addPath(rect(FR.x0, FR.y0, FR.x1, FR.y1));
@@ -983,14 +983,17 @@ function room(t) {
     const k = L * d;
     const lapSh = poly([[LAP.x + LAP.bw - 6, LAP.back], [LAP.x + LAP.fw, LAP.front], [LAP.x + LAP.fw + 110, LAP.front + 4], [LAP.x + LAP.bw + 90, LAP.back + 2]]);
     add(lapSh, { indigo: { ys: [LAP.back, LAP.front + 6], as: [.1 * k, .3 * k] }, blue: .12 * k, pink: .04 * k });
-    const teaSh = poly([[TEA.x - TEA.bw + 6, TEA.yb - 4], [TEA.x + TEA.bw, TEA.yb - 8], [TEA.x + TEA.bw + 120, TEA.yb - 18], [TEA.x + TEA.bw + 110, TEA.yb + 4], [TEA.x - TEA.bw + 10, TEA.yb + 8]]);
+    const tb = TEA.bw * TEA.k;
+    const teaSh = poly([[TEA.x - tb + 6, TEA.yb - 4], [TEA.x + tb, TEA.yb - 8], [TEA.x + tb + 120, TEA.yb - 18], [TEA.x + tb + 110, TEA.yb + 4], [TEA.x - tb + 10, TEA.yb + 8]]);
     add(teaSh, { indigo: .2 * k, blue: .1 * k });
   }
 }
 
 function lamp(t) {
   const d = roomDark(t), L = lampAt(t);
-  const [bx, by] = LAMP.base, [px, py] = LAMP.pivot, [ex, ey] = LAMP.elbow, [hx, hy] = LAMP.head, [ax, ay] = LAMP.aim;
+  /* LAMP is in world points and drawArt scales the lamp by k about its base, so map them back into its unscaled frame */
+  const [bx, by] = LAMP.base, { k } = LAMP, local = ([x, y]) => [bx + (x - bx) / k, by + (y - by) / k];
+  const [px, py] = [bx, by - 22], [ex, ey] = local(LAMP.elbow), [hx, hy] = local(LAMP.head), [ax, ay] = local(LAMP.aim);
   const enamel = mixCov({ blue: .88, indigo: .2, yellow: .04 }, { blue: .82, indigo: .56, pink: .04 }, d);
   /* contact shadow */
   const sh = new Path2D(); sh.ellipse(bx + 14 - 20 * L * d, by + 12, 78, 11, 0, 0, TAU);
@@ -1055,7 +1058,7 @@ function lamp(t) {
 }
 
 /* A gelas belimbing of sweet tea: faceted, heavy-footed, the warung glass. */
-const TEA = { x: 800, yb: 1012, h: 166, tw: 50, bw: 41, full: .62, low: .18 };
+const TEA = { x: 808, yb: 1000, h: 166, tw: 50, bw: 41, k: 0.72, full: .62, low: .18 };
 /* Drunk down from the fresh glass at dawn until the log-off at dusk, left low overnight. */
 function teaLevel(t) {
   const since = t >= T.wake ? t - T.wake : t + DUR - T.wake;
@@ -1130,7 +1133,7 @@ function teaGlass(t) {
 /* The laptop: open toward us, code on the screen, a status dot in the
    corner that goes red in the blackout and green when power returns. Its
    screen is a cool light against the lamp's warm one. It closes at dawn. */
-const LAP = { x: 596, back: 902, front: 970, bw: 108, fw: 128, h: 150 };
+const LAP = { x: 590, back: 888, front: 978, bw: 118, fw: 142, h: 150 };
 const CODE = (() => {
   const r = rngFor('code'), lines = [];
   let indent = 0;
@@ -1311,10 +1314,7 @@ function roomFlash(t) {
   knock(outside, { indigo: .4 * f, blue: .25 * f }, 'evenodd');
 }
 
-/* ── frame ────────────────────────────────────────────────────────────────── */
-
-
-/* ── desk prototype variants ─────────────────────────────────────────────── */
+/* ── desk objects ─────────────────────────────────────────────────────────── */
 
 function scaled(cx, cy, k, fn) {
   for (const n of PL) { const g = PG[n]; g.save(); g.translate(cx, cy); g.scale(k, k); g.translate(-cx, -cy); }
@@ -1322,11 +1322,37 @@ function scaled(cx, cy, k, fn) {
   for (const n of PL) PG[n].restore();
 }
 
+/* A snake plant in a terracotta pot at the back of the desk, in front of the curtain. */
+function plant(t) {
+  const d = roomDark(t), x = 912, y = 880, r = rngFor('plant');
+  const pw = 38, pb = 29, ph = 70;
+  const sh = new Path2D(); sh.ellipse(x + 8, y + 5, 58, 8, 0, 0, TAU);
+  add(sh, { indigo: .28, blue: .18, pink: .08 });
+  const leaves = new Path2D(), backs = new Path2D();
+  const blades = [[-22, 150, -0.2, 13], [-9, 205, -0.06, 15], [5, 236, 0.04, 16], [18, 176, 0.18, 14], [-2, 120, 0.3, 12], [26, 110, 0.42, 11]];
+  blades.forEach(([dx, len, lean, w], i) => {
+    const bx = x + dx * 0.8, by = y - ph + 6, tip = [bx + lean * len + (r() - 0.5) * 8, by - len];
+    const mid = [bx + lean * len * 0.45 + (r() - 0.5) * 6, by - len * 0.5];
+    (i % 2 ? backs : leaves).addPath(nib([[bx, by], mid, tip], wLeaf(w, 0.4), { per: 8 }));
+  });
+  const leafDay = { yellow: .72, blue: .62, indigo: .12, pink: .04 }, leafNight = { indigo: .72, blue: .62, yellow: .16, pink: .04 };
+  put(backs, mixCov({ yellow: .6, blue: .7, indigo: .22 }, { indigo: .8, blue: .66, yellow: .1 }, d));
+  put(leaves, mixCov(leafDay, leafNight, d));
+  strokeOn('yellow', leaves, 1.6, .5 * (1 - d)); strokeOn('indigo', leaves, 1, .2);
+  const pot = poly([[x - pw, y - ph], [x + pw, y - ph], [x + pb, y], [x - pb, y]]);
+  const clay = { pink: .62, yellow: .66, blue: .08, indigo: .04 }, clayN = { pink: .4, indigo: .6, blue: .36, yellow: .12 };
+  put(pot, mixCov(clay, clayN, d));
+  add(poly([[x + pw * 0.2, y - ph], [x + pw, y - ph], [x + pb, y], [x + pb * 0.25, y]]), { indigo: .12, blue: .06 });
+  const rim = rect(x - pw - 4, y - ph - 4, x + pw + 4, y - ph + 10);
+  put(rim, mixCov({ pink: .66, yellow: .7, blue: .06 }, clayN, d));
+  knock(rect(x - pw - 4, y - ph - 4, x + pw + 4, y - ph - 1), { indigo: .4, blue: .3 });
+}
+
 /* A white tabby asleep between the lamp and the laptop all day. It lifts its
-   head at the thunderclap, then settles. Drawn at 1.25x through scaled(). */
+   head at the thunderclap, then settles. Drawn at 1.08x through scaled(). */
 function cat(t) {
   const d = roomDark(t), L = lampAt(t) * d, r = rngFor('cat');
-  const cx = 368, cy = 992, br = 1 + 0.035 * Math.sin(cyc(t, 0.27));
+  const cx = 296, cy = 994, br = 1 + 0.035 * Math.sin(cyc(t, 0.27));
   const wake = sm(ramp(t, T.bolt, T.bolt + 0.25)) * (1 - sm(ramp(t, T.bolt + 2.4, T.bolt + 3.4)));
   const sh = new Path2D(); sh.ellipse(cx + 8, cy + 26, 96, 11, 0, 0, TAU);
   add(sh, { indigo: .3, blue: .18, pink: .08 });
@@ -1373,6 +1399,8 @@ function cat(t) {
   add(nose, { pink: .6 });
 }
 
+/* ── frame ────────────────────────────────────────────────────────────────── */
+
 function drawArt(t) {
   resetPlates();
   withClip(GLASS, () => {
@@ -1383,10 +1411,11 @@ function drawArt(t) {
     rainOutside(t); haze(t); bolt(t);
     drops(t); mirror(t);
   });
-  room(t); curtain(t); laptop(t);
-  lamp(t);
-  scaled(368, 1010, 1.25, () => cat(t));
-  teaGlass(t); steam(t);
+  room(t); curtain(t); plant(t);
+  scaled(LAMP.base[0], LAMP.base[1], LAMP.k, () => lamp(t));
+  laptop(t);
+  scaled(TEA.x, TEA.yb, TEA.k, () => { teaGlass(t); steam(t); });
+  scaled(296, 1012, 1.08, () => cat(t));
   roomFlash(t);
 }
 
