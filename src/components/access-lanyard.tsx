@@ -68,9 +68,11 @@ export function AccessLanyard() {
   const layerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLParagraphElement>(null);
   const strapRefs = useRef<SVGPathElement[]>([]);
   const [flipped, setFlipped] = useState(false);
   const [dropped, setDropped] = useState(false);
+  const [touched, setTouched] = useState(false);
 
   const sim = useRef({
     anchor: { x: 0, y: -6 },
@@ -90,24 +92,33 @@ export function AccessLanyard() {
     if (!layer || !card || !tilt) return;
     const s = sim.current;
 
+    // Hang over the middle of the project rows' right column, so the badge balances the heading
+    // instead of hugging the page edge.
     const placeAnchor = () => {
       const width = layer.clientWidth;
       const shell = Math.min(1280, width - 40);
-      s.anchor.x = (width - shell) / 2 + shell - CARD_WIDTH / 2 - 24;
+      const left = (width - shell) / 2;
+      s.anchor.x = Math.min(left + shell * 0.74, left + shell - CARD_WIDTH / 2);
+      const hint = hintRef.current;
+      if (hint) {
+        hint.style.left = `${s.anchor.x - CARD_WIDTH / 2 - 20}px`;
+        hint.style.top = `${JOINTS * JOINT_LENGTH + CARD_HEIGHT * 0.55}px`;
+      }
     };
 
-    // Joints laid out to the right of the anchor fall and swing into place; laid straight down they just hang.
+    // Joints laid out to the left of the anchor fall and swing in from the heading's side; laid straight
+    // down they just hang.
     const reset = (drop: boolean) => {
       placeAnchor();
       const { x: ax, y: ay } = s.anchor;
       s.points = [];
       for (let i = 0; i <= JOINTS; i++) {
-        const x = drop ? ax + i * JOINT_LENGTH : ax;
+        const x = drop ? ax - i * JOINT_LENGTH : ax;
         const y = drop ? ay : ay + i * JOINT_LENGTH;
         s.points.push({ x, y, px: x, py: y });
       }
       const clip = s.points[JOINTS];
-      const bottom = drop ? { x: clip.x + CARD_HEIGHT, y: clip.y } : { x: clip.x, y: clip.y + CARD_HEIGHT };
+      const bottom = drop ? { x: clip.x - CARD_HEIGHT, y: clip.y } : { x: clip.x, y: clip.y + CARD_HEIGHT };
       s.points.push({ ...bottom, px: bottom.x, py: bottom.y });
       s.shown = s.points.map((p) => ({ x: p.x, y: p.y }));
       s.tilt = 0;
@@ -220,6 +231,7 @@ export function AccessLanyard() {
       const along =
         ((at.x - clip.x) * (bottom.x - clip.x) + (at.y - clip.y) * (bottom.y - clip.y)) / (CARD_HEIGHT * CARD_HEIGHT);
       s.drag = { ...at, along: Math.max(0, Math.min(1, along)), startX: at.x, startY: at.y, moved: false };
+      setTouched(true);
       wake();
     };
     const onMove = (event: PointerEvent) => {
@@ -324,6 +336,16 @@ export function AccessLanyard() {
         </text>
       </svg>
 
+      {/* One quiet affordance beside the resting badge; it goes once someone has touched the pass. */}
+      <p
+        ref={hintRef}
+        aria-hidden="true"
+        className="absolute -translate-x-full -translate-y-1/2 font-mono text-xs whitespace-nowrap text-zinc-400 transition-opacity duration-500"
+        style={{ opacity: dropped && !touched ? 1 : 0 }}
+      >
+        drag the pass · tap to flip →
+      </p>
+
       <div
         ref={cardRef}
         className="pointer-events-auto absolute top-0 left-0 touch-none select-none [perspective:900px]"
@@ -349,7 +371,7 @@ export function AccessLanyard() {
             >
               <div className="flex items-center justify-between bg-zinc-900 px-4 pt-6 pb-3 text-[10px] font-medium tracking-[0.14em] text-zinc-300 uppercase">
                 <span>Access pass</span>
-                <span className="text-sky-300">Engineering</span>
+                <span className="text-sky-300">All access</span>
               </div>
               <div className="grid content-start gap-3 px-4 pt-5">
                 <div className="grid size-14 place-items-center rounded-xl bg-zinc-900 font-heading text-xl text-white">
