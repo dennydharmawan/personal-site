@@ -14,7 +14,7 @@ import {
   RevealItem,
   pageShellClassName,
   sectionPaddingClassName,
-  sectionSplitHeaderClassName
+  sectionHeaderClassName
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -249,31 +249,43 @@ function ProjectClip({ project }: { project: Project }) {
 }
 
 // Rows alternate the clip's side so four samples read as a sequence of stories, not a stack of cards.
+// Stacked, the title leads so the clip below it has a subject. Side by side, the clip spans all four
+// rows and the two 1fr rows around the text center it against the clip.
 function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
+  const textColumn = flip ? 'lg:col-start-1' : 'lg:col-start-2';
+
   return (
     <RevealItem>
       <article
         data-scroll-target={project.target}
         className={cn(
-          'grid content-start gap-6 lg:items-center lg:gap-16',
+          'grid content-start gap-6 lg:grid-rows-[1fr_auto_auto_1fr] lg:gap-x-16 lg:gap-y-0',
           flip
             ? 'lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]'
             : 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]'
         )}
       >
-        <div className={flip ? 'lg:order-2' : undefined}>
+        <header className={cn('grid gap-4 px-1 lg:row-start-2', textColumn)}>
+          <p className="text-sm font-medium text-sky-700">{project.role}</p>
+          <div className="grid gap-2">
+            <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
+              {project.title}
+            </h3>
+            <p className="font-heading text-xl font-normal leading-snug tracking-tight text-zinc-500 text-pretty sm:text-2xl">
+              {project.problem}
+            </p>
+          </div>
+        </header>
+        <div
+          className={cn(
+            'lg:row-span-4 lg:row-start-1 lg:self-center',
+            flip ? 'lg:col-start-2' : 'lg:col-start-1'
+          )}
+        >
           <ProjectClip project={project} />
         </div>
-        <div className="grid gap-4 px-1">
-          <p className="text-sm font-medium text-sky-700">{project.role}</p>
-          <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
-            {project.title}
-          </h3>
+        <div className={cn('grid gap-4 px-1 lg:row-start-3 lg:pt-4', textColumn)}>
           <dl className="grid gap-4 border-t border-zinc-200 pt-5">
-            <div className="grid gap-1">
-              <dt className="text-sm font-medium text-zinc-500">Problem</dt>
-              <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.problem}</dd>
-            </div>
             <div className="grid gap-1">
               <dt className="text-sm font-medium text-zinc-500">What I built</dt>
               <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
@@ -299,19 +311,15 @@ export function WorkSamplesSection() {
   return (
     <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
-        <RevealGroup className={sectionSplitHeaderClassName}>
+        <RevealGroup className={sectionHeaderClassName}>
           <RevealItem>
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples
             </h2>
           </RevealItem>
-          <RevealItem className="grid gap-3">
+          <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Four systems, shown as short animations with sample data: access provisioning,
-              collections operations, checkout and payments, and automated code review.
-            </p>
-            <p className="max-w-xl text-sm leading-6 text-zinc-500 text-pretty">
-              The PR reviewer runs in production at Krom Bank. The other three are NDA-safe builds.
+              Some of the systems I&apos;ve built, and the problem each one solves.
             </p>
           </RevealItem>
         </RevealGroup>

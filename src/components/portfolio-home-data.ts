@@ -16,7 +16,7 @@ export const expertiseItems: ExpertiseItem[] = [
   },
   {
     kind: 'ai',
-    tail: 'running in production, not in a demo',
+    tail: 'with a person approving every security finding',
     title: 'AI-assisted delivery',
     windowLabel: 'reviewer.run'
   },
@@ -28,7 +28,7 @@ export const expertiseItems: ExpertiseItem[] = [
   },
   {
     kind: 'standards',
-    tail: 'that other teams adopted',
+    tail: 'that 5+ teams follow',
     title: 'Engineering standards',
     windowLabel: 'review.gate'
   }
@@ -36,7 +36,8 @@ export const expertiseItems: ExpertiseItem[] = [
 
 export type Chapter = { at: number; label: string };
 
-const evidenceTargets = ['krom-access', 'krom-shared-package', 'pr-reviewer', 'jenius-lending'] as const;
+// 'pr-reviewer' is hidden while the PR reviewer is off the site.
+const evidenceTargets = ['krom-access', 'krom-shared-package', 'jenius-lending'] as const;
 
 export type EvidenceTarget = (typeof evidenceTargets)[number];
 
@@ -58,7 +59,7 @@ export type AboutSegment = string | { evidence: EvidenceTarget };
 export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
   'krom-access': {
     glyph: 'access',
-    phrase: "the system that grants and removes access to the bank's internal apps",
+    phrase: "the workflow engine that grants and removes access to the bank's internal apps",
     proof: 'Onboarding, rehire, and offboarding update access automatically, with an audit trail.',
     source: 'Krom Bank, 2023 to now'
   },
@@ -68,13 +69,13 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
     proof: 'Apps share one setup for sign-in, logs, and flags instead of each building its own.',
     source: 'Krom Bank, 2023 to now'
   },
-  'pr-reviewer': {
-    glyph: 'review',
-    phrase: 'a multi-agent pull-request reviewer',
-    proof:
-      'Specialist agents review each diff in parallel. Findings the code does not support get dropped, and security findings wait for a person.',
-    source: 'Krom Bank, in production'
-  },
+  // 'pr-reviewer': {
+  //   glyph: 'review',
+  //   phrase: 'a multi-agent pull-request reviewer',
+  //   proof:
+  //     'Specialist agents review each diff in parallel. Findings the code does not support get dropped, and security findings wait for a person.',
+  //   source: 'Krom Bank, in production'
+  // },
   'jenius-lending': {
     glyph: 'lending',
     phrase: 'lending backends at Jenius',
@@ -84,13 +85,14 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
 };
 
 export const aboutParagraph: AboutSegment[] = [
-  "I'm a senior full-stack engineer at Krom Bank in Jakarta, looking for a Senior Full-Stack Engineer role in fintech or digital banking, with Tech Lead as the next step. I learn how a business works before I write the code. At Krom I built ",
+  "I'm a senior full-stack engineer at Krom Bank in Jakarta, looking for a Senior Software Engineer role, full-stack or backend, in fintech or digital banking, with Tech Lead as the next step. I learn how a business works before I write the code. At Krom I built ",
   { evidence: 'krom-access' },
   ', and ',
   { evidence: 'krom-shared-package' },
-  ' that several production apps run on. I also built ',
-  { evidence: 'pr-reviewer' },
-  ' that runs in production. Before Krom, I ran ',
+  // ' that several production apps run on. I also built ',
+  // { evidence: 'pr-reviewer' },
+  // ' that runs in production. Before Krom, I ran ',
+  ' that several production apps run on. Before Krom, I ran ',
   { evidence: 'jenius-lending' },
   ' for three years.'
 ];
@@ -108,22 +110,23 @@ export type Project = {
 };
 
 export const projects: Project[] = [
-  {
-    built:
-      'Four agents review each diff in parallel for security, correctness, tests, and conventions, with context pulled from the repository. A merger drops any finding the cited code does not support. Security findings never post on their own, and low-confidence notes go to a private queue for a person to approve.',
-    chapters: [
-      { at: 0, label: 'AI agents review code' },
-      { at: 7.8, label: 'False alarm dropped' },
-      { at: 11.6, label: 'Human checks security' }
-    ],
-    preview: '/portfolio-previews/work-sample-pr-reviewer.png',
-    problem: 'AI review bots post every finding, right or wrong.',
-    role: 'Internal developer tooling',
-    stack: ['TypeScript', 'AWS Bedrock', 'Bitbucket', 'Slack'],
-    target: 'pr-reviewer',
-    title: 'Multi-agent PR reviewer',
-    video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
-  },
+  // Hidden while the PR reviewer is off the site.
+  // {
+  //   built:
+  //     'Four agents review each diff in parallel for security, correctness, tests, and conventions, with context pulled from the repository. A merger drops any finding the cited code does not support. Security findings never post on their own, and low-confidence notes go to a private queue for a person to approve.',
+  //   chapters: [
+  //     { at: 0, label: 'AI agents review code' },
+  //     { at: 7.8, label: 'False alarm dropped' },
+  //     { at: 11.6, label: 'Human checks security' }
+  //   ],
+  //   preview: '/portfolio-previews/work-sample-pr-reviewer.png',
+  //   problem: 'AI review bots post every finding, right or wrong.',
+  //   role: 'Internal developer tooling',
+  //   stack: ['TypeScript', 'AWS Bedrock', 'Bitbucket', 'Slack'],
+  //   target: 'pr-reviewer',
+  //   title: 'Multi-agent PR reviewer',
+  //   video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
+  // },
   {
     built:
       'HR events start a durable, idempotent workflow on BullMQ. Each step records its result, so a retry skips accounts that already exist and resumes at the step that failed. Roles, permissions, and an audit log sit on top.',
@@ -137,7 +140,7 @@ export const projects: Project[] = [
       'A new hire needs accounts in several systems on day one, and a setup that fails halfway must not leave duplicates.',
     role: 'Identity and access governance',
     stack: ['Node.js', 'BullMQ', 'RBAC', 'PostgreSQL'],
-    title: 'Authentication and access management',
+    title: 'Access workflow engine',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
   {
@@ -167,7 +170,7 @@ export const projects: Project[] = [
     problem: 'After a customer pays, the store cannot tell whether the payment went through.',
     role: 'Commerce checkout and payments',
     stack: ['Next.js', 'payment API', 'webhooks', 'SQL'],
-    title: 'E-commerce payment platform',
+    title: 'E-commerce payments',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
 ];
@@ -190,14 +193,19 @@ export const experiences: ReadonlyArray<{
     highlights: [
       {
         target: 'krom-access',
-        text: 'Built the access governance platform that automates onboarding, rehire, and offboarding access, with continuous reconciliation and an audit trail'
+        text: 'Designed the workflow engine that orchestrates the identity lifecycle across 8 company tools: access on day one, revoked at exit, with an audit trail'
+      },
+      {
+        text: 'Moved an audit log from MongoDB to DocumentDB in proven steps with no big-bang cutover, and replaced pagination that could skip rows during writes'
       },
       {
         target: 'krom-shared-package',
         text: 'Shipped a shared auth, logging, and feature-flag package adopted by four production apps'
       },
-      { text: 'Improved API performance 37% by refactoring legacy modules and adding targeted caching' },
-      { text: 'Designed the Datadog dashboards and tracing that became the company monitoring template' }
+      { text: 'Designed the Datadog dashboards and tracing that became the company monitoring template' },
+      {
+        text: 'Traced stale release versions in Datadog to a missing deploy setting, and the infra fix now covers every EKS service'
+      }
     ],
     period: 'Jan 2023 – Present',
     role: 'Senior Full-Stack Engineer',
@@ -206,7 +214,7 @@ export const experiences: ReadonlyArray<{
       { period: 'Jan 2023 – May 2026', role: 'Full-Stack Engineer' }
     ],
     summary:
-      'Platform and product engineering for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers and wrote the Git workflow used by 5+ teams.',
+      'Frontend and backend work for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers and wrote the Git workflow used by 5+ teams.',
     years: '2023'
   },
   {

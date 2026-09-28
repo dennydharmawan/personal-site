@@ -230,7 +230,7 @@ export function AboutSection() {
         <RevealGroup className="mt-12 lg:mt-16">
           <ol
             aria-label="Evidence for each linked phrase"
-            className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+            className="grid gap-4 md:grid-cols-3"
           >
             {proofOrder.map((target) => {
               const { glyph, phrase, proof, source } = aboutEvidence[target];

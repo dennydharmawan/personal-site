@@ -123,14 +123,14 @@ export function CapabilitiesSection() {
         <RevealGroup className={sectionSplitHeaderClassName}>
           <RevealItem className="grid gap-4">
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
-              Expertise that holds up in production.
+              Most bank bugs hide in the retry.
             </h2>
           </RevealItem>
           <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Full-stack product and platform work in regulated digital banking, from the interface
-              and API to access rules, audit trails, event-driven integrations, and the tracing that
-              keeps a system healthy after launch.
+              A setup that fails halfway and leaves duplicate accounts. An audit log that skips rows
+              while new actions arrive. A release nobody can trace. I design for those cases first,
+              then build the feature.
             </p>
           </RevealItem>
         </RevealGroup>

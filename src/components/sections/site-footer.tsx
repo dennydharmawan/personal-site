@@ -54,7 +54,7 @@ function FooterStatus() {
   return (
     <p className="flex items-center gap-2.5 font-medium text-zinc-700">
       <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-emerald-500" />
-      Open to fintech roles · Jakarta, UTC+7
+      Open to Senior Software Engineer roles · Jakarta, UTC+7
     </p>
   );
 }
@@ -120,8 +120,8 @@ export function SiteFooter() {
               <span className="block text-zinc-500">that stays up.</span>
             </h2>
             <p className="max-w-md text-base font-normal leading-7 text-zinc-600 text-pretty">
-              I take on full-stack and platform work in banking and fintech, anywhere access control,
-              audit trails, and uptime matter.
+              Hiring a senior engineer for a banking or fintech team? Send me the role, and I&apos;ll
+              reply with how my work maps to it.
             </p>
           </div>
           <dl className="grid border-t border-zinc-900/10 text-sm">
