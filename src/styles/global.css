@@ -487,6 +487,7 @@
   --flap-gap: var(--color-zinc-950);
   --flap-accent: var(--color-sky-300);
   --focus-ring: var(--color-sky-300);
+  container: flap-board / inline-size;
   position: relative;
   border-radius: 22px;
   background: var(--flap-housing);
@@ -502,6 +503,43 @@
   border-radius: inherit;
   pointer-events: none;
   background: linear-gradient(165deg, --alpha(var(--color-white) / 6%), transparent 38%);
+}
+
+/*
+  Tiles size from the board's own width in CSS, so the server-rendered board already has its
+  final size. 100cqi resolves on each .flap against the board. Whole pixels keep the split line
+  sharp. The column counts match `layouts` in departure-board.tsx.
+*/
+.flap-grid {
+  --flap-cols: 22;
+  --flap-gap-x: 6px;
+  --flap-w: min(64px, round(down, (100cqi - (var(--flap-cols) - 1) * var(--flap-gap-x)) / var(--flap-cols), 1px));
+  --flap-h: round(var(--flap-w) * 1.42, 1px);
+  --flap-fs: round(var(--flap-w) * 0.9, 1px);
+}
+
+[data-flap-layout='wide'] {
+  display: contents;
+}
+
+[data-flap-layout='narrow'] {
+  display: none;
+}
+
+@container flap-board (width < 720px) {
+  .flap-grid {
+    --flap-cols: 12;
+    --flap-gap-x: 4px;
+  }
+
+  [data-flap-layout='wide'],
+  .flap[data-wide-only] {
+    display: none;
+  }
+
+  [data-flap-layout='narrow'] {
+    display: contents;
+  }
 }
 
 .flap {

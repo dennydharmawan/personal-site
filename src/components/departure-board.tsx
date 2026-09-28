@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
 
 // Drum order: the punctuation the board shows sits right after blank, so no tile rolls
@@ -7,12 +6,14 @@ import { useReducedMotion } from 'motion/react';
 const DRUM = ' .→ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,:-+%/@';
 
 const KEY_LABEL = 'EMAIL ME →';
-// The key lands after the headline has settled, and flaps slower, so it reads as the payoff.
-const KEY_START_MS = 2100;
+// The key starts as the headline's tail is landing and flaps slower, so it still finishes last
+// and reads as the payoff. Whole board: headline in about 1s, key readable by about 1.7s.
+const KEY_START_MS = 700;
 
 type Layout = 'wide' | 'narrow';
 
-// accentFrom is the column where the sky words start on that line.
+// accentFrom is the column where the sky words start on that line. The column counts must match
+// --flap-cols in global.css, which picks the layout with a container query.
 const layouts: Record<Layout, { columns: number; lines: { text: string; accentFrom: number }[] }> = {
   wide: {
     columns: 22,
@@ -44,6 +45,7 @@ type Tile = {
   busy: boolean;
   slow: boolean;
   timer?: number;
+  fall?: Animation;
 };
 
 function readTile(el: HTMLElement): Tile {
@@ -67,8 +69,14 @@ const paint = (el: HTMLElement, glyph: string) => {
   el.textContent = glyph === ' ' ? '' : glyph;
 };
 
-function setNow(tile: Tile, glyph: string) {
+function stop(tile: Tile) {
   window.clearTimeout(tile.timer);
+  tile.fall?.cancel();
+  tile.busy = false;
+}
+
+function setNow(tile: Tile, glyph: string) {
+  stop(tile);
   tile.current = tile.target = glyph;
   paint(tile.top, glyph);
   paint(tile.bottom, glyph);
@@ -83,7 +91,7 @@ function step(tile: Tile) {
   tile.busy = true;
   const index = DRUM.indexOf(tile.current);
   const next = index < 0 ? tile.target : DRUM[(index + 1) % DRUM.length];
-  const duration = (tile.slow ? 88 : 48) + Math.random() * 16;
+  const duration = (tile.slow ? 80 : 48) + Math.random() * 16;
 
   paint(tile.top, next);
   paint(tile.bottom, tile.current);
@@ -91,10 +99,10 @@ function step(tile: Tile) {
   paint(tile.leafBack, next);
   tile.leaf.style.visibility = 'visible';
 
-  const fall = tile.leaf.animate([{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-180deg)' }], {
+  const fall = (tile.fall = tile.leaf.animate([{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-180deg)' }], {
     duration,
     easing: 'cubic-bezier(.55,0,.9,.55)'
-  });
+  }));
   tile.shades[0].animate([{ opacity: 0 }, { opacity: 0.45 }], { duration: duration / 2, fill: 'forwards' });
   tile.shades[1].animate([{ opacity: 0.45 }, { opacity: 0 }], {
     delay: duration / 2,
@@ -111,22 +119,20 @@ function step(tile: Tile) {
   };
 }
 
-function flipTo(tile: Tile, glyph: string, delay: number, instant: boolean) {
-  const target = DRUM.includes(glyph) ? glyph : ' ';
-
-  if (instant) {
-    setNow(tile, target);
-    return;
+// A blank tile starts a few flaps short of its glyph instead of spinning the whole drum, so a
+// 'Y' costs as much as an 'A'. The first flap covers the jump, too fast to see.
+function flipTo(tile: Tile, glyph: string, delay: number, flaps: number) {
+  tile.target = DRUM.includes(glyph) ? glyph : ' ';
+  if (tile.target !== ' ' && tile.current === ' ') {
+    tile.current = DRUM[(DRUM.indexOf(tile.target) - flaps + DRUM.length) % DRUM.length];
   }
-
-  tile.target = target;
   window.clearTimeout(tile.timer);
   tile.timer = window.setTimeout(() => step(tile), delay);
 }
 
-function FlapTile({ glyph, tone }: { glyph: string; tone?: 'accent' | 'key' }) {
+function FlapTile({ glyph, tone, wideOnly }: { glyph: string; tone?: 'accent' | 'key'; wideOnly?: boolean }) {
   return (
-    <span className="flap" data-glyph={glyph} data-tone={tone} aria-hidden="true">
+    <span className="flap" data-glyph={glyph} data-tone={tone} data-wide-only={wideOnly || undefined} aria-hidden="true">
       <span className="flap-half flap-top">
         <span />
       </span>
@@ -147,114 +153,87 @@ function FlapTile({ glyph, tone }: { glyph: string; tone?: 'accent' | 'key' }) {
   );
 }
 
+const isShown = (el: Element) => el.getClientRects().length > 0;
+
 export function DepartureBoard({ email }: { email: string }) {
   const shouldReduceMotion = useReducedMotion();
   const boardRef = useRef<HTMLDivElement>(null);
-  const keyRef = useRef<HTMLAnchorElement>(null);
-  const [layout, setLayout] = useState<Layout>('wide');
-  const tilesRef = useRef<{ lines: { tile: Tile; glyph: string }[][]; key: Tile[] }>({ lines: [], key: [] });
-  const playedRef = useRef(false);
 
-  const { columns, lines } = layouts[layout];
-  const blanks = columns - KEY_LABEL.length;
+  const keyBlanks = layouts.wide.columns - KEY_LABEL.length;
+  const narrowKeyBlanks = layouts.narrow.columns - KEY_LABEL.length;
 
-  // Tile size follows the board's own width, so the grid always fills it edge to edge.
-  useLayoutEffect(() => {
-    const board = boardRef.current;
-    if (!board) return;
-
-    const fit = () => {
-      const padding = parseFloat(getComputedStyle(board).paddingLeft) * 2;
-      const width = board.clientWidth - padding;
-      const next: Layout = width >= 720 ? 'wide' : 'narrow';
-      const { columns: cols } = layouts[next];
-      const gap = next === 'wide' ? 6 : 4;
-      const tileWidth = Math.min(64, Math.floor((width - (cols - 1) * gap) / cols));
-
-      board.style.setProperty('--flap-w', `${tileWidth}px`);
-      board.style.setProperty('--flap-h', `${Math.round(tileWidth * 1.42)}px`);
-      board.style.setProperty('--flap-fs', `${Math.round(tileWidth * 0.9)}px`);
-      board.style.setProperty('--flap-gap-x', `${gap}px`);
-      setLayout(next);
-    };
-
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(board);
-    return () => observer.disconnect();
-  }, []);
-
-  // Rebuild the tile handles whenever the layout renders a different grid.
-  useLayoutEffect(() => {
-    const board = boardRef.current;
-    if (!board) return;
-
-    const rows = [...board.querySelectorAll<HTMLElement>('[data-flap-row]')];
-    const lineTiles = rows.map((row) =>
-      [...row.querySelectorAll<HTMLElement>('.flap')]
-        .filter((el) => !el.closest('a'))
-        .map((el) => ({ tile: readTile(el), glyph: el.dataset.glyph ?? ' ' }))
-    );
-    const keyTiles = [...(keyRef.current?.querySelectorAll<HTMLElement>('.flap') ?? [])].map((el) => ({
-      ...readTile(el),
-      slow: true
-    }));
-
-    tilesRef.current = { lines: lineTiles, key: keyTiles };
-
-    const settled = playedRef.current || shouldReduceMotion;
-    lineTiles.flat().forEach(({ tile, glyph }) => setNow(tile, settled ? glyph : ' '));
-    keyTiles.forEach((tile, i) => setNow(tile, settled ? KEY_LABEL[i] : ' '));
-
-    return () => {
-      lineTiles.flat().forEach(({ tile }) => window.clearTimeout(tile.timer));
-      keyTiles.forEach((tile) => window.clearTimeout(tile.timer));
-    };
-  }, [layout, shouldReduceMotion]);
-
-  // The board clatters in once, the first time most of it is on screen. Nothing loops.
+  // Both layouts are in the markup and CSS shows one, so the server HTML already has the final
+  // size and nothing jumps when this hydrates. The tiles start blank, which is also what the
+  // server rendered.
   useEffect(() => {
     const board = boardRef.current;
-    if (!board || shouldReduceMotion) return;
+    if (!board) return;
 
+    const rows = [...board.querySelectorAll<HTMLElement>('[data-flap-line]')];
+    const lines = rows.map((row) =>
+      [...row.querySelectorAll<HTMLElement>('.flap')].map((el) => ({ tile: readTile(el), glyph: el.dataset.glyph ?? ' ' }))
+    );
+    const key = [...board.querySelectorAll<HTMLElement>('.flap-key .flap')].map((el) => ({ ...readTile(el), slow: true }));
+    const all = [...lines.flat().map(({ tile }) => tile), ...key];
+
+    const settle = () => {
+      lines.flat().forEach(({ tile, glyph }) => setNow(tile, glyph));
+      key.forEach((tile, i) => setNow(tile, KEY_LABEL[i]));
+    };
+
+    if (shouldReduceMotion) {
+      settle();
+      return () => all.forEach(stop);
+    }
+
+    // The board clatters in once, the first time most of it is on screen. Nothing loops. Only the
+    // layout on screen animates; the hidden one settles at once in case the window crosses the
+    // breakpoint later.
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting || playedRef.current) return;
-        playedRef.current = true;
+        if (!entry.isIntersecting) return;
         observer.disconnect();
 
-        tilesRef.current.lines.forEach((row, r) =>
-          row.forEach(({ tile, glyph }, c) => flipTo(tile, glyph, r * 140 + c * 26, false))
-        );
-        tilesRef.current.key.forEach((tile, i) => flipTo(tile, KEY_LABEL[i], KEY_START_MS + i * 70, false));
+        let r = 0;
+        rows.forEach((row, i) => {
+          if (!isShown(row)) {
+            lines[i].forEach(({ tile, glyph }) => setNow(tile, glyph));
+            return;
+          }
+          lines[i].forEach(({ tile, glyph }, c) => flipTo(tile, glyph, r * 110 + c * 20, 5 + Math.floor(Math.random() * 4)));
+          r += 1;
+        });
+        key.forEach((tile, i) => flipTo(tile, KEY_LABEL[i], KEY_START_MS + i * 45, 4 + Math.floor(Math.random() * 3)));
       },
       { threshold: 0.45 }
     );
 
     observer.observe(board);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      all.forEach(stop);
+    };
   }, [shouldReduceMotion]);
 
   return (
-    <div
-      ref={boardRef}
-      className="flap-board p-4 sm:p-7"
-      style={{ '--flap-w': '48px', '--flap-h': '68px', '--flap-fs': '43px' } as CSSProperties}
-    >
-      <div className="relative z-10 grid gap-[calc(var(--flap-gap-x)*1.3)]">
-        {lines.map((line) => (
-          <div key={line.text} data-flap-row className="flex gap-(--flap-gap-x)" aria-hidden="true">
-            {[...line.text.padEnd(columns, ' ')].map((glyph, i) => (
-              <FlapTile key={i} glyph={glyph} tone={i >= line.accentFrom ? 'accent' : undefined} />
+    <div ref={boardRef} className="flap-board p-4 sm:p-7">
+      <div className="flap-grid relative z-10 grid gap-[calc(var(--flap-gap-x)*1.3)]">
+        {(Object.keys(layouts) as Layout[]).map((layout) => (
+          <div key={layout} data-flap-layout={layout} aria-hidden="true">
+            {layouts[layout].lines.map((line) => (
+              <div key={line.text} data-flap-line className="flex gap-(--flap-gap-x)">
+                {[...line.text.padEnd(layouts[layout].columns, ' ')].map((glyph, i) => (
+                  <FlapTile key={i} glyph={glyph} tone={i >= line.accentFrom ? 'accent' : undefined} />
+                ))}
+              </div>
             ))}
           </div>
         ))}
-        <div data-flap-row className="flex gap-(--flap-gap-x)">
-          {Array.from({ length: blanks }, (_, i) => (
-            <FlapTile key={i} glyph=" " />
+        <div className="flex gap-(--flap-gap-x)">
+          {Array.from({ length: keyBlanks }, (_, i) => (
+            <FlapTile key={i} glyph=" " wideOnly={i < keyBlanks - narrowKeyBlanks} />
           ))}
           <a
-            ref={keyRef}
             href={`mailto:${email}`}
             aria-label={`Email me at ${email}`}
             className="flap-key flex gap-(--flap-gap-x) rounded-md [--focus-offset:6px]"
