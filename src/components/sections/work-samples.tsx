@@ -290,10 +290,6 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
               <dt className="text-sm font-medium text-zinc-500">What I built</dt>
               <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
             </div>
-            <div className="grid gap-1">
-              <dt className="text-sm font-medium text-zinc-500">Result</dt>
-              <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.result}</dd>
-            </div>
           </dl>
           <ul aria-label={`${project.title} stack`} className="flex flex-wrap gap-1.5 pt-1">
             {project.stack.map((item) => (

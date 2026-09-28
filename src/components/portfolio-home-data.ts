@@ -91,7 +91,6 @@ export type Project = {
   chapters: readonly [Chapter, Chapter, Chapter];
   preview: string;
   problem: string;
-  result: string;
   role: string;
   stack: string[];
   target?: EvidenceTarget;
@@ -128,7 +127,6 @@ export const projects: Project[] = [
     preview: '/portfolio-previews/work-sample-auth-access.png',
     problem:
       'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
-    result: 'Ready on day one. Removed at exit. Every change on record for audit.',
     role: 'Identity and access governance',
     stack: ['Node.js', 'BullMQ', 'Access control management', 'PostgreSQL'],
     title: 'HRIS automation workflow',
@@ -144,7 +142,6 @@ export const projects: Project[] = [
     ],
     preview: '/portfolio-previews/work-sample-loan-collection.png',
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
-    result: 'One timeline per loan, and a clear next step for every collector.',
     role: 'Collections operations',
     stack: ['React', 'Node.js', 'Vonage', 'WhatsApp API', 'Job queues'],
     title: 'Multi-channel loan collections',
@@ -160,7 +157,6 @@ export const projects: Project[] = [
     ],
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
     problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
-    result: 'Every paid order confirmed. Every sale matched to a real payment.',
     role: 'Checkout and payments',
     stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     title: 'E-commerce payments',
@@ -186,18 +182,18 @@ export const experiences: ReadonlyArray<{
     highlights: [
       {
         target: 'krom-access',
-        text: 'Designed the workflow engine that grants and removes employee access across 8 company tools, with an audit trail'
+        text: "Built the bank's employee access system from scratch: a workflow engine that grants and removes access across 8 company tools, with an audit trail"
       },
       {
-        text: 'Moved an audit log from MongoDB to DocumentDB in stages, each verified before the next, and replaced pagination that could skip rows during writes'
+        text: 'Designed and built most of the loan collections system: calls from the browser, WhatsApp reminders, and field visits on one timeline per loan'
       },
+      { text: 'Cut average API execution time by 37% with refactoring and Redis caching' },
       {
         target: 'krom-shared-package',
         text: 'Shipped a shared auth, logging, and feature-flag package adopted by multiple internal apps'
       },
-      { text: 'Designed the Datadog dashboards and tracing that became the company monitoring template' },
       {
-        text: 'Traced stale release versions in Datadog to a missing deploy setting, and the infra fix now covers every EKS service'
+        text: 'Moved the audit log from MongoDB to DocumentDB in stages, verifying each one before the next'
       }
     ],
     period: 'Jan 2023 – Present',
@@ -228,13 +224,13 @@ export const experiences: ReadonlyArray<{
   {
     company: 'Iverson Technology',
     highlights: [
-      { text: 'Customized Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia' },
+      { text: 'Customized ERP workflows and reports for clients including JNE and Gramedia' },
       { text: 'Integrated data warehouse, enterprise portal, and point-of-sale systems' },
-      { text: 'Trained 200 professionals on Dynamics AX customization' }
+      { text: 'Trained hundreds of professionals across 2+ companies on Dynamics AX customization' }
     ],
     period: 'Dec 2017 – Dec 2019',
     role: 'Technical Consultant',
-    summary: 'ERP customization and integration for enterprise clients.',
+    summary: 'Microsoft Dynamics AX consulting for enterprise clients.',
     years: '2017'
   }
 ];

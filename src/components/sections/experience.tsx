@@ -30,7 +30,7 @@ function ExperienceHeader() {
       </RevealItem>
       <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-4">
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
-          I started as an ERP consultant, customizing Dynamics AX for companies like JNE and Gramedia. Then I moved into backend engineering on digital lending at Jenius, and now I build full-stack systems at Krom Bank.
+          I started in ERP consulting, moved into backend engineering on digital lending at Jenius, and now build full-stack systems at Krom Bank.
         </p>
       </RevealItem>
     </RevealGroup>
