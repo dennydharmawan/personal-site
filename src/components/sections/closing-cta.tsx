@@ -10,7 +10,7 @@ export function ClosingCtaSection() {
     >
       <div className={pageShellClassName}>
         <h2 id="closing-cta-heading" className="sr-only">
-          Hiring a senior engineer for fintech?
+          Hiring an engineer for fintech or SaaS?
         </h2>
         <DepartureBoard email={contactEmail} />
       </div>

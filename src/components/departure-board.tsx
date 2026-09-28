@@ -18,17 +18,17 @@ const layouts: Record<Layout, { columns: number; lines: { text: string; accentFr
   wide: {
     columns: 22,
     lines: [
-      { text: 'HIRING A SENIOR', accentFrom: Infinity },
-      { text: 'ENGINEER FOR FINTECH?', accentFrom: 13 }
+      { text: 'HIRING AN ENGINEER', accentFrom: Infinity },
+      { text: 'FOR FINTECH OR SAAS?', accentFrom: 4 }
     ]
   },
   narrow: {
     columns: 12,
     lines: [
-      { text: 'HIRING A', accentFrom: Infinity },
-      { text: 'SENIOR', accentFrom: Infinity },
+      { text: 'HIRING AN', accentFrom: Infinity },
       { text: 'ENGINEER FOR', accentFrom: Infinity },
-      { text: 'FINTECH?', accentFrom: 0 }
+      { text: 'FINTECH OR', accentFrom: 0 },
+      { text: 'SAAS?', accentFrom: 0 }
     ]
   }
 };
