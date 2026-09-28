@@ -10,9 +10,9 @@ export type ExpertiseItem = {
 export const expertiseItems: ExpertiseItem[] = [
   {
     kind: 'fullstack',
-    tail: 'Every request ends in an audit record.',
+    tail: 'Every access change has a who, what, and when.',
     title: 'Leave a trail.',
-    windowLabel: 'access.decision'
+    windowLabel: 'access.log'
   },
   {
     kind: 'migration',
@@ -64,7 +64,7 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
   },
   'jenius-lending': {
     glyph: 'lending',
-    phrase: 'lending backends at Jenius'
+    phrase: 'lending backend services at Jenius'
   }
 };
 
@@ -73,7 +73,7 @@ export const aboutParagraph: AboutSegment[] = [
   { evidence: 'krom-access' },
   ', and ',
   { evidence: 'krom-shared-package' },
-  ' that multiple internal apps run on. Before Krom, I ran ',
+  ' that multiple internal apps run on. Before Krom, I owned the ',
   { evidence: 'jenius-lending' },
   " for three years. Next, I want a senior full-stack or backend role in fintech or digital banking, with a path to tech lead."
 ];
@@ -103,7 +103,7 @@ export const projects: Project[] = [
     problem:
       'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
     role: 'Identity and access governance',
-    stack: ['Node.js', 'BullMQ', 'Access control management', 'PostgreSQL'],
+    stack: ['Node.js', 'TypeScript', 'BullMQ', 'Redis', 'MySQL', 'Kubernetes', 'Access control management'],
     title: 'HRIS automation workflow',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     preview: '/portfolio-previews/work-sample-loan-collection.png',
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
     role: 'Collections operations',
-    stack: ['React', 'Node.js', 'Vonage', 'WhatsApp API', 'Job queues'],
+    stack: ['Next.js', 'Node.js', 'MySQL', 'Redis', 'Vonage', 'WhatsApp API', 'Datadog'],
     title: 'Multi-channel loan collections',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
@@ -133,7 +133,7 @@ export const projects: Project[] = [
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
     problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
     role: 'Checkout and payments',
-    stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
+    stack: ['Next.js', 'Microservices', 'Kafka', 'Payment API', 'Webhooks', 'SQL'],
     title: 'E-commerce payments',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
@@ -166,9 +166,6 @@ export const experiences: ReadonlyArray<{
       {
         target: 'krom-shared-package',
         text: 'Shipped a shared auth, logging, and feature-flag package adopted by multiple internal apps'
-      },
-      {
-        text: 'Moved the audit log from MongoDB to DocumentDB in stages, verifying each one before the next'
       }
     ],
     period: 'Jan 2023 – Present',
@@ -186,10 +183,10 @@ export const experiences: ReadonlyArray<{
     highlights: [
       {
         target: 'jenius-lending',
-        text: 'Ran the lending backends at 2M+ transactions a month and 99.98% uptime on Node.js, GraphQL, and Kafka'
+        text: 'Owned the Flexi Cash lending services as main contributor, at 2M+ transactions a month and 99.98% uptime on Node.js and GraphQL'
       },
-      { text: 'Kept origination and disbursement stable while users grew 147% in three years' },
-      { text: 'Built retail partner APIs on Kafka events that widened digital lending distribution' }
+      { text: 'Kept loan applications and payouts stable while users grew 147% in three years' },
+      { text: 'Built event-driven partner APIs on Kafka that brought Flexi Cash to more retail partners' }
     ],
     period: 'Dec 2019 – Dec 2022',
     role: 'Back End Engineer',
