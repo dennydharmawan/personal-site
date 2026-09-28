@@ -242,23 +242,6 @@ export function DepartureBoard({ email }: { email: string }) {
     });
   };
 
-  // Once the label has landed, hovering sends one flap of the same glyph across the key.
-  const onKeyEnter = () => {
-    const tiles = keyTilesRef.current;
-    if (tiles.some((tile, i) => tile.busy || tile.current !== KEY_LABEL[i])) {
-      settleKey();
-      return;
-    }
-    if (shouldReduceMotion) return;
-
-    tiles.forEach((tile, i) => {
-      window.clearTimeout(tile.timer);
-      tile.timer = window.setTimeout(() => {
-        if (!tile.busy) flap(tile, tile.current, 90, () => settle(tile));
-      }, i * 35);
-    });
-  };
-
   return (
     <div ref={boardRef} className="flap-board p-4 sm:p-7">
       <div className="flap-grid relative z-10 grid gap-[calc(var(--flap-gap-x)*1.3)]">
@@ -282,7 +265,7 @@ export function DepartureBoard({ email }: { email: string }) {
             aria-label={`Email me at ${email}`}
             className="flap-key relative flex gap-(--flap-gap-x) rounded-md [--focus-offset:6px] after:absolute after:inset-x-0 after:inset-y-[min(0px,calc((100%-44px)/2))]"
             onFocus={settleKey}
-            onPointerEnter={onKeyEnter}
+            onPointerEnter={settleKey}
           >
             {[...KEY_LABEL].map((glyph, i) => (
               <FlapTile key={i} glyph={glyph} tone="key" />
