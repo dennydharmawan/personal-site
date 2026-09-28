@@ -44,3 +44,6 @@ clips/out/
 film/node_modules/
 film/out/
 film/frames/
+
+# Private career notes and appraisals
+career-resources/
