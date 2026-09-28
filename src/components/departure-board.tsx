@@ -158,6 +158,7 @@ const isShown = (el: Element) => el.getClientRects().length > 0;
 export function DepartureBoard({ email }: { email: string }) {
   const shouldReduceMotion = useReducedMotion();
   const boardRef = useRef<HTMLDivElement>(null);
+  const keyTilesRef = useRef<Tile[]>([]);
 
   const keyBlanks = layouts.wide.columns - KEY_LABEL.length;
   const narrowKeyBlanks = layouts.narrow.columns - KEY_LABEL.length;
@@ -174,6 +175,7 @@ export function DepartureBoard({ email }: { email: string }) {
       [...row.querySelectorAll<HTMLElement>('.flap')].map((el) => ({ tile: readTile(el), glyph: el.dataset.glyph ?? ' ' }))
     );
     const key = [...board.querySelectorAll<HTMLElement>('.flap-key .flap')].map((el) => ({ ...readTile(el), slow: true }));
+    keyTilesRef.current = key;
     const all = [...lines.flat().map(({ tile }) => tile), ...key];
 
     const settle = () => {
@@ -215,6 +217,13 @@ export function DepartureBoard({ email }: { email: string }) {
     };
   }, [shouldReduceMotion]);
 
+  // A visitor who reaches the key before it has flapped in gets its label at once.
+  const settleKey = () => {
+    keyTilesRef.current.forEach((tile, i) => {
+      if (tile.current !== KEY_LABEL[i]) setNow(tile, KEY_LABEL[i]);
+    });
+  };
+
   return (
     <div ref={boardRef} className="flap-board p-4 sm:p-7">
       <div className="flap-grid relative z-10 grid gap-[calc(var(--flap-gap-x)*1.3)]">
@@ -236,7 +245,9 @@ export function DepartureBoard({ email }: { email: string }) {
           <a
             href={`mailto:${email}`}
             aria-label={`Email me at ${email}`}
-            className="flap-key flex gap-(--flap-gap-x) rounded-md [--focus-offset:6px]"
+            className="flap-key relative flex gap-(--flap-gap-x) rounded-md [--focus-offset:6px] after:absolute after:inset-x-0 after:inset-y-[min(0px,calc((100%-44px)/2))]"
+            onFocus={settleKey}
+            onPointerEnter={settleKey}
           >
             {[...KEY_LABEL].map((glyph, i) => (
               <FlapTile key={i} glyph={glyph} tone="key" />
