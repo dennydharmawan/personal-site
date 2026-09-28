@@ -268,69 +268,68 @@ function MigrationPath({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
-// A status-page strip: one bar a day, one bad day in amber. The day is illustrative; the
-// uptime figure beside it is the real one.
-const uptimeDays = 42;
-const badDay = 29;
-const growthPath = 'M1 15 C 10 14, 16 12, 24 10 S 40 6, 47 4 S 58 2, 63 1';
+// One traffic line that dips once and recovers. The shape is illustrative; the figures under it
+// are the real ones. The marker sits on the dip, so its position is the path's own coordinates.
+const trafficLine = 'M0 84 C 36 80, 64 72, 96 62 S 150 46, 182 42 L 196 58 L 210 36 S 252 22, 280 14';
+const trafficArea = `${trafficLine} L 280 96 L 0 96 Z`;
+const dip = { x: 196 / 280, y: 58 / 96 };
+const trafficCycle = 8.2;
+const reliabilityFigures = [
+  { label: 'uptime', value: '99.98%' },
+  { label: 'transactions a month', value: '2M+' },
+  { label: 'users, three years', value: '+147%' }
+];
 
 function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className={`${panelClassName} gap-3`}>
+    <div className={`${panelClassName} gap-4`}>
       <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
         <span>Flexi Cash lending</span>
         <span>Jenius, 2019 to 2022</span>
       </div>
-      <div className="grid gap-1.5">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[11px] font-medium text-zinc-600">uptime</span>
-          <span className="text-sm font-semibold tabular-nums text-zinc-900">99.98%</span>
-        </div>
-        <span className="relative flex h-5 gap-[2px] overflow-hidden">
-          {Array.from({ length: uptimeDays }, (_, day) => (
-            <span
-              className={cn(
-                'min-w-0 flex-1 rounded-[1px]',
-                day === badDay ? 'bg-amber-400' : 'bg-emerald-500/70'
-              )}
-              key={day}
-            />
+
+      <div className="relative aspect-[280/96]">
+        <svg aria-hidden="true" className="absolute inset-0 size-full overflow-visible" fill="none" viewBox="0 0 280 96">
+          {[24, 48, 72].map((y) => (
+            <line className="stroke-zinc-100" key={y} x1="0" x2="280" y1={y} y2={y} />
           ))}
-          <motion.span
-            className="absolute inset-y-0 w-10 bg-linear-to-r from-transparent via-white/60 to-transparent"
+          <motion.path
+            className="fill-sky-500/10"
+            d={trafficArea}
+            {...cycle(reduced, { opacity: [0, 0, 1, 1, 0] }, trafficCycle, [0, 0.2, 0.5, 0.92, 1])}
+          />
+          <motion.path
+            className="stroke-sky-500"
+            d={trafficLine}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             {...cycle(
               reduced,
-              { transform: ['translateX(-2.5rem)', 'translateX(22rem)'] },
-              6.4,
-              [0, 1],
-              { ease: 'linear' }
+              { opacity: [1, 1, 1, 0], pathLength: [0, 1, 1, 1] },
+              trafficCycle,
+              [0, 0.45, 0.92, 1]
             )}
           />
-        </span>
-        <span className="flex justify-between text-[10px] text-zinc-400">
-          <span>one bad day, recovered</span>
-          <span>today</span>
-        </span>
+        </svg>
+        <motion.span
+          className="absolute grid -translate-x-1/2 justify-items-center gap-1.5"
+          style={{ left: `${dip.x * 100}%`, top: `calc(${dip.y * 100}% - 4px)` }}
+          {...cycle(reduced, { opacity: [0, 0, 1, 1, 0] }, trafficCycle, [0, 0.33, 0.38, 0.92, 1])}
+        >
+          <span className="size-2 rounded-full bg-white ring-2 ring-zinc-900" />
+          <span className="whitespace-nowrap text-[10px] text-zinc-500">bad day, recovered</span>
+        </motion.span>
       </div>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">transactions a month</span>
-        <span className="text-[11px] font-semibold tabular-nums text-zinc-900">2M+</span>
-      </div>
-      <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">user growth, three years</span>
-        <span className="flex items-center gap-2">
-          <svg aria-hidden="true" className="h-4 w-16 overflow-visible" fill="none" viewBox="0 0 64 16">
-            <motion.path
-              className="stroke-sky-500"
-              d={growthPath}
-              strokeLinecap="round"
-              strokeWidth="1.5"
-              {...cycle(reduced, { pathLength: [0, 1, 1, 0] }, 7.4, [0, 0.35, 0.9, 1], { delay: 0.6 })}
-            />
-          </svg>
-          <span className="text-[11px] font-semibold tabular-nums text-zinc-900">+147%</span>
-        </span>
-      </div>
+
+      <dl className="grid grid-cols-3 gap-3 border-t border-zinc-100 pt-3">
+        {reliabilityFigures.map(({ label, value }) => (
+          <div className="grid gap-0.5" key={label}>
+            <dt className="order-last text-[10px] leading-snug text-zinc-500">{label}</dt>
+            <dd className="text-sm font-semibold tabular-nums text-zinc-900">{value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
