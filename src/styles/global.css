@@ -606,6 +606,11 @@
   bottom: 0;
 }
 
+/* The static bottom half bounces on its hinge when a tile settles. */
+.flap > .flap-bottom {
+  transform-origin: 50% 0;
+}
+
 /* The split line across the middle, and the two hinge pins at its ends. */
 .flap::after {
   content: '';
@@ -658,6 +663,11 @@
   inset: 0;
   background: var(--color-black);
   opacity: 0;
+}
+
+/* Black shading turns the sky key muddy mid-flap; a deep sky keeps it the same hue. */
+.flap[data-tone='key'] .flap-shade {
+  background: var(--color-sky-900);
 }
 
 /* The Email key: a lift and a brighter face on hover, pressed back down on click. The label never changes. */
