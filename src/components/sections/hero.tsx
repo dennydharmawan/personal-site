@@ -1,5 +1,6 @@
 import { ChevronDown, Download } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
+import { HeroBlueprint } from '@/components/hero-blueprint';
 import { trustedTeams } from '@/components/portfolio-home-data';
 import {
   detailStackGapClassName,
@@ -7,85 +8,25 @@ import {
   getYearsExperience,
   pageShellClassName,
   riseDelay,
-  scrollToTarget,
-  trustedLogoToneClassName
+  scrollToTarget
 } from '@/components/sections/shared';
 import { Button } from '@/components/ui/button';
-
-const shellWidth = 'calc(100vw - 2.5rem)';
-
-// One crop per breakpoint range, each framed for the band height that range renders.
-// A picture takes the first source whose media matches, so the narrowest range comes first.
-const heroPhotoBands = [
-  { media: '(max-width: 639px)', sizes: shellWidth, slug: 'mobile', widths: [500, 700, 1000, 1200] },
-  { media: '(max-width: 1023px)', sizes: shellWidth, slug: 'tablet', widths: [1000, 1456, 1774] },
-  { media: undefined, sizes: `min(1280px, ${shellWidth})`, slug: 'desktop', widths: [1280, 1774] }
-];
-
-const heroPhotoFormats = ['avif', 'webp'];
-
-function heroPhotoSrcSet(slug: string, widths: number[], format: string) {
-  return widths
-    .map((width) => `/portfolio-previews/hero-team-${slug}-${width}.${format} ${width}w`)
-    .join(', ');
-}
-
-function HeroPhoto({ className }: { className: string }) {
-  return (
-    <div className="relative z-10 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-zinc-900/5">
-      <picture>
-        {heroPhotoBands.flatMap((band) =>
-          heroPhotoFormats.map((format) => (
-            <source
-              key={`${band.slug}-${format}`}
-              media={band.media}
-              sizes={band.sizes}
-              srcSet={heroPhotoSrcSet(band.slug, band.widths, format)}
-              type={`image/${format}`}
-            />
-          ))
-        )}
-        <img
-          alt="Team collaborating around a laptop with attention directed toward the next action"
-          className={`block w-full object-cover ${className}`}
-          decoding="async"
-          fetchPriority="high"
-          height={312}
-          src="/portfolio-previews/hero-team-desktop-1280.jpg"
-          width={1280}
-        />
-      </picture>
-    </div>
-  );
-}
-
-function HeroBackdrop() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(280%_160%_at_50%_0%,transparent_32%,black_64%)]"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(90%_80%_at_50%_100%,var(--color-sky-100)_0%,var(--color-sky-200)_45%,var(--color-sky-400)_100%)] opacity-40" />
-      <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,--alpha(var(--color-white)/78%)_0_1px,transparent_1px_8px)] opacity-40" />
-    </div>
-  );
-}
 
 function HeroHeadline({ className }: { className: string }) {
   return (
     <h1 className={`font-heading font-normal tracking-tight text-zinc-900 ${className}`}>
-      Building web solutions
-      <span className="block pt-1 text-zinc-500 sm:pt-2">that actually scale.</span>
+      Building systems
+      <span className="block text-zinc-500">to grow revenue.</span>
     </h1>
   );
 }
 
-function HeroLede({ className = '' }: { className?: string }) {
+function HeroLede({ yearsExperience, className = '' }: { yearsExperience: number; className?: string }) {
   return (
-    <p className={`max-w-xl text-base font-normal leading-7 text-zinc-700 text-balance ${className}`}>
-      I&apos;m a full-stack engineer with hands-on experience building{' '}
-      <span className="whitespace-nowrap">large-scale</span> financial systems, where scalability,
-      reliability, and maintainability are critical.
+    <p className={`max-w-xl text-lg font-normal leading-7 text-zinc-600 text-pretty xl:max-w-[24rem] ${className}`}>
+      Senior full-stack engineer with {yearsExperience}+ years of experience. I build distributed
+      systems for Indonesian digital banks, from lending at Jenius to workflow orchestration at
+      Krom Bank.
     </p>
   );
 }
@@ -129,45 +70,31 @@ function HeroActions({ className = '' }: { className?: string }) {
   );
 }
 
-function TrustedLogos({ className = '' }: { className?: string }) {
+// Secondary proof sits under the actions as one sentence, the way a product hero lists its
+// integrations under the buttons.
+function HeroProofLine() {
   return (
-    <div className={`flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-8 lg:gap-x-6 xl:gap-x-10 ${className}`}>
-      {trustedTeams.map((team) => (
-        <span key={team.name} className="inline-flex h-10 items-center justify-start">
-          <img
-            src={team.logo}
-            alt={`${team.name} logo`}
-            className={`${team.logoClassName} ${trustedLogoToneClassName} w-auto object-contain`}
-            decoding="async"
-            height={team.logoHeight}
-            width={team.logoWidth}
-          />
-        </span>
-      ))}
-    </div>
-  );
-}
-
-const trustedLine = "Trusted by teams at Indonesia's leading digital banks";
-
-function HeroProofBlock({ yearsExperience }: { yearsExperience: number }) {
-  return (
-    <div className="grid gap-6 pt-2 min-[520px]:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.36fr)] min-[520px]:items-end lg:gap-8">
-      <div className="grid gap-3">
-        <p className="max-w-md text-sm font-medium leading-6 text-zinc-700 text-pretty">
-          {trustedLine}
-        </p>
-        <TrustedLogos />
-      </div>
-
-      <div className="grid gap-2">
-        <p className="text-5xl font-semibold leading-none text-zinc-700 tabular-nums">
-          {yearsExperience}+
-        </p>
-        <p className="text-sm font-medium leading-5 text-zinc-600 text-pretty">
-          years of experience
-        </p>
-      </div>
+    <div className="grid gap-2.5">
+      <p id="hero-proof-label" className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+        Trusted by leading digital banks
+      </p>
+      <ul aria-labelledby="hero-proof-label" className="flex items-center gap-2">
+        {trustedTeams.map((team) => (
+          <li
+            key={team.name}
+            className="flex h-10 items-center rounded-xl bg-white px-3.5 ring-1 ring-zinc-900/8"
+          >
+            <img
+              src={team.logo}
+              alt={team.name}
+              className="h-[1.1rem] w-auto max-w-[5.5rem] object-contain opacity-75 grayscale"
+              decoding="async"
+              height={team.logoHeight}
+              width={team.logoWidth}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -176,32 +103,36 @@ export function HeroSection() {
   const yearsExperience = getYearsExperience();
 
   return (
-    <section className="relative isolate border-b border-zinc-200 bg-white pb-16 pt-24 sm:pt-28 md:pb-20 lg:pb-24">
-      <HeroBackdrop />
-      <div className={`${pageShellClassName} grid gap-10 md:gap-12`}>
-        <div className="grid gap-8">
-          <div className="animate-rise-in">
-            {/* Below sm the size tracks the shell (100vw minus its gutter) so "Building web
-                solutions" holds one line and never orphans "solutions". */}
-            <HeroHeadline className="max-w-6xl text-[clamp(1.5rem,calc(9.55vw_-_3.8px),2.5rem)] leading-[1.04] sm:text-[3.5rem] sm:leading-[0.96] lg:text-[5rem]" />
-          </div>
+    <section className="relative isolate">
+      <div className="relative bg-linear-to-b from-zinc-50 from-70% to-white pt-16 pb-16 md:pt-20 md:pb-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(--alpha(var(--color-zinc-200)/60%)_1px,transparent_1px),linear-gradient(90deg,--alpha(var(--color-zinc-200)/60%)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_bottom,var(--color-black)_40%,--alpha(var(--color-black)/30%)_70%,transparent)]"
+        />
+        <HeroBlueprint className="md:mx-auto md:w-[min(1280px,calc(100%_-_2.5rem),max(40rem,calc((100svh_-_25rem)*2.857)))]" />
 
-          <div className="animate-rise-in" style={riseDelay(0.08)}>
-            <HeroPhoto className="h-[12.5rem] object-[50%_22%] sm:h-[17rem] lg:h-[18rem]" />
-          </div>
-        </div>
-
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)] lg:items-end">
-          <div className="animate-rise-in" style={riseDelay(0.16)}>
-            <HeroProofBlock yearsExperience={yearsExperience} />
+        {/* The headline only takes a side column from xl; below that a 24rem column squeezes it.
+            From xl the proof sits under the headline and the lede aligns to the headline's top.
+            Stacked, the proof follows the actions. */}
+        <div
+          className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-[minmax(0,1fr)_24rem] xl:grid-rows-[auto_auto] xl:gap-x-16 xl:gap-y-8`}
+        >
+          {/* The size tracks the column (a container), so each line of the headline holds one
+              line at every width. */}
+          <div className="animate-rise-in @container xl:col-start-1 xl:row-start-1 xl:self-end">
+            <HeroHeadline className="text-[min(3rem,calc(100cqw/8.2))] leading-[1] sm:text-[min(4rem,calc(100cqw/8.2))] sm:leading-[0.94] xl:text-[min(5.5rem,calc(100cqw/8.2))]" />
           </div>
 
           <div
-            className={`animate-rise-in grid ${detailStackGapClassName} lg:justify-items-start`}
-            style={riseDelay(0.24)}
+            className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:gap-6 xl:self-start xl:pt-1`}
+            style={riseDelay(0.08)}
           >
-            <HeroLede />
+            <HeroLede yearsExperience={yearsExperience} />
             <HeroActions />
+          </div>
+
+          <div className="animate-rise-in xl:col-start-1 xl:row-start-2" style={riseDelay(0.16)}>
+            <HeroProofLine />
           </div>
         </div>
       </div>

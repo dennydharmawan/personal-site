@@ -189,3 +189,255 @@
     animation: none;
   }
 }
+
+/*
+  Hero blueprint. The draw-in is CSS so it runs from first paint, before hydration. Each element
+  carries its own --d (delay) and --t (duration); --f is when a solid shape's fill lands.
+*/
+@keyframes bp-draw {
+  from {
+    stroke-dashoffset: 1;
+    visibility: hidden;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bp-fill {
+  from {
+    fill-opacity: 0;
+  }
+}
+
+@keyframes bp-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes bp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@keyframes bp-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes bp-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes bp-pulse {
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.bp-sheet {
+  --bp-wait: 450ms;
+  font-family: var(--font-mono);
+}
+
+.bp-camera {
+  --bp-w: 960px;
+  width: var(--bp-w);
+  /* Centers the focused part, clamped so the sheet edge never shows inside the frame. */
+  translate: clamp(calc(100cqw - var(--bp-w)), calc(50cqw - var(--bp-pan) * var(--bp-w) / 1200), 0px) 0;
+  transition: translate 900ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (width >= 48rem) {
+  .bp-sheet {
+    --bp-wait: 0ms;
+  }
+
+  .bp-camera {
+    width: 100%;
+    translate: none;
+  }
+}
+
+.bp-draw {
+  stroke-dasharray: 1 1;
+  animation: bp-draw var(--t) cubic-bezier(0.65, 0, 0.35, 1) var(--d) backwards;
+}
+
+.bp-draw.bp-solid {
+  animation:
+    bp-draw var(--t) cubic-bezier(0.65, 0, 0.35, 1) var(--d) backwards,
+    bp-fill 240ms ease-out var(--f) backwards;
+}
+
+.bp-fade {
+  animation: bp-fade 260ms ease-out var(--d) backwards;
+}
+
+.bp-grow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bp-grow 380ms cubic-bezier(0.22, 1, 0.36, 1) var(--d) backwards;
+}
+
+.bp-rise {
+  animation: bp-rise 260ms ease-out var(--d) backwards;
+}
+
+.bp-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bp-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--d) backwards;
+}
+
+.bp-slide {
+  animation: bp-slide 260ms ease-out var(--d) backwards;
+}
+
+.bp-ink {
+  fill: none;
+  stroke: var(--color-zinc-800);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 200ms ease-in-out;
+}
+
+.bp-thin { stroke-width: 1; }
+.bp-heavy { stroke-width: 3; }
+.bp-solid { fill: var(--color-white); }
+.bp-cons { fill: none; stroke: var(--color-sky-200); stroke-width: 0.8; }
+.bp-mark { fill: none; stroke: var(--color-zinc-300); stroke-width: 1; }
+.bp-zone { font-size: 9px; font-weight: 500; fill: var(--color-zinc-300); }
+.bp-dim { fill: none; stroke: var(--color-zinc-400); stroke-width: 0.9; }
+.bp-dimtxt { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; fill: var(--color-zinc-500); }
+.bp-lbl { font-size: 10.5px; font-weight: 500; letter-spacing: 0.1em; fill: var(--color-zinc-500); transition: fill 200ms ease-in-out; }
+.bp-num { font-size: 11px; font-weight: 600; fill: var(--color-zinc-800); transition: fill 200ms ease-in-out; }
+.bp-plate { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; fill: var(--color-zinc-700); }
+.bp-hatch { stroke: var(--color-zinc-300); stroke-width: 1.1; }
+.bp-arrow { fill: var(--color-zinc-500); }
+.bp-dot { fill: var(--color-zinc-800); }
+.bp-lamp { fill: var(--color-zinc-300); stroke: var(--color-zinc-800); stroke-width: 1; }
+.bp-glow { fill: var(--color-emerald-400); }
+.bp-bar { fill: var(--color-sky-100); stroke: var(--color-zinc-800); stroke-width: 1.2; transition: fill 300ms ease-out; }
+.bp-bar.is-full { fill: var(--color-sky-300); }
+.bp-trend { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; stroke-dasharray: 4 3; }
+
+.bp-pipe-o {
+  fill: none;
+  stroke: var(--color-zinc-800);
+  stroke-width: 15;
+  stroke-linejoin: round;
+  transition: stroke 200ms ease-in-out;
+}
+
+.bp-pipe-i { fill: none; stroke: var(--color-white); stroke-width: 12; stroke-linejoin: round; }
+
+.bp-tok > * {
+  display: none;
+  fill: var(--color-white);
+  stroke: var(--color-zinc-700);
+  stroke-width: 1.4;
+}
+
+.bp-tok[data-k="c"] > .bp-k-c,
+.bp-tok[data-k="t"] > .bp-k-t,
+.bp-tok[data-k="s"] > .bp-k-s {
+  display: inline;
+}
+
+.bp-tok[data-done] > * {
+  fill: var(--color-sky-500);
+  stroke: var(--color-sky-700);
+}
+
+/* Tour focus. Entrances are slower than exits; the lift waits for the phone camera to settle. */
+.bp-part {
+  transition:
+    opacity 420ms ease-out,
+    transform 240ms ease-in-out;
+}
+
+.bp-sheet.has-focus .bp-part:not(.is-focus) {
+  opacity: 0.3;
+}
+
+.bp-part.is-focus {
+  transform: translateY(-6px);
+  /* Motion spring, stiffness 300, damping 22, mass 1: one 7% overshoot and a settle. */
+  transition:
+    opacity 260ms ease-out,
+    transform 700ms linear(0, 0.1189, 0.3657, 0.6233, 0.8315, 0.9707, 1.0461, 1.0737, 1.0717, 1.0555, 1.0356, 1.0181, 1.0056, 0.9982, 0.9949, 0.9943, 0.9953, 0.9967, 0.9982, 0.9993, 1, 1, 1) var(--bp-wait);
+}
+
+.bp-part.is-focus :is(.bp-ink, .bp-pipe-o) {
+  stroke: var(--color-sky-600);
+  transition: stroke 260ms ease-out var(--bp-wait);
+}
+
+.bp-ghost {
+  fill: none;
+  stroke: var(--color-sky-300);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0;
+  transition: opacity 160ms ease-in;
+}
+
+.bp-ghost.is-on {
+  opacity: 1;
+  transition: opacity 300ms ease-out var(--bp-wait);
+}
+
+.bp-call {
+  transition: opacity 420ms ease-out;
+}
+
+.bp-sheet.has-focus .bp-call:not(.is-on) {
+  opacity: 0.55;
+}
+
+.bp-bubble {
+  fill: var(--color-white);
+  stroke: var(--color-zinc-800);
+  stroke-width: 1.2;
+  transition: fill 200ms ease-in-out, stroke 200ms ease-in-out;
+}
+
+.bp-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.bp-call.is-on .bp-pulse { animation: bp-pulse 260ms ease-in-out var(--bp-wait); }
+.bp-call.is-on .bp-bubble { fill: var(--color-sky-500); stroke: var(--color-sky-600); transition-duration: 260ms; }
+.bp-call.is-on .bp-num { fill: var(--color-white); }
+.bp-call.is-on .bp-lbl { fill: var(--color-sky-700); }
+
+.bp-ring {
+  fill: none;
+  stroke: var(--color-sky-500);
+  stroke-width: 1.5;
+  stroke-dasharray: 1 1;
+  animation: bp-draw var(--dwell) linear backwards;
+}
+
+.bp-ring.is-full { animation: none; }
+
+.bp-sheet.is-halted .bp-ring {
+  animation-play-state: paused;
+}
