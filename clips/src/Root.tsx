@@ -3,7 +3,6 @@ import { Composition } from "remotion";
 import { AUTH_DURATION, AuthAccess } from "./clips/AuthAccess";
 import { ECOMMERCE_DURATION, EcommercePayment } from "./clips/EcommercePayment";
 import { LOAN_DURATION, LoanCollection } from "./clips/LoanCollection";
-import { PR_DURATION, PrReviewer } from "./clips/PrReviewer";
 import { clipConfig } from "./theme";
 
 /**
@@ -13,12 +12,6 @@ import { clipConfig } from "./theme";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        {...clipConfig}
-        component={PrReviewer}
-        durationInFrames={PR_DURATION}
-        id="PrReviewer"
-      />
       <Composition
         {...clipConfig}
         component={AuthAccess}

@@ -36,7 +36,6 @@ export const expertiseItems: ExpertiseItem[] = [
 
 export type Chapter = { at: number; label: string };
 
-// 'pr-reviewer' is hidden while the PR reviewer is off the site.
 const evidenceTargets = ['krom-access', 'krom-shared-package', 'jenius-lending'] as const;
 
 export type EvidenceTarget = (typeof evidenceTargets)[number];
@@ -45,7 +44,7 @@ export function isEvidenceTarget(value: string): value is EvidenceTarget {
   return (evidenceTargets as readonly string[]).includes(value);
 }
 
-export type GlyphId = 'access' | 'hub' | 'review' | 'lending';
+export type GlyphId = 'access' | 'hub' | 'lending';
 
 export type AboutEvidence = {
   glyph: GlyphId;
@@ -63,10 +62,6 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
     glyph: 'hub',
     phrase: 'a shared package for auth, logging, and feature flags'
   },
-  // 'pr-reviewer': {
-  //   glyph: 'review',
-  //   phrase: 'a multi-agent pull-request reviewer'
-  // },
   'jenius-lending': {
     glyph: 'lending',
     phrase: 'lending backends at Jenius'
@@ -78,9 +73,6 @@ export const aboutParagraph: AboutSegment[] = [
   { evidence: 'krom-access' },
   ', and ',
   { evidence: 'krom-shared-package' },
-  // ' that several production apps run on. I also built ',
-  // { evidence: 'pr-reviewer' },
-  // ' that runs in production. Before Krom, I ran ',
   ' that multiple internal apps run on. Before Krom, I ran ',
   { evidence: 'jenius-lending' },
   " for three years. Next, I want a senior full-stack or backend role in fintech or digital banking, with a path to tech lead."
@@ -99,23 +91,6 @@ export type Project = {
 };
 
 export const projects: Project[] = [
-  // Hidden while the PR reviewer is off the site.
-  // {
-  //   built:
-  //     'Four agents review each diff in parallel for security, correctness, tests, and conventions, with context pulled from the repository. A merger drops any finding the cited code does not support. Security findings never post on their own, and low-confidence notes go to a private queue for a person to approve.',
-  //   chapters: [
-  //     { at: 0, label: 'AI agents review code' },
-  //     { at: 7.8, label: 'False alarm dropped' },
-  //     { at: 11.6, label: 'Human checks security' }
-  //   ],
-  //   preview: '/portfolio-previews/work-sample-pr-reviewer.png',
-  //   problem: 'AI review bots post every finding, right or wrong.',
-  //   role: 'Internal developer tooling',
-  //   stack: ['TypeScript', 'AWS Bedrock', 'Bitbucket', 'Slack'],
-  //   target: 'pr-reviewer',
-  //   title: 'Multi-agent PR reviewer',
-  //   video: '/portfolio-previews/motion/work-sample-pr-reviewer.mp4'
-  // },
   {
     built:
       'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',

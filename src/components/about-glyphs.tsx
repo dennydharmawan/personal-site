@@ -119,62 +119,6 @@ function HubArt({ at }: ArtProps) {
   );
 }
 
-function ReviewArt({ at }: ArtProps) {
-  const lanes = at + 0.22;
-  const dropped = at + 0.62;
-
-  return (
-    <>
-      <motion.path className={line} d="M6 6.9c0 3.9 6 3.8 6 7.3" variants={draw(lanes, 0.4)} />
-      <motion.path className={line} d="M12 6.9v7.3" variants={draw(lanes, 0.4)} />
-      {/* The third agent's finding is dropped: its lane starts, then fades with it. */}
-      <motion.path
-        className={faintLine}
-        d="M18 6.9c0 1.9-.5 3-1.7 3.8"
-        variants={{
-          hidden: { opacity: 0, pathLength: 0, transition: instant },
-          visible: {
-            opacity: [0, 1, 1, 0],
-            pathLength: 1,
-            transition: {
-              opacity: { delay: lanes, duration: dropped + 0.3 - lanes, ease: 'linear', times: [0, 0.01, 0.57, 1] },
-              pathLength: { delay: lanes, duration: 0.4, ease: revealEase }
-            }
-          }
-        }}
-      />
-      <motion.circle className="fill-white" cx="6" cy="4.7" r="1.95" variants={grow(at, 0.3)} />
-      <motion.circle className="fill-white" cx="12" cy="4.7" r="1.95" variants={grow(at + 0.07, 0.3)} />
-      <motion.circle
-        className="fill-white"
-        cx="18"
-        cy="4.7"
-        r="1.95"
-        variants={{
-          hidden: { opacity: 1, scale: 0, transition: instant },
-          visible: {
-            opacity: 0,
-            scale: 1,
-            transition: {
-              opacity: { delay: dropped, duration: 0.3, ease: 'linear' },
-              scale: { delay: at + 0.14, duration: 0.3, ease: overshootEase }
-            }
-          }
-        }}
-      />
-      <motion.circle className={faintLine} cx="18" cy="4.7" r="1.55" variants={fade(0, 1, dropped)} />
-      <motion.circle
-        className="fill-sky-400"
-        cx="12"
-        cy="17.8"
-        r="3.6"
-        variants={grow(at + 0.56, 0.45)}
-      />
-      <motion.path className={tick} d="M10.3 17.9l1.15 1.15 2.3-2.5" variants={draw(at + 0.8, 0.3)} />
-    </>
-  );
-}
-
 function LendingArt({ at }: ArtProps) {
   const rise = at + 0.22;
 
@@ -203,8 +147,7 @@ function LendingArt({ at }: ArtProps) {
 const art: Record<GlyphId, ComponentType<ArtProps>> = {
   access: AccessArt,
   hub: HubArt,
-  lending: LendingArt,
-  review: ReviewArt
+  lending: LendingArt
 };
 
 // Without `at` the glyph stays finished. With it, the glyph follows the parent's

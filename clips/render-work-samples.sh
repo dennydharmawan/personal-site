@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Renders the four Work Samples clips and their posters straight into the site's public folder.
+# Renders the three Work Samples clips and their posters straight into the site's public folder.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 out=../public/portfolio-previews
 clips=(
-  "PrReviewer:work-sample-pr-reviewer:318"
   "AuthAccess:work-sample-auth-access:470"
   "LoanCollection:work-sample-loan-collection:490"
   "EcommercePayment:work-sample-ecommerce-payment:490"
