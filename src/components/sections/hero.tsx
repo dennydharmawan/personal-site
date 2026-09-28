@@ -23,7 +23,7 @@ function HeroHeadline({ className }: { className: string }) {
 
 function HeroLede({ yearsExperience, className = '' }: { yearsExperience: number; className?: string }) {
   return (
-    <p className={`max-w-xl text-lg font-normal leading-7 text-zinc-600 text-pretty xl:max-w-[24rem] ${className}`}>
+    <p className={`max-w-xl text-lg font-normal leading-7 text-zinc-600 text-pretty xl:max-w-[27rem] ${className}`}>
       Senior full-stack engineer with {yearsExperience}+ years of experience. I build distributed
       systems for Indonesian digital banks, from lending backends at Jenius handling 2M+
       transactions a month to workflow orchestration at Krom Bank.
@@ -111,11 +111,11 @@ export function HeroSection() {
         />
         <HeroBlueprint className="md:mx-auto md:w-[min(1280px,calc(100%_-_2.5rem),max(40rem,calc((100svh_-_25rem)*2.857)))]" />
 
-        {/* The headline only takes a side column from xl; below that a 24rem column squeezes it.
-            From xl the proof sits under the headline and the lede aligns to the headline's top.
-            Stacked, the proof follows the actions. */}
+        {/* The headline only takes a side column from xl; below that a narrow column squeezes it.
+            From xl the lede aligns to the headline's top and the actions to the proof row's
+            bottom. Stacked, the proof follows the actions. */}
         <div
-          className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-[minmax(0,1fr)_24rem] xl:grid-rows-[auto_auto] xl:gap-x-16 xl:gap-y-8`}
+          className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:grid-rows-[auto_auto] xl:gap-x-16 xl:gap-y-8`}
         >
           {/* The size tracks the column (a container), so each line of the headline holds one
               line at every width. */}
@@ -124,7 +124,7 @@ export function HeroSection() {
           </div>
 
           <div
-            className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:gap-6 xl:self-start xl:pt-1`}
+            className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:content-between xl:gap-6 xl:self-stretch xl:pt-1`}
             style={riseDelay(0.08)}
           >
             <HeroLede yearsExperience={yearsExperience} />
