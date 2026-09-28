@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
 
 // Drum order: the punctuation the board shows sits right after blank, so no tile rolls
-// through forty flaps to reach '.' or '→'.
-const DRUM = ' .→ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,:-+%/@';
+// through forty flaps to reach '.', '?', or '→'.
+const DRUM = ' .?→ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,:-+%/@';
 
 const KEY_LABEL = 'EMAIL ME →';
 // The key starts as the headline's tail is landing and flaps slower, so it still finishes last
@@ -18,17 +18,17 @@ const layouts: Record<Layout, { columns: number; lines: { text: string; accentFr
   wide: {
     columns: 22,
     lines: [
-      { text: 'TURN YOUR GROWTH IDEAS', accentFrom: Infinity },
-      { text: 'INTO REALITY TODAY.', accentFrom: 5 }
+      { text: 'HIRING A SENIOR', accentFrom: Infinity },
+      { text: 'ENGINEER FOR FINTECH?', accentFrom: 13 }
     ]
   },
   narrow: {
     columns: 12,
     lines: [
-      { text: 'TURN YOUR', accentFrom: Infinity },
-      { text: 'GROWTH IDEAS', accentFrom: Infinity },
-      { text: 'INTO REALITY', accentFrom: 5 },
-      { text: 'TODAY.', accentFrom: 0 }
+      { text: 'HIRING A', accentFrom: Infinity },
+      { text: 'SENIOR', accentFrom: Infinity },
+      { text: 'ENGINEER FOR', accentFrom: Infinity },
+      { text: 'FINTECH?', accentFrom: 0 }
     ]
   }
 };
