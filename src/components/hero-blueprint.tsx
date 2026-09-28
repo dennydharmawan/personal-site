@@ -49,17 +49,19 @@ function createPen(start: number, step = draw.pathStep, fixedMs?: number) {
       end = Math.max(end, delay + ms);
       return <path key={n++} d={d} pathLength={1} className={`${className} bp-draw`} style={timing(delay, ms, fillAt)} />;
     },
-    // The white bore chases the outline a beat behind, so the pipe draws as a hollow tube with
-    // a dark leading edge instead of a solid bar that is hollowed out later.
-    pipe(d: string) {
-      const delay = start + n * step;
-      const ms = fixedMs ?? penMs(d);
-      end = Math.max(end, delay + 70 + ms);
-      const key = n++;
+    // Each bore draws in step with its outline, so a pipe grows as a hollow tube with an open end.
+    // Every outline goes under every bore, so pipes that share a junction merge into one fork.
+    pipes(ds: readonly string[]) {
+      const runs = ds.map((d) => {
+        const delay = start + n * step;
+        const ms = fixedMs ?? penMs(d);
+        end = Math.max(end, delay + ms);
+        return { d, key: n++, style: timing(delay, ms) };
+      });
       return (
-        <g key={key}>
-          <path d={d} pathLength={1} className="bp-pipe-o bp-draw" style={timing(delay, ms)} />
-          <path d={d} pathLength={1} className="bp-pipe-i bp-draw" style={timing(delay + 70, ms)} />
+        <g key={`pipes-${runs[0].key}`}>
+          {runs.map(({ d, key, style }) => <path key={`o${key}`} d={d} pathLength={1} className="bp-pipe-o bp-draw" style={style} />)}
+          {runs.map(({ d, key, style }) => <path key={`i${key}`} d={d} pathLength={1} className="bp-pipe-i bp-draw" style={style} />)}
         </g>
       );
     },
@@ -137,7 +139,7 @@ function ProcessArt({ start, ids }: ArtProps) {
 
 function RouteArt({ start }: ArtProps) {
   const pen = createPen(start);
-  const pipes = routePipes.map((d) => pen.pipe(d));
+  const pipes = pen.pipes(routePipes);
   const hub = pen.draw(ring(660, 233, 14), 'bp-ink bp-solid');
   const arm = pen.draw('M0 0 H12', 'bp-ink');
   const supports = pen.draw('M730 158 V120 M730 308 V330 M760 158 V120 M760 308 V330', 'bp-ink bp-thin');
@@ -161,7 +163,7 @@ function SettleArt({ start }: ArtProps) {
     ly,
     box: pen.draw(`M790 ${ly - 18} H852 V${ly + 18} H790 Z`, 'bp-ink bp-solid'),
     slot: pen.draw(`M798 ${ly + 10} H830`, 'bp-ink bp-thin'),
-    pipe: pen.pipe(`M852 ${ly} H905`)
+    pipe: pen.pipes([`M852 ${ly} H905`])
   }));
   const done = timing(pen.end());
   return (
@@ -308,6 +310,10 @@ function focusOf(at: TourState): Part | null {
 
 const tokenSpeed = 170;
 const spawnEvery = 0.55;
+// The drop from the hopper neck to the belt, the first leg of every route.
+const dropLength = 33;
+// Processed tokens shrink inside the masked chamber so they ride the bore instead of filling it.
+const pipeScale = 0.72;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
@@ -340,6 +346,16 @@ function bindNodes(svg: SVGSVGElement): EngineNodes {
   };
 }
 
+// Most engine values hold still between frames, so a write that would repeat the last value is skipped.
+const written = new WeakMap<Element, Record<string, string>>();
+function write(el: Element, name: string, value: string) {
+  let attrs = written.get(el);
+  if (!attrs) written.set(el, (attrs = {}));
+  if (attrs[name] === value) return;
+  attrs[name] = value;
+  el.setAttribute(name, value);
+}
+
 type BarPhase = { kind: 'filling'; index: number } | { kind: 'holding'; left: number } | { kind: 'draining'; elapsed: number; from: number[] };
 type Box = Part['footprint'];
 type Engine = {
@@ -351,12 +367,22 @@ type Engine = {
   dispose(): void;
 };
 
-// Matches the focused part's CSS: others drop to 0.3, the focused one lifts 6 units.
-const dimAlpha = 0.3;
+// Tokens outside the focused part step back like its ink does; tokens inside lift with it by 6 units.
+const dimAlpha = 0.6;
 const liftBy = -6;
 
+type Point = readonly [number, number];
+
+// Gravity on the drop: the token leaves the neck slowly and reaches the belt at speed.
+function tokenAt(lane: number, s: number): Point {
+  if (s >= dropLength) return pointAt(routes[lane], s);
+  const [x, y] = routes[lane].points[0];
+  const p = s / dropLength;
+  return [x, y + dropLength * p * p];
+}
+
 function createEngine(n: EngineNodes): Engine {
-  type Token = { slot: SVGGElement; lane: number; s: number; done: boolean; lastX: number; alpha: number; lift: number };
+  type Token = { slot: SVGGElement; lane: number; s: number; done: boolean; lastX: number; alpha: number; lift: number; tilt: number };
   const free = [...n.tokens];
   const live: Token[] = [];
   let focusBox: Box | null = null;
@@ -364,6 +390,9 @@ function createEngine(n: EngineNodes): Engine {
   const heights = barTargets.map(() => 0);
   const filled = barTargets.map(() => 0);
   const heat = lanes.map(() => 0);
+  let lamp = 0;
+  // How many bar tops the trend line reaches; the fraction is the segment still drawing.
+  let trendReach = 0;
   const vane = { angle: 0, velocity: 0, target: 0 };
   let bars: BarPhase = { kind: 'filling', index: 0 };
   let clock = 0, spin = 0, spawnIn = 0, laneTurn = 0;
@@ -390,8 +419,11 @@ function createEngine(n: EngineNodes): Engine {
     token.alpha += (alphaTo - token.alpha) * k;
     token.lift += (liftTo - token.lift) * (dt > 0 ? 1 - Math.exp(-dt * 14) : 1);
     const edge = Math.min(1, token.s / (tokenSpeed * 0.16), (routes[token.lane].total - token.s) / (tokenSpeed * 0.2));
-    token.slot.setAttribute('transform', `translate(${x.toFixed(1)} ${(y + token.lift).toFixed(1)}) rotate(${x < 420 ? ((x * 2) % 360).toFixed(0) : 0})`);
-    token.slot.setAttribute('opacity', (edge * token.alpha).toFixed(2));
+    // A token leaves the hopper tilted and levels out as it lands; the belt carries it without rolling.
+    const turn = token.tilt * (1 - clamp01(token.s / dropLength));
+    const scale = token.done ? pipeScale : 1;
+    token.slot.setAttribute('transform', `translate(${x.toFixed(1)} ${(y + token.lift).toFixed(1)}) rotate(${turn.toFixed(1)}) scale(${scale})`);
+    write(token.slot, 'opacity', (edge * token.alpha).toFixed(2));
   }
 
   function stepTokens(sdt: number, dt: number, now: number) {
@@ -403,7 +435,16 @@ function createEngine(n: EngineNodes): Engine {
         slot.dataset.k = 'cts'[Math.floor(Math.random() * 3)];
         slot.removeAttribute('data-done');
         const [x, y] = routes[0].points[0];
-        live.push({ slot, lane: laneOrder[laneTurn++ % laneOrder.length], s: 0, done: false, lastX: x, alpha: focusBox === null || inFocus(x, y) ? 1 : dimAlpha, lift: 0 });
+        live.push({
+          slot,
+          lane: laneOrder[laneTurn++ % laneOrder.length],
+          s: 0,
+          done: false,
+          lastX: x,
+          alpha: focusBox === null || inFocus(x, y) ? 1 : dimAlpha,
+          lift: 0,
+          tilt: (Math.random() * 2 - 1) * 28
+        });
       }
     }
     let processing = false;
@@ -418,7 +459,7 @@ function createEngine(n: EngineNodes): Engine {
         deliver();
         continue;
       }
-      const [x, y] = pointAt(route, token.s);
+      const [x, y] = tokenAt(token.lane, token.s);
       if (!token.done && x > 510) {
         token.done = true;
         token.slot.dataset.k = 's';
@@ -430,7 +471,9 @@ function createEngine(n: EngineNodes): Engine {
       token.lastX = x;
       paintToken(token, x, y, dt, now);
     }
-    n.processLamp.setAttribute('opacity', processing && Math.floor(clock * 6) % 2 === 0 ? '1' : '0');
+    // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties.
+    lamp += ((processing ? 1 : 0) - lamp) * (1 - Math.exp(-sdt * 10));
+    write(n.processLamp, 'opacity', (lamp * (0.45 + 0.55 * (0.5 + 0.5 * Math.cos(clock * Math.PI * 4)))).toFixed(2));
   }
 
   function stepVane(sdt: number) {
@@ -446,23 +489,44 @@ function createEngine(n: EngineNodes): Engine {
     heat.forEach((value, i) => {
       const h = Math.max(0, value - sdt / 0.4);
       heat[i] = h;
-      n.glows[i].setAttribute('opacity', h.toFixed(3));
-      n.halos[i].setAttribute('opacity', (0.35 * h).toFixed(3));
-      n.halos[i].setAttribute('r', (9 * (1 + 0.4 * (1 - h))).toFixed(2));
+      write(n.glows[i], 'opacity', h.toFixed(3));
+      write(n.halos[i], 'opacity', (0.35 * h).toFixed(3));
+      write(n.halos[i], 'r', (9 * (1 + 0.4 * (1 - h))).toFixed(2));
     });
   }
 
-  function writeBars() {
-    const points: string[] = [];
+  const topOf = (i: number): Point => [barX(i) + 8, 312 - heights[i] - 6];
+
+  // The trend only joins bars that have settled, drawing each new segment out from the last top, so
+  // the line never dips toward a bar that is still filling.
+  function writeBars(trendAlpha = 1) {
     n.bars.forEach((bar, i) => {
       const h = heights[i];
-      bar.setAttribute('height', h.toFixed(2));
-      bar.setAttribute('y', (312 - h).toFixed(2));
-      bar.setAttribute('class', h > barTargets[i] - 1 ? 'bp-bar is-full' : 'bp-bar');
-      if (h > 2) points.push(`${barX(i) + 8},${(312 - h - 6).toFixed(1)}`);
+      write(bar, 'height', h.toFixed(2));
+      write(bar, 'y', (312 - h).toFixed(2));
+      write(bar, 'class', h > barTargets[i] - 1 ? 'bp-bar is-full' : 'bp-bar');
     });
-    n.trend.setAttribute('points', points.join(' '));
+    const whole = Math.floor(trendReach);
+    const points: string[] = [];
+    for (let i = 0; i < whole; i++) {
+      const [x, y] = topOf(i);
+      points.push(`${x},${y.toFixed(1)}`);
+    }
+    const part = trendReach - whole;
+    if (whole > 0 && part > 0 && whole < heights.length) {
+      const [x0, y0] = topOf(whole - 1);
+      const [x1, y1] = topOf(whole);
+      points.push(`${(x0 + (x1 - x0) * part).toFixed(1)},${(y0 + (y1 - y0) * part).toFixed(1)}`);
+    }
+    write(n.trend, 'points', points.join(' '));
+    write(n.trend, 'opacity', trendAlpha.toFixed(2));
   }
+
+  const settledBars = () => {
+    let count = 0;
+    while (count < heights.length && heights[count] > barTargets[count] - 1) count++;
+    return count;
+  };
 
   function stepBars(sdt: number) {
     if (bars.kind === 'holding') {
@@ -478,13 +542,18 @@ function createEngine(n: EngineNodes): Engine {
       if (elapsed >= (heights.length - 1) * 0.06 + 0.52) {
         heights.fill(0);
         filled.fill(0);
+        trendReach = 0;
         bars = { kind: 'filling', index: 0 };
       }
-    } else {
-      heights.forEach((h, i) => {
-        heights[i] = h + (filled[i] - h) * Math.min(1, sdt * 8);
-      });
+      // The trend fades before the bars fall, so it never sags with them.
+      writeBars(1 - clamp01(elapsed / 0.24));
+      return;
     }
+    const k = 1 - Math.exp(-sdt * 8);
+    heights.forEach((h, i) => {
+      heights[i] = h + (filled[i] - h) * k;
+    });
+    trendReach = Math.min(settledBars(), trendReach + sdt * 4.5);
     writeBars();
   }
 
@@ -547,6 +616,7 @@ function createEngine(n: EngineNodes): Engine {
       stillHeights.forEach((h, i) => {
         heights[i] = h;
       });
+      trendReach = settledBars();
       writeBars();
     },
     focus(box, liftAfterMs) {
@@ -555,7 +625,7 @@ function createEngine(n: EngineNodes): Engine {
       if (frame) return;
       const now = performance.now();
       for (const token of live) {
-        const [x, y] = pointAt(routes[token.lane], token.s);
+        const [x, y] = tokenAt(token.lane, token.s);
         paintToken(token, x, y, 0, now);
       }
     },
@@ -686,7 +756,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
     if (event.pointerType === 'touch') return;
     const id = partAt(event);
-    if (id) dispatch({ type: 'hover', id });
+    dispatch(id ? { type: 'hover', id } : { type: 'leave' });
   };
   const onPointerLeave = (event: PointerEvent<SVGSVGElement>) => {
     if (event.pointerType !== 'touch') dispatch({ type: 'leave' });
@@ -726,6 +796,10 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
               <mask id={ids.tokens} maskUnits="userSpaceOnUse" x={0} y={0} width={1200} height={sheetHeight}>
                 <rect width={1200} height={sheetHeight} className="fill-white" />
                 <rect x={420} y={150} width={180} height={180} className="fill-black" />
+                <circle cx={660} cy={233} r={14} className="fill-black" />
+                {lanes.map((ly) => (
+                  <rect key={ly} x={790} y={ly - 18} width={62} height={36} className="fill-black" />
+                ))}
               </mask>
             </defs>
 

@@ -15,7 +15,7 @@ export const parts: readonly Part[] = [
   { id: 'process', label: 'PROCESS', footprint: { x: 406, y: 132, w: 206, h: 202 }, callout: { x: 510, y: 104, leadTo: 138 }, panX: 510, dwellMs: 3400 },
   { id: 'route', label: 'ROUTE', footprint: { x: 604, y: 150, w: 186, h: 164 }, callout: { x: 660, y: 150, leadTo: 219 }, panX: 700, dwellMs: 3400 },
   { id: 'settle', label: 'SETTLE', footprint: { x: 786, y: 150, w: 72, h: 164 }, callout: { x: 821, y: 104, leadTo: 154 }, panX: 821, dwellMs: 2800 },
-  { id: 'growth', label: 'GROWTH', footprint: { x: 901, y: 46, w: 273, h: 290 }, callout: { x: 1000, y: 34, leadTo: 50 }, panX: 1040, dwellMs: 3200 }
+  { id: 'growth', label: 'GROWTH', footprint: { x: 901, y: 46, w: 273, h: 290 }, callout: { x: 1000, y: 20, leadTo: 50 }, panX: 1040, dwellMs: 3200 }
 ];
 
 // Tall enough for the system dimension at y 392 and the bottom crop marks under it.
