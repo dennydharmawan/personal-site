@@ -83,16 +83,9 @@ function setNow(tile: Tile, glyph: string) {
   tile.leaf.style.visibility = 'hidden';
 }
 
-// One flap per call: the leaf falls from the current glyph to the next one on the drum, then
-// the tile calls itself again until it reaches its target.
-function step(tile: Tile) {
-  if (tile.busy || tile.current === tile.target) return;
-
+// One flap: the leaf falls from the current glyph to `next` and lands as the new bottom half.
+function flap(tile: Tile, next: string, duration: number, onLanded: () => void) {
   tile.busy = true;
-  const index = DRUM.indexOf(tile.current);
-  const next = index < 0 ? tile.target : DRUM[(index + 1) % DRUM.length];
-  const duration = (tile.slow ? 80 : 48) + Math.random() * 16;
-
   paint(tile.top, next);
   paint(tile.bottom, tile.current);
   paint(tile.leafFront, tile.current);
@@ -115,8 +108,33 @@ function step(tile: Tile) {
     tile.leaf.style.visibility = 'hidden';
     tile.current = next;
     tile.busy = false;
-    step(tile);
+    onLanded();
   };
+}
+
+// The last flap hits the stop and bounces back once toward the viewer before it rests.
+function settle(tile: Tile) {
+  tile.bottom.parentElement?.animate(
+    [
+      { transform: 'rotateX(0deg)' },
+      { transform: 'rotateX(10deg)', offset: 0.3 },
+      { transform: 'rotateX(0deg)', offset: 0.65 },
+      { transform: 'rotateX(3deg)', offset: 0.82 },
+      { transform: 'rotateX(0deg)' }
+    ],
+    { duration: 260, easing: 'ease-out' }
+  );
+}
+
+// Flaps one glyph at a time until the tile reaches its target, then settles.
+function step(tile: Tile) {
+  if (tile.busy || tile.current === tile.target) return;
+
+  const index = DRUM.indexOf(tile.current);
+  const next = index < 0 ? tile.target : DRUM[(index + 1) % DRUM.length];
+  flap(tile, next, (tile.slow ? 80 : 48) + Math.random() * 16, () =>
+    next === tile.target ? settle(tile) : step(tile)
+  );
 }
 
 // A blank tile starts a few flaps short of its glyph instead of spinning the whole drum, so a
@@ -224,6 +242,23 @@ export function DepartureBoard({ email }: { email: string }) {
     });
   };
 
+  // Once the label has landed, hovering sends one flap of the same glyph across the key.
+  const onKeyEnter = () => {
+    const tiles = keyTilesRef.current;
+    if (tiles.some((tile, i) => tile.busy || tile.current !== KEY_LABEL[i])) {
+      settleKey();
+      return;
+    }
+    if (shouldReduceMotion) return;
+
+    tiles.forEach((tile, i) => {
+      window.clearTimeout(tile.timer);
+      tile.timer = window.setTimeout(() => {
+        if (!tile.busy) flap(tile, tile.current, 90, () => settle(tile));
+      }, i * 35);
+    });
+  };
+
   return (
     <div ref={boardRef} className="flap-board p-4 sm:p-7">
       <div className="flap-grid relative z-10 grid gap-[calc(var(--flap-gap-x)*1.3)]">
@@ -247,7 +282,7 @@ export function DepartureBoard({ email }: { email: string }) {
             aria-label={`Email me at ${email}`}
             className="flap-key relative flex gap-(--flap-gap-x) rounded-md [--focus-offset:6px] after:absolute after:inset-x-0 after:inset-y-[min(0px,calc((100%-44px)/2))]"
             onFocus={settleKey}
-            onPointerEnter={settleKey}
+            onPointerEnter={onKeyEnter}
           >
             {[...KEY_LABEL].map((glyph, i) => (
               <FlapTile key={i} glyph={glyph} tone="key" />
