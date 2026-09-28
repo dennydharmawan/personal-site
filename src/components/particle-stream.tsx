@@ -29,6 +29,15 @@ const arcSweep = Math.PI * 0.6;
 const arcFlow = 0.02;
 const gatherRate = 3.5;
 const parallaxPixels = 14;
+const pointerEaseRate = 4;
+// Idle dust rides a slow wind across the card and wraps at the edges, so the field never
+// settles into dots circling in place. Nearer dots travel faster, which reads as depth.
+const driftPixelsPerSecond = [3, 11] as const;
+const windSwayRadians = 0.5;
+const twinkleDepth = 0.3;
+// Dots near the pointer part around it, nearer dots more, so the cursor moves through the field.
+const repelRadius = 90;
+const repelPixels = 22;
 
 function seededRandom(seed: number) {
   let state = seed >>> 0;
@@ -106,7 +115,12 @@ export function ParticleStream({
     if (!canvas || !host || !context) return;
 
     const particles = buildParticles(pattern, seed);
+    const wind = seededRandom(seed * 97 + 13)() * Math.PI * 2;
+    let clock = 0;
     const pointer = { x: 0, y: 0 };
+    const pointerPixels = { x: 0, y: 0 };
+    const cursor = { x: 0, y: 0 };
+    let repel = 0;
     const shift = { x: 0, y: 0 };
     let hovered = false;
     let gather = 0;
@@ -121,8 +135,14 @@ export function ParticleStream({
     const draw = (now: number) => {
       const dt = last === 0 ? 0 : Math.min((now - last) / 1000, 0.1);
       last = now;
-      shift.x += (pointer.x - shift.x) * 0.06;
-      shift.y += (pointer.y - shift.y) * 0.06;
+      clock += dt;
+      const ease = 1 - Math.exp(-dt * pointerEaseRate);
+      shift.x += (pointer.x - shift.x) * ease;
+      shift.y += (pointer.y - shift.y) * ease;
+      const cursorEase = 1 - Math.exp(-dt * pointerEaseRate * 3);
+      cursor.x += (pointerPixels.x - cursor.x) * cursorEase;
+      cursor.y += (pointerPixels.y - cursor.y) * cursorEase;
+      repel += ((hovered ? 1 : 0) - repel) * cursorEase;
 
       gather += ((hovered ? 1 : 0) - gather) * (1 - Math.exp(-dt * gatherRate));
       flow = (flow + arcFlow * dt) % 1;
@@ -146,6 +166,17 @@ export function ParticleStream({
           alpha = Math.sin(particle.phase * Math.PI) * 0.9;
         } else {
           particle.phase += particle.speed * dt;
+          const heading = wind + Math.sin(clock * 0.07 + particle.lane * 5 + particle.y * 4) * windSwayRadians;
+          const pace = driftPixelsPerSecond[0] + (driftPixelsPerSecond[1] - driftPixelsPerSecond[0]) * particle.depth;
+          particle.x += (Math.cos(heading) * pace * dt) / Math.max(width, 1);
+          particle.y += (Math.sin(heading) * pace * dt) / Math.max(height, 1);
+          const marginX = 6 / Math.max(width, 1);
+          const marginY = 6 / Math.max(height, 1);
+          if (particle.x < -marginX) particle.x += 1 + marginX * 2;
+          else if (particle.x > 1 + marginX) particle.x -= 1 + marginX * 2;
+          if (particle.y < -marginY) particle.y += 1 + marginY * 2;
+          else if (particle.y > 1 + marginY) particle.y -= 1 + marginY * 2;
+          alpha *= 1 - twinkleDepth + twinkleDepth * Math.sin(particle.phase * 1.3);
           x = particle.x * width + Math.cos(particle.phase) * dustFloatPixels * particle.depth;
           y = particle.y * height + Math.sin(particle.phase * 0.8) * dustFloatPixels;
           if (pull > 0.001) {
@@ -174,10 +205,21 @@ export function ParticleStream({
           }
           if (particle.extra) alpha *= pull;
           if (alpha <= 0.004) continue;
+          if (repel > 0.01) {
+            const dx = x - cursor.x;
+            const dy = y - cursor.y;
+            const distance = Math.hypot(dx, dy);
+            if (distance > 0.5 && distance < repelRadius) {
+              const falloff = 1 - distance / repelRadius;
+              const push = falloff * falloff * repelPixels * (0.4 + particle.depth * 0.6) * repel;
+              x += (dx / distance) * push;
+              y += (dy / distance) * push;
+            }
+          }
         }
         x += shift.x * particle.depth * parallaxPixels;
         y += shift.y * particle.depth * parallaxPixels;
-        if (x < -4 || y < -4 || x > width + 4 || y > height + 4) continue;
+        if (x < -8 || y < -8 || x > width + 8 || y > height + 8) continue;
         context.globalAlpha = alpha;
         context.beginPath();
         context.arc(x * dpr, y * dpr, particle.size * dpr, 0, Math.PI * 2);
@@ -215,9 +257,14 @@ export function ParticleStream({
       const rect = host.getBoundingClientRect();
       pointer.x = (event.clientX - rect.left) / rect.width - 0.5;
       pointer.y = (event.clientY - rect.top) / rect.height - 0.5;
+      pointerPixels.x = event.clientX - rect.left;
+      pointerPixels.y = event.clientY - rect.top;
     };
-    const onPointerEnter = () => {
+    const onPointerEnter = (event: PointerEvent) => {
       hovered = pattern === 'dust';
+      const rect = host.getBoundingClientRect();
+      cursor.x = pointerPixels.x = event.clientX - rect.left;
+      cursor.y = pointerPixels.y = event.clientY - rect.top;
     };
     const onPointerLeave = () => {
       hovered = false;
