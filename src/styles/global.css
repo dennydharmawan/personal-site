@@ -473,3 +473,176 @@
 .bp-sheet.is-halted .bp-ring {
   animation-play-state: paused;
 }
+
+/*
+  Departure board. Each tile is a static top half (next glyph), a static bottom half (current
+  glyph), and a leaf that falls over the hinge carrying the current top and the next bottom.
+  The leaf's two faces get a black shade that deepens as it falls and lifts as it lands.
+*/
+.flap-board {
+  --flap-housing: var(--color-zinc-950);
+  --flap-tile: var(--color-zinc-800);
+  --flap-tile-hi: var(--color-zinc-700);
+  --flap-ink: var(--color-zinc-50);
+  --flap-gap: var(--color-zinc-950);
+  --flap-accent: var(--color-sky-300);
+  --focus-ring: var(--color-sky-300);
+  position: relative;
+  border-radius: 22px;
+  background: var(--flap-housing);
+  box-shadow:
+    inset 0 1px 0 --alpha(var(--color-white) / 8%),
+    0 40px 80px -40px --alpha(var(--color-black) / 50%);
+}
+
+.flap-board::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(165deg, --alpha(var(--color-white) / 6%), transparent 38%);
+}
+
+.flap {
+  --flap-r: calc(var(--flap-w) * 0.12);
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--flap-w);
+  height: var(--flap-h);
+  perspective: calc(var(--flap-h) * 5);
+  color: var(--flap-ink);
+  font-family: var(--font-heading);
+  font-size: var(--flap-fs);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.flap[data-tone='accent'] {
+  --flap-ink: var(--flap-accent);
+}
+
+.flap[data-tone='key'] {
+  --flap-tile: var(--color-sky-400);
+  --flap-tile-hi: var(--color-sky-300);
+  --flap-ink: var(--color-zinc-950);
+  --flap-gap: var(--color-sky-600);
+}
+
+.flap-half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background: var(--flap-tile);
+}
+
+.flap-half > span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: grid;
+  height: 200%;
+  place-items: center;
+}
+
+.flap-top {
+  top: 0;
+  border-radius: var(--flap-r) var(--flap-r) 0 0;
+  background: linear-gradient(var(--flap-tile-hi), var(--flap-tile));
+}
+
+.flap-top > span {
+  top: 0;
+}
+
+.flap-bottom {
+  bottom: 0;
+  border-radius: 0 0 var(--flap-r) var(--flap-r);
+  box-shadow: inset 0 -2px 0 --alpha(var(--color-black) / 18%);
+}
+
+.flap-bottom > span {
+  bottom: 0;
+}
+
+/* The split line across the middle, and the two hinge pins at its ends. */
+.flap::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 0.5px);
+  z-index: 4;
+  height: 1px;
+  background: var(--flap-gap);
+}
+
+.flap::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: calc(50% - 3px);
+  z-index: 3;
+  height: 6px;
+  background: linear-gradient(90deg, var(--flap-gap) 2px, transparent 2px calc(100% - 2px), var(--flap-gap) calc(100% - 2px));
+}
+
+.flap-leaf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 2;
+  height: 50%;
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+  visibility: hidden;
+}
+
+.flap-leaf > .flap-half {
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.flap-leaf > .flap-bottom {
+  top: 0;
+  bottom: auto;
+  transform: rotateX(180deg);
+  background: var(--flap-tile);
+}
+
+.flap-shade {
+  position: absolute;
+  inset: 0;
+  background: var(--color-black);
+  opacity: 0;
+}
+
+/* The Email key: a lift and a brighter face on hover, pressed back down on click. The label never changes. */
+.flap-key {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.flap-key:hover {
+  transform: translateY(-2px);
+}
+
+.flap-key:active {
+  transform: translateY(1px);
+}
+
+.flap-key:hover .flap {
+  --flap-tile: var(--color-sky-300);
+  --flap-tile-hi: var(--color-sky-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flap-key:hover,
+  .flap-key:active {
+    transform: none;
+  }
+}

@@ -8,13 +8,14 @@ import {
   useTransform,
   type MotionValue
 } from 'motion/react';
+import { AccessLanyard } from '@/components/access-lanyard';
 import { projects, type Chapter, type Project } from '@/components/portfolio-home-data';
 import {
   RevealGroup,
   RevealItem,
   pageShellClassName,
-  sectionPaddingClassName,
-  sectionHeaderClassName
+  sectionHeaderClassName,
+  sectionPaddingClassName
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -309,9 +310,11 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
 
 export function WorkSamplesSection() {
   return (
-    <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
+    <section className={`relative bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
+      <AccessLanyard />
       <div className={pageShellClassName}>
-        <RevealGroup className={sectionHeaderClassName}>
+        {/* On lg the header keeps the badge's drop height clear, so it never swings over the first project. */}
+        <RevealGroup className={cn(sectionHeaderClassName, 'lg:min-h-[21rem] lg:max-w-xl lg:content-start')}>
           <RevealItem>
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples
@@ -319,7 +322,7 @@ export function WorkSamplesSection() {
           </RevealItem>
           <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Some of the systems I&apos;ve built, and the problem each one solves.
+              Access, collections, and payments: three systems and the problem each one solves.
             </p>
           </RevealItem>
         </RevealGroup>

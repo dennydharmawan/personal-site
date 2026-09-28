@@ -107,7 +107,6 @@ function FooterBottomBar() {
 export function SiteFooter() {
   return (
     <footer
-      data-scroll-target="contact"
       className="relative isolate overflow-hidden border-t border-zinc-900/6 bg-zinc-50"
     >
       <div
