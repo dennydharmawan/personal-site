@@ -15,10 +15,10 @@ export const expertiseItems: ExpertiseItem[] = [
     windowLabel: 'access.decision'
   },
   {
-    kind: 'ai',
-    tail: 'Every security finding gets a human sign-off.',
-    title: 'AI reviews. A person decides.',
-    windowLabel: 'reviewer.run'
+    kind: 'migration',
+    tail: 'No big-bang cutovers. Each stage is checked before the next.',
+    title: 'Change it in small steps.',
+    windowLabel: 'audit-log.migrate'
   },
   {
     kind: 'production',

@@ -22,7 +22,7 @@ import {
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
-export type CapabilityKind = 'ai' | 'fullstack' | 'production' | 'standards';
+export type CapabilityKind = 'fullstack' | 'migration' | 'production' | 'standards';
 export type InstrumentSize = 'small' | 'wide';
 
 // Below md each card stands alone, so the instrument takes its own height; a shared band there
@@ -34,7 +34,8 @@ const instrumentBoxClassName: Record<InstrumentSize, string> = {
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
-  ai: 'Illustration: four review agents send findings to a merger that drops the unsupported one, then confidence and security gates, then a person approves in the queue',
+  migration:
+    'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
   fullstack:
     'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
   production:
@@ -138,85 +139,17 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
-const reviewerAgents = ['security', 'correctness', 'tests', 'conventions'];
-const reviewerGridClassName = 'grid grid-cols-2 gap-1.5 sm:grid-cols-4';
-const pipelineCycle = 6.8;
-
-function PipelineLink({ delay, reduced }: { delay: number; reduced: boolean }): JSX.Element {
-  return (
-    <span aria-hidden="true" className="relative mx-auto block h-3 w-px bg-zinc-200">
-      <motion.span
-        className="absolute -left-[2px] size-[5px] rounded-full bg-sky-500"
-        {...cycle(
-          reduced,
-          {
-            opacity: [0, 0, 1, 1, 0, 0],
-            transform: ['translateY(-2px)', 'translateY(-2px)', 'translateY(0px)', 'translateY(9px)', 'translateY(11px)', 'translateY(11px)']
-          },
-          pipelineCycle,
-          [0, delay, delay + 0.04, delay + 0.14, delay + 0.18, 1]
-        )}
-      />
-    </span>
-  );
-}
-
-function PipelineNode({ children, tone }: { children: ReactNode; tone?: 'accent' }): JSX.Element {
-  return (
-    <span
-      className={cn(
-        'inline-flex flex-col items-center rounded-lg px-3 py-1.5 text-center ring-1',
-        tone === 'accent'
-          ? 'bg-sky-50 text-sky-700 ring-sky-200/70'
-          : 'bg-white text-zinc-900 ring-zinc-900/5'
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-// The rail ends on the outer stems, half a column in from each edge. A column is
-// (100% - gaps) / columns: one gap-1.5 across two columns, three across four.
-function ReviewerRail(): JSX.Element {
-  return (
-    <div aria-hidden="true" className={`${reviewerGridClassName} relative h-2.5`}>
-      {reviewerAgents.map((agent, column) => (
-        <span className={cn('mx-auto w-px bg-zinc-200', column > 1 && 'max-sm:hidden')} key={agent} />
-      ))}
-      <span className="absolute inset-x-[calc((100%-var(--spacing)*1.5)/4)] bottom-0 h-px bg-zinc-200 sm:inset-x-[calc((100%-var(--spacing)*4.5)/8)]" />
-    </div>
-  );
-}
-
-// Each gate draws its half of the fork above it and of the join below it. A half reaches
-// past the gate's inner edge by half the gap-x-2 between gates, so the two halves meet.
-function PipelineGate({ label, side }: { label: string; side: 'left' | 'right' }): JSX.Element {
-  const elbowClassName = cn(
-    'absolute h-2.5 border-zinc-200',
-    side === 'left' ? 'left-1/2 -right-1 border-l' : '-left-1 right-1/2 border-r'
-  );
-
-  return (
-    <span className="relative grid">
-      <span aria-hidden="true" className={cn(elbowClassName, 'bottom-full border-t')} />
-      <PipelineNode>
-        <span className={`${monoClassName} text-zinc-600`}>{label}</span>
-      </PipelineNode>
-      <span aria-hidden="true" className={cn(elbowClassName, 'top-full border-b')} />
-    </span>
-  );
-}
-
 // Two labels in one grid cell, crossfading on the parent loop. Under reduced motion only the
 // settled label shows, so the still frame tells the end of the story.
 function Swap({
+  align = 'center',
   from,
   reduced,
   times,
   to,
   duration
 }: {
+  align?: 'center' | 'end';
   from: ReactNode;
   reduced: boolean;
   times: [number, number, number, number];
@@ -225,7 +158,7 @@ function Swap({
 }): JSX.Element {
   const [inStart, inEnd, outStart, outEnd] = times;
   return (
-    <span className="grid justify-items-center">
+    <span className={cn('grid', align === 'end' ? 'justify-items-end' : 'justify-items-center')}>
       {reduced ? null : (
         <motion.span
           className="[grid-area:1/1]"
@@ -244,78 +177,93 @@ function Swap({
   );
 }
 
-function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
+// The audit-log move: each stage lands before the next starts. The dot rests on a stage while
+// it runs, verify resolves from comparing to a match, and reads shift store once verified.
+const migrationStages = ['backfill', 'verify', 'reads', 'writes', 'retire'];
+const migrationCycle = 8.4;
+const stageAt = [0.04, 0.2, 0.42, 0.6, 0.76];
+const stageHold = 0.12;
+
+function MigrationPath({ reduced }: { reduced: boolean }): JSX.Element {
+  const last = migrationStages.length - 1;
+  const stops = migrationStages.map((_, index) => `${(index / last) * 100}%`);
+  const runnerFrames: string[] = [];
+  const runnerTimes: number[] = [];
+  stageAt.forEach((at, index) => {
+    runnerFrames.push(stops[index], stops[index]);
+    runnerTimes.push(at, Math.min(at + stageHold, 0.97));
+  });
+
   return (
-    <div className={widePanelClassName}>
-      <ul className={reviewerGridClassName}>
-        {reviewerAgents.map((agent, index) => (
-          <motion.li
-            className={`${monoClassName} rounded-lg bg-zinc-50 px-2 py-1 text-center text-zinc-600 ring-1 ring-zinc-900/5`}
-            key={agent}
-            {...cycle(
-              reduced,
-              { opacity: [0.7, 1, 1, 0.7] },
-              5.2 + index * 0.6,
-              [0, 0.25, 0.65, 1],
-              { delay: index * 0.28 }
-            )}
-          >
-            {agent}
-          </motion.li>
-        ))}
-      </ul>
-      <ReviewerRail />
-      <PipelineLink delay={0.08} reduced={reduced} />
-      <PipelineNode>
-        <span className={`${monoClassName} font-medium`}>merger</span>
-        <span className="text-[11px] leading-snug text-zinc-500">
-          drops findings the code does not support
-        </span>
-        <span className={`${monoClassName} mt-0.5 text-zinc-500`}>
+    <div className={`${widePanelClassName} gap-4`}>
+      <div className="relative mx-6 h-9">
+        <span aria-hidden="true" className="absolute inset-x-0 top-[5px] h-px bg-zinc-200" />
+        <ol>
+          {migrationStages.map((stage, index) => (
+            <li
+              className="absolute top-0 grid -translate-x-1/2 justify-items-center gap-2"
+              key={stage}
+              style={{ left: stops[index] }}
+            >
+              <span className="size-[11px] rounded-full bg-white ring-1 ring-zinc-300" />
+              <span className={`${monoClassName} whitespace-nowrap text-zinc-600`}>{stage}</span>
+            </li>
+          ))}
+        </ol>
+        <motion.span
+          aria-hidden="true"
+          className="absolute top-0 -ml-[5.5px] size-[11px] rounded-full bg-sky-500 ring-4 ring-sky-500/10"
+          style={reduced ? { left: stops[last] } : undefined}
+          {...cycle(
+            reduced,
+            { left: [stops[0], ...runnerFrames, stops[last], stops[0]] },
+            migrationCycle,
+            [0, ...runnerTimes, 0.97, 1]
+          )}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-3 rounded-lg bg-zinc-50 px-3 py-2 ring-1 ring-zinc-900/5">
+        <span className={`${monoClassName} text-zinc-500`}>audit log</span>
+        <span className={monoClassName}>
           <Swap
-            duration={pipelineCycle}
-            from="4 findings"
-            reduced={reduced}
-            times={[0.2, 0.26, 0.9, 0.96]}
-            to={
-              <>
-                3 kept · <span className="text-zinc-400 line-through">1 dropped</span>
-              </>
+            align="end"
+            duration={migrationCycle}
+            from={
+              <span className="inline-flex items-center gap-1.5 text-zinc-500">
+                <motion.span
+                  aria-hidden="true"
+                  className="size-2.5 rounded-full border-[1.5px] border-zinc-300 border-t-zinc-600"
+                  {...cycle(reduced, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, 0.9, [0, 1], { ease: 'linear' })}
+                />
+                comparing rows
+              </span>
             }
+            reduced={reduced}
+            times={[0.3, 0.34, 0.93, 0.98]}
+            to={<span className="text-emerald-600">rows match ✓</span>}
           />
         </span>
-      </PipelineNode>
-      <PipelineLink delay={0.34} reduced={reduced} />
-      {/* Equal columns from sm put the fork's midpoint under the trunk. Phones keep content
-          widths because two equal columns would wrap the confidence gate label. */}
-      <div className="mx-auto my-2.5 grid w-fit grid-cols-[auto_auto] gap-x-2 sm:grid-cols-2">
-        <PipelineGate label="confidence gate" side="left" />
-        <PipelineGate label="security gate" side="right" />
       </div>
-      <PipelineLink delay={0.6} reduced={reduced} />
-      <span className="flex justify-center">
-        <PipelineNode tone="accent">
-          <span className={`${monoClassName} font-medium`}>human approval queue</span>
-          <span className={`${monoClassName} mt-0.5`}>
-            <Swap
-              duration={pipelineCycle}
-              from={
-                <span className="inline-flex items-center gap-1.5 text-sky-600">
-                  <motion.span
-                    aria-hidden="true"
-                    className="size-2.5 rounded-full border-[1.5px] border-sky-300 border-t-sky-600"
-                    {...cycle(reduced, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, 0.9, [0, 1], { ease: 'linear' })}
-                  />
-                  waiting for a person
-                </span>
-              }
-              reduced={reduced}
-              times={[0.74, 0.8, 0.94, 0.99]}
-              to={<span className="text-emerald-600">approved ✓</span>}
-            />
-          </span>
-        </PipelineNode>
-      </span>
+
+      <div className="grid gap-1.5">
+        <span className="relative block h-1.5 overflow-hidden rounded-full bg-zinc-200">
+          <motion.span
+            className="absolute inset-0 origin-left rounded-full bg-sky-500"
+            style={reduced ? { transform: 'scaleX(1)' } : undefined}
+            {...cycle(
+              reduced,
+              { transform: ['scaleX(0)', 'scaleX(0)', 'scaleX(1)', 'scaleX(1)', 'scaleX(0)'] },
+              migrationCycle,
+              [0, stageAt[2], stageAt[2] + stageHold, 0.95, 1]
+            )}
+          />
+        </span>
+        <span className="flex justify-between text-[10px] text-zinc-500">
+          <span>MongoDB</span>
+          <span>reads move to DocumentDB</span>
+        </span>
+      </div>
     </div>
   );
 }
@@ -480,7 +428,7 @@ export function CapabilityInstrument({
         key={reduced ? 'static' : 'looping'}
       >
         {kind === 'fullstack' ? <AccessPath reduced={reduced} /> : null}
-        {kind === 'ai' ? <ReviewerPipeline reduced={reduced} /> : null}
+        {kind === 'migration' ? <MigrationPath reduced={reduced} /> : null}
         {kind === 'production' ? <ReliabilityBoard reduced={reduced} /> : null}
         {kind === 'standards' ? <AdoptedStandards reduced={reduced} /> : null}
       </div>
@@ -520,10 +468,7 @@ export function StackGrid({ className }: { className?: string }): JSX.Element {
         {stackTiles.map(({ Icon, drift, duration, label }, index) => (
           <motion.li
             key={label}
-            className={cn(
-              'grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5',
-              index === 0 && 'text-sky-600'
-            )}
+            className="grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5"
             {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
               delay: index * 0.29
             })}
