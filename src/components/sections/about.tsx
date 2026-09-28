@@ -149,9 +149,6 @@ export function AboutSection() {
             >
               About me
             </h2>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-              <span className="text-zinc-500">Jakarta, UTC+7</span>
-            </div>
           </div>
 
           <motion.div
