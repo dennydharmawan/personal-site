@@ -64,6 +64,9 @@ turn them into public site content verbatim. Keep public copy recruiter-readable
 NDA-safe, truthful, and focused on evidence: systems owned, scale, reliability,
 delivery judgment, cross-team work, and production impact.
 
+Site copy never uses the word "platform". Name the thing instead: a workflow engine,
+a shared package, internal tools.
+
 ## Local UI Iteration
 
 - Prefer the running `pnpm run dev` task for visual/UI iteration. Do not run

@@ -41,6 +41,10 @@ Readers arrive from a resume PDF, LinkedIn, job application forms, and recruiter
 ## Evidence on Hand
 
 - Krom Bank, Jan 2023 to now. Promoted to Senior Full-Stack Engineer in May 2026. Built the internal identity and access governance platform: HR events provision and remove access, continuous reconciliation, audit trail, periodic access reviews. Shared auth, logging, and feature-flag package in 4 production apps. Git workflow RFC used by 5+ teams. Datadog dashboards and tracing that became the company monitoring template. Production multi-agent PR reviewer on AWS Bedrock, Bitbucket, and Slack. Won an internal AI engineering competition. Mentored 2 engineers.
+- Krom Bank, 2026, from Denny's 2026 brag document:
+  - Designed the workflow engine behind employee access, shipped September 2026. HR events start persisted jobs with checkpointed steps and idempotent retries, and 8 company tools run on it.
+  - Moved an audit log from MongoDB to DocumentDB in phased steps (dual-write behind a flag, read cutover, then retiring MongoDB), and replaced offset pagination that could skip rows during writes with keyset pagination.
+  - Traced stale Datadog release versions on EKS to a missing `DD_VERSION` setting. Infra fixed it in the shared service chart, which covers every EKS service.
 - Jenius / Bank SMBC Indonesia, Dec 2019 to Dec 2022. Back End Engineer on Flexi Cash. 2M+ transactions a month, 99.98% uptime, origination and disbursement stable through 147% user growth in three years. Retail partner APIs on Kafka events.
 - Iverson Technology, Dec 2017 to Dec 2019. Dynamics AX ERP for enterprise clients including JNE and Gramedia. Trained 200 professionals.
 - Detail recorded in Denny's own earlier site copy (`portfolio-home-data.ts` and `about.tsx` before the September 2026 rewrite) and in `resume.pdf`:
@@ -52,13 +56,13 @@ Readers arrive from a resume PDF, LinkedIn, job application forms, and recruiter
   - He started out teaching programming labs at university.
   - Stack by employer. Krom Bank: TypeScript, React, Next.js, Node.js, PostgreSQL, MySQL, MongoDB, DocumentDB, Redis, BullMQ, AWS, Datadog. Jenius: Node.js, GraphQL, Kafka.
 - Assets: four clips and preview images in `public/portfolio-previews/`, employer logos in `public/company-logos/`, `resume.pdf`.
-- Absent, never to be fabricated: access platform scale, PR reviewer usage, the method behind a 37% API speedup, Go experience, Kubernetes or Terraform ownership, testimonials. The two incident write-ups stay private by the owner's decision.
+- Absent, never to be fabricated: access scale beyond the 8 tools, PR reviewer usage, the method behind a 37% API speedup, Go experience, Kubernetes or Terraform ownership, testimonials. The two incident write-ups stay private by the owner's decision.
 
 ## Product Principles
 
 1. Recruiter words come first: title, domain, and stack keywords in plain English, readable without engineering context.
 2. Every number sits next to the employer and period it came from. A hero finding repeats its source bullet word for word, because the citation jumps to it, and nothing else repeats a number.
-3. Production work is labeled production. Rebuilds are labeled NDA-safe builds.
+3. Work samples carry no production or NDA labels, by Denny's decision in September 2026. Do not add them back. Where a system ran stays out of the sample copy.
 4. A claim without support is cut, never softened or hedged.
 5. Depth is available to the engineer who scrolls, but it never stands between the recruiter and the resume.
 
