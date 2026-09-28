@@ -10,8 +10,8 @@ import {
   RevealGroup,
   RevealItem,
   pageShellClassName,
-  sectionPaddingClassName,
-  sectionSplitHeaderClassName
+  sectionHeaderMarginClassName,
+  sectionPaddingClassName
 } from '@/components/sections/shared';
 
 const bentoCardClassName =
@@ -21,7 +21,7 @@ const bentoWindowShadowClassName =
 
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
-    <h3 className="max-w-[24rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
+    <h3 className="max-w-[32rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
       <span className="block">{title}</span>{' '}
       <span className="text-zinc-500">{tail}</span>
     </h3>
@@ -120,16 +120,12 @@ export function CapabilitiesSection() {
   return (
     <section className={sectionPaddingClassName}>
       <div className={pageShellClassName}>
-        <RevealGroup className={sectionSplitHeaderClassName}>
-          <RevealItem className="grid gap-4">
-            <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
-              How I build
-            </h2>
-          </RevealItem>
+        <RevealGroup className={sectionHeaderMarginClassName}>
           <RevealItem>
-            <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Five habits I bring to every team, whatever the stack.
-            </p>
+            <h2 className="max-w-4xl text-4xl font-heading font-normal leading-[1.1] tracking-tight text-balance sm:text-5xl">
+              <span className="block text-zinc-900">What I aim for.</span>
+              <span className="block text-zinc-500">Fewer incidents. Easier audits. A faster team.</span>
+            </h2>
           </RevealItem>
         </RevealGroup>
 

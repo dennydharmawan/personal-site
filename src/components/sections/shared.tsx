@@ -11,7 +11,6 @@ export const sectionPaddingClassName = `${sectionPaddingTopClassName} ${sectionP
 export const sectionHeaderMarginClassName = 'mb-12 md:mb-16';
 export const sectionHeaderClassName = `grid max-w-3xl gap-4 ${sectionHeaderMarginClassName}`;
 // Stacked below lg, the intro belongs to its heading, so the row gap stays at the header's gap-4.
-export const sectionSplitHeaderClassName = `grid items-end gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.8fr)] lg:gap-16 ${sectionHeaderMarginClassName}`;
 export const sectionContentGapClassName = 'gap-16 md:gap-20 lg:gap-28';
 export const detailStackGapClassName = 'gap-6';
 export const listGapClassName = 'gap-3';

@@ -1,5 +1,6 @@
-import { useRef, type JSX, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type JSX, type ReactNode } from 'react';
 import {
+  AnimatePresence,
   motion,
   useInView,
   useReducedMotion,
@@ -9,8 +10,11 @@ import {
 import { FaAws } from 'react-icons/fa6';
 import {
   SiApachekafka,
+  SiConfluence,
   SiDatadog,
+  SiGoogle,
   SiGraphql,
+  SiJira,
   SiMongodb,
   SiMysql,
   SiNextdotjs,
@@ -18,7 +22,9 @@ import {
   SiPostgresql,
   SiReact,
   SiRedis,
-  SiTypescript
+  SiSlack,
+  SiTypescript,
+  SiZoho
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
@@ -37,9 +43,9 @@ const instrumentLabels: Record<CapabilityKind, string> = {
   migration:
     'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
   fullstack:
-    'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
+    'Illustration: an access log where each new change, such as a new hire added to Slack, arrives with who, what, and when, and is marked recorded',
   production:
-    'Illustration: a status strip of daily uptime with one bad day, monthly transactions, and a rising user-growth line',
+    'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
   standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
 };
 
@@ -79,62 +85,116 @@ const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
 const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
 const monoClassName = 'font-mono text-[11px]';
 
-// lit is the point in the cycle where the runner dot reaches that row.
-const accessSteps = [
-  { detail: 'from an HR event', lit: 0.03, state: 'queued', step: 'access.request' },
-  { detail: 'role and resource', lit: 0.22, state: 'allow', step: 'access.check' },
-  { detail: 'who, what, when', lit: 0.47, state: 'written', step: 'audit.append' },
-  { detail: 'quarterly', lit: 0.72, state: 'scheduled', step: 'access.review' }
+// The names are made up; the tools and reasons are the ones the real workflow handles.
+const accessEvents: { Icon: ComponentType<{ className?: string }>; change: string; name: string; reason: string; tool: string }[] = [
+  { Icon: SiSlack, change: 'Access added', name: 'Rina Aulia', reason: 'New hire', tool: 'Slack' },
+  { Icon: SiGoogle, change: 'Access removed', name: 'Budi Santoso', reason: 'Last day', tool: 'Google Workspace' },
+  { Icon: SiJira, change: 'Role changed', name: 'Dewi Kartika', reason: 'Moved to Risk', tool: 'Jira' },
+  { Icon: SiZoho, change: 'Access added', name: 'Andi Pratama', reason: 'Rehire', tool: 'Zoho' },
+  { Icon: SiConfluence, change: 'Access removed', name: 'Sari Wulandari', reason: 'Contract ended', tool: 'Confluence' },
+  { Icon: SiSlack, change: 'Access added', name: 'Fajar Nugroho', reason: 'New hire', tool: 'Slack' },
+  { Icon: SiGoogle, change: 'Access added', name: 'Maya Lestari', reason: 'New hire', tool: 'Google Workspace' },
+  { Icon: SiJira, change: 'Access removed', name: 'Yoga Permana', reason: 'Last day', tool: 'Jira' }
 ];
-const accessRowHeight = 32;
-const accessCycle = 7.2;
+const accessRowHeight = 46;
+const accessVisibleRows = 5;
+const accessArrivalMs = 5200;
+const accessRowClassName = 'grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] items-center gap-3 px-4';
 
-function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
-  const stops = accessSteps.map((_, index) => `translateY(${index * accessRowHeight}px)`);
+function accessTime(sequence: number): string {
+  const minutes = 9 * 60 + 2 + (sequence + accessVisibleRows) * 7;
+  const hours = Math.floor(minutes / 60) % 24;
+  return `${String(hours).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+}
+
+// Every few seconds the next change arrives at the top, highlighted until it is recorded, and the
+// oldest row drops off the bottom. Sequence numbers key the rows, so each one slides down a slot.
+function AccessLog({ reduced }: { reduced: boolean }): JSX.Element {
+  const [latest, setLatest] = useState(0);
+
+  useEffect(() => {
+    if (reduced) return;
+    const timer = window.setInterval(() => setLatest((sequence) => sequence + 1), accessArrivalMs);
+    return () => window.clearInterval(timer);
+  }, [reduced]);
+
+  const rows = Array.from({ length: accessVisibleRows }, (_, slot) => {
+    const sequence = latest - slot;
+    const event = accessEvents[((sequence % accessEvents.length) + accessEvents.length) % accessEvents.length];
+    return { ...event, sequence, slot };
+  });
 
   return (
-    <div className={`${widePanelClassName} gap-3`}>
-      <div className="relative">
-        <span
-          aria-hidden="true"
-          className="absolute top-4 bottom-4 left-[3.5px] w-px bg-zinc-200"
-        />
-        <motion.span
-          aria-hidden="true"
-          className="absolute top-[0.875rem] left-0 size-2 rounded-full bg-sky-500 ring-4 ring-sky-500/10"
-          {...cycle(
-            reduced,
-            { transform: [stops[0], stops[0], stops[1], stops[1], stops[2], stops[2], stops[3], stops[3], stops[0]] },
-            accessCycle,
-            [0, 0.1, 0.2, 0.35, 0.45, 0.6, 0.7, 0.96, 1]
-          )}
-        />
-        {accessSteps.map(({ detail, lit, state, step }) => (
-          <motion.div
-            className="flex h-8 items-center gap-2 pl-6"
-            key={step}
-            {...cycle(
-              reduced,
-              { opacity: [0.7, 0.7, 1, 1, 0.7, 0.7] },
-              accessCycle,
-              [0, Math.max(lit - 0.03, 0), lit, lit + 0.13, lit + 0.17, 1]
-            )}
-          >
-            <span className={`${monoClassName} w-28 shrink-0 truncate text-zinc-900 sm:w-32`}>
-              {step}
-            </span>
-            <span className="hidden min-w-0 flex-1 truncate text-[11px] text-zinc-500 min-[380px]:block">{detail}</span>
-            <span
-              className={`${monoClassName} hidden shrink-0 rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-600 ring-1 ring-zinc-900/5 sm:inline-block`}
-            >
-              {state}
-            </span>
-          </motion.div>
-        ))}
+    <div className="flex h-full flex-col">
+      <div className={`${accessRowClassName} h-8 shrink-0 border-b border-zinc-100 text-[10px] font-medium text-zinc-400`}>
+        <span>Employee</span>
+        <span>Change</span>
+        <span className="text-right">Status</span>
       </div>
-      <p className={captionClassName}>
-        One access request, end to end.
-      </p>
+      <div className="relative min-h-0 flex-1 overflow-hidden" style={{ minHeight: accessRowHeight * 4 }}>
+        <AnimatePresence initial={false}>
+          {rows.map(({ Icon, change, name, reason, sequence, slot, tool }) => {
+            const arriving = sequence > 0;
+            return (
+              <motion.div
+                animate={{ opacity: 1, y: slot * accessRowHeight }}
+                className={`${accessRowClassName} absolute inset-x-0 top-0 border-b border-zinc-100`}
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, y: -accessRowHeight }}
+                key={sequence}
+                style={{ height: accessRowHeight }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {arriving ? (
+                  <motion.span
+                    animate={{ opacity: 0 }}
+                    className="absolute inset-0 bg-sky-50"
+                    initial={{ opacity: 1 }}
+                    transition={{ delay: 1.6, duration: 1.4, ease: 'linear' }}
+                  />
+                ) : null}
+                <span className="relative flex min-w-0 items-center gap-2.5">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white ring-1 ring-zinc-900/10">
+                    <Icon className="size-3.5 text-zinc-700" />
+                  </span>
+                  <span className="grid min-w-0">
+                    <span className="truncate text-[12px] font-medium text-zinc-900">{name}</span>
+                    <span className="truncate text-[11px] text-zinc-500">{tool}</span>
+                  </span>
+                </span>
+                <span className="relative grid min-w-0">
+                  <span className="truncate text-[12px] text-zinc-700">{change}</span>
+                  <span className="truncate text-[11px] text-zinc-500">{reason}</span>
+                </span>
+                <span className="relative grid justify-items-end gap-0.5">
+                  <span className="grid text-[10px] font-medium">
+                    {arriving ? (
+                      <motion.span
+                        animate={{ opacity: 0 }}
+                        className="col-start-1 row-start-1 rounded-full bg-sky-100 px-2 py-0.5 text-sky-700"
+                        initial={{ opacity: 1 }}
+                        transition={{ delay: 1.1, duration: 0.25 }}
+                      >
+                        <span className="hidden sm:inline">recording</span>
+                        <span className="sm:hidden">…</span>
+                      </motion.span>
+                    ) : null}
+                    <motion.span
+                      animate={{ opacity: 1 }}
+                      className="col-start-1 row-start-1 rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600"
+                      initial={{ opacity: arriving ? 0 : 1 }}
+                      transition={{ delay: 1.1, duration: 0.25 }}
+                    >
+                      <span className="hidden sm:inline">recorded </span>✓
+                    </motion.span>
+                  </span>
+                  <span className="text-[10px] tabular-nums text-zinc-400">{accessTime(sequence)}</span>
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -427,7 +487,7 @@ export function CapabilityInstrument({
         className={cn('w-full', instrumentBoxClassName[size])}
         key={reduced ? 'static' : 'looping'}
       >
-        {kind === 'fullstack' ? <AccessPath reduced={reduced} /> : null}
+        {kind === 'fullstack' ? <AccessLog reduced={reduced} /> : null}
         {kind === 'migration' ? <MigrationPath reduced={reduced} /> : null}
         {kind === 'production' ? <ReliabilityBoard reduced={reduced} /> : null}
         {kind === 'standards' ? <AdoptedStandards reduced={reduced} /> : null}
