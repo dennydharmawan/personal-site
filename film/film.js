@@ -1322,7 +1322,9 @@ function scaled(cx, cy, k, fn) {
   for (const n of PL) PG[n].restore();
 }
 
-/* A snake plant in a terracotta pot at the back of the desk, in front of the curtain. */
+/* A snake plant in a mustard glazed pot at the back of the desk, in front of the
+   curtain. The glaze and the lighter night leaves keep it readable against the
+   indigo curtain after dark. */
 function plant(t) {
   const d = roomDark(t), x = 912, y = 880, r = rngFor('plant');
   const pw = 38, pb = 29, ph = 70;
@@ -1335,16 +1337,16 @@ function plant(t) {
     const mid = [bx + lean * len * 0.45 + (r() - 0.5) * 6, by - len * 0.5];
     (i % 2 ? backs : leaves).addPath(nib([[bx, by], mid, tip], wLeaf(w, 0.4), { per: 8 }));
   });
-  const leafDay = { yellow: .72, blue: .62, indigo: .12, pink: .04 }, leafNight = { indigo: .72, blue: .62, yellow: .16, pink: .04 };
+  const leafDay = { yellow: .72, blue: .62, indigo: .12, pink: .04 }, leafNight = { indigo: .46, blue: .62, yellow: .42, pink: .02 };
   put(backs, mixCov({ yellow: .6, blue: .7, indigo: .22 }, { indigo: .8, blue: .66, yellow: .1 }, d));
   put(leaves, mixCov(leafDay, leafNight, d));
   strokeOn('yellow', leaves, 1.6, .5 * (1 - d)); strokeOn('indigo', leaves, 1, .2);
   const pot = poly([[x - pw, y - ph], [x + pw, y - ph], [x + pb, y], [x - pb, y]]);
-  const clay = { pink: .62, yellow: .66, blue: .08, indigo: .04 }, clayN = { pink: .4, indigo: .6, blue: .36, yellow: .12 };
-  put(pot, mixCov(clay, clayN, d));
+  const glaze = { yellow: .88, pink: .12 }, glazeN = { yellow: .7, pink: .1, blue: .12, indigo: .1 };
+  put(pot, mixCov(glaze, glazeN, d));
   add(poly([[x + pw * 0.2, y - ph], [x + pw, y - ph], [x + pb, y], [x + pb * 0.25, y]]), { indigo: .12, blue: .06 });
   const rim = rect(x - pw - 4, y - ph - 4, x + pw + 4, y - ph + 10);
-  put(rim, mixCov({ pink: .66, yellow: .7, blue: .06 }, clayN, d));
+  put(rim, mixCov({ yellow: .92, pink: .2 }, { yellow: .74, pink: .16, blue: .14, indigo: .12 }, d));
   knock(rect(x - pw - 4, y - ph - 4, x + pw + 4, y - ph - 1), { indigo: .4, blue: .3 });
 }
 

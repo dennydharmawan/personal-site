@@ -10,27 +10,27 @@ export type ExpertiseItem = {
 export const expertiseItems: ExpertiseItem[] = [
   {
     kind: 'fullstack',
-    tail: 'another engineer can change six months later',
-    title: 'Full-stack engineering',
+    tail: 'Every request ends in an audit record.',
+    title: 'Leave a trail.',
     windowLabel: 'access.decision'
   },
   {
     kind: 'ai',
-    tail: 'with a person approving every security finding',
-    title: 'AI-assisted delivery',
+    tail: 'Every security finding gets a human sign-off.',
+    title: 'AI reviews. A person decides.',
     windowLabel: 'reviewer.run'
   },
   {
     kind: 'production',
-    tail: 'that held steady through 147% user growth',
-    title: 'Production systems',
+    tail: '99.98% uptime through 147% user growth.',
+    title: 'Plan for the bad day.',
     windowLabel: 'reliability'
   },
   {
     kind: 'standards',
-    tail: 'that 5+ teams follow',
-    title: 'Engineering standards',
-    windowLabel: 'review.gate'
+    tail: 'Shared tools other teams chose to adopt.',
+    title: 'Make the right way easy.',
+    windowLabel: 'shared.tools'
   }
 ];
 
@@ -60,13 +60,13 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
   'krom-access': {
     glyph: 'access',
     phrase: "the workflow engine that grants and removes access to the bank's internal apps",
-    proof: 'Onboarding, rehire, and offboarding update access automatically, with an audit trail.',
+    proof: 'Hires, rehires, and exits update access on their own. Every change is on record.',
     source: 'Krom Bank, 2023 to now'
   },
   'krom-shared-package': {
     glyph: 'hub',
     phrase: 'a shared package for auth, logging, and feature flags',
-    proof: 'Apps share one setup for sign-in, logs, and flags instead of each building its own.',
+    proof: 'Four apps share one setup for sign-in, logs, and flags. None of them builds its own.',
     source: 'Krom Bank, 2023 to now'
   },
   // 'pr-reviewer': {
@@ -79,22 +79,22 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
   'jenius-lending': {
     glyph: 'lending',
     phrase: 'lending backends at Jenius',
-    proof: 'Loan origination and disbursement stayed stable through three years of user growth.',
+    proof: '99.98% uptime at 2M+ transactions a month, through 147% user growth.',
     source: 'Jenius, 2019 to 2022'
   }
 };
 
 export const aboutParagraph: AboutSegment[] = [
-  "I'm a senior full-stack engineer at Krom Bank in Jakarta, looking for a Senior Software Engineer role, full-stack or backend, in fintech or digital banking, with Tech Lead as the next step. I learn how a business works before I write the code. At Krom I built ",
+  "I'm a senior full-stack engineer at Krom Bank in Jakarta. I learn how a business works before I write the code. At Krom I built ",
   { evidence: 'krom-access' },
   ', and ',
   { evidence: 'krom-shared-package' },
   // ' that several production apps run on. I also built ',
   // { evidence: 'pr-reviewer' },
   // ' that runs in production. Before Krom, I ran ',
-  ' that several production apps run on. Before Krom, I ran ',
+  ' that four production apps run on. Before Krom, I ran ',
   { evidence: 'jenius-lending' },
-  ' for three years.'
+  " for three years. I'm looking for a senior software engineer role, full-stack or backend, in fintech or digital banking, with tech lead as the next step."
 ];
 
 export type Project = {
@@ -102,6 +102,7 @@ export type Project = {
   chapters: readonly [Chapter, Chapter, Chapter];
   preview: string;
   problem: string;
+  result: string;
   role: string;
   stack: string[];
   target?: EvidenceTarget;
@@ -129,7 +130,7 @@ export const projects: Project[] = [
   // },
   {
     built:
-      'HR events start a durable, idempotent workflow on BullMQ. Each step records its result, so a retry skips accounts that already exist and resumes at the step that failed. Roles, permissions, and an audit log sit on top.',
+      'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',
     chapters: [
       { at: 0, label: 'Setup fails halfway' },
       { at: 4.3, label: 'Retry, no duplicates' },
@@ -137,39 +138,42 @@ export const projects: Project[] = [
     ],
     preview: '/portfolio-previews/work-sample-auth-access.png',
     problem:
-      'A new hire needs accounts in several systems on day one, and a setup that fails halfway must not leave duplicates.',
+      'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
+    result: 'Ready on day one. Removed at exit. Every change on record for audit.',
     role: 'Identity and access governance',
-    stack: ['Node.js', 'BullMQ', 'RBAC', 'PostgreSQL'],
-    title: 'Access workflow engine',
+    stack: ['Node.js', 'BullMQ', 'Access control management', 'PostgreSQL'],
+    title: 'HRIS automation workflow',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
   {
     built:
-      'Overdue accounts land in prioritized queues, each with an owner and a next step. Reminders go out as WhatsApp templates, and replies, payment promises, and follow-ups land in one activity log.',
+      'Each overdue loan gets an owner and a next step: a call, a WhatsApp message, or a field visit. Collectors call from the browser through Vonage and send WhatsApp reminders from templates. Every contact and promise to pay lands on one timeline.',
     chapters: [
       { at: 0, label: 'Overdue accounts queued' },
       { at: 8.6, label: 'WhatsApp reminder sent' },
       { at: 12.4, label: 'Promise to pay logged' }
     ],
     preview: '/portfolio-previews/work-sample-loan-collection.png',
-    problem: 'Collectors retype every payment reminder by hand.',
-    role: 'Collections operations and messaging',
-    stack: ['React', 'Node.js', 'WhatsApp API', 'queues'],
-    title: 'Loan collection system',
+    problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
+    result: 'One timeline per loan, and a clear next step for every collector.',
+    role: 'Collections operations',
+    stack: ['React', 'Node.js', 'Vonage', 'WhatsApp API', 'Job queues'],
+    title: 'Multi-channel loan collections',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
   {
     built:
-      "Each payment moves through explicit states. The payment provider's webhook confirms the order, and reconciliation matches every order to a captured payment.",
+      'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to money received.',
     chapters: [
       { at: 0, label: 'Customer pays' },
       { at: 4.6, label: 'Order waits' },
       { at: 13.2, label: 'Payment matched' }
     ],
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
-    problem: 'After a customer pays, the store cannot tell whether the payment went through.',
-    role: 'Commerce checkout and payments',
-    stack: ['Next.js', 'payment API', 'webhooks', 'SQL'],
+    problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
+    result: 'Every paid order confirmed. Every sale matched to a real payment.',
+    role: 'Checkout and payments',
+    stack: ['Next.js', 'Payment API', 'Webhooks', 'SQL'],
     title: 'E-commerce payments',
     video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
   }
@@ -193,10 +197,10 @@ export const experiences: ReadonlyArray<{
     highlights: [
       {
         target: 'krom-access',
-        text: 'Designed the workflow engine that orchestrates the identity lifecycle across 8 company tools: access on day one, revoked at exit, with an audit trail'
+        text: 'Designed the workflow engine that grants and removes employee access across 8 company tools, with an audit trail'
       },
       {
-        text: 'Moved an audit log from MongoDB to DocumentDB in proven steps with no big-bang cutover, and replaced pagination that could skip rows during writes'
+        text: 'Moved an audit log from MongoDB to DocumentDB in stages, each verified before the next, and replaced pagination that could skip rows during writes'
       },
       {
         target: 'krom-shared-package',
@@ -214,7 +218,7 @@ export const experiences: ReadonlyArray<{
       { period: 'Jan 2023 – May 2026', role: 'Full-Stack Engineer' }
     ],
     summary:
-      'Frontend and backend work for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers and wrote the Git workflow used by 5+ teams.',
+      'Frontend and backend work for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers.',
     years: '2023'
   },
   {

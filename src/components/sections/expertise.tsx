@@ -22,7 +22,7 @@ const bentoWindowShadowClassName =
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
     <h3 className="max-w-[24rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
-      <span className="block">{title}</span>
+      <span className="block">{title}</span>{' '}
       <span className="text-zinc-500">{tail}</span>
     </h3>
   );
@@ -110,8 +110,8 @@ function StackCard({ className }: { className: string }) {
         pattern="dust"
         seed={expertiseItems.length + 1}
       />
-      <BentoHeading tail="from the interface to the queue" title={'One TypeScript\u00a0stack'} />
-      <StackGrid className="mx-7 mt-auto [mask-image:linear-gradient(black_58%,transparent)] md:[mask-image:linear-gradient(black_70%,transparent)] lg:[mask-image:linear-gradient(black_58%,transparent)] sm:mx-9" />
+      <BentoHeading tail="TypeScript from the interface to the queue." title="One language, end to end." />
+      <StackGrid className="mx-7 mt-auto mb-7 sm:mx-9 sm:mb-9" />
     </RevealItem>
   );
 }
@@ -123,14 +123,12 @@ export function CapabilitiesSection() {
         <RevealGroup className={sectionSplitHeaderClassName}>
           <RevealItem className="grid gap-4">
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
-              Most bank bugs hide in the retry.
+              How I build
             </h2>
           </RevealItem>
           <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              A setup that fails halfway and leaves duplicate accounts. An audit log that skips rows
-              while new actions arrive. A release nobody can trace. I design for those cases first,
-              then build the feature.
+              Five habits I bring to every team, whatever the stack.
             </p>
           </RevealItem>
         </RevealGroup>

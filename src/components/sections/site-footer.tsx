@@ -1,70 +1,66 @@
-import { ArrowUpRight, ChevronUp } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ArrowDown, ArrowUpRight, ChevronUp } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
-import { LuGithub, LuLinkedin } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { pageShellClassName, scrollToTargetName } from '@/components/sections/shared';
-import { EmailActionMenu } from '@/components/sections/site-header';
 import { DeskScenery } from '@/components/desk-scenery';
 
 const footerPillClassName =
-  'h-11 gap-2 rounded-full border-zinc-900/10 bg-white px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/20 hover:bg-white hover:text-zinc-900';
+  'h-11 gap-2 rounded-full border-zinc-900/15 bg-white/60 px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/25 hover:bg-white hover:text-zinc-900';
 
-const footerSocialLinks = [
+// The board above already asks for email, so the footer only hands over what a reader takes away.
+const footerTakeaways = [
+  {
+    href: '/resume.pdf',
+    label: 'Resume',
+    ariaLabel: 'Download my resume, PDF, 52 KB',
+    meta: 'PDF, 52 KB',
+    icon: ArrowDown,
+    download: true
+  },
   {
     href: 'https://www.linkedin.com/in/ddharmawan',
-    icon: LuLinkedin,
-    label: 'LinkedIn'
+    label: 'LinkedIn',
+    ariaLabel: 'LinkedIn profile, in/ddharmawan',
+    meta: 'in/ddharmawan',
+    icon: ArrowUpRight
   },
   {
     href: 'https://github.com/dennydharmawan',
-    icon: LuGithub,
-    label: 'GitHub'
+    label: 'GitHub',
+    ariaLabel: 'GitHub profile, dennydharmawan',
+    meta: 'dennydharmawan',
+    icon: ArrowUpRight
   }
 ];
 
-function FooterSocials({ className }: { className?: string }) {
+function FooterTakeaways() {
   return (
-    <div className={`flex flex-wrap items-center gap-x-8 gap-y-1 text-sm font-medium ${className ?? ''}`}>
-      {footerSocialLinks.map((item) => {
+    <ul className="border-t border-zinc-900/15">
+      {footerTakeaways.map((item) => {
         const Icon = item.icon;
 
         return (
-          <a
-            key={item.href}
-            className="group inline-flex min-h-11 w-fit items-center gap-1.5 text-zinc-600 transition-colors hover:text-zinc-900 rounded-sm"
-            href={item.href}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <Icon aria-hidden="true" className="size-4 text-zinc-400 transition-colors group-hover:text-sky-500" />
-            <span>{item.label}</span>
-            <ArrowUpRight
-              aria-hidden="true"
-              className="size-3.5 text-zinc-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </a>
+          <li key={item.href} className="border-b border-zinc-900/15">
+            <a
+              aria-label={item.ariaLabel}
+              className="group flex min-h-16 items-center justify-between gap-6 py-4 sm:min-h-20"
+              href={item.href}
+              {...(item.download ? { download: true } : { rel: 'noopener noreferrer', target: '_blank' })}
+            >
+              <span className="font-heading text-3xl font-normal tracking-tight text-zinc-900 transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none sm:text-4xl">
+                {item.label}
+              </span>
+              <span className="flex items-center gap-4 text-sm text-zinc-600">
+                <span className="hidden sm:inline">{item.meta}</span>
+                <span className="grid size-11 place-items-center rounded-full bg-white/60 text-zinc-900 ring-1 ring-zinc-900/15 transition-colors duration-200 group-hover:bg-zinc-900 group-hover:text-white">
+                  <Icon aria-hidden="true" className="size-[18px]" />
+                </span>
+              </span>
+            </a>
+          </li>
         );
       })}
-    </div>
-  );
-}
-
-function FooterStatus() {
-  return (
-    <p className="flex items-center gap-2.5 font-medium text-zinc-700">
-      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-emerald-500" />
-      Open to Senior Software Engineer roles · Jakarta, UTC+7
-    </p>
-  );
-}
-
-function FooterContactRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-1.5 border-b border-zinc-900/10 py-3 sm:min-h-16 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-center sm:gap-4 sm:py-2.5">
-      <dt className="text-zinc-500">{label}</dt>
-      <dd className="min-w-0">{children}</dd>
-    </div>
+    </ul>
   );
 }
 
@@ -84,7 +80,7 @@ function FooterBottomBar() {
   };
 
   return (
-    <div className="border-t border-zinc-900/6">
+    <div className="border-t border-zinc-900/10">
       <div
         className={`${pageShellClassName} flex flex-col gap-4 py-6 text-sm font-normal sm:flex-row sm:items-center sm:justify-between text-zinc-600`}
       >
@@ -107,40 +103,22 @@ function FooterBottomBar() {
 export function SiteFooter() {
   return (
     <footer
-      className="relative isolate overflow-hidden border-t border-zinc-900/6 bg-zinc-50"
+      // The footer sits on the paper the desk scene is printed on (film/paper.mjs), so the two read as one sheet.
+      className="relative isolate overflow-hidden border-t border-zinc-900/10 bg-orange-50 bg-[url(/film/desk-paper.webp)] bg-cover bg-center"
     >
       <div
         className={`${pageShellClassName} grid gap-14 pt-16 pb-16 md:pt-20 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-16 lg:pt-24 lg:pb-20`}
       >
-        <div className="flex flex-col gap-10 lg:justify-between">
-          <div className="grid gap-6">
-            <h2 className="max-w-3xl font-heading text-4xl font-normal leading-[1.02] tracking-tight text-zinc-900 sm:text-5xl lg:text-7xl">
-              Let&apos;s build something
-              <span className="block text-zinc-500">that stays up.</span>
-            </h2>
-            <p className="max-w-md text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Hiring a senior engineer for a banking or fintech team? Send me the role, and I&apos;ll
-              reply with how my work maps to it.
-            </p>
-          </div>
-          <dl className="grid border-t border-zinc-900/10 text-sm">
-            <FooterContactRow label="Email">
-              <EmailActionMenu />
-            </FooterContactRow>
-            <FooterContactRow label="Elsewhere">
-              <FooterSocials />
-            </FooterContactRow>
-            <FooterContactRow label="Status">
-              <FooterStatus />
-            </FooterContactRow>
-          </dl>
+        <div className="flex flex-col gap-12 lg:justify-between">
+          <h2 className="max-w-3xl font-heading text-4xl font-normal leading-[1.04] tracking-tight text-balance text-zinc-900 sm:text-5xl lg:text-6xl">
+            Thanks for stopping by.
+            <span className="block text-zinc-500">Hope you found what you came for.</span>
+          </h2>
+          <FooterTakeaways />
         </div>
-        <figure className="grid w-full max-w-md content-start gap-3 lg:max-w-none">
+        <div className="w-full max-w-md lg:max-w-none">
           <DeskScenery />
-          <figcaption className="text-sm leading-6 text-zinc-600">
-            One day at my desk in Jakarta, drawn in code.
-          </figcaption>
-        </figure>
+        </div>
       </div>
       <FooterBottomBar />
     </footer>

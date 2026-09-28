@@ -9,7 +9,7 @@ colors:
   background: "#fff"                              # white: hero, expertise, about
   surface-muted: "oklch(98.5% 0 0)"               # zinc-50: work samples, footer, evidence cards
   surface-card: "oklch(96.7% 0.001 286.375)"      # zinc-100: bento cards, clip and film frames
-  surface-dark: "oklch(21% 0.006 285.885)"        # zinc-900: the experience section
+  surface-dark: "oklch(27.4% 0.006 286.033)"      # zinc-800: the experience section
   hairline-on-dark: "oklch(100% 0 0 / 15%)"       # white/15: role rules and rail lines on zinc-900
   text: "oklch(21% 0.006 285.885)"                # zinc-900
   text-body-strong: "oklch(37% 0.013 285.805)"    # zinc-700: hero lede, work-sample write-ups, evidence text
@@ -149,7 +149,7 @@ The page is six sections under a fixed header. Heights are measured at 1280 px w
 | --- | --- | --- | --- |
 | Hero | `hero.tsx` | light, white | 891 px |
 | Work samples | `work-samples.tsx` | light, zinc-50 | 2,693 px |
-| Experience | `experience.tsx` | dark, zinc-900 | 1,305 px |
+| Experience | `experience.tsx` | dark, zinc-800 | 1,305 px |
 | Expertise | `expertise.tsx` | light, white | 1,390 px |
 | About | `about.tsx` | light, white | 707 px |
 | Footer | `site-footer.tsx` | light, zinc-50 | 796 px |
@@ -168,7 +168,7 @@ The page totals 7,781 px. The per-section figures are rounded, so they sum to 7,
 Every color resolves to a stock Tailwind v4 palette value. `AGENTS.md` holds the rule. Semantic tokens live in `:root` in `src/styles/global.css` and point at palette variables.
 
 ### Primary
-- **Near-black zinc** (zinc-900, `--primary`). Primary button, logo mark, headings, body foreground, and the experience surface. Hover is zinc-800 and active is zinc-950.
+- **Near-black zinc** (zinc-900, `--primary`). Primary button, logo mark, headings, and body foreground. Hover is zinc-800 and active is zinc-950.
 - **Sky.** The only brand hue. Each step it uses is listed here.
   - Sky-600 is `--ring`, the caret, the focus ring on light surfaces, the about phrase underline, the chapter progress fill, and the TypeScript tile.
   - Sky-700 is the role label on work samples, the "See it" links, the approval-queue text, and the hover color of the logo and the mobile menu items.
@@ -196,7 +196,7 @@ Every color resolves to a stock Tailwind v4 palette value. `AGENTS.md` holds the
 ### Named Rules
 **The Stock Palette Rule.** No hex, `rgb()`, `hsl()`, or `oklch()` literal in a component. Reach for a semantic token first, then a palette utility, then `var(--color-*)`. Transparency uses the slash modifier or `--alpha()`.
 
-**The One Dark Section Rule.** Experience is the only dark surface, and it is zinc-900. Depth on it comes from white hairlines at 15%, not from a second gray.
+**The One Dark Section Rule.** Experience is the only dark surface, and it is zinc-800. Depth on it comes from white hairlines at 15%, not from a second gray.
 
 **The Sky On Dark Rule.** On zinc-900, sky appears only as sky-400 on the role rail and the bullet markers, and as the sky-300 focus ring. Names, dates, and body copy stay zinc.
 

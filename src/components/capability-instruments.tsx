@@ -39,7 +39,7 @@ const instrumentLabels: Record<CapabilityKind, string> = {
     'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
   production:
     'Illustration: a reliability readout for uptime, monthly transactions, and user growth',
-  standards: 'Illustration: three adopted standards merging into one main branch'
+  standards: 'Illustration: a shared package and monitoring dashboards merging into one main branch'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -81,7 +81,7 @@ const monoClassName = 'font-mono text-[11px]';
 // lit is the point in the cycle where the runner dot reaches that row.
 const accessSteps = [
   { detail: 'from an HR event', lit: 0.03, state: 'queued', step: 'access.request' },
-  { detail: 'role and resource', lit: 0.22, state: 'allow', step: 'rbac.check' },
+  { detail: 'role and resource', lit: 0.22, state: 'allow', step: 'access.check' },
   { detail: 'who, what, when', lit: 0.47, state: 'written', step: 'audit.append' },
   { detail: 'quarterly', lit: 0.72, state: 'scheduled', step: 'access.review' }
 ];
@@ -132,7 +132,7 @@ function AccessPath({ reduced }: { reduced: boolean }): JSX.Element {
         ))}
       </div>
       <p className={captionClassName}>
-        One request, from the API call to the audit record it leaves behind.
+        One access request, end to end.
       </p>
     </div>
   );
@@ -233,7 +233,7 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
       <PipelineNode>
         <span className={`${monoClassName} font-medium`}>merger</span>
         <span className="text-[11px] leading-snug text-zinc-500">
-          drops findings the cited code contradicts
+          drops findings the code does not support
         </span>
       </PipelineNode>
       <PipelineLink delay={0.34} reduced={reduced} />
@@ -263,13 +263,7 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
     <div className={`${panelClassName} gap-2.5`}>
       <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
         <span>Flexi Cash lending</span>
-        <span className="flex items-center gap-1.5">
-          <motion.span
-            className="size-1.5 rounded-full bg-emerald-500"
-            {...cycle(reduced, { opacity: [0.45, 1, 0.45] }, 3.6, [0, 0.5, 1])}
-          />
-          in production
-        </span>
+        <span>Jenius, 2019 to 2022</span>
       </div>
       <div className="grid gap-1.5">
         <div className="flex items-baseline justify-between gap-2">
@@ -296,24 +290,20 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
           <span className="text-[11px] font-semibold tabular-nums text-zinc-900">{value}</span>
         </div>
       ))}
-      <p className={captionClassName}>
-        Datadog dashboards and traces other teams took as their template.
-      </p>
     </div>
   );
 }
 
 const adoptedStandards = [
-  { delay: 0, duration: 5.6, id: 'workflow', name: 'git workflow', reach: '5+ teams' },
-  { delay: 0.9, duration: 6.8, id: 'package', name: 'shared package', reach: '4 apps' },
-  { delay: 1.8, duration: 6.2, id: 'dashboards', name: 'dashboards', reach: 'team template' }
+  { delay: 0, duration: 6.8, id: 'package', name: 'shared package', reach: '4 apps' },
+  { delay: 1.1, duration: 6.2, id: 'dashboards', name: 'dashboards', reach: 'company template' }
 ];
 const branchTravel = 24;
 
 function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className={`${panelClassName} gap-3`}>
-      <p className="text-sm font-semibold text-zinc-900">One standard, several teams.</p>
+      <p className="text-sm font-semibold text-zinc-900">Built once, adopted across teams.</p>
       <div className="flex items-stretch">
         <ul className="min-w-0 flex-1">
           {adoptedStandards.map(({ delay, duration, id, name, reach }) => (
@@ -442,12 +432,14 @@ export function StackGrid({ className }: { className?: string }): JSX.Element {
               'grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5',
               index === 0 && 'text-sky-600'
             )}
-            title={label}
             {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
               delay: index * 0.29
             })}
           >
-            <Icon aria-hidden="true" className="size-[42%]" />
+            <span className="grid justify-items-center gap-1.5">
+              <Icon aria-hidden="true" className="size-7" />
+              <span className="text-[10px] leading-none font-medium text-zinc-600">{label}</span>
+            </span>
           </motion.li>
         ))}
       </ul>

@@ -8,7 +8,6 @@ import {
   useTransform,
   type MotionValue
 } from 'motion/react';
-import { AccessLanyard } from '@/components/access-lanyard';
 import { projects, type Chapter, type Project } from '@/components/portfolio-home-data';
 import {
   RevealGroup,
@@ -291,6 +290,10 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
               <dt className="text-sm font-medium text-zinc-500">What I built</dt>
               <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
             </div>
+            <div className="grid gap-1">
+              <dt className="text-sm font-medium text-zinc-500">Result</dt>
+              <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.result}</dd>
+            </div>
           </dl>
           <ul aria-label={`${project.title} stack`} className="flex flex-wrap gap-1.5 pt-1">
             {project.stack.map((item) => (
@@ -310,12 +313,9 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
 
 export function WorkSamplesSection() {
   return (
-    <section className={`relative bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
-      <AccessLanyard />
+    <section className={`bg-zinc-50 ${sectionPaddingClassName}`} data-scroll-target="work">
       <div className={pageShellClassName}>
-        {/* On lg the header keeps the badge's drop height clear, so it never swings over the first
-            project, and centers the heading against the hanging card. */}
-        <RevealGroup className={cn(sectionHeaderClassName, 'lg:min-h-[23rem] lg:max-w-md lg:content-center')}>
+        <RevealGroup className={sectionHeaderClassName}>
           <RevealItem>
             <h2 className="max-w-xl text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl">
               Work samples
@@ -323,7 +323,7 @@ export function WorkSamplesSection() {
           </RevealItem>
           <RevealItem>
             <p className="max-w-xl text-base font-normal leading-7 text-zinc-600 text-pretty">
-              Three systems I&apos;ve built, and the problem each one solves.
+              Most of my work is private to the companies I built it for. Here are three samples and the problem I solved in each.
             </p>
           </RevealItem>
         </RevealGroup>

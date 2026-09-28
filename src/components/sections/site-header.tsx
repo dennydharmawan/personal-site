@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Download } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { isEvidenceTarget } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,8 @@ import {
   pageShellClassName,
   riseDelay,
   scrollToTargetName,
-  spring
+  spring,
+  writeClipboardText
 } from '@/components/sections/shared';
 
 const navItems: ReadonlyArray<{ label: string; shortLabel?: string; target: string }> = [
@@ -21,43 +22,6 @@ const navItems: ReadonlyArray<{ label: string; shortLabel?: string; target: stri
   { label: 'About', target: 'about' },
   { label: 'Contact', target: 'contact' }
 ];
-
-async function writeClipboardText(value: string) {
-  let copiedWithClipboard = false;
-
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(value);
-      copiedWithClipboard = true;
-    } catch {
-      copiedWithClipboard = false;
-    }
-  }
-
-  if (copiedWithClipboard) {
-    return;
-  }
-
-  const textArea = document.createElement('textarea');
-
-  textArea.value = value;
-  textArea.setAttribute('readonly', '');
-  textArea.style.left = '-9999px';
-  textArea.style.position = 'fixed';
-  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  document.body.append(textArea);
-  textArea.focus({ preventScroll: true });
-  textArea.select();
-  textArea.setSelectionRange(0, value.length);
-
-  const didCopy = document.execCommand('copy');
-  textArea.remove();
-  previousFocus?.focus({ preventScroll: true });
-
-  if (!didCopy) {
-    throw new Error('Email copy command failed');
-  }
-}
 
 export function EmailActionMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -226,6 +190,35 @@ function useActiveSection() {
   return active;
 }
 
+function NavHoverPill({ isActive }: { isActive: boolean }) {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <AnimatePresence initial={false} mode="popLayout">
+      {isActive ? (
+        <motion.span
+          layoutId="nav-hover-pill"
+          aria-hidden="true"
+          className="absolute inset-0 rounded-lg bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
+          initial={shouldReduceMotion ? false : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }}
+          animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
+          exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  ...spring,
+                  duration: 0.38,
+                  filter: { duration: 0.3, ease: easeOut },
+                  opacity: { duration: 0.3, ease: easeOut }
+                }
+          }
+        />
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 export function SiteHeader() {
   const shouldReduceMotion = useReducedMotion();
   const activeSection = useActiveSection();
@@ -272,7 +265,7 @@ export function SiteHeader() {
           }`}
         >
           <a
-            className="animate-rise-in inline-flex min-h-10 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm"
+            className="animate-rise-in inline-flex min-h-11 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm"
             style={riseDelay(0.04)}
             href="/"
             aria-label="Denny Dharmawan home"
@@ -304,7 +297,7 @@ export function SiteHeader() {
                   key={item.target}
                   aria-current={activeSection === item.target ? 'location' : undefined}
                   href={`#${item.target}`}
-                  className="animate-rise-in relative inline-flex min-h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 md:px-3"
+                  className="animate-rise-in relative inline-flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 md:px-3"
                   style={riseDelay(0.12 + index * 0.04)}
                   onBlur={() => setHoveredNavHref(null)}
                   onFocus={() => setHoveredNavHref(item.target)}
@@ -314,32 +307,7 @@ export function SiteHeader() {
                   }}
                   onMouseEnter={() => setHoveredNavHref(item.target)}
                 >
-                  <AnimatePresence initial={false} mode="popLayout">
-                    {hoveredNavHref === item.target ? (
-                      <motion.span
-                        layoutId="nav-hover-pill"
-                        aria-hidden="true"
-                        className="absolute inset-0 rounded-lg bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
-                        initial={
-                          shouldReduceMotion
-                            ? false
-                            : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }
-                        }
-                        animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
-                        exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
-                        transition={
-                          shouldReduceMotion
-                            ? { duration: 0 }
-                            : {
-                                ...spring,
-                                duration: 0.38,
-                                filter: { duration: 0.3, ease: easeOut },
-                                opacity: { duration: 0.3, ease: easeOut }
-                              }
-                        }
-                      />
-                    ) : null}
-                  </AnimatePresence>
+                  <NavHoverPill isActive={hoveredNavHref === item.target} />
                   <span className="relative z-10">
                     {item.shortLabel ? (
                       <>
@@ -352,12 +320,28 @@ export function SiteHeader() {
                   </span>
                 </a>
               ))}
+              {/* From lg only: below that the row has no room, and the hero's button covers it. */}
+              <a
+                href="/resume.pdf"
+                download
+                className="animate-rise-in relative hidden min-h-11 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 lg:inline-flex"
+                style={riseDelay(0.12 + navItems.length * 0.04)}
+                onBlur={() => setHoveredNavHref(null)}
+                onFocus={() => setHoveredNavHref('resume')}
+                onMouseEnter={() => setHoveredNavHref('resume')}
+              >
+                <NavHoverPill isActive={hoveredNavHref === 'resume'} />
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  <Download aria-hidden="true" className="size-3.5 text-zinc-500" />
+                  Resume
+                </span>
+              </a>
             </div>
             <Button
               asChild
               variant="outline"
-              className="animate-rise-in ml-1 h-10 px-4"
-              style={riseDelay(0.12 + navItems.length * 0.04)}
+              className="animate-rise-in ml-1 h-11 px-4"
+              style={riseDelay(0.12 + (navItems.length + 1) * 0.04)}
             >
               <a href={`mailto:${contactEmail}`} aria-label={`Email ${contactEmail}`}>
                 <span className="lg:hidden">Email</span>

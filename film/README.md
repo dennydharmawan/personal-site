@@ -22,6 +22,7 @@ Run these from `film/`.
 | `npm run palette` | Rebuilds `palette.js` from the root's `node_modules/tailwindcss/theme.css`. Run `pnpm install` at the root first. |
 | `npm run shoot -- --out out` | Writes a PNG for each beat in `SHOTS`, plus `out/meta.json`. Pass `--times 13.4,25.03` for other frames. |
 | `npm run render -- 30 out/master.mp4` | Renders frames 0 to `DUR` minus one frame at 30 fps into `frames/` and encodes a 1080 H.264 master with ffmpeg. The last frame is left out because it repeats the first. |
+| `npm run paper` | Writes the print paper alone to `public/film/desk-paper.webp`. The site footer uses it as its background, so the footer and the film share one sheet. |
 | `python3 sheet.py out out/sheet.jpg 4 360` | Builds a contact sheet from a `shoot` run. |
 
 To scrub the film by hand, open `film.html` in a browser. `film.html?t=13.4` opens on a given second.

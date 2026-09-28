@@ -30,7 +30,7 @@ function ExperienceHeader() {
       </RevealItem>
       <RevealItem className="flex flex-wrap items-baseline gap-x-6 gap-y-4">
         <p className="max-w-2xl text-base font-normal leading-7 text-zinc-300 text-pretty">
-          ERP integrations, then digital lending backends, then a bank's system of record for who can access its internal apps.
+          I started as an ERP consultant, customizing Dynamics AX for companies like JNE and Gramedia. Then I moved into backend engineering on digital lending at Jenius, and now I build full-stack systems at Krom Bank.
         </p>
       </RevealItem>
     </RevealGroup>
@@ -67,12 +67,13 @@ function ExperienceRole({ item }: { item: ExperienceItem }) {
           {item.role}
         </h3>
       </RevealItem>
-      {item.titles ? (
+      {item.titles && item.titles.length > 1 ? (
         <RevealItem>
-          <ol aria-label={`Titles held at ${item.company}`} className="grid gap-1.5 border-l border-white/15 pl-4">
-            {item.titles.map((title) => (
+          {/* The h3 already names the current title, so only earlier titles are listed. */}
+          <ol aria-label={`Earlier titles at ${item.company}`} className="grid gap-1.5 border-l border-white/15 pl-4">
+            {item.titles.slice(1).map((title) => (
               <li key={title.role} className="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
-                <span className="text-zinc-200">{title.role}</span>
+                <span className="text-zinc-200">Previously {title.role}</span>
                 <span className="whitespace-nowrap tabular-nums text-zinc-300">{title.period}</span>
               </li>
             ))}
@@ -131,7 +132,7 @@ function RoleRail({ active }: { active: number }) {
               aria-hidden="true"
               className={cn(
                 'absolute top-[0.45em] left-0 size-[7px] rounded-full transition-colors duration-300',
-                reached ? 'bg-sky-400' : 'bg-zinc-600'
+                reached ? 'bg-sky-400' : 'bg-zinc-500'
               )}
             />
             {index < experiences.length - 1 ? (
@@ -178,7 +179,7 @@ export function ExperienceSection() {
 
   return (
     <section
-      className={`bg-zinc-900 text-zinc-50 ${sectionPaddingClassName}`}
+      className={`bg-zinc-800 text-zinc-50 ${sectionPaddingClassName}`}
       data-scroll-target="experience"
     >
       <div

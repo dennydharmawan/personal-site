@@ -171,7 +171,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
             >
               <a
                 href={`mailto:${contactEmail}`}
-                aria-label={`Email ${contactEmail}`}
+                aria-label={`Email me at ${contactEmail}`}
                 className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-zinc-800"
               >
                 Email me

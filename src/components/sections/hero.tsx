@@ -25,8 +25,8 @@ function HeroLede({ yearsExperience, className = '' }: { yearsExperience: number
   return (
     <p className={`max-w-xl text-lg font-normal leading-7 text-zinc-600 text-pretty xl:max-w-[24rem] ${className}`}>
       Senior full-stack engineer with {yearsExperience}+ years of experience. I build distributed
-      systems for Indonesian digital banks, from lending at Jenius to workflow orchestration at
-      Krom Bank.
+      systems for Indonesian digital banks, from lending backends at Jenius handling 2M+
+      transactions a month to workflow orchestration at Krom Bank.
     </p>
   );
 }
@@ -58,7 +58,7 @@ function HeroActions({ className = '' }: { className?: string }) {
         size="lg"
         className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4"
       >
-        <a href="/resume.pdf" rel="noopener" target="_blank">
+        <a href="/resume.pdf" download>
           <Download
             data-icon="inline-start"
             className="transition-transform duration-200 group-hover/button:translate-y-0.5"

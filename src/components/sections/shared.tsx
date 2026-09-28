@@ -246,3 +246,41 @@ export function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: 
 export function riseDelay(seconds: number) {
   return { '--rise-delay': `${seconds}s` } as CSSProperties;
 }
+
+// The Clipboard API needs a secure context and permission; execCommand covers the rest.
+export async function writeClipboardText(value: string) {
+  let copiedWithClipboard = false;
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      copiedWithClipboard = true;
+    } catch {
+      copiedWithClipboard = false;
+    }
+  }
+
+  if (copiedWithClipboard) {
+    return;
+  }
+
+  const textArea = document.createElement('textarea');
+
+  textArea.value = value;
+  textArea.setAttribute('readonly', '');
+  textArea.style.left = '-9999px';
+  textArea.style.position = 'fixed';
+  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  document.body.append(textArea);
+  textArea.focus({ preventScroll: true });
+  textArea.select();
+  textArea.setSelectionRange(0, value.length);
+
+  const didCopy = document.execCommand('copy');
+  textArea.remove();
+  previousFocus?.focus({ preventScroll: true });
+
+  if (!didCopy) {
+    throw new Error('Copy command failed');
+  }
+}

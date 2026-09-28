@@ -6,7 +6,8 @@
     "render": "node render.mjs",
     "palette": "node scripts/gen-palette.mjs",
     "check": "node scripts/check-determinism.mjs",
-    "media": "bash scripts/encode.sh && node scripts/check-budget.mjs"
+    "media": "bash scripts/encode.sh && node scripts/check-budget.mjs",
+    "paper": "node paper.mjs && python3 -c \"from PIL import Image; Image.open('out/paper.png').convert('RGB').save('../public/film/desk-paper.webp', quality=78, method=6)\""
   },
   "dependencies": {
     "playwright-core": "^1.63.0"
