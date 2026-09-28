@@ -34,12 +34,12 @@ const instrumentBoxClassName: Record<InstrumentSize, string> = {
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
-  ai: 'Illustration: four review agents running in parallel, merging into confidence and security gates, then a human approval queue',
+  ai: 'Illustration: four review agents send findings to a merger that drops the unsupported one, then confidence and security gates, then a person approves in the queue',
   fullstack:
     'Illustration: an access request moving through a role check, an audit record, and a quarterly access review',
   production:
-    'Illustration: a reliability readout for uptime, monthly transactions, and user growth',
-  standards: 'Illustration: a shared package and monitoring dashboards merging into one main branch'
+    'Illustration: a status strip of daily uptime with one bad day, monthly transactions, and a rising user-growth line',
+  standards: 'Illustration: a shared package for auth, logging, and flags fanning out to four apps, and dashboards that became the company monitoring template'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -208,6 +208,42 @@ function PipelineGate({ label, side }: { label: string; side: 'left' | 'right' }
   );
 }
 
+// Two labels in one grid cell, crossfading on the parent loop. Under reduced motion only the
+// settled label shows, so the still frame tells the end of the story.
+function Swap({
+  from,
+  reduced,
+  times,
+  to,
+  duration
+}: {
+  from: ReactNode;
+  reduced: boolean;
+  times: [number, number, number, number];
+  to: ReactNode;
+  duration: number;
+}): JSX.Element {
+  const [inStart, inEnd, outStart, outEnd] = times;
+  return (
+    <span className="grid justify-items-center">
+      {reduced ? null : (
+        <motion.span
+          className="[grid-area:1/1]"
+          {...cycle(reduced, { opacity: [1, 1, 0, 0, 1, 1] }, duration, [0, inStart, inEnd, outStart, outEnd, 1])}
+        >
+          {from}
+        </motion.span>
+      )}
+      <motion.span
+        className="[grid-area:1/1]"
+        {...cycle(reduced, { opacity: [0, 0, 1, 1, 0, 0] }, duration, [0, inStart, inEnd, outStart, outEnd, 1])}
+      >
+        {to}
+      </motion.span>
+    </span>
+  );
+}
+
 function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className={widePanelClassName}>
@@ -235,6 +271,19 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
         <span className="text-[11px] leading-snug text-zinc-500">
           drops findings the code does not support
         </span>
+        <span className={`${monoClassName} mt-0.5 text-zinc-500`}>
+          <Swap
+            duration={pipelineCycle}
+            from="4 findings"
+            reduced={reduced}
+            times={[0.2, 0.26, 0.9, 0.96]}
+            to={
+              <>
+                3 kept · <span className="text-zinc-400 line-through">1 dropped</span>
+              </>
+            }
+          />
+        </span>
       </PipelineNode>
       <PipelineLink delay={0.34} reduced={reduced} />
       {/* Equal columns from sm put the fork's midpoint under the trunk. Phones keep content
@@ -247,20 +296,39 @@ function ReviewerPipeline({ reduced }: { reduced: boolean }): JSX.Element {
       <span className="flex justify-center">
         <PipelineNode tone="accent">
           <span className={`${monoClassName} font-medium`}>human approval queue</span>
+          <span className={`${monoClassName} mt-0.5`}>
+            <Swap
+              duration={pipelineCycle}
+              from={
+                <span className="inline-flex items-center gap-1.5 text-sky-600">
+                  <motion.span
+                    aria-hidden="true"
+                    className="size-2.5 rounded-full border-[1.5px] border-sky-300 border-t-sky-600"
+                    {...cycle(reduced, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, 0.9, [0, 1], { ease: 'linear' })}
+                  />
+                  waiting for a person
+                </span>
+              }
+              reduced={reduced}
+              times={[0.74, 0.8, 0.94, 0.99]}
+              to={<span className="text-emerald-600">approved ✓</span>}
+            />
+          </span>
         </PipelineNode>
       </span>
     </div>
   );
 }
 
-const reliabilityFigures = [
-  { label: 'transactions a month', value: '2M+' },
-  { label: 'user growth, three years', value: '+147%' }
-];
+// A status-page strip: one bar a day, one bad day in amber. The day is illustrative; the
+// uptime figure beside it is the real one.
+const uptimeDays = 42;
+const badDay = 29;
+const growthPath = 'M1 15 C 10 14, 16 12, 24 10 S 40 6, 47 4 S 58 2, 63 1';
 
 function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className={`${panelClassName} gap-2.5`}>
+    <div className={`${panelClassName} gap-3`}>
       <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
         <span>Flexi Cash lending</span>
         <span>Jenius, 2019 to 2022</span>
@@ -270,10 +338,18 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
           <span className="text-[11px] font-medium text-zinc-600">uptime</span>
           <span className="text-sm font-semibold tabular-nums text-zinc-900">99.98%</span>
         </div>
-        <span className="relative block h-1 overflow-hidden rounded-full bg-zinc-100">
-          <span className="absolute inset-y-0 left-0 w-[99%] rounded-full bg-emerald-500/70" />
+        <span className="relative flex h-5 gap-[2px] overflow-hidden">
+          {Array.from({ length: uptimeDays }, (_, day) => (
+            <span
+              className={cn(
+                'min-w-0 flex-1 rounded-[1px]',
+                day === badDay ? 'bg-amber-400' : 'bg-emerald-500/70'
+              )}
+              key={day}
+            />
+          ))}
           <motion.span
-            className="absolute inset-y-0 w-10 bg-linear-to-r from-transparent via-white/70 to-transparent"
+            className="absolute inset-y-0 w-10 bg-linear-to-r from-transparent via-white/60 to-transparent"
             {...cycle(
               reduced,
               { transform: ['translateX(-2.5rem)', 'translateX(22rem)'] },
@@ -283,77 +359,93 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
             )}
           />
         </span>
+        <span className="flex justify-between text-[10px] text-zinc-400">
+          <span>one bad day, recovered</span>
+          <span>today</span>
+        </span>
       </div>
-      {reliabilityFigures.map(({ label, value }) => (
-        <div className="flex items-baseline justify-between gap-2" key={label}>
-          <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">{label}</span>
-          <span className="text-[11px] font-semibold tabular-nums text-zinc-900">{value}</span>
-        </div>
-      ))}
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">transactions a month</span>
+        <span className="text-[11px] font-semibold tabular-nums text-zinc-900">2M+</span>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-[11px] font-medium text-zinc-600">user growth, three years</span>
+        <span className="flex items-center gap-2">
+          <svg aria-hidden="true" className="h-4 w-16 overflow-visible" fill="none" viewBox="0 0 64 16">
+            <motion.path
+              className="stroke-sky-500"
+              d={growthPath}
+              strokeLinecap="round"
+              strokeWidth="1.5"
+              {...cycle(reduced, { pathLength: [0, 1, 1, 0] }, 7.4, [0, 0.35, 0.9, 1], { delay: 0.6 })}
+            />
+          </svg>
+          <span className="text-[11px] font-semibold tabular-nums text-zinc-900">+147%</span>
+        </span>
+      </div>
     </div>
   );
 }
 
-const adoptedStandards = [
-  { delay: 0, duration: 6.8, id: 'package', name: 'shared package', reach: '4 apps' },
-  { delay: 1.1, duration: 6.2, id: 'dashboards', name: 'dashboards', reach: 'company template' }
+// The package fans out to the four apps that run on it. Each app lights when the dot reaches
+// it, on its own duration and delay so the four never land together.
+const adoptingApps = [
+  { delay: 0, duration: 5.4 },
+  { delay: 0.7, duration: 6.1 },
+  { delay: 1.4, duration: 5.8 },
+  { delay: 2.1, duration: 6.5 }
 ];
-const branchTravel = 24;
+const fanTravel = 28;
 
 function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
   return (
     <div className={`${panelClassName} gap-3`}>
       <p className="text-sm font-semibold text-zinc-900">Built once, adopted across teams.</p>
-      <div className="flex items-stretch">
-        <ul className="min-w-0 flex-1">
-          {adoptedStandards.map(({ delay, duration, id, name, reach }) => (
-            <li className="flex h-7 items-center gap-1.5" key={id}>
-              <span className="min-w-0 flex-1 truncate text-right text-[11px] font-medium text-zinc-600">
-                {name}
-                <span className="max-[359px]:hidden"> · {reach}</span>
-              </span>
-              <span aria-hidden="true" className="relative h-px w-6 shrink-0 bg-zinc-200">
+      <div className="flex items-center">
+        <span className="grid shrink-0 gap-0.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 ring-1 ring-zinc-900/5">
+          <span className={`${monoClassName} font-medium text-zinc-900`}>shared package</span>
+          <span className="text-[10px] text-zinc-500">auth · logging · flags</span>
+        </span>
+        <span aria-hidden="true" className="h-px w-2 shrink-0 bg-zinc-200" />
+        <div className="relative grid flex-1 gap-1">
+          <span aria-hidden="true" className="absolute top-2.5 bottom-2.5 left-0 w-px bg-zinc-200" />
+          {adoptingApps.map(({ delay, duration }, index) => (
+            <div className="flex h-5 items-center" key={delay}>
+              <span aria-hidden="true" className="relative h-px shrink-0 bg-zinc-200" style={{ width: fanTravel }}>
                 <motion.span
                   className="absolute -top-[2px] -left-[2px] size-[5px] rounded-full bg-sky-500"
                   {...cycle(
                     reduced,
                     {
-                      opacity: [0, 1, 1, 0],
-                      transform: [
-                        'translateX(0px)',
-                        'translateX(4px)',
-                        `translateX(${branchTravel - 4}px)`,
-                        `translateX(${branchTravel}px)`
-                      ]
+                      opacity: [0, 1, 1, 0, 0],
+                      transform: ['translateX(0px)', 'translateX(4px)', `translateX(${fanTravel - 4}px)`, `translateX(${fanTravel}px)`, `translateX(${fanTravel}px)`]
                     },
                     duration,
-                    [0, 0.12, 0.44, 0.5],
+                    [0, 0.06, 0.2, 0.24, 1],
                     { delay }
                   )}
                 />
               </span>
-            </li>
+              <motion.span
+                className={`${monoClassName} inline-flex items-center gap-1 rounded-md px-1.5 py-px text-zinc-600 ring-1 ring-zinc-900/5`}
+                {...cycle(
+                  reduced,
+                  { backgroundColor: ['var(--color-white)', 'var(--color-white)', 'var(--color-sky-50)', 'var(--color-sky-50)', 'var(--color-white)'] },
+                  duration,
+                  [0, 0.22, 0.28, 0.7, 0.85],
+                  { delay }
+                )}
+              >
+                <span className="size-1.5 rounded-full bg-sky-500" />
+                app {index + 1}
+              </motion.span>
+            </div>
           ))}
-        </ul>
-        <div aria-hidden="true" className="relative w-8 shrink-0">
-          <span className="absolute top-[14px] bottom-[14px] left-0 w-px bg-zinc-200" />
-          <span className="absolute top-1/2 left-0 h-px w-2 -translate-y-1/2 bg-zinc-200" />
-          <span className="absolute top-1/2 left-2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_6px_18px_-8px_--alpha(var(--color-zinc-900)/45%)] ring-1 ring-zinc-900/5">
-            <svg className="size-3" fill="none" viewBox="0 0 24 24">
-              <path
-                className="stroke-zinc-900"
-                d="M7 4v7a5 5 0 0 0 5 5h5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.8"
-              />
-              <circle className="fill-white stroke-zinc-900" cx="7" cy="19" r="2.4" strokeWidth="1.8" />
-              <circle className="fill-white stroke-zinc-900" cx="7" cy="4.4" r="2.4" strokeWidth="1.8" />
-              <circle className="fill-zinc-900" cx="18.5" cy="16" r="2.4" />
-            </svg>
-          </span>
         </div>
       </div>
+      <p className="text-[11px] text-zinc-500">
+        dashboards <span className="text-zinc-400">→</span> company monitoring template
+      </p>
     </div>
   );
 }
