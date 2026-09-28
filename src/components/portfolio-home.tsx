@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 import { AboutSection } from '@/components/sections/about';
+import { ClosingCtaSection } from '@/components/sections/closing-cta';
 import { ExperienceSection } from '@/components/sections/experience';
 import { CapabilitiesSection } from '@/components/sections/expertise';
 import { HeroSection } from '@/components/sections/hero';
@@ -38,6 +39,8 @@ export default function PortfolioHome() {
         <CapabilitiesSection />
 
         <AboutSection />
+
+        <ClosingCtaSection />
       </main>
 
       <SiteFooter />
