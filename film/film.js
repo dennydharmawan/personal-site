@@ -46,7 +46,7 @@ const T = {
   golden: 46,             // the sun comes back down into the window
   kite: [41.5, 3.6],      // up over the kampung, reeled in after the seam
 };
-T.catSit = [T.bolt, 23.0];  // sits up in the flash, lies back down in the blackout
+T.catSit = [T.bolt, 23.0];  // sits up in the flash, lies back down as the power returns
 /* Loop-safe oscillators: every one of them completes whole cycles in DUR. */
 const cyc = (t, hz) => t * TAU * Math.max(1, Math.round(hz * DUR)) / DUR;
 /* Seconds since t0, counted across the loop seam. Bit-identical at t = 0 and
@@ -862,7 +862,10 @@ const DROPS = (() => {
   return out;
 })();
 const SNAP = PL.map(() => cv(W, W).getContext('2d', { willReadFrequently: true }));
-const MIRROR_LAMP = [292, 690];
+/* An architect lamp at the back left. Its shade stays left of the mullion and its base sits behind the curled cat's ears. */
+const LAMP = { base: [150, 852], elbow: [112, 540], head: [270, 492], aim: [400, 956] };
+/* The lamp seen in the night glass, pulled toward the middle of the pane. */
+const MIRROR_LAMP = [LAMP.head[0] + (CX - LAMP.head[0]) * 0.16 + 30, LAMP.head[1] + 70];
 function drops(t) {
   const live = DROPS.filter(dp => t >= dp.b && t < dp.dry + 3);
   if (!live.length) return;
@@ -913,11 +916,9 @@ function mirror(t) {
   const M0 = roomDark(t) * lampAt(t) * (1 - 0.8 * flashAt(t));
   if (M0 <= 0.01) return;
   const [x, y] = MIRROR_LAMP;
-  glow('indigo', x, y, 6, 70, .3 * M0, 'destination-out');
-  glow('blue', x, y, 6, 60, .24 * M0, 'destination-out');
-  glow('yellow', x, y, 3, 40, .26 * M0);
-  const shade = poly([[x - 16, y - 18], [x + 6, y - 22], [x + 22, y + 4], [x - 4, y + 12]]);
-  add(shade, { blue: .16 * M0, indigo: .1 * M0 });
+  glow('indigo', x, y, 6, 60, .26 * M0, 'destination-out');
+  glow('blue', x, y, 6, 52, .2 * M0, 'destination-out');
+  glow('yellow', x, y, 3, 34, .22 * M0);
   const deskGlow = rect(GL.x0, GL.y1 - 34, 620, GL.y1);
   knock(deskGlow, { indigo: { ys: [GL.y1 - 34, GL.y1], as: [0, .3 * M0] } });
   add(deskGlow, { yellow: { ys: [GL.y1 - 34, GL.y1], as: [0, .12 * M0] } });
@@ -925,7 +926,66 @@ function mirror(t) {
 
 /* ── the room ─────────────────────────────────────────────────────────────── */
 
-const LAMP = { base: [168, 894], elbow: [212, 700], head: [334, 700], aim: [430, 962], k: 0.8 };
+/* The window's light on the desk top. It falls away from the sun, short under
+   a high sun and long under a low one. xs(v) spans it at depth v, from the back
+   of the desk (0) to its far edge y1 (1). */
+function sunPatch(t) {
+  const len = 1 - 0.65 * sunHigh(t), skew = -170 * sunSide(t);
+  return { len, y1: DESK + 210 * len, xs: v => [GL.x0 + 40 + (skew - 60) * len * v, GL.x1 - 40 + (70 + skew) * len * v] };
+}
+/* How much of that light reaches a point on the desk, soft at the patch's edges. */
+function sunOn(t, x, y) {
+  const s = sunPatch(t), [x0, x1] = s.xs(clamp((y - DESK) / (s.y1 - DESK), 0, 1));
+  return (1 - roomDark(t)) * clamp((s.y1 - y) / 24 + 0.5, 0, 1) * clamp((x - x0) / 40 + 0.5, 0, 1) * clamp((x1 - x) / 40 + 0.5, 0, 1);
+}
+/* Every light that reaches a point on the desk, as the shadow it throws there:
+   the tip's offset per px of the caster's height, its strength and its
+   softness. The sun comes through the window behind the desk, so its shadows
+   fall toward us; the lamp's fall away from its head; the lightning's fall
+   toward us and away from the strike. */
+function deskLights(t, x, y) {
+  const out = [], sun = sunOn(t, x, y), hi = sunHigh(t);
+  if (sun > 0.01) { const len = lerp(1.1, 0.16, hi); out.push({ o: [-0.8 * sunSide(t) * len, 0.3 * len], a: .34 * sun, soft: hi, warm: true }); }
+  const [hx, hy] = LAMP.head, fy = LAMP.base[1] + 10, H = fy - hy;
+  const lamp = lampAt(t) * roomDark(t) / (1 + ((x - LAMP.aim[0]) ** 2 + (3 * (y - LAMP.aim[1])) ** 2) / 350 ** 2);
+  if (lamp > 0.01) out.push({ o: [(x - hx) / H, (y - fy) / H], a: .42 * lamp, soft: .2, warm: true });
+  const f = flashAt(t);
+  if (f > 0) out.push({ o: [(x - T.boltX) / 1400, 0.45], a: .3 * f, soft: 0 });
+  return out;
+}
+/* Overprints cov on path, fading from p0 to nothing at p1. */
+function shadeAlong(path, [x0, y0], [x1, y1], cov, op) {
+  if (Math.hypot(x1 - x0, y1 - y0) < 1) { (op ? knock : add)(path, scaleCov(cov, 0.5)); return; }
+  for (const pl in cov) {
+    const g = PG[pl], gr = g.createLinearGradient(x0, y0, x1, y1);
+    gr.addColorStop(0, 'rgba(0,0,0,' + clamp(cov[pl], 0, 1) + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.globalCompositeOperation = op || 'source-over'; g.globalAlpha = 1; g.fillStyle = gr; g.fill(path);
+  }
+}
+/* Grounds an object of half-width w and height h standing at (x, y): a tight
+   dark core, then one cast shadow per light, fading to its tip. Returns the
+   lights so a glass can throw its caustic along them. */
+function contactShadow(t, x, y, w, h, ry = 6) {
+  const core = new Path2D(); core.ellipse(x, y, w * 1.04, ry, 0, 0, TAU);
+  add(core, { indigo: .3, blue: .18, pink: .08 });
+  const lights = deskLights(t, x, y);
+  for (const s of lights) {
+    const ox = s.o[0] * h, oy = s.o[1] * h, p = new Path2D();
+    for (let k = 0; k <= 10; k++) {
+      const u = k / 10, rx = w * (1 + 0.6 * s.soft * u), rr = ry * (1 + 1.5 * s.soft * u) + Math.abs(oy) * 0.12;
+      p.moveTo(x + ox * u + rx, y + oy * u); p.ellipse(x + ox * u, y + oy * u, rx, rr, 0, 0, TAU);
+    }
+    shadeAlong(p, [x, y], [x + ox, y + oy], { indigo: s.a, blue: .55 * s.a, pink: .2 * s.a });
+  }
+  return lights;
+}
+
+/* A dark walnut desk, so the orange cat stands off it. */
+const DESK_WOOD = {
+  day: { yellow: { ys: [DESK, W], as: [.46, .5] }, pink: { ys: [DESK, W], as: [.56, .62] }, blue: { ys: [DESK, W], as: [.3, .38] }, indigo: { ys: [DESK, W], as: [.26, .36] } },
+  night: { yellow: .16, pink: { ys: [DESK, W], as: [.4, .44] }, blue: { ys: [DESK, W], as: [.4, .46] }, indigo: { ys: [DESK, W], as: [.8, .9] } },
+  edgeDay: { pink: .56, blue: .46, yellow: .3, indigo: .5 }, edgeNight: { indigo: .96, blue: .6, pink: .16 },
+};
 function room(t) {
   const d = roomDark(t), L = lampAt(t);
   const wall = rect(0, 0, W, DESK); wall.addPath(rect(FR.x0, FR.y0, FR.x1, FR.y1));
@@ -944,30 +1004,26 @@ function room(t) {
   put(sill, mixCov({ yellow: .3, pink: .22, blue: .26, indigo: .08 }, { indigo: .7, blue: .44, pink: .08 }, d));
   knock(rect(FR.x0 - 10, FR.y1 - 8, FR.x1 + 10, FR.y1 - 5), { indigo: .5, blue: .5, pink: .4 });
 
-  /* desk: warm wood, grain, darker toward the front edge */
   const desk = rect(0, DESK, W, W);
-  const dayD = { yellow: { ys: [DESK, W], as: [.34, .42] }, pink: { ys: [DESK, W], as: [.28, .38] }, blue: { ys: [DESK, W], as: [.12, .24] }, indigo: { ys: [DESK, W], as: [.03, .1] } };
-  const nightD = { yellow: .16, pink: { ys: [DESK, W], as: [.34, .4] }, blue: { ys: [DESK, W], as: [.3, .4] }, indigo: { ys: [DESK, W], as: [.6, .78] } };
-  put(desk, mixCov(dayD, nightD, d));
+  put(desk, mixCov(DESK_WOOD.day, DESK_WOOD.night, d));
   const grain = new Path2D(), gr = rngFor('grain');
   for (let y = DESK + 10; y < 1050; y += 13 + gr() * 14) {
     let x = -10; grain.moveTo(x, y);
     while (x < W + 10) { x += 40 + gr() * 60; grain.lineTo(x, y + (gr() - 0.5) * 2.4); }
   }
-  strokeOn('pink', grain, 1.4, .1); strokeOn('indigo', grain, 1, .04 + .05 * d);
+  strokeOn('indigo', grain, 1.4, .1 + .04 * d); strokeOn('pink', grain, 1, .06);
   const back = rect(0, DESK, W, DESK + 5);
   add(back, { indigo: { ys: [DESK, DESK + 5], as: [.5, 0] }, blue: { ys: [DESK, DESK + 5], as: [.3, 0] } });
   const edge = rect(0, 1046, W, W);
-  put(edge, mixCov({ pink: .4, blue: .42, yellow: .24, indigo: .2 }, { indigo: .9, blue: .55, pink: .12 }, d));
+  put(edge, mixCov(DESK_WOOD.edgeDay, DESK_WOOD.edgeNight, d));
   knock(rect(0, 1046, W, 1049), { indigo: .5, blue: .5, pink: .4 });
 
-  /* window light on the desk: it falls away from the sun, short under a high sun, long and warm under a low one */
-  const dayLight = (1 - d);
+  const dayLight = 1 - d;
   if (dayLight > 0.02) {
-    const len = 1 - 0.65 * sunHigh(t), skew = -170 * sunSide(t);
+    const { y1, xs } = sunPatch(t), [a0, a1] = xs(0), [b0, b1] = xs(1);
     const warm = t < 24 ? 1 : Math.max(1 - ramp(t, 31, 35), ramp(t, T.noon[1], DUR));
-    const a = dayLight, c = 1 - warm, ys = [DESK, DESK + 210 * len];
-    const patch = poly([[GL.x0 + 40, DESK], [GL.x1 - 40, DESK], [GL.x1 - 40 + (70 + skew) * len, ys[1]], [GL.x0 + 40 + (skew - 60) * len, ys[1]]]);
+    const a = dayLight, c = 1 - warm, ys = [DESK, y1];
+    const patch = poly([[a0, DESK], [a1, DESK], [b1, y1], [b0, y1]]);
     knock(patch, { blue: { ys, as: [.28 * a, .12 * a] }, indigo: { ys, as: [.12 * a, .05 * a] }, pink: { ys, as: [.18 * c * a, .08 * c * a] } });
     add(patch, { yellow: { ys, as: [(.22 + .16 * warm) * a, (.1 + .1 * warm) * a] }, pink: { ys, as: [.11 * warm * a, .05 * warm * a] } });
   }
@@ -987,92 +1043,77 @@ function room(t) {
       g.globalCompositeOperation = 'source-over'; g.fillStyle = radial(g, hx, hy + 60, 20, 330, a * d, 0); g.fillRect(0, 0, W, W);
       g.restore();
     }
-    for (const [pl, a] of [['indigo', 1], ['blue', .92], ['pink', .1]]) {
+    for (const [pl, a] of [['indigo', 1], ['blue', .92], ['pink', .14]]) {
       const g = PG[pl];
       g.save(); g.clip(rect(0, DESK, W, 1046)); g.translate(ax, ay); g.scale(1, 0.3);
-      g.globalCompositeOperation = 'destination-out'; g.fillStyle = radial(g, 0, 0, 20, 290, a * d * .85, 0); g.fillRect(-500, -500, 1000, 1000);
+      g.globalCompositeOperation = 'destination-out'; g.fillStyle = radial(g, 0, 0, 20, 300, a * d * .85, 0); g.fillRect(-500, -500, 1000, 1000);
       g.restore();
     }
-    for (const [pl, a, rr] of [['yellow', .5, 270], ['pink', .1, 180]]) {
+    for (const [pl, a, rr] of [['yellow', .5, 280], ['pink', .14, 190]]) {
       const g = PG[pl];
       g.save(); g.clip(rect(0, DESK, W, 1046)); g.translate(ax, ay); g.scale(1, 0.3);
       g.globalCompositeOperation = 'source-over'; g.fillStyle = radial(g, 0, 0, 20, rr, a * d, 0); g.fillRect(-500, -500, 1000, 1000);
       g.restore();
     }
-    /* the laptop and the glass cast shadows away from the lamp */
-    const k = L * d;
-    const lapSh = poly([[LAP.x + LAP.bw - 6, LAP.back], [LAP.x + LAP.fw, LAP.front], [LAP.x + LAP.fw + 110, LAP.front + 4], [LAP.x + LAP.bw + 90, LAP.back + 2]]);
-    add(lapSh, { indigo: { ys: [LAP.back, LAP.front + 6], as: [.1 * k, .3 * k] }, blue: .12 * k, pink: .04 * k });
-    const tb = TEA.bw * TEA.k;
-    const teaSh = poly([[TEA.x - tb + 6, TEA.yb - 4], [TEA.x + tb, TEA.yb - 8], [TEA.x + tb + 120, TEA.yb - 18], [TEA.x + tb + 110, TEA.yb + 4], [TEA.x - tb + 10, TEA.yb + 8]]);
-    add(teaSh, { indigo: .2 * k, blue: .1 * k });
   }
 }
 
+/* An architect lamp on a weighted base. At night its arms are a dark cut-out
+   against the glass, with a thin warm edge while it burns. */
 function lamp(t) {
   const d = roomDark(t), L = lampAt(t);
-  /* LAMP is in world points and drawArt scales the lamp by k about its base, so map them back into its unscaled frame */
-  const [bx, by] = LAMP.base, { k } = LAMP, local = ([x, y]) => [bx + (x - bx) / k, by + (y - by) / k];
-  const [px, py] = [bx, by - 22], [ex, ey] = local(LAMP.elbow), [hx, hy] = local(LAMP.head), [ax, ay] = local(LAMP.aim);
-  const enamel = mixCov({ blue: .88, indigo: .2, yellow: .04 }, { blue: .82, indigo: .56, pink: .04 }, d);
-  /* contact shadow */
-  const sh = new Path2D(); sh.ellipse(bx + 14 - 20 * L * d, by + 12, 78, 11, 0, 0, TAU);
-  add(sh, { indigo: .3, blue: .2, pink: .1 });
-  /* base: a low cylinder */
-  const baseTop = new Path2D(); baseTop.ellipse(bx, by - 13, 66, 14, 0, 0, TAU);
-  const baseSide = poly([[bx - 66, by - 13], [bx + 66, by - 13], [bx + 66, by], [bx - 66, by]]);
-  baseSide.ellipse(bx, by, 66, 14, 0, 0, Math.PI);
-  put(baseSide, enamel); add(baseSide, { indigo: .18 });
+  const [bx, by] = LAMP.base, [ex, ey] = LAMP.elbow, [hx, hy] = LAMP.head, [ax, ay] = LAMP.aim;
+  const [px, py] = [bx, by - 18];
+  const enamel = mixCov({ blue: .88, indigo: .2, yellow: .04 }, { blue: .7, indigo: .9, pink: .1 }, d);
+  contactShadow(t, bx, by + 3, 54, 18, 12);
+  const baseTop = new Path2D(); baseTop.ellipse(bx, by - 11, 52, 11, 0, 0, TAU);
+  const baseSide = poly([[bx - 52, by - 11], [bx + 52, by - 11], [bx + 52, by], [bx - 52, by]]);
+  baseSide.ellipse(bx, by, 52, 11, 0, 0, Math.PI);
+  put(baseSide, enamel); add(baseSide, { indigo: .2 });
   put(baseTop, enamel);
-  const bhi = new Path2D(); bhi.ellipse(bx - 14, by - 14, 30, 5, -0.05, Math.PI * 1.05, Math.PI * 1.7);
-  strokeOn('blue', bhi, 3, .5, 'destination-out'); strokeOn('indigo', bhi, 3, .8, 'destination-out');
-  /* arms: double rods and springs */
-  const armA = nib([[px - 4, py], [ex - 4, ey]], () => 2.6, { per: 2 });
-  const armA2 = nib([[px + 5, py], [ex + 5, ey + 2]], () => 2.2, { per: 2 });
-  const armB = nib([[ex, ey - 3], [hx - 6, hy - 6]], () => 2.4, { per: 2 });
-  const armB2 = nib([[ex + 2, ey + 5], [hx - 4, hy + 3]], () => 2, { per: 2 });
-  /* at night the rods catch the window glow, or they vanish into the wall */
-  const rod = mixCov({ indigo: .72, blue: .5, pink: .06 }, { indigo: .3, blue: .56, pink: .04 }, d);
-  for (const a of [armA, armA2, armB, armB2]) put(a, rod);
+  const bhi = new Path2D(); bhi.ellipse(bx - 12, by - 12, 24, 4, -0.05, Math.PI * 1.05, Math.PI * 1.7);
+  strokeOn('blue', bhi, 2.6, .5 * (1 - d), 'destination-out'); strokeOn('indigo', bhi, 2.6, .8 * (1 - d), 'destination-out');
+  const rods = [[[px - 5, py], [ex - 5, ey], 3], [[px + 6, py], [ex + 6, ey + 2], 2.6], [[ex, ey - 4], [hx - 6, hy - 7], 2.8], [[ex + 2, ey + 6], [hx - 4, hy + 4], 2.4]];
+  const rod = mixCov({ indigo: .7, blue: .5, pink: .08 }, { indigo: .96, blue: .62, pink: .14 }, d);
+  for (const [a, b, w] of rods) put(nib([a, b], () => w, { per: 2 }), rod);
   const spring = new Path2D();
-  for (const [[x0, y0], [x1, y1]] of [[[px + 12, py - 30], [ex + 10, ey + 60]], [[ex + 16, ey + 10], [hx - 30, hy - 4]]]) {
-    const N = 14; spring.moveTo(x0, y0);
+  for (const [[x0, y0], [x1, y1]] of [[[px + 12, py - 40], [ex + 10, ey + 80]], [[ex + 22, ey + 6], [hx - 44, hy - 2]]]) {
+    const N = 18; spring.moveTo(x0, y0);
     for (let k = 1; k <= N; k++) { const u = k / N, nx = -(y1 - y0), ny = x1 - x0, m = Math.hypot(nx, ny); spring.lineTo(lerp(x0, x1, u) + nx / m * (k % 2 ? 3 : -3), lerp(y0, y1, u) + ny / m * (k % 2 ? 3 : -3)); }
   }
-  strokeOn('indigo', spring, 1.2, .6);
+  strokeOn('indigo', spring, 1.2, .6 + .3 * d);
+  if (L > 0) {
+    const edge = new Path2D();
+    for (const [a, b, w] of rods) edge.addPath(nib([[a[0], a[1] + w], [b[0], b[1] + w]], () => 0.8, { per: 2 }));
+    knock(edge, { indigo: .8 * d, blue: .6 * d }); add(edge, { yellow: .7 * d, pink: .15 * d });
+  }
   const knob = new Path2D(); knob.arc(ex, ey, 7, 0, TAU); knob.moveTo(px + 6, py); knob.arc(px, py, 6, 0, TAU); knob.moveTo(hx + 6, hy); knob.arc(hx, hy, 6, 0, TAU);
   put(knob, enamel); add(knob, { indigo: .2 });
   /* shade: a cone aimed at the desk */
   const ang = Math.atan2(ay - hy, ax - hx), ux = Math.cos(ang), uy = Math.sin(ang), vx = -uy, vy = ux;
-  const back = [hx + ux * 6, hy + uy * 6], mouth = [hx + ux * 82, hy + uy * 82];
-  const R0 = 13, R1 = 45;
+  const back = [hx + ux * 6, hy + uy * 6], mouth = [hx + ux * 92, hy + uy * 92];
+  const R0 = 14, R1 = 52;
   const cone = poly([[back[0] + vx * R0, back[1] + vy * R0], [mouth[0] + vx * R1, mouth[1] + vy * R1], [mouth[0] - vx * R1, mouth[1] - vy * R1], [back[0] - vx * R0, back[1] - vy * R0]]);
   cone.moveTo(back[0], back[1]); cone.ellipse(back[0], back[1], R0, R0 * 0.8, ang, 0, TAU);
   put(cone, enamel);
   add(poly([[back[0] - vx * R0 * 0.1, back[1] - vy * R0 * 0.1], [mouth[0] - vx * R1 * 0.1, mouth[1] - vy * R1 * 0.1], [mouth[0] - vx * R1, mouth[1] - vy * R1], [back[0] - vx * R0, back[1] - vy * R0]]), { indigo: .22 });
-  const sheen = nib([[back[0] + vx * R0 * 0.55, back[1] + vy * R0 * 0.55], [mouth[0] + vx * R1 * 0.62, mouth[1] + vy * R1 * 0.62]], wTip(2.6), { per: 3 });
-  knock(sheen, { blue: .5, indigo: .9 });
-  const rim = new Path2D(); rim.ellipse(mouth[0], mouth[1], R1, 11, ang + Math.PI / 2, 0, TAU);
+  const sheen = nib([[back[0] + vx * R0 * 0.55, back[1] + vy * R0 * 0.55], [mouth[0] + vx * R1 * 0.62, mouth[1] + vy * R1 * 0.62]], wTip(2.4), { per: 3 });
+  knock(sheen, { blue: .5 * (1 - .6 * d), indigo: .9 * (1 - .6 * d) });
+  const rim = new Path2D(); rim.ellipse(mouth[0], mouth[1], R1, 10, ang + Math.PI / 2, 0, TAU);
   if (L > 0) {
-    /* bulb light spilling from the mouth, and a faint beam */
     const beam = poly([[mouth[0] + vx * R1, mouth[1] + vy * R1], [ax + 190, ay + 14], [ax - 170, ay + 20], [mouth[0] - vx * R1, mouth[1] - vy * R1]]);
-    const g0 = mouth, g1 = [ax, ay];
-    for (const [pl, a] of [['indigo', .4 * d], ['blue', .3 * d]]) {
-      const g = PG[pl]; g.globalCompositeOperation = 'destination-out'; g.globalAlpha = 1;
-      const gr = g.createLinearGradient(g0[0], g0[1], g1[0], g1[1]); gr.addColorStop(0, 'rgba(0,0,0,' + a + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = gr; g.fill(beam);
-    }
-    { const g = PG.yellow; g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-      const gr = g.createLinearGradient(g0[0], g0[1], g1[0], g1[1]); gr.addColorStop(0, 'rgba(0,0,0,' + .22 * d + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = gr; g.fill(beam); }
+    shadeAlong(beam, mouth, [ax, ay], { indigo: .4 * d, blue: .3 * d }, 'destination-out');
+    shadeAlong(beam, mouth, [ax, ay], { yellow: .22 * d });
+    const lipEdge = nib([[back[0] + vx * R0, back[1] + vy * R0], [mouth[0] + vx * R1, mouth[1] + vy * R1]], () => 0.9, { per: 2 });
+    knock(lipEdge, { indigo: .7 * d, blue: .5 * d }); add(lipEdge, { yellow: .6 * d });
     knock(rim, { indigo: 1, blue: 1, pink: 1, yellow: 1 });
     add(rim, { yellow: .35 });
     glow('yellow', mouth[0] + ux * 6, mouth[1] + uy * 6, 4, 60, .5);
-    const bulb = new Path2D(); bulb.ellipse(mouth[0] - ux * 6, mouth[1] - uy * 6, R1 * 0.55, 8, ang + Math.PI / 2, 0, TAU);
+    const bulb = new Path2D(); bulb.ellipse(mouth[0] - ux * 6, mouth[1] - uy * 6, R1 * 0.55, 7, ang + Math.PI / 2, 0, TAU);
     knock(bulb, { indigo: 1, blue: 1, pink: 1, yellow: 1 });
   } else {
     put(rim, mixCov(enamel, { indigo: .6, blue: .8 }, 0.5));
-    const inner = new Path2D(); inner.ellipse(mouth[0] - ux * 3, mouth[1] - uy * 3, R1 * 0.8, 7, ang + Math.PI / 2, 0, TAU);
+    const inner = new Path2D(); inner.ellipse(mouth[0] - ux * 3, mouth[1] - uy * 3, R1 * 0.8, 6, ang + Math.PI / 2, 0, TAU);
     add(inner, { indigo: .4, pink: .1 });
   }
 }
@@ -1098,10 +1139,12 @@ function teaGlass(t) {
   for (let k = 0; k <= 24; k++) { const y = lerp(yt, yb - 6, k / 24), w = teaProfile(y); left.push([x - w, y]); right.push([x + w, y]); }
   const bodyPts = [...left, [x - TEA.bw + 4, yb], [x + TEA.bw - 4, yb], ...right.reverse()];
   const body = poly(bodyPts);
-  /* shadow and the amber caustic the lamp throws through the tea */
-  const sh = new Path2D(); sh.ellipse(x + 12 + 26 * L, yb + 4, 58 + 20 * L, 9, 0, 0, TAU);
-  add(sh, { indigo: .26, blue: .2, pink: .08 });
-  if (L > 0.05) { const ca = new Path2D(); ca.ellipse(x + 50, yb + 5, 30, 6, 0, 0, TAU); knock(ca, { indigo: .6 * L, blue: .4 * L }); add(ca, { yellow: .55 * L, pink: .3 * L }); }
+  /* drawn about its foot, so the shadow can be laid out here in the glass's own scale; the sun and the lamp focus an amber caustic through the tea */
+  for (const s of contactShadow(t, x, yb, TEA.bw + 4, h, 9)) {
+    if (!s.warm) continue;
+    const k = Math.min(1, s.a / .3), ca = new Path2D(); ca.ellipse(x + s.o[0] * h * 0.2, yb + 3 + s.o[1] * h * 0.2, 20 + 8 * s.soft, 4 + Math.abs(s.o[1]) * h * 0.05, 0, 0, TAU);
+    knock(ca, { indigo: .75 * k, blue: .55 * k }); add(ca, { yellow: .5 * k, pink: .24 * k });
+  }
   /* glass seen against the desk: slightly lighter, slightly cooler */
   knock(body, { indigo: .2, pink: .12 }); add(body, { blue: .1 });
   const ys = yb - 12 - teaLevel(t) * (h - 22);
@@ -1109,32 +1152,42 @@ function teaGlass(t) {
   for (let k = 0; k <= 16; k++) { const y = lerp(ys, yb - 12, k / 16); teaPts.push([x - teaProfile(y) + 3, y]); }
   for (let k = 16; k >= 0; k--) { const y = lerp(ys, yb - 12, k / 16); teaPts.push([x + teaProfile(y) - 3, y]); }
   const tea = poly(teaPts);
-  put(tea, { yellow: .88, pink: { ys: [ys, yb], as: [.5, .66] }, indigo: { ys: [ys, yb], as: [.06, .22] }, blue: .02 });
+  /* teh manis: deep amber, darker toward the foot, and it goes down with the room at night */
+  put(tea, { yellow: .96, pink: { ys: [ys, yb], as: [.6, .84] }, indigo: { ys: [ys, yb], as: [.04 + .3 * d, .2 + .3 * d] }, blue: .1 * d });
   if (L > 0) { const lit = new Path2D(); lit.ellipse(x - 14, (ys + yb) / 2, 14, (yb - ys) * 0.36, 0, 0, TAU); withClip(tea, () => { knock(lit, { indigo: .6 * L, pink: .3 * L }); }); }
   const wsurf = teaProfile(ys) - 3;
   const surf = new Path2D(); surf.ellipse(x, ys, wsurf, 5, 0, 0, TAU);
-  put(surf, { yellow: .6, pink: .3, indigo: .03 });
+  put(surf, { yellow: .72, pink: .42, indigo: .03 + .26 * d, blue: .08 * d });
   const men = new Path2D(); men.ellipse(x, ys, wsurf, 5, 0, 0, Math.PI);
   strokeOn('indigo', men, 1.8, .5); strokeOn('pink', men, 1.8, .4);
   /* the heavy foot */
   const foot = poly([[x - TEA.bw + 3, yb - 11], [x + TEA.bw - 3, yb - 11], [x + TEA.bw - 4, yb], [x - TEA.bw + 4, yb]]);
   add(foot, { blue: .3, indigo: .1 });
-  /* facets: the star-fruit lobes */
-  const facets = new Path2D(), crests = new Path2D();
-  for (const f of [-0.78, -0.4, 0, 0.4, 0.78]) {
-    const pts = [], cr = [];
-    for (let k = 0; k <= 12; k++) {
-      const y = lerp(yb - 11, yb - h * 0.64, k / 12), w = teaProfile(y), bow = Math.sin(k / 12 * Math.PI);
-      pts.push([x + w * Math.sin(f * 1.35) * (1 + 0.04 * bow), y]);
-      cr.push([x + w * Math.sin((f + 0.2) * 1.35) * (1 + 0.07 * bow), y]);
-    }
-    pts.forEach(([px, py], i) => i ? facets.lineTo(px, py) : facets.moveTo(px, py));
-    if (f < 0.6) cr.forEach(([px, py], i) => i ? crests.lineTo(px, py) : crests.moveTo(px, py));
+  /* the star-fruit lobes: three broad facets across the front and a sliver at
+     each side, every one lit on the side toward the window and the lamp and
+     dark on the other, bold enough to hold at 1x */
+  const lobeTop = yb - h * 0.64, EDGES = [-90, -66, -22, 22, 66, 90].map(a => Math.sin(a * Math.PI / 180));
+  const facetStrip = (s0, s1) => {
+    const pts = [];
+    for (let k = 0; k <= 12; k++) { const y = lerp(yb - 11, lobeTop, k / 12), w = teaProfile(y); pts.push([x + w * s0, y]); }
+    for (let k = 12; k >= 0; k--) { const y = lerp(yb - 11, lobeTop, k / 12), w = teaProfile(y); pts.push([x + w * s1, y]); }
+    return poly(pts);
+  };
+  const lit = new Path2D(), dark = new Path2D(), seams = new Path2D();
+  for (let i = 0; i < EDGES.length - 1; i++) {
+    const s0 = EDGES[i], s1 = EDGES[i + 1], m = lerp(s0, s1, 0.45);
+    lit.addPath(facetStrip(s0, m)); dark.addPath(facetStrip(m, s1));
+    if (i) for (let k = 0; k <= 12; k++) { const y = lerp(yb - 11, lobeTop, k / 12), px = x + teaProfile(y) * s0; k ? seams.lineTo(px, y) : seams.moveTo(px, y); }
   }
-  strokeOn('indigo', facets, 1.3, .42); strokeOn('pink', facets, 1.3, .2);
-  for (const pl of PL) strokeOn(pl, crests, 1.6, .55, 'destination-out');
-  const band = new Path2D(); band.ellipse(x, yb - h * 0.64, teaProfile(yb - h * 0.64), 3.5, 0, 0, Math.PI);
-  strokeOn('indigo', band, 1.2, .35);
+  /* the tea shows the lobes best; over the empty glass the dark side stays faint */
+  withClip(body, () => {
+    knock(lit, { indigo: .34, blue: .22, pink: .16 });
+    add(dark, { indigo: .1, blue: .04 });
+  });
+  withClip(tea, () => add(dark, { indigo: .22, blue: .08 }));
+  strokeOn('indigo', seams, 2, .5);
+  const band = new Path2D(); band.ellipse(x, lobeTop, teaProfile(lobeTop), 3.5, 0, 0, Math.PI);
+  strokeOn('indigo', band, 1.6, .45);
   /* walls, rim, highlights */
   const walls = new Path2D();
   left.forEach(([px, py], i) => i ? walls.lineTo(px, py) : walls.moveTo(px, py));
@@ -1177,7 +1230,8 @@ function laptop(t) {
   const d = roomDark(t), L = lampAt(t) * d;
   const { x, back, front, bw, fw, h } = LAP;
   const screenOn = awake(t) ? 1 : 0;
-  /* contact shadow and the deck */
+  /* the lid casts the shadow; the thin deck only sits on a dark line */
+  contactShadow(t, x, back, bw, h, 5);
   const sh = poly([[x - fw - 6, front + 2], [x + fw + 10, front + 2], [x + fw + 4, front + 12], [x - fw, front + 12]]);
   add(sh, { indigo: .3, blue: .2, pink: .08 });
   const deck = poly([[x - bw, back], [x + bw, back], [x + fw, front], [x - fw, front]]);
@@ -1348,8 +1402,7 @@ function scaled(cx, cy, k, fn) {
 function plant(t) {
   const d = roomDark(t), x = 912, y = 880, r = rngFor('plant');
   const pw = 38, pb = 29, ph = 70;
-  const sh = new Path2D(); sh.ellipse(x + 8, y + 5, 58, 8, 0, 0, TAU);
-  add(sh, { indigo: .28, blue: .18, pink: .08 });
+  contactShadow(t, x, y + 2, 34, 120, 7);
   const leaves = new Path2D(), backs = new Path2D();
   const blades = [[-22, 150, -0.2, 13], [-9, 205, -0.06, 15], [5, 236, 0.04, 16], [18, 176, 0.18, 14], [-2, 120, 0.3, 12], [26, 110, 0.42, 11]];
   blades.forEach(([dx, len, lean, w], i) => {
@@ -1370,55 +1423,291 @@ function plant(t) {
   knock(rect(x - pw - 4, y - ph - 4, x + pw + 4, y - ph - 1), { indigo: .4, blue: .3 });
 }
 
-/* A white tabby asleep between the lamp and the laptop all day. It lifts its
-   head at the thunderclap, then settles. Drawn at 1.08x through scaled(). */
-function cat(t) {
-  const d = roomDark(t), L = lampAt(t) * d, r = rngFor('cat');
-  const cx = 296, cy = 994, br = 1 + 0.035 * Math.sin(cyc(t, 0.27));
-  const wake = sm(ramp(t, T.bolt, T.bolt + 0.25)) * (1 - sm(ramp(t, T.bolt + 2.4, T.bolt + 3.4)));
-  const sh = new Path2D(); sh.ellipse(cx + 8, cy + 26, 96, 11, 0, 0, TAU);
-  add(sh, { indigo: .3, blue: .18, pink: .08 });
-  const fur = mixCov({ blue: .1, indigo: .03, pink: .06, yellow: .04 }, { indigo: .24, blue: .26, pink: .08, yellow: .02 }, d);
-  const body = cut(ringPts(cx, cy, 80, 36 * br, 18), r, { amp: 1.4 });
-  const haunch = cut(ringPts(cx + 36, cy - 6 * br, 46, 34 * br, 14), rngFor('haunch'), { amp: 1 });
-  const hx = cx - 64, hy = cy - 16 - 18 * wake;
-  const head = cut(ringPts(hx, hy, 29, 25, 14), rngFor('cathead'), { amp: 0.8 });
-  const ears = new Path2D();
-  ears.addPath(poly([[hx - 24, hy - 8], [hx - 19 - 3 * wake, hy - 38], [hx - 3, hy - 22]]));
-  ears.addPath(poly([[hx + 3, hy - 23], [hx + 17 + 3 * wake, hy - 38], [hx + 24, hy - 8]]));
-  const flick = Math.sin(cyc(t, 0.37)) * 3 + Math.pow(Math.max(0, Math.sin(cyc(t, 0.14))), 20) * 8;
-  const tail = nib([[cx + 76, cy + 6], [cx + 58, cy + 30], [cx + 10, cy + 36], [cx - 36, cy + 32], [cx - 58, cy + 22 - flick]], u => 10 - 4 * u, { per: 8 });
-  const paws = new Path2D(); paws.ellipse(hx + 16, cy + 28, 13, 7, 0, 0, TAU); paws.moveTo(hx + 44, cy + 30); paws.ellipse(hx + 32, cy + 30, 12, 6.5, 0, 0, TAU);
-  const cat = new Path2D(); for (const p of [body, haunch, head, ears, tail, paws]) cat.addPath(p);
-  put(cat, fur);
-  /* tabby stripes over the back */
+/* ── the cat: kucing oren ─────────────────────────────────────────────────────
+   A small rig. A pose is a plain record, and the film moves the cat by
+   interpolating poses. Local frame: origin on the desk under the body, y down,
+   drawn at CAT.s. Every outline has the same point count in every pose, so
+   poses morph cleanly. */
+
+const CAT = { x: 222, y: 1004, s: 1.8 };
+const RIG_N = 36;
+const RIG_TH = Array.from({ length: RIG_N }, (_, i) => i / RIG_N * TAU - Math.PI / 2);
+/* Body outline as radii at fixed angles about (x, y), sampled from a union of
+   ellipses cut at the desk, so poses are authored as blobs. */
+function sampleStar(x, y, blobs) {
+  const inside = (px, py) => py <= 0 && blobs.some(([cx, cy, rx, ry, rot = 0]) => {
+    const c = Math.cos(rot), s = Math.sin(rot), dx = px - cx, dy = py - cy;
+    const u = (dx * c + dy * s) / rx, v = (-dx * s + dy * c) / ry;
+    return u * u + v * v <= 1;
+  });
+  return RIG_TH.map(th => {
+    let r = 0;
+    for (let d = 0; d < 260; d += 0.5) if (inside(x + Math.cos(th) * d, y + Math.sin(th) * d)) r = d;
+    return r;
+  });
+}
+const body = (x, y, blobs) => ({ x, y, r: sampleStar(x, y, blobs) });
+const deg = a => a * Math.PI / 180;
+/* A stripe is [from angle, to angle, bow, width, taper]. The angles ride the
+   body outline, bow bends the band off its chord, taper 1 is heavy at the
+   start (a flank stripe off the spine) and 0 swells in the middle. */
+const stripeSet = list => list.map(([a, b, ...r]) => [deg(a), deg(b), ...r]);
+/* back is 1 when we see the cat from behind, a silhouette against the glass. */
+const POSES = {
+  curl: {
+    body: body(4, -30, [[0, -30, 84, 30], [42, -38, 50, 38, -0.2], [-40, -28, 50, 27]]),
+    head: { x: -66, y: -31, rx: 28, ry: 25, tilt: -0.32 },
+    ears: [deg(-40), deg(26)], earLen: 17,
+    tail: [[84, -12], [86, 2], [52, 8], [4, 9], [-44, 6], [-74, -6]], tailW: 8.5,
+    paws: [[-58, -6], [-34, -4]], paw: 1,
+    face: 1, back: 0,
+    stripes: stripeSet([[-150, 150, -0.1, 7, 1], [-128, 120, -0.12, 8, 1], [-106, 96, -0.1, 8.5, 1], [-84, 80, -0.06, 8.5, 1], [-62, 60, 0.02, 8, 1], [-40, 40, 0.1, 7, 1]]),
+  },
+  loaf: {
+    body: body(10, -34, [[6, -34, 72, 34], [36, -46, 44, 42], [-34, -38, 42, 36]]),
+    head: { x: -54, y: -67, rx: 29, ry: 25.5, tilt: -0.08 },
+    ears: [deg(-24), deg(24)], earLen: 19,
+    tail: [[70, -10], [80, 2], [54, 9], [16, 11], [-18, 9], [-36, 2]], tailW: 8.5,
+    paws: [[-58, -5], [-36, -4]], paw: 1,
+    face: 1, back: 0,
+    stripes: stripeSet([[-160, 150, -0.1, 7, 1], [-132, 120, -0.1, 8, 1], [-108, 96, -0.08, 8.5, 1], [-84, 80, -0.04, 8.5, 1], [-60, 60, 0.02, 8, 1], [-38, 38, 0.08, 7, 1]]),
+  },
+  /* from behind: broad haunches on the desk, a narrower chest, a big round
+     head on a short neck, and the tail round the right side toward us */
+  sit: {
+    body: body(8, -60, [[8, -30, 54, 30], [8, -62, 41, 42], [8, -94, 29, 27]]),
+    head: { x: 7, y: -131, rx: 32.5, ry: 28, tilt: 0 },
+    ears: [deg(-19), deg(19)], earLen: 22,
+    tail: [[8, -10], [34, -1], [58, -4], [69, -16], [67, -31], [58, -37]], tailW: 6,
+    paws: [[-10, -2], [22, -2]], paw: 0,
+    face: 0, back: 1,
+    stripes: stripeSet([[-143, -37, -0.16, 5.5, 0], [-156, -24, -0.16, 6, 0], [-170, -10, -0.15, 6.5, 0], [-184, 4, -0.14, 6.5, 0], [-198, 18, -0.12, 6.5, 0], [-212, 32, -0.1, 6, 0]]),
+  },
+};
+/* The timing channel each field of a pose moves on. */
+const RIG_CH = { body: 'body', back: 'body', head: 'head', ears: 'ears', earLen: 'ears', tail: 'tail', tailW: 'tail', paws: 'paws', paw: 'paws', face: 'face', stripes: 'stripes' };
+const CHANNELS = [...new Set(Object.values(RIG_CH))];
+const lerpDeep = (a, b, u) => typeof a === 'number' ? lerp(a, b, u)
+  : Array.isArray(a) ? a.map((v, i) => lerpDeep(v, b[i], u))
+  : Object.fromEntries(Object.keys(a).map(k => [k, lerpDeep(a[k], b[k], u)]));
+function lerpPose(a, b, u) {
+  const o = {};
+  for (const k in RIG_CH) o[k] = lerpDeep(a[k], b[k], u[RIG_CH[k]]);
+  return o;
+}
+
+/* The storm beat. It startles upright at the thunderclap, watches, and lies
+   back down as the power returns: first to a loaf, then into the curl. Each
+   move eases every channel on its own lag and duration, so parts lead and
+   follow instead of melting together. */
+const easeOut = u => 1 - Math.pow(1 - u, 3);
+const easeBack = u => { const s = 1.4; u -= 1; return 1 + u * u * ((s + 1) * u + s); };
+const MOVES = [
+  { at: T.catSit[0], to: 'sit', ease: easeOut, easeOf: { head: easeBack },
+    lag: { head: 0, ears: 0, face: 0, body: 0.02, stripes: 0.02, paws: 0, tail: 0.07 },
+    dur: { head: 0.22, ears: 0.16, face: 0.07, body: 0.26, stripes: 0.26, paws: 0.1, tail: 0.28 } },
+  { at: T.catSit[1], to: 'loaf', ease: sm, easeOf: {},
+    lag: { body: 0, stripes: 0, paws: 0.08, head: 0.12, ears: 0.12, face: 0.14, tail: 0.22 },
+    dur: { body: 0.5, stripes: 0.5, paws: 0.4, head: 0.45, ears: 0.4, face: 0.35, tail: 0.5 } },
+  { at: T.catSit[1] + 0.45, to: 'curl', ease: sm, easeOf: {},
+    lag: { body: 0, stripes: 0, paws: 0, head: 0.1, ears: 0.1, face: 0, tail: 0.18 },
+    dur: { body: 0.5, stripes: 0.5, paws: 0.4, head: 0.5, ears: 0.45, face: 0.3, tail: 0.45 } },
+];
+function poseAt(t) {
+  let travel = 0;
+  const p = MOVES.reduce((p, m) => {
+    const u = {};
+    for (const ch of CHANNELS) u[ch] = (m.easeOf[ch] || m.ease)(clamp((t - m.at - m.lag[ch]) / m.dur[ch], 0, 1));
+    /* stripes swing round when the cat turns between lying and sitting, so they dim while they travel */
+    travel = Math.max(travel, Math.sin(Math.PI * u.stripes) * Math.abs(POSES[m.to].back - p.back));
+    return lerpPose(p, POSES[m.to], u);
+  }, POSES.curl);
+  p.stripeA = 1 - 0.6 * travel;
+  return p;
+}
+
+/* The flickers it watches from the sill. Its ears swivel toward each one in
+   turn, left then right. */
+const CAT_FLICKERS = T.distant.filter(([t0]) => t0 > T.catSit[0] + 0.5 && t0 < T.catSit[1]).map(([t0]) => t0);
+function earTwitch(t) {
+  const tw = [0, 0];
+  CAT_FLICKERS.forEach((t0, i) => {
+    const d = t - t0 - 0.06;
+    const e = d < 0 ? 0 : d < 0.07 ? sm(d / 0.07) : d < 0.16 ? 1 : 1 - sm((d - 0.16) / 0.3);
+    tw[i % 2] = Math.max(tw[i % 2], e);
+  });
+  return tw;
+}
+
+/* The coat as the room lights it. */
+function coatAt(t) {
+  const d = roomDark(t);
+  return {
+    base: mixCov({ yellow: .9, pink: .5, blue: .02, indigo: .02 }, { yellow: .68, pink: .52, blue: .26, indigo: .32 }, d),
+    /* cream goes down to a warm dark neutral, mostly through indigo, never to blue */
+    cream: mixCov({ yellow: .34, pink: .08, blue: .02 }, { yellow: .32, pink: .15, blue: .08, indigo: .4 }, d),
+    rust: mixCov({ pink: .5, indigo: .22, yellow: .1 }, { pink: .3, indigo: .36, blue: .1 }, d),
+    line: .5 + .2 * d,
+    d,
+  };
+}
+
+function rAt(b, a) {
+  const f = ((a + Math.PI / 2) / TAU * RIG_N % RIG_N + RIG_N) % RIG_N, i = Math.floor(f), u = f - i;
+  return lerp(b.r[i], b.r[(i + 1) % RIG_N], u);
+}
+const onBody = (b, a) => { const r = rAt(b, a); return [b.x + Math.cos(a) * r, b.y + Math.sin(a) * r]; };
+const rot = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
+const outline = b => RIG_TH.map((th, i) => [b.x + Math.cos(th) * b.r[i], b.y + Math.sin(th) * b.r[i]]);
+
+/* Draws the pose in the cat's local frame and returns its parts. */
+function drawCat(t, p, c) {
+  const br = 0.028 * Math.sin(cyc(t, 0.27)) * (1 - 0.6 * p.back);
+  const b = { x: p.body.x, y: p.body.y, r: p.body.r.map((r, i) => r * (1 + br * Math.max(0, -Math.sin(RIG_TH[i])))) };
+  const bodyP = cut(outline(b), rngFor('cat:body'), { amp: 1.1 });
+  const h = p.head;
+  const headP = cut(ringPts(h.x, h.y, h.rx, h.ry, 16, h.tilt), rngFor('cat:head'), { amp: 0.7 });
+  const [twL, twR] = earTwitch(t);
+  const earTri = (a0, side, tw) => {
+    const a = -Math.PI / 2 + a0 + h.tilt + side * tw * 0.5;
+    const len = p.earLen * (1 - 0.15 * tw);
+    const at = (aa, rr) => [h.x + Math.cos(aa) * rr * h.rx / 26, h.y + Math.sin(aa) * rr * h.ry / 24];
+    return { outer: [at(a - 0.42, 22), at(a + side * tw * 0.2, 22 + len), at(a + 0.42, 22)], inner: [at(a - 0.26, 22), at(a, 20 + len * 0.8), at(a + 0.26, 22)] };
+  };
+  const eL = earTri(p.ears[0], -1, twL), eR = earTri(p.ears[1], 1, twR);
+  const ears = poly(eL.outer); ears.addPath(poly(eR.outer));
+  const tailP = nib(p.tail, u => p.tailW * (1 - 0.4 * u * u), { per: 8 });
+  const paws = new Path2D();
+  for (const [x, y] of p.paws) { paws.moveTo(x + 11, y); paws.ellipse(x, y, 11, 6.5, 0, 0, TAU); }
+
+  put(bodyP, c.base);
   const stripes = new Path2D();
-  for (let i = 0; i < 6; i++) { const x = cx - 30 + i * 20; stripes.addPath(nib([[x, cy - 34 * br + 2], [x + 6, cy - 18], [x + 2, cy - 6]], wTip(4), { per: 3 })); }
-  const patch = cut(ringPts(cx + 20, cy - 22 * br, 44, 18, 12), rngFor('patch'), { amp: 3 });
-  patch.addPath(cut(ringPts(hx + 6, hy - 14, 18, 12, 10), rngFor('patch2'), { amp: 2 }));
-  /* at night the white fur drops toward the room, so the markings darken to keep the cat's shape */
-  withClip(cat, () => { add(patch, { indigo: .34 + .32 * d, blue: .26 + .1 * d, pink: .1, yellow: .08 * (1 - d) }); add(stripes, { indigo: .16 + .14 * d, blue: .06 }); });
-  withClip(cat, () => add(rect(cx - 120, cy + 4, cx + 120, cy + 60), { blue: { ys: [cy + 4, cy + 40], as: [0, .16] }, indigo: { ys: [cy + 4, cy + 40], as: [0, .08] } }));
-  const inner = new Path2D();
-  inner.addPath(poly([[hx - 19, hy - 12], [hx - 17, hy - 30], [hx - 8, hy - 20]])); inner.addPath(poly([[hx + 8, hy - 20], [hx + 15, hy - 30], [hx + 19, hy - 12]]));
-  add(inner, { pink: .35 });
-  strokeOn('indigo', cat, 1.5, .45);
-  /* the lamp warms its back */
-  if (L > 0) withClip(cat, () => { glow('indigo', cx - 20, cy - 60, 10, 110, .4 * L, 'destination-out'); glow('blue', cx - 20, cy - 60, 10, 100, .2 * L, 'destination-out'); glow('yellow', cx - 20, cy - 60, 10, 110, .34 * L); });
-  /* face: asleep, or wide-eyed at the thunderclap */
-  const eyes = new Path2D();
-  if (wake > 0.5) {
-    eyes.ellipse(hx - 10, hy - 2, 5, 5.5, 0, 0, TAU); eyes.moveTo(hx + 15, hy - 2); eyes.ellipse(hx + 10, hy - 2, 5, 5.5, 0, 0, TAU);
-    knock(eyes, { indigo: 1, blue: 1, pink: 1 }); add(eyes, { yellow: .9, blue: .25 });
-    const pup = new Path2D(); pup.ellipse(hx - 10, hy - 2, 1.4, 4.4, 0, 0, TAU); pup.moveTo(hx + 11.4, hy - 2); pup.ellipse(hx + 10, hy - 2, 1.4, 4.4, 0, 0, TAU);
-    add(pup, { indigo: .9 });
-  } else {
-    eyes.moveTo(hx - 15, hy - 2); eyes.quadraticCurveTo(hx - 10, hy + 2, hx - 5, hy - 2);
-    eyes.moveTo(hx + 5, hy - 2); eyes.quadraticCurveTo(hx + 10, hy + 2, hx + 15, hy - 2);
-    strokeOn('indigo', eyes, 2.2, .8);
+  for (const [a0, a1, bow, w, taper] of p.stripes) {
+    const P0 = onBody(b, a0), P1 = onBody(b, a1), len = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]);
+    const nx = -(P1[1] - P0[1]) / len, ny = (P1[0] - P0[0]) / len;
+    const mid = [(P0[0] + P1[0]) / 2 + nx * bow * len, (P0[1] + P1[1]) / 2 + ny * bow * len];
+    stripes.addPath(nib([P0, mid, P1], u => w * lerp(Math.pow(Math.sin(Math.PI * u), 0.5), Math.pow(1 - u, 1.2) * 1.2, taper), { per: 8 }));
   }
-  const nose = poly([[hx - 3, hy + 7], [hx + 3, hy + 7], [hx, hy + 10]]);
-  add(nose, { pink: .6 });
+  withClip(bodyP, () => {
+    /* seen from behind the stripes stay, but quietly */
+    const sa = p.stripeA * (1 - 0.5 * p.back);
+    if (sa > 0.01) add(stripes, scaleCov(c.rust, sa));
+    /* belly and chest fall into shade toward the desk */
+    add(rect(-200, -26, 200, 20), { indigo: { ys: [-26, 0], as: [0, .22] }, blue: { ys: [-26, 0], as: [0, .12] } });
+    if (p.face > 0.01) { const chest = new Path2D(); chest.ellipse(h.x + 16, h.y + 24, 26, 20, 0.3, 0, TAU); put(chest, c.cream, null, p.face); }
+  });
+  strokeOn('indigo', bodyP, 1.4, c.line);
+
+  put(tailP, c.base);
+  const tc = curve(p.tail, false, 8), rings = new Path2D();
+  for (const [u0, u1] of [[0.3, 0.4], [0.5, 0.6], [0.7, 0.8], [0.88, 1]]) {
+    const seg = tc.slice(Math.floor(u0 * (tc.length - 1)), Math.ceil(u1 * (tc.length - 1)) + 1);
+    rings.addPath(nib(seg, () => p.tailW + 2, { raw: true }));
+  }
+  withClip(tailP, () => add(rings, c.rust));
+  strokeOn('indigo', tailP, 1.3, c.line);
+
+  if (p.paw > 0.01) { put(paws, c.cream, null, p.paw); strokeOn('indigo', paws, 1.2, c.line * p.paw); }
+
+  /* the neck keeps the head on the body whatever the channels are doing */
+  const na = Math.atan2(h.y - b.y, h.x - b.x), NP = onBody(b, na);
+  const neck = nib([[lerp(b.x, NP[0], 0.55), lerp(b.y, NP[1], 0.55)], [lerp(NP[0], h.x, 0.5), lerp(NP[1], h.y, 0.5)], [h.x, h.y]], () => h.rx * lerp(0.72, 0.6, p.back), { per: 4 });
+  put(neck, c.base);
+  put(ears, c.base); put(headP, c.base);
+  const marks = new Path2D();
+  for (const dx of [-9, 0, 9]) {
+    const [x0, y0] = rot(dx, -h.ry + 1, h.tilt), [x1, y1] = rot(dx * 0.7, -h.ry + 11 - Math.abs(dx) * 0.2, h.tilt);
+    marks.addPath(nib([[h.x + x0, h.y + y0], [h.x + x1, h.y + y1]], wTip(2.6), { per: 3 }));
+  }
+  withClip(headP, () => add(marks, c.rust));
+  if (p.face > 0.01) {
+    const inner = poly(eL.inner); inner.addPath(poly(eR.inner));
+    add(inner, { pink: .5 * p.face });
+    const F = (x, y) => { const [rx, ry] = rot(x, y, h.tilt); return [h.x + rx, h.y + ry]; };
+    const muzzle = new Path2D(); const [mx, my] = F(0, 9); muzzle.ellipse(mx, my, 14, 10, h.tilt, 0, TAU);
+    withClip(headP, () => put(muzzle, c.cream, null, p.face));
+    const eyes = new Path2D();
+    for (const s of [-1, 1]) { const a = F(s * 15, -3), m = F(s * 10, 1), e = F(s * 5, -3); eyes.moveTo(a[0], a[1]); eyes.quadraticCurveTo(m[0], m[1], e[0], e[1]); }
+    strokeOn('indigo', eyes, 2.2, .85 * p.face);
+    const nose = poly([F(-3.5, 5), F(3.5, 5), F(0, 8.5)]);
+    add(nose, { pink: .8 * p.face });
+  }
+  strokeOn('indigo', ears, 1.3, c.line); strokeOn('indigo', headP, 1.3, c.line);
+
+  const parts = [bodyP, tailP, neck, headP, ears];
+  if (p.paw > 0.01) parts.push(paws);
+  return { b, parts };
+}
+
+/* Light on the whole silhouette goes through a raster union of the parts:
+   they wind both ways, so a combined Path2D would cancel where they overlap. */
+const MASK = cv(W, W), TMP = cv(W, W);
+function unionMask(parts) {
+  const g = MASK.getContext('2d');
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, W); g.globalCompositeOperation = 'source-over';
+  g.setTransform(PG.indigo.getTransform()); g.fillStyle = '#000';
+  for (const q of parts) g.fill(q);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  return MASK;
+}
+function stamp(pl, canvas, a, op) {
+  const g = PG[pl]; g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = op; g.globalAlpha = clamp(a, 0, 1); g.drawImage(canvas, 0, 0); g.restore();
+}
+/* The silhouette filled with fill(g), in page coordinates. */
+function maskedFill(mask, fill) {
+  const g = TMP.getContext('2d');
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, W);
+  g.fillStyle = fill(g); g.fillRect(0, 0, W, W);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(mask, 0, 0);
+  return TMP;
+}
+/* The edge a light from direction (-dx, -dy) catches: the silhouette minus itself moved by (dx, dy). */
+function rimOf(mask, dx, dy) {
+  const g = TMP.getContext('2d');
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, W);
+  g.drawImage(mask, 0, 0);
+  g.globalCompositeOperation = 'destination-out'; g.drawImage(mask, dx, dy);
+  return TMP;
+}
+function rimLight(mask, dx, dy, cov) {
+  for (const pl in cov) if (cov[pl] > 0.005) stamp(pl, rimOf(mask, dx, dy), cov[pl], 'destination-out');
+}
+const alpha = a => 'rgba(0,0,0,' + clamp(a, 0, 1) + ')';
+
+function cat(t) {
+  const p = poseAt(t), c = coatAt(t), d = c.d, { x: X, y: Y, s: S } = CAT;
+  const pts = outline(p.body), xs = pts.map(q => q[0]);
+  const x0 = X + Math.min(...xs) * S, x1 = X + Math.max(...xs) * S;
+  const top = Y + Math.min(...pts.map(q => q[1]), p.head.y - p.head.ry - p.earLen) * S;
+  contactShadow(t, (x0 + x1) / 2, Y + 2 * S, (x1 - x0) / 2, Y - top, 7 * S);
+
+  for (const n of PL) { const g = PG[n]; g.save(); g.translate(X, Y); g.scale(S, S); }
+  const { b, parts } = drawCat(t, p, c);
+  const mask = unionMask(parts);
+  for (const n of PL) PG[n].restore();
+
+  /* turned to the window at night we see its unlit back: one smooth fall from the shoulders to the desk */
+  const back = d * p.back;
+  if (back > 0.01) for (const [pl, a0, a1] of [['indigo', .24, .5], ['blue', .12, .26]]) {
+    stamp(pl, maskedFill(mask, g => { const gr = g.createLinearGradient(0, top, 0, Y); gr.addColorStop(0, alpha(a0 * back)); gr.addColorStop(1, alpha(a1 * back)); return gr; }), 1, 'source-over');
+  }
+  /* the lamp warms the side of the cat that faces it */
+  const L = lampAt(t) * d;
+  if (L > 0) {
+    const gx = lerp(X + b.x * S, LAMP.head[0], 0.35), gy = Y + (b.y - 34) * S;
+    for (const [pl, r1, a, op] of [['indigo', 130, .8, 'destination-out'], ['blue', 120, .55, 'destination-out'], ['yellow', 130, .35, 'source-over'], ['pink', 100, .1, 'source-over']])
+      stamp(pl, maskedFill(mask, g => radial(g, gx, gy, 10 * S, r1 * S, a * L, 0)), 1, op);
+  }
+  /* the window lights its outline: a faint cool rim from the city glow, the
+     whole edge in the lightning, and the side toward each distant flicker */
+  const out = t >= offAt(X) && t < T.restore[1] ? 1 - ramp(t, T.restore[0], T.restore[1]) : 0;
+  const cool = d * (0.12 + 0.2 * p.back) * (1 - 0.35 * out);
+  if (cool > 0.01) rimLight(mask, 0, 2.2 * S, { indigo: cool, blue: .3 * cool });
+  const f = flashAt(t);
+  if (f > 0) for (const sx of [-1, 1]) rimLight(mask, sx * 2.2 * S, 1.6 * S, { indigo: .8 * f, blue: .7 * f, pink: .5 * f });
+  const fl = flickerAt(t);
+  if (fl) { const sx = fl.x > X ? -1 : 1; rimLight(mask, sx * 2 * S, 1.2 * S, { indigo: .7 * fl.a * d, blue: .45 * fl.a * d }); }
 }
 
 /* ── frame ────────────────────────────────────────────────────────────────── */
@@ -1434,10 +1723,10 @@ function drawArt(t) {
     drops(t); mirror(t);
   });
   room(t); curtain(t); plant(t);
-  scaled(LAMP.base[0], LAMP.base[1], LAMP.k, () => lamp(t));
+  lamp(t);
   laptop(t);
   scaled(TEA.x, TEA.yb, TEA.k, () => { teaGlass(t); steam(t); });
-  scaled(296, 1012, 1.08, () => cat(t));
+  cat(t);
   roomFlash(t);
 }
 
@@ -1449,7 +1738,7 @@ const SHOTS = [
   { at: 11.0, beat: 'Lamp off. Blue hour; the city takes over.' },
   { at: 13.4, beat: 'Night. The KRL crosses as the storm rolls in.' },
   { at: 17.8, beat: 'Downpour on the glass.' },
-  { at: 19.2, beat: 'Lightning strike. The cat looks up.' },
+  { at: 19.2, beat: 'Lightning strike. The cat sits up.' },
   { at: 21.4, beat: 'Blackout. Only the flame stays lit.' },
   { at: 24.9, beat: 'Power returns, block by block.' },
   { at: 30.6, beat: 'First light lands on the flame.' },
