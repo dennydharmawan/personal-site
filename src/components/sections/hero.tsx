@@ -116,7 +116,7 @@ export function HeroSection() {
             From xl the right column is a subgrid: the lede's first line lines up with the top of the
             headline, and the actions line up with the top of the proof row. Stacked, the proof follows the actions. */}
         <div
-          className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-3 xl:grid-rows-[auto_auto] xl:gap-x-6 xl:gap-y-8`}
+          className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-3 xl:grid-rows-[auto_auto] xl:gap-x-6 xl:gap-y-4`}
         >
           {/* The size tracks the column (a container), so each line of the headline holds one
               line at every width. */}
@@ -125,7 +125,7 @@ export function HeroSection() {
           </div>
 
           <div
-            className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:grid-rows-subgrid`}
+            className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:grid-rows-subgrid xl:gap-4`}
             style={riseDelay(0.08)}
           >
             <HeroLede yearsExperience={yearsExperience} className="xl:self-start xl:pt-1" />
