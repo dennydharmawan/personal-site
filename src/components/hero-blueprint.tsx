@@ -2,8 +2,11 @@ import { useEffect, useId, useReducer, useRef, useState } from 'react';
 import type { CSSProperties, JSX, PointerEvent } from 'react';
 import { cn } from '@/lib/utils';
 import {
-  barTargets,
-  barX,
+  bay,
+  brackets,
+  calloutY,
+  chart,
+  chartFrame,
   constructionLines,
   cropMarks,
   dimensions,
@@ -11,11 +14,16 @@ import {
   finsD,
   gearD,
   gearSpecs,
-  growthGridD,
+  ground,
+  housing,
+  housingWithPorts,
+  hub,
+  initialChart,
   jumbleSpecs,
   laneAngles,
   laneOrder,
   lanes,
+  partAtPoint,
   parts,
   penMs,
   pointAt,
@@ -26,10 +34,12 @@ import {
   shapePaths,
   sheetHeight,
   sheetLabel,
-  stillHeights,
+  startShown,
+  target,
+  thresholds,
   tokenPool
 } from '@/components/hero-blueprint-data';
-import type { Part, PartId } from '@/components/hero-blueprint-data';
+import type { ChartFrame, Part, PartId } from '@/components/hero-blueprint-data';
 
 function timing(delay: number, duration?: number, fillAt?: number): CSSProperties {
   const style: Record<string, string> = { '--d': `${Math.round(delay)}ms` };
@@ -69,17 +79,17 @@ function createPen(start: number, step = draw.pathStep, fixedMs?: number) {
   };
 }
 
-type Ids = { hatch: string; arrow: string; tokens: string; prefix: string };
+type Ids = { hatch: string; arrow: string; head: string; clip: string; tokens: string; prefix: string };
 type ArtProps = { start: number; ids: Ids };
 
 function IntakeArt({ start }: ArtProps) {
   const pen = createPen(start);
   return (
     <>
+      {pen.draw('M56 90 L48 330 M194 90 L202 330 M49 300 H201', 'bp-ink bp-thin')}
       {pen.draw('M60 90 H190 L140 170 H110 Z', 'bp-ink bp-solid')}
-      {pen.draw('M54 90 H196', 'bp-ink bp-heavy')}
+      {pen.draw('M50 90 H200', 'bp-ink bp-heavy')}
       {pen.draw('M110 170 V198 M140 170 V198', 'bp-ink')}
-      {pen.draw('M72 106 L58 330 M178 106 L192 330 M66 220 H184', 'bp-ink bp-thin')}
       {jumbleSpecs.map(([x, y, shape]) => (
         <g key={`${x}-${y}`} data-bp="jumble" transform={`translate(${x} ${y})`}>
           {pen.draw(shapePaths[shape], 'bp-ink bp-thin')}
@@ -93,6 +103,7 @@ function QueueArt({ start }: ArtProps) {
   const pen = createPen(start);
   return (
     <>
+      {pen.draw('M236 262 V330 M380 262 V330 M236 300 H380', 'bp-ink bp-thin')}
       {pen.draw('M100 240 H400 A11 11 0 0 1 400 262 H100 A11 11 0 0 1 100 240 Z', 'bp-ink bp-solid')}
       {rollerXs.map((x) => (
         <g key={x} data-bp="roller">
@@ -100,14 +111,13 @@ function QueueArt({ start }: ArtProps) {
           {pen.draw(`M${x - 7} 251 H${x + 7}`, 'bp-ink bp-thin')}
         </g>
       ))}
-      {pen.draw('M130 262 V330 M370 262 V330 M130 300 L370 300 M130 330 L250 300 L370 330', 'bp-ink bp-thin')}
     </>
   );
 }
 
 function ProcessArt({ start, ids }: ArtProps) {
   const pen = createPen(start);
-  const housing = pen.draw('M420 150 H600 V330 H420 Z', 'bp-ink');
+  const walls = pen.draw('M420 150 H600 V330 H420 Z', 'bp-ink');
   const chamber = pen.draw('M440 190 H580 V280 H440 Z', 'bp-ink bp-solid');
   const ports = pen.draw('M412 224 H424 V242 H412 Z M596 224 H608 V242 H596 Z', 'bp-ink bp-solid');
   const fins = pen.draw(finsD, 'bp-ink bp-thin');
@@ -122,7 +132,7 @@ function ProcessArt({ start, ids }: ArtProps) {
   return (
     <>
       <rect x={420} y={150} width={180} height={180} fill={`url(#${ids.hatch})`} className="bp-fade" style={done} />
-      {housing}
+      {walls}
       {chamber}
       {ports}
       {fins}
@@ -142,7 +152,6 @@ function RouteArt({ start }: ArtProps) {
   const pipes = pen.pipes(routePipes);
   const hub = pen.draw(ring(660, 233, 14), 'bp-ink bp-solid');
   const arm = pen.draw('M0 0 H12', 'bp-ink');
-  const supports = pen.draw('M730 158 V120 M730 308 V330 M760 158 V120 M760 308 V330', 'bp-ink bp-thin');
   const done = timing(pen.end());
   return (
     <>
@@ -152,25 +161,27 @@ function RouteArt({ start }: ArtProps) {
         {arm}
         <circle r={3} className="bp-dot bp-fade" style={done} />
       </g>
-      {supports}
     </>
   );
 }
 
 function SettleArt({ start }: ArtProps) {
   const pen = createPen(start);
+  // The posts draw first so each bay's white fill hides them where they pass behind it.
+  const rack = pen.draw('M800 142 V330 M842 142 V330', 'bp-ink bp-thin');
+  const cap = pen.draw('M794 142 H848', 'bp-ink');
   const bays = lanes.map((ly) => ({
     ly,
     box: pen.draw(`M790 ${ly - 18} H852 V${ly + 18} H790 Z`, 'bp-ink bp-solid'),
-    slot: pen.draw(`M798 ${ly + 10} H830`, 'bp-ink bp-thin'),
-    pipe: pen.pipes([`M852 ${ly} H905`])
+    slot: pen.draw(`M798 ${ly + 10} H830`, 'bp-ink bp-thin')
   }));
   const done = timing(pen.end());
   return (
     <>
-      {bays.map(({ ly, box, slot, pipe }) => (
+      {rack}
+      {cap}
+      {bays.map(({ ly, box, slot }) => (
         <g key={ly}>
-          {pipe}
           {box}
           {slot}
           <g className="bp-fade" style={done}>
@@ -184,23 +195,27 @@ function SettleArt({ start }: ArtProps) {
   );
 }
 
-function GrowthArt({ start }: ArtProps) {
+// The chart paints its opening frame on the server, so the engine inherits real attributes.
+function RevenueArt({ start, ids }: ArtProps) {
   const pen = createPen(start);
-  const frame = pen.draw('M905 50 H1170 V332 H905 Z', 'bp-ink bp-solid');
-  const grid = pen.draw(growthGridD, 'bp-cons');
-  const axes = pen.draw('M930 72 V312 H1152', 'bp-ink bp-thin');
-  const done = timing(pen.end());
+  const { axisX, top, baseY } = chart;
+  const axis = pen.draw(`M${axisX} ${top} V${baseY}`, 'bp-ink bp-thin');
+  const ticks = pen.draw(chart.ticks.map((y) => `M${axisX} ${y} H${axisX + 5}`).join(' '), 'bp-tick');
+  const barsAt = start + 120;
+  const trendAt = barsAt + (initialChart.bars.length - 1) * 60 + 200;
+  const trendMs = 420;
+  const settled = timing(trendAt + trendMs);
   return (
     <>
-      {frame}
-      {grid}
-      {axes}
-      <text x={930} y={66} className="bp-lbl bp-fade" style={done}>OUTPUT</text>
-      <g className="bp-fade" style={done}>
-        {barTargets.map((_, i) => (
-          <rect key={i} data-bp="bar" x={barX(i)} y={312} width={16} height={0} className="bp-bar" />
+      {axis}
+      {ticks}
+      <g clipPath={`url(#${ids.clip})`}>
+        <rect x={target.x} y={target.y} width={target.w} height={target.h} className="bp-target bp-fade" style={settled} />
+        {initialChart.bars.map(({ x, y, h, full }, i) => (
+          <rect key={i} data-bp="bar" x={x} y={y} width={chart.barW} height={h} className={cn('bp-bar bp-rise-y', full && 'is-full')} style={timing(barsAt + i * 60, 380)} />
         ))}
-        <polyline data-bp="trend" points="" className="bp-trend" />
+        <polyline data-bp="trend" points={initialChart.trend} pathLength={1} className="bp-trend bp-draw" style={timing(trendAt, trendMs)} />
+        <path data-bp="projection" d={initialChart.projection} markerEnd={`url(#${ids.head})`} className="bp-projection bp-fade" style={settled} />
       </g>
     </>
   );
@@ -212,7 +227,7 @@ const partArt: Record<PartId, (props: ArtProps) => JSX.Element> = {
   process: ProcessArt,
   route: RouteArt,
   settle: SettleArt,
-  growth: GrowthArt
+  revenue: RevenueArt
 };
 
 // A dashed line cannot draw itself with a dash offset, so a solid stroke in a mask draws instead.
@@ -327,6 +342,7 @@ type EngineNodes = {
   halos: SVGCircleElement[];
   bars: SVGRectElement[];
   trend: SVGPolylineElement;
+  projection: SVGPathElement;
   tokens: SVGGElement[];
 };
 
@@ -342,6 +358,7 @@ function bindNodes(svg: SVGSVGElement): EngineNodes {
     halos: all('halo'),
     bars: all('bar'),
     trend: all<SVGPolylineElement>('trend')[0],
+    projection: all<SVGPathElement>('projection')[0],
     tokens: all('token')
   };
 }
@@ -356,20 +373,24 @@ function write(el: Element, name: string, value: string) {
   el.setAttribute(name, value);
 }
 
-type BarPhase = { kind: 'filling'; index: number } | { kind: 'holding'; left: number } | { kind: 'draining'; elapsed: number; from: number[] };
+// The series is geometric, so after a shift the chart looks exactly as it did before one, and this is
+// its whole state.
+type Chart =
+  | { kind: 'filling' }
+  | { kind: 'closing'; reach: number }
+  | { kind: 'shifting'; elapsed: number };
 type Box = Part['footprint'];
 type Engine = {
   tick(dt: number, now: number): void;
   resume(): void;
   halt(): void;
   still(): void;
-  focus(box: Box | null, liftAfterMs: number): void;
+  focus(box: Box | null): void;
   dispose(): void;
 };
 
-// Tokens outside the focused part step back like its ink does; tokens inside lift with it by 6 units.
+// Tokens outside the focused part step back like its ink does.
 const dimAlpha = 0.6;
-const liftBy = -6;
 
 type Point = readonly [number, number];
 
@@ -382,51 +403,46 @@ function tokenAt(lane: number, s: number): Point {
 }
 
 function createEngine(n: EngineNodes): Engine {
-  type Token = { slot: SVGGElement; lane: number; s: number; done: boolean; lastX: number; alpha: number; lift: number; tilt: number };
+  type Token = { slot: SVGGElement; lane: number; s: number; done: boolean; lastX: number; alpha: number; tilt: number };
   const free = [...n.tokens];
   const live: Token[] = [];
   let focusBox: Box | null = null;
-  let liftFrom = 0;
-  const heights = barTargets.map(() => 0);
-  const filled = barTargets.map(() => 0);
   const heat = lanes.map(() => 0);
   let lamp = 0;
-  // How many bar tops the trend line reaches; the fraction is the segment still drawing.
-  let trendReach = 0;
   const vane = { angle: 0, velocity: 0, target: 0 };
-  let bars: BarPhase = { kind: 'filling', index: 0 };
+  let revenue: Chart = { kind: 'filling' };
+  // Counted in items rather than a share of the bar, so reaching a full period is an exact comparison.
+  let level = chart.startItems;
+  let shown = startShown;
+  // Items that land while a period closes or shifts count toward the next one.
+  let carry = 0;
   let clock = 0, spin = 0, spawnIn = 0, laneTurn = 0;
   // Every simulated second is scaled by power, so spin-up and spin-down slow the whole machine together.
   let power = { value: 0, from: 0, to: 0, start: 0, ms: 1 };
   let frame = 0, last = 0;
 
   const deliver = () => {
-    if (bars.kind !== 'filling') return;
-    const i = bars.index;
-    filled[i] = Math.min(barTargets[i], filled[i] + 16);
-    if (filled[i] >= barTargets[i]) bars = i + 1 < barTargets.length ? { kind: 'filling', index: i + 1 } : { kind: 'holding', left: 2.6 };
+    if (revenue.kind === 'filling') level++;
+    else carry++;
   };
 
   const inFocus = (x: number, y: number) =>
     focusBox !== null && x > focusBox.x - 4 && x < focusBox.x + focusBox.w + 4 && y > focusBox.y - 8 && y < focusBox.y + focusBox.h + 8;
 
   // Eased in real time, not simulated time, so tokens keep following the tour during spin-up.
-  function paintToken(token: Token, x: number, y: number, dt: number, now: number) {
-    const inside = inFocus(x, y);
-    const alphaTo = focusBox === null || inside ? 1 : dimAlpha;
-    const liftTo = inside && now >= liftFrom ? liftBy : 0;
+  function paintToken(token: Token, x: number, y: number, dt: number) {
+    const alphaTo = focusBox === null || inFocus(x, y) ? 1 : dimAlpha;
     const k = dt > 0 ? 1 - Math.exp(-dt * 9) : 1;
     token.alpha += (alphaTo - token.alpha) * k;
-    token.lift += (liftTo - token.lift) * (dt > 0 ? 1 - Math.exp(-dt * 14) : 1);
     const edge = Math.min(1, token.s / (tokenSpeed * 0.16), (routes[token.lane].total - token.s) / (tokenSpeed * 0.2));
     // A token leaves the hopper tilted and levels out as it lands; the belt carries it without rolling.
     const turn = token.tilt * (1 - clamp01(token.s / dropLength));
     const scale = token.done ? pipeScale : 1;
-    token.slot.setAttribute('transform', `translate(${x.toFixed(1)} ${(y + token.lift).toFixed(1)}) rotate(${turn.toFixed(1)}) scale(${scale})`);
+    token.slot.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(1)}) scale(${scale})`);
     write(token.slot, 'opacity', (edge * token.alpha).toFixed(2));
   }
 
-  function stepTokens(sdt: number, dt: number, now: number) {
+  function stepTokens(sdt: number, dt: number) {
     spawnIn -= sdt;
     if (spawnIn <= 0) {
       spawnIn += spawnEvery;
@@ -442,7 +458,6 @@ function createEngine(n: EngineNodes): Engine {
           done: false,
           lastX: x,
           alpha: focusBox === null || inFocus(x, y) ? 1 : dimAlpha,
-          lift: 0,
           tilt: (Math.random() * 2 - 1) * 28
         });
       }
@@ -456,20 +471,20 @@ function createEngine(n: EngineNodes): Engine {
         token.slot.removeAttribute('data-k');
         free.push(token.slot);
         live.splice(i, 1);
+        heat[token.lane] = 1;
         deliver();
         continue;
       }
       const [x, y] = tokenAt(token.lane, token.s);
-      if (!token.done && x > 510) {
+      if (!token.done && x > thresholds.processedX) {
         token.done = true;
         token.slot.dataset.k = 's';
         token.slot.setAttribute('data-done', '');
       }
-      if (token.lastX < 630 && x >= 630) vane.target = laneAngles[token.lane];
-      if (token.lastX < 842 && x >= 842) heat[token.lane] = 1;
-      if (x > 420 && x < 600) processing = true;
+      if (token.lastX < thresholds.vaneX && x >= thresholds.vaneX) vane.target = laneAngles[token.lane];
+      if (x > housing.x && x < housing.x + housing.w) processing = true;
       token.lastX = x;
-      paintToken(token, x, y, dt, now);
+      paintToken(token, x, y, dt);
     }
     // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties.
     lamp += ((processing ? 1 : 0) - lamp) * (1 - Math.exp(-sdt * 10));
@@ -482,7 +497,7 @@ function createEngine(n: EngineNodes): Engine {
       vane.velocity += (-260 * (vane.angle - vane.target) - 18 * vane.velocity) * h;
       vane.angle += vane.velocity * h;
     }
-    n.vane.setAttribute('transform', `translate(660 233) rotate(${vane.angle.toFixed(2)})`);
+    n.vane.setAttribute('transform', `translate(${hub.x} ${hub.y}) rotate(${vane.angle.toFixed(2)})`);
   }
 
   function stepLamps(sdt: number) {
@@ -495,66 +510,43 @@ function createEngine(n: EngineNodes): Engine {
     });
   }
 
-  const topOf = (i: number): Point => [barX(i) + 8, 312 - heights[i] - 6];
-
-  // The trend only joins bars that have settled, drawing each new segment out from the last top, so
-  // the line never dips toward a bar that is still filling.
-  function writeBars(trendAlpha = 1) {
-    n.bars.forEach((bar, i) => {
-      const h = heights[i];
+  function paintChart({ bars, trend, projection }: ChartFrame) {
+    bars.forEach(({ x, y, h, opacity, full }, i) => {
+      const bar = n.bars[i];
+      write(bar, 'x', x.toFixed(2));
+      write(bar, 'y', y.toFixed(2));
       write(bar, 'height', h.toFixed(2));
-      write(bar, 'y', (312 - h).toFixed(2));
-      write(bar, 'class', h > barTargets[i] - 1 ? 'bp-bar is-full' : 'bp-bar');
+      write(bar, 'opacity', opacity.toFixed(3));
+      bar.classList.toggle('is-full', full);
     });
-    const whole = Math.floor(trendReach);
-    const points: string[] = [];
-    for (let i = 0; i < whole; i++) {
-      const [x, y] = topOf(i);
-      points.push(`${x},${y.toFixed(1)}`);
-    }
-    const part = trendReach - whole;
-    if (whole > 0 && part > 0 && whole < heights.length) {
-      const [x0, y0] = topOf(whole - 1);
-      const [x1, y1] = topOf(whole);
-      points.push(`${(x0 + (x1 - x0) * part).toFixed(1)},${(y0 + (y1 - y0) * part).toFixed(1)}`);
-    }
-    write(n.trend, 'points', points.join(' '));
-    write(n.trend, 'opacity', trendAlpha.toFixed(2));
+    write(n.trend, 'points', trend);
+    write(n.projection, 'd', projection);
   }
 
-  const settledBars = () => {
-    let count = 0;
-    while (count < heights.length && heights[count] > barTargets[count] - 1) count++;
-    return count;
-  };
-
-  function stepBars(sdt: number) {
-    if (bars.kind === 'holding') {
-      bars.left -= sdt;
-      if (bars.left <= 0) bars = { kind: 'draining', elapsed: 0, from: heights.slice() };
-    }
-    if (bars.kind === 'draining') {
-      bars.elapsed += sdt;
-      const { elapsed, from } = bars;
-      heights.forEach((_, i) => {
-        heights[i] = from[i] * (1 - easeInOut(clamp01((elapsed - (heights.length - 1 - i) * 0.06) / 0.52)));
-      });
-      if (elapsed >= (heights.length - 1) * 0.06 + 0.52) {
-        heights.fill(0);
-        filled.fill(0);
-        trendReach = 0;
-        bars = { kind: 'filling', index: 0 };
+  function stepChart(sdt: number) {
+    const { targetH, itemsPerPeriod } = chart;
+    if (revenue.kind === 'filling') {
+      shown += (Math.min(level / itemsPerPeriod, 1) * targetH - shown) * (1 - Math.exp(-sdt * 8));
+      if (level >= itemsPerPeriod && shown > targetH - 0.5) {
+        shown = targetH;
+        carry = level - itemsPerPeriod;
+        revenue = { kind: 'closing', reach: 0 };
       }
-      // The trend fades before the bars fall, so it never sags with them.
-      writeBars(1 - clamp01(elapsed / 0.24));
-      return;
+    } else if (revenue.kind === 'closing') {
+      revenue.reach += sdt * chart.closeRate;
+      if (revenue.reach >= 1) revenue = { kind: 'shifting', elapsed: 0 };
+    } else {
+      revenue.elapsed += sdt;
+      if (revenue.elapsed >= chart.shiftS) {
+        revenue = { kind: 'filling' };
+        level = carry;
+        shown = 0;
+        carry = 0;
+      }
     }
-    const k = 1 - Math.exp(-sdt * 8);
-    heights.forEach((h, i) => {
-      heights[i] = h + (filled[i] - h) * k;
-    });
-    trendReach = Math.min(settledBars(), trendReach + sdt * 4.5);
-    writeBars();
+    if (revenue.kind === 'filling') paintChart(chartFrame(shown, 0, 0));
+    else if (revenue.kind === 'closing') paintChart(chartFrame(shown, revenue.reach, 0));
+    else paintChart(chartFrame(shown, 1, easeInOut(clamp01(revenue.elapsed / chart.shiftS))));
   }
 
   function stepMachine(sdt: number) {
@@ -580,10 +572,10 @@ function createEngine(n: EngineNodes): Engine {
     power.value = power.from + (power.to - power.from) * easeInOut(clamp01((now - power.start) / power.ms));
     const sdt = dt * power.value;
     clock += sdt;
-    stepTokens(sdt, dt, now);
+    stepTokens(sdt, dt);
     stepVane(sdt);
     stepLamps(sdt);
-    stepBars(sdt);
+    stepChart(sdt);
     stepMachine(sdt);
   }
 
@@ -613,20 +605,18 @@ function createEngine(n: EngineNodes): Engine {
     resume: () => ramp(1, 900),
     halt,
     still() {
-      stillHeights.forEach((h, i) => {
-        heights[i] = h;
-      });
-      trendReach = settledBars();
-      writeBars();
+      revenue = { kind: 'filling' };
+      level = chart.startItems;
+      shown = startShown;
+      carry = 0;
+      paintChart(initialChart);
     },
-    focus(box, liftAfterMs) {
+    focus(box) {
       focusBox = box;
-      liftFrom = performance.now() + liftAfterMs;
       if (frame) return;
-      const now = performance.now();
       for (const token of live) {
         const [x, y] = tokenAt(token.lane, token.s);
-        paintToken(token, x, y, 0, now);
+        paintToken(token, x, y, 0);
       }
     },
     dispose: halt
@@ -636,7 +626,8 @@ function createEngine(n: EngineNodes): Engine {
 /* ---------- component ---------- */
 
 function Callout({ part, index, on, ids }: { part: Part; index: number; on: boolean; ids: Ids }) {
-  const { x, y, leadTo } = part.callout;
+  const { x, leadTo } = part.callout;
+  const y = calloutY;
   const at = draw.calloutsAt + index * 80;
   return (
     <g className={cn('bp-call', on && 'is-on')}>
@@ -653,7 +644,8 @@ function Callout({ part, index, on, ids }: { part: Part; index: number; on: bool
 }
 
 function ProgressRing({ tour, part }: { tour: Tour; part: Part }) {
-  const { x, y } = part.callout;
+  const { x } = part.callout;
+  const y = calloutY;
   const { at } = tour;
   const running = at.kind === 'touring' || at.kind === 'pinned';
   const ms = at.kind === 'pinned' ? 6000 : part.dwellMs;
@@ -679,7 +671,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const engineRef = useRef<Engine | null>(null);
   const hold = useRef<{ at: TourState | null; remaining: number }>({ at: null, remaining: 0 });
   const prefix = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const ids: Ids = { hatch: `${prefix}-hatch`, arrow: `${prefix}-arrow`, tokens: `${prefix}-tokens`, prefix };
+  const ids: Ids = { hatch: `${prefix}-hatch`, arrow: `${prefix}-arrow`, head: `${prefix}-head`, clip: `${prefix}-clip`, tokens: `${prefix}-tokens`, prefix };
 
   const drawn = tour.at.kind !== 'drafting';
   const halted = !onScreen;
@@ -727,9 +719,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   }, [drawn, tour.auto, onScreen]);
 
   useEffect(() => {
-    // Mirrors --bp-wait: below md the lift waits for the camera pan to settle.
-    const wait = window.matchMedia('(width >= 48rem)').matches ? 0 : 450;
-    engineRef.current?.focus(focus?.footprint ?? null, wait);
+    engineRef.current?.focus(focus?.footprint ?? null);
   }, [focus]);
 
   useEffect(() => {
@@ -749,8 +739,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
     const box = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - box.left) / box.width) * 1200;
     const y = ((event.clientY - box.top) / box.height) * sheetHeight;
-    const hit = parts.find(({ footprint: f }) => x > f.x && x < f.x + f.w && y > f.y && y < f.y + f.h);
-    return hit?.id ?? null;
+    return partAtPoint(x, y)?.id ?? null;
   };
 
   const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
@@ -770,7 +759,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const panX = focus?.panX ?? (tour.at.kind === 'resting' ? 600 : parts[0].panX);
   const cons = createPen(0, draw.consStep, draw.consMs);
   const base = createPen(draw.partAt(0));
-  const baseLine = base.draw('M40 330 H890', 'bp-ink');
+  const baseLine = base.draw(`M${ground.x1} ${ground.y} H${ground.x2}`, 'bp-ink');
 
   return (
     <div ref={frameRef} className={cn('relative overflow-hidden @container', className)}>
@@ -793,13 +782,20 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
               <marker id={ids.arrow} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={6} markerHeight={6} orient="auto-start-reverse">
                 <path d="M0 1 L10 5 L0 9 Z" className="bp-arrow" />
               </marker>
+              <marker id={ids.head} viewBox="0 0 10 10" refX={8} refY={5} markerWidth={7} markerHeight={7} orient="auto">
+                <path d="M0 1 L10 5 L0 9 Z" className="bp-projection-head" />
+              </marker>
+              <clipPath id={ids.clip}>
+                <rect x={chart.clipX} y={0} width={1200 - chart.clipX} height={sheetHeight} />
+              </clipPath>
               <mask id={ids.tokens} maskUnits="userSpaceOnUse" x={0} y={0} width={1200} height={sheetHeight}>
                 <rect width={1200} height={sheetHeight} className="fill-white" />
-                <rect x={420} y={150} width={180} height={180} className="fill-black" />
-                <circle cx={660} cy={233} r={14} className="fill-black" />
-                {lanes.map((ly) => (
-                  <rect key={ly} x={790} y={ly - 18} width={62} height={36} className="fill-black" />
-                ))}
+                <rect x={housingWithPorts.x} y={housingWithPorts.y} width={housingWithPorts.w} height={housingWithPorts.h} className="fill-black" />
+                <circle cx={hub.x} cy={hub.y} r={hub.r} className="fill-black" />
+                {lanes.map((ly) => {
+                  const b = bay(ly);
+                  return <rect key={ly} x={b.x} y={b.y} width={b.w} height={b.h} className="fill-black" />;
+                })}
               </mask>
             </defs>
 
@@ -821,12 +817,12 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
 
             <g>
               {parts.map(({ id, footprint: f }) => (
-                <rect key={id} x={f.x} y={f.y} width={f.w} height={f.h} rx={6} className={cn('bp-ghost', focus?.id === id && 'is-on')} />
+                <path key={id} d={brackets(f)} className={cn('bp-bracket', focus?.id === id && 'is-on')} />
               ))}
             </g>
 
             <g>
-              <rect x={40} y={330} width={850} height={9} fill={`url(#${ids.hatch})`} className="bp-fade" style={timing(base.end())} />
+              <rect x={ground.x1} y={ground.y} width={ground.x2 - ground.x1} height={9} fill={`url(#${ids.hatch})`} className="bp-fade" style={timing(base.end())} />
               {baseLine}
               {parts.map(({ id }, i) => {
                 const Art = partArt[id];

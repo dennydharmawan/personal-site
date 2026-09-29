@@ -249,6 +249,12 @@
   }
 }
 
+@keyframes bp-rise-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
 @keyframes bp-pop {
   from {
     opacity: 0;
@@ -318,6 +324,12 @@
   animation: bp-rise 260ms ease-out var(--d) backwards;
 }
 
+.bp-rise-y {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: bp-rise-y var(--t) cubic-bezier(0.22, 1, 0.36, 1) var(--d) backwards;
+}
+
 .bp-pop {
   transform-box: fill-box;
   transform-origin: center;
@@ -354,9 +366,14 @@
 .bp-dot { fill: var(--bp-ink, var(--color-zinc-800)); transition: fill 320ms ease-out; }
 .bp-lamp { fill: var(--color-zinc-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1; transition: stroke 320ms ease-out; }
 .bp-glow { fill: var(--color-emerald-400); }
-.bp-bar { fill: var(--color-sky-100); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
-.bp-bar.is-full { fill: var(--color-sky-300); }
-.bp-trend { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.bp-tick { fill: none; stroke: var(--color-zinc-400); stroke-width: 1; }
+.bp-bar { fill: var(--color-sky-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
+.bp-bar.is-full { fill: var(--color-sky-100); }
+.bp-target { fill: none; stroke: var(--color-sky-400); stroke-width: 1; stroke-dasharray: 3 3; }
+/* Actuals are solid and the forecast is dashed. The trend's own dash array is the draw-in's. */
+.bp-trend { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; }
+.bp-projection { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.bp-projection-head { fill: var(--color-sky-600); }
 
 .bp-pipe-o {
   fill: none;
@@ -386,24 +403,16 @@
   stroke: var(--color-sky-700);
 }
 
-/* Tour focus. Entrances are slower than exits; the lift waits for the phone camera to settle. */
+/* Tour focus. Nothing moves: the part recolors and its corners are marked. Entrances are slower
+   than exits and wait for the phone camera to settle. */
 /* The rest of the machine steps back in ink, not opacity, so panels stay solid and the grid never
    shows through them. */
 .bp-part {
   --bp-ink: var(--color-zinc-800);
-  transition: transform 240ms ease-in-out;
 }
 
 .bp-sheet.has-focus .bp-part:not(.is-focus) {
   --bp-ink: var(--color-zinc-500);
-}
-
-.bp-part.is-focus {
-  transform: translateY(-6px);
-  /* Motion spring, stiffness 300, damping 22, mass 1: one 7% overshoot and a settle. */
-  transition:
-    opacity 260ms ease-out,
-    transform 700ms linear(0, 0.1189, 0.3657, 0.6233, 0.8315, 0.9707, 1.0461, 1.0737, 1.0717, 1.0555, 1.0356, 1.0181, 1.0056, 0.9982, 0.9949, 0.9943, 0.9953, 0.9967, 0.9982, 0.9993, 1, 1, 1) var(--bp-wait);
 }
 
 .bp-part.is-focus :is(.bp-ink, .bp-pipe-o) {
@@ -411,18 +420,23 @@
   transition: stroke 260ms ease-out var(--bp-wait);
 }
 
-.bp-ghost {
-  fill: none;
-  stroke: var(--color-sky-300);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-  opacity: 0;
-  transition: opacity 160ms ease-in;
+.bp-part.is-focus .bp-bar {
+  stroke: var(--color-sky-600);
+  transition: fill 300ms ease-out, stroke 260ms ease-out var(--bp-wait);
 }
 
-.bp-ghost.is-on {
+.bp-bracket {
+  fill: none;
+  stroke: var(--color-sky-500);
+  stroke-width: 1.2;
+  stroke-linecap: square;
+  opacity: 0;
+  transition: opacity 140ms ease-in;
+}
+
+.bp-bracket.is-on {
   opacity: 1;
-  transition: opacity 300ms ease-out var(--bp-wait);
+  transition: opacity 220ms ease-out var(--bp-wait);
 }
 
 .bp-lead {
