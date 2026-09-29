@@ -35,7 +35,6 @@ import {
   sheetHeight,
   sheetLabel,
   startShown,
-  target,
   thresholds,
   tokenPool
 } from '@/components/hero-blueprint-data';
@@ -79,7 +78,7 @@ function createPen(start: number, step = draw.pathStep, fixedMs?: number) {
   };
 }
 
-type Ids = { hatch: string; arrow: string; head: string; clip: string; tokens: string; prefix: string };
+type Ids = { hatch: string; arrow: string; clip: string; tokens: string; prefix: string };
 type ArtProps = { start: number; ids: Ids };
 
 function IntakeArt({ start }: ArtProps) {
@@ -210,12 +209,13 @@ function RevenueArt({ start, ids }: ArtProps) {
       {axis}
       {ticks}
       <g clipPath={`url(#${ids.clip})`}>
-        <rect x={target.x} y={target.y} width={target.w} height={target.h} className="bp-target bp-fade" style={settled} />
         {initialChart.bars.map(({ x, y, h, full }, i) => (
           <rect key={i} data-bp="bar" x={x} y={y} width={chart.barW} height={h} className={cn('bp-bar bp-rise-y', full && 'is-full')} style={timing(barsAt + i * 60, 380)} />
         ))}
         <polyline data-bp="trend" points={initialChart.trend} pathLength={1} className="bp-trend bp-draw" style={timing(trendAt, trendMs)} />
-        <path data-bp="projection" d={initialChart.projection} markerEnd={`url(#${ids.head})`} className="bp-projection bp-fade" style={settled} />
+        <g data-bp="head" transform={initialChart.head}>
+          <path d="M2 0 L-7 -4.5 L-7 4.5 Z" className="bp-trend-head bp-fade" style={settled} />
+        </g>
       </g>
     </>
   );
@@ -342,7 +342,7 @@ type EngineNodes = {
   halos: SVGCircleElement[];
   bars: SVGRectElement[];
   trend: SVGPolylineElement;
-  projection: SVGPathElement;
+  head: SVGGElement;
   tokens: SVGGElement[];
 };
 
@@ -358,7 +358,7 @@ function bindNodes(svg: SVGSVGElement): EngineNodes {
     halos: all('halo'),
     bars: all('bar'),
     trend: all<SVGPolylineElement>('trend')[0],
-    projection: all<SVGPathElement>('projection')[0],
+    head: all<SVGGElement>('head')[0],
     tokens: all('token')
   };
 }
@@ -510,7 +510,7 @@ function createEngine(n: EngineNodes): Engine {
     });
   }
 
-  function paintChart({ bars, trend, projection }: ChartFrame) {
+  function paintChart({ bars, trend, head }: ChartFrame) {
     bars.forEach(({ x, y, h, opacity, full }, i) => {
       const bar = n.bars[i];
       write(bar, 'x', x.toFixed(2));
@@ -520,7 +520,7 @@ function createEngine(n: EngineNodes): Engine {
       bar.classList.toggle('is-full', full);
     });
     write(n.trend, 'points', trend);
-    write(n.projection, 'd', projection);
+    write(n.head, 'transform', head);
   }
 
   function stepChart(sdt: number) {
@@ -671,7 +671,7 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const engineRef = useRef<Engine | null>(null);
   const hold = useRef<{ at: TourState | null; remaining: number }>({ at: null, remaining: 0 });
   const prefix = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const ids: Ids = { hatch: `${prefix}-hatch`, arrow: `${prefix}-arrow`, head: `${prefix}-head`, clip: `${prefix}-clip`, tokens: `${prefix}-tokens`, prefix };
+  const ids: Ids = { hatch: `${prefix}-hatch`, arrow: `${prefix}-arrow`, clip: `${prefix}-clip`, tokens: `${prefix}-tokens`, prefix };
 
   const drawn = tour.at.kind !== 'drafting';
   const halted = !onScreen;
@@ -781,9 +781,6 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
               </pattern>
               <marker id={ids.arrow} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={6} markerHeight={6} orient="auto-start-reverse">
                 <path d="M0 1 L10 5 L0 9 Z" className="bp-arrow" />
-              </marker>
-              <marker id={ids.head} viewBox="0 0 10 10" refX={8} refY={5} markerWidth={7} markerHeight={7} orient="auto">
-                <path d="M0 1 L10 5 L0 9 Z" className="bp-projection-head" />
               </marker>
               <clipPath id={ids.clip}>
                 <rect x={chart.clipX} y={0} width={1200 - chart.clipX} height={sheetHeight} />

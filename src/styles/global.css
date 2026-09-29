@@ -369,11 +369,8 @@
 .bp-tick { fill: none; stroke: var(--color-zinc-400); stroke-width: 1; }
 .bp-bar { fill: var(--color-sky-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
 .bp-bar.is-full { fill: var(--color-sky-100); }
-.bp-target { fill: none; stroke: var(--color-sky-400); stroke-width: 1; stroke-dasharray: 3 3; }
-/* Actuals are solid and the forecast is dashed. The trend's own dash array is the draw-in's. */
 .bp-trend { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; }
-.bp-projection { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; stroke-dasharray: 4 3; }
-.bp-projection-head { fill: var(--color-sky-600); }
+.bp-trend-head { fill: var(--color-sky-600); }
 
 .bp-pipe-o {
   fill: none;
