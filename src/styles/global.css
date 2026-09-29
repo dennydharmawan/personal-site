@@ -353,7 +353,7 @@
 .bp-thin { stroke-width: 1; }
 .bp-heavy { stroke-width: 3; }
 .bp-solid { fill: var(--color-white); }
-.bp-cons { fill: none; stroke: var(--color-sky-200); stroke-width: 0.8; }
+.bp-cons { fill: none; stroke: var(--color-violet-200); stroke-width: 0.8; }
 .bp-mark { fill: none; stroke: var(--color-zinc-300); stroke-width: 1; }
 .bp-zone { font-size: 9px; font-weight: 500; fill: var(--color-zinc-300); }
 .bp-dim { fill: none; stroke: var(--color-zinc-400); stroke-width: 0.9; }
@@ -367,10 +367,10 @@
 .bp-lamp { fill: var(--color-zinc-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1; transition: stroke 320ms ease-out; }
 .bp-glow { fill: var(--color-emerald-400); }
 .bp-tick { fill: none; stroke: var(--color-zinc-400); stroke-width: 1; }
-.bp-bar { fill: var(--color-sky-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
-.bp-bar.is-full { fill: var(--color-sky-100); }
-.bp-trend { fill: none; stroke: var(--color-sky-600); stroke-width: 1.6; }
-.bp-trend-head { fill: var(--color-sky-600); }
+.bp-bar { fill: var(--color-violet-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
+.bp-bar.is-full { fill: var(--color-violet-100); }
+.bp-trend { fill: none; stroke: var(--color-violet-600); stroke-width: 1.6; }
+.bp-trend-head { fill: var(--color-violet-600); }
 
 .bp-pipe-o {
   fill: none;
@@ -396,8 +396,8 @@
 }
 
 .bp-tok[data-done] > * {
-  fill: var(--color-sky-500);
-  stroke: var(--color-sky-700);
+  fill: var(--color-violet-500);
+  stroke: var(--color-violet-700);
 }
 
 /* Tour focus. Nothing moves: the part recolors and its corners are marked. Entrances are slower
@@ -413,18 +413,18 @@
 }
 
 .bp-part.is-focus :is(.bp-ink, .bp-pipe-o) {
-  stroke: var(--color-sky-600);
+  stroke: var(--color-violet-600);
   transition: stroke 260ms ease-out var(--bp-wait);
 }
 
 .bp-part.is-focus .bp-bar {
-  stroke: var(--color-sky-600);
+  stroke: var(--color-violet-600);
   transition: fill 300ms ease-out, stroke 260ms ease-out var(--bp-wait);
 }
 
 .bp-bracket {
   fill: none;
-  stroke: var(--color-sky-500);
+  stroke: var(--color-violet-500);
   stroke-width: 1.2;
   stroke-linecap: square;
   opacity: 0;
@@ -452,7 +452,7 @@
   --bp-ink: var(--color-zinc-500);
 }
 
-.bp-call.is-on .bp-lead { stroke: var(--color-sky-400); }
+.bp-call.is-on .bp-lead { stroke: var(--color-violet-400); }
 
 .bp-bubble {
   fill: var(--color-white);
@@ -467,13 +467,13 @@
 }
 
 .bp-call.is-on .bp-pulse { animation: bp-pulse 260ms ease-in-out var(--bp-wait); }
-.bp-call.is-on .bp-bubble { fill: var(--color-sky-500); stroke: var(--color-sky-600); transition-duration: 260ms; }
+.bp-call.is-on .bp-bubble { fill: var(--color-violet-500); stroke: var(--color-violet-600); transition-duration: 260ms; }
 .bp-call.is-on .bp-num { fill: var(--color-white); }
-.bp-call.is-on .bp-lbl { fill: var(--color-sky-700); }
+.bp-call.is-on .bp-lbl { fill: var(--color-violet-700); }
 
 .bp-ring {
   fill: none;
-  stroke: var(--color-sky-500);
+  stroke: var(--color-violet-500);
   stroke-width: 1.5;
   stroke-dasharray: 1 1;
   animation: bp-draw var(--dwell) linear backwards;
