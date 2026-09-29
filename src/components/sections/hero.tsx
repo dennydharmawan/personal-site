@@ -113,14 +113,14 @@ export function HeroSection() {
 
         {/* From xl the hero uses the bento grid's three columns and gap, so the lede and actions
             start on the third card's edge. The headline only takes a side column from xl; below that a narrow column squeezes it.
-            From xl the right column is a subgrid: the lede's last line shares the headline's
-            last baseline, and the actions sit on the proof row's top edge. Stacked, the proof follows the actions. */}
+            From xl the right column is a subgrid: the lede's first line lines up with the top of the
+            headline, and the actions line up with the top of the proof row. Stacked, the proof follows the actions. */}
         <div
           className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-3 xl:grid-rows-[auto_auto] xl:gap-x-6 xl:gap-y-8`}
         >
           {/* The size tracks the column (a container), so each line of the headline holds one
               line at every width. */}
-          <div className="animate-rise-in @container xl:col-span-2 xl:col-start-1 xl:row-start-1 xl:self-baseline-last">
+          <div className="animate-rise-in @container xl:col-span-2 xl:col-start-1 xl:row-start-1 xl:self-start">
             <HeroHeadline className="text-[min(3rem,calc(100cqw/8.2))] leading-[1] sm:text-[min(4rem,calc(100cqw/8.2))] sm:leading-[0.94] xl:text-[min(5.5rem,calc(100cqw/8.2))]" />
           </div>
 
@@ -128,7 +128,7 @@ export function HeroSection() {
             className={`animate-rise-in grid ${detailStackGapClassName} lg:grid-cols-[minmax(0,36rem)_auto] lg:items-end lg:justify-between lg:gap-10 xl:col-start-3 xl:row-span-2 xl:row-start-1 xl:grid-cols-1 xl:grid-rows-subgrid`}
             style={riseDelay(0.08)}
           >
-            <HeroLede yearsExperience={yearsExperience} className="xl:self-baseline-last" />
+            <HeroLede yearsExperience={yearsExperience} className="xl:self-start xl:pt-1" />
             <HeroActions className="xl:self-start" />
           </div>
 
