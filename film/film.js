@@ -296,7 +296,7 @@ function stormDeck(t, y, glowOn) {
   if (y < GL.y0 - 100) return;
   const dx = -2.5 * t, p = rect(GL.x0 - 200, -400, GL.x1 + 260, y - 12);
   for (const b of DECK) p.addPath(cut(ringPts(b.x + dx, y - b.dy, b.r, b.r * 0.7, 12), rngFor(b.seed), { amp: b.r * 0.07 }));
-  put(p, { indigo: ramp2(GL.y0, y + 30, .62, .74), blue: ramp2(GL.y0, y + 30, .5, .46), pink: ramp2(GL.y0, y + 30, .08, .14 + .1 * glowOn), yellow: ramp2(GL.y0, y + 30, 0, .04 * glowOn) });
+  put(p, { indigo: ramp2(GL.y0, y + 30, .54, .7), blue: ramp2(GL.y0, y + 30, .5, .46), pink: ramp2(GL.y0, y + 30, .08, .14 + .1 * glowOn), yellow: ramp2(GL.y0, y + 30, 0, .04 * glowOn) });
   withClip(p, () => add(rect(GL.x0 - 200, y - 50, GL.x1 + 260, y + 40), { pink: ramp2(y - 50, y + 30, 0, .16 * glowOn), yellow: ramp2(y - 50, y + 30, 0, .08 * glowOn) }));
 }
 function storm(t) {
@@ -316,7 +316,7 @@ function storm(t) {
     const k = 1 - m.far * 0.12, dim = 1 - m.far * 0.25;
     const look = {
       light: [0, 0.8], hi: { indigo: (.12 + .16 * glowOn) * dim, blue: .08 }, hiAdd: { pink: .12 * glowOn, yellow: .05 * glowOn },
-      body: (t0, b) => ({ indigo: ramp2(t0, b, .74 * dim, .9 * dim), blue: ramp2(t0, b, .52 * dim, .5 * dim), pink: ramp2(t0, b, .06, .1 + .1 * glowOn), yellow: ramp2(t0, b, 0, .03 * glowOn) }),
+      body: (t0, b) => ({ indigo: ramp2(t0, b, .56 * dim, .84 * dim), blue: ramp2(t0, b, .48 * dim, .5 * dim), pink: ramp2(t0, b, .06, .1 + .1 * glowOn), yellow: ramp2(t0, b, 0, .03 * glowOn) }),
       under: (y0, y1) => ({ pink: ramp2(y0, y1, 0, .24 * glowOn), yellow: ramp2(y0, y1, 0, .12 * glowOn) }),
     };
     const x = m.x - t * (3 + m.far * 3);
@@ -918,7 +918,7 @@ function roofs(t) {
 
 /* ── the kite ─────────────────────────────────────────────────────────────── */
 
-const KITE = { hover: [812, 262], anchor: [744, 0], span: 40 };
+const KITE = { hover: [760, 285], anchor: [744, 0], span: 40 };
 KITE.anchor[1] = ROOFS.profile(KITE.anchor[0]) + 2;
 const kiteOn = t => t >= T.kite[0] || t <= T.kite[1];
 function kitePose(t) {

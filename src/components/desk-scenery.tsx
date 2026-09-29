@@ -51,7 +51,7 @@ export function DeskScenery() {
       </picture>
       <video
         ref={videoRef}
-        aria-label="A 42 second silent loop of one day at my desk in Jakarta, drawn in code"
+        aria-label="A 50 second silent loop of one day at my desk in Jakarta, drawn in code"
         className={cn(layerClassName, 'absolute inset-0 size-full')}
         disablePictureInPicture
         disableRemotePlayback
