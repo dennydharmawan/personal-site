@@ -1,7 +1,6 @@
 import { useEffect, useState, type FocusEvent, type MouseEvent, type PointerEvent } from 'react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GlyphTile } from '@/components/about-glyphs';
-import { DotGrid } from '@/components/dot-grid';
 import {
   aboutEvidence,
   aboutParagraph,
@@ -126,13 +125,10 @@ export function AboutSection() {
   return (
     <section
       aria-labelledby="about-heading"
-      className={cn(sectionPaddingBottomClassName, 'relative isolate scroll-mt-20 md:scroll-mt-28 lg:scroll-mt-32')}
+      className={cn(sectionPaddingBottomClassName, 'scroll-mt-20 md:scroll-mt-28 lg:scroll-mt-32')}
       data-scroll-target="about"
       onFocusCapture={() => setFocusedWhileHidden((current) => current || state === 'hidden')}
     >
-      {/* The grid fades out toward the paragraph and at the top and bottom, so the text sits on
-          white and the dots fill the space beside it. */}
-      <DotGrid className="pointer-events-none absolute inset-x-0 -top-24 bottom-0 -z-10 h-[calc(100%+6rem)] w-full [mask-image:linear-gradient(to_right,black_0%,black_30%,transparent_62%),linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)] [mask-composite:intersect]" />
       <div className={pageShellClassName}>
         {/* From lg this shares the bento grid's three columns and gap, so the heading and the
             paragraph start where the headings of the cards above do. */}
