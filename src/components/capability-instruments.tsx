@@ -996,7 +996,9 @@ const cloudTiles: readonly { Icon?: IconType; label?: string; opacity: number; s
   { Icon: SiDatadog, label: 'Datadog', opacity: 0.6, size: 44, x: 90, y: 78 }
 ];
 const namedTiles = cloudTiles.flatMap((tile, index) => (tile.label && tile.opacity > 0.75 ? [index] : []));
-const glowOrder = [5, 6, 2, 7, 11, 8, 1, 10, 3, 12, 0, 4].map((step) => namedTiles[step % namedTiles.length]);
+const glowOrder = ['TypeScript', 'React', 'Kafka', 'Next.js', 'MongoDB', 'Node.js', 'GraphQL', 'MySQL', 'Redis', 'AWS'].map((name) =>
+  cloudTiles.findIndex(({ label }) => label === name)
+);
 const stackLabels = cloudTiles.flatMap(({ label }) => (label ? [label] : [])).join(', ');
 
 const glowBeats = [
@@ -1024,8 +1026,14 @@ function CloudTiles({ still }: { still: boolean }): JSX.Element {
           {...cycle(still, { y: [0, -4, 0] }, 4.2 + (index % 5) * 0.55, [0, 0.5, 1], { delay: index * 0.37 })}
         >
           {Icon ? <Icon aria-hidden="true" size={Math.round(size * 0.42)} /> : null}
-          {namedTiles.includes(index) ? (
-            <span className="absolute top-full left-1/2 mt-1.5 -translate-x-1/2 text-[10px] font-medium whitespace-nowrap text-zinc-500 @max-[360px]:hidden">
+          {label ? (
+            <span
+              className={
+                namedTiles.includes(index)
+                  ? 'absolute top-full left-1/2 mt-1.5 -translate-x-1/2 text-[10px] font-medium whitespace-nowrap text-zinc-500 @max-[360px]:sr-only'
+                  : 'sr-only'
+              }
+            >
               {label}
             </span>
           ) : null}
