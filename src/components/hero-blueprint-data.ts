@@ -75,23 +75,20 @@ export const chart = {
   targetH: 250,
   growth: 1.22,
   itemsPerPeriod: 7,
-  startItems: 3,
+  startItems: 0,
   clipX: 923,
   closeRate: 4,
   shiftS: 0.8,
-  trendLift: 6,
-  arrowLift: 14
+  trendLift: 6
 };
 const current = chart.slots - 1;
 export const slotX = (i: number) => 940 + i * chart.pitch;
 // A geometric series, so every bar is the next one divided by the growth factor.
 const barH = (i: number) => chart.targetH / chart.growth ** (current - i);
 export const startShown = (chart.startItems / chart.itemsPerPeriod) * chart.targetH;
-export const target = { x: slotX(current), y: chart.baseY - chart.targetH, w: chart.barW, h: chart.targetH };
-const projectionEnd: Point = [slotX(current) + chart.barW / 2, chart.baseY - chart.targetH - chart.arrowLift];
 
 export type BarFrame = { x: number; y: number; h: number; opacity: number; full: boolean };
-export type ChartFrame = { bars: BarFrame[]; trend: string; projection: string };
+export type ChartFrame = { bars: BarFrame[]; trend: string; head: string };
 
 const lerp = ([x0, y0]: Point, [x1, y1]: Point, k: number): Point => [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k];
 const fmt = ([x, y]: Point) => `${x.toFixed(1)} ${y.toFixed(1)}`;
@@ -110,11 +107,14 @@ export function chartFrame(shown: number, reach: number, shift: number): ChartFr
   if (reach > 0) trend.push(lerp(tops[current - 1], tops[current], Math.min(1, reach)));
   // The outgoing point retracts into its neighbour as its bar fades, so the snap drops no segment.
   trend[0] = lerp(trend[0], trend[1], shift);
-  const tip = trend[trend.length - 1];
+  // The arrowhead rides the trend's tip, so revenue only ever points up at the latest settled period.
+  const [x0, y0] = trend[trend.length - 2];
+  const [x1, y1] = trend[trend.length - 1];
+  const angle = (Math.atan2(y1 - y0, x1 - x0) * 180) / Math.PI;
   return {
     bars,
     trend: trend.map(fmt).join(' '),
-    projection: `M${fmt(tip)} L${fmt(projectionEnd)}`
+    head: `translate(${fmt([x1, y1])}) rotate(${angle.toFixed(1)})`
   };
 }
 export const initialChart = chartFrame(startShown, 0, 0);
