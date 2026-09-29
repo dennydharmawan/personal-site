@@ -1,6 +1,7 @@
 import { useEffect, useState, type FocusEvent, type MouseEvent, type PointerEvent } from 'react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GlyphTile } from '@/components/about-glyphs';
+import { DotGrid } from '@/components/dot-grid';
 import {
   aboutEvidence,
   aboutParagraph,
@@ -44,17 +45,14 @@ function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTa
   focusTargetName(target);
 }
 
-const underline =
-  'bg-no-repeat transition-colors duration-200 [background-image:linear-gradient(var(--color-sky-600),var(--color-sky-600))] [background-position:0_100%] [background-size:100%_2px] pb-[0.12em] group-data-[active=true]:bg-sky-50';
+const phraseClassName = 'transition-colors duration-200 group-data-[active=true]:text-sky-700';
 
 // The entrance plays once, when the paragraph's top clears the lower 30% of the viewport.
-// Phrases go in reading order: the tile pops, its glyph plays, then its underline draws.
+// Phrases go in reading order: the tile pops, then its glyph plays.
 const entranceRootMargin = '0px 0px -30% 0px';
 const firstBeat = 0.35;
 const beatGap = 0.42;
-const underlineDraw = 0.5;
 const beat = (index: number) => firstBeat + index * beatGap;
-const underlineStart = (index: number) => beat(index) + 0.12;
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, transition: instant },
@@ -71,11 +69,6 @@ const tilePop = (at: number): Variants => ({
       transform: { delay: at, duration: 0.55, ease: overshootEase }
     }
   }
-});
-
-const drawUnderline = (at: number, duration: number): Variants => ({
-  hidden: { backgroundSize: '0% 2px', transition: instant },
-  visible: { backgroundSize: '100% 2px', transition: { delay: at, duration, ease: 'linear' } }
 });
 
 export function AboutSection() {
@@ -133,13 +126,18 @@ export function AboutSection() {
   return (
     <section
       aria-labelledby="about-heading"
-      className={cn(sectionPaddingBottomClassName, 'scroll-mt-20 md:scroll-mt-28 lg:scroll-mt-32')}
+      className={cn(sectionPaddingBottomClassName, 'relative isolate scroll-mt-20 md:scroll-mt-28 lg:scroll-mt-32')}
       data-scroll-target="about"
       onFocusCapture={() => setFocusedWhileHidden((current) => current || state === 'hidden')}
     >
+      {/* The grid fades out toward the paragraph and at the top and bottom, so the text sits on
+          white and the dots fill the space beside it. */}
+      <DotGrid className="pointer-events-none absolute inset-x-0 -top-24 bottom-0 -z-10 h-[calc(100%+6rem)] w-full [mask-image:linear-gradient(to_right,black_0%,black_30%,transparent_62%),linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)] [mask-composite:intersect]" />
       <div className={pageShellClassName}>
-        <div className="grid gap-y-8 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-x-16">
-          <div className="grid content-start gap-5">
+        {/* From lg this shares the bento grid's three columns and gap, so the heading and the
+            paragraph start where the headings of the cards above do. */}
+        <div className="grid gap-y-8 lg:grid-cols-3 lg:gap-x-6">
+          <div className="grid content-start gap-5 lg:pl-9">
             <h2
               className="text-4xl font-heading font-normal tracking-tight text-zinc-900 text-balance sm:text-5xl"
               id="about-heading"
@@ -150,6 +148,7 @@ export function AboutSection() {
 
           <motion.div
             animate={phase}
+            className="lg:col-span-2 lg:pl-9"
             initial={false}
             variants={{ hidden: {}, visible: {} }}
             onAnimationComplete={(definition) => {
@@ -174,8 +173,6 @@ export function AboutSection() {
                 const firstSpace = phrase.indexOf(' ');
                 const firstWord = firstSpace === -1 ? phrase : phrase.slice(0, firstSpace);
                 const rest = firstSpace === -1 ? '' : phrase.slice(firstSpace);
-                // Character share stands in for width share, so the underline keeps one speed across both spans.
-                const firstDraw = underlineDraw * (firstWord.length / phrase.length);
 
                 return (
                   <a
@@ -195,24 +192,9 @@ export function AboutSection() {
                         replay={replays[target]}
                         variants={tilePop(beat(index))}
                       />
-                      <motion.span
-                        className={underline}
-                        variants={drawUnderline(underlineStart(index), firstDraw)}
-                      >
-                        {firstWord}
-                      </motion.span>
+                      <span className={phraseClassName}>{firstWord}</span>
                     </span>
-                    {rest ? (
-                      <motion.span
-                        className={underline}
-                        variants={drawUnderline(
-                          underlineStart(index) + firstDraw,
-                          underlineDraw - firstDraw
-                        )}
-                      >
-                        {rest}
-                      </motion.span>
-                    ) : null}
+                    {rest ? <span className={phraseClassName}>{rest}</span> : null}
                   </a>
                 );
               })}

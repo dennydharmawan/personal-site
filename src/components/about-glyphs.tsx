@@ -10,7 +10,6 @@ const line = 'fill-none stroke-white stroke-[1.6] [stroke-linecap:round] [stroke
 const faintLine = 'fill-none stroke-white/40 stroke-[1.6] [stroke-linecap:round] [stroke-linejoin:round]';
 const softLine = 'fill-none stroke-white/70 stroke-[1.6] [stroke-linecap:round]';
 const skyLine = 'fill-none stroke-sky-400 stroke-[1.6] [stroke-linecap:round]';
-const tick = 'fill-none stroke-white stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]';
 // Fills the toggle with the tile's own color so the toggle cuts across the badge outline.
 const knockout = 'fill-zinc-900 stroke-white stroke-[1.6]';
 
