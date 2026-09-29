@@ -103,7 +103,7 @@ export const projects: Project[] = [
     problem:
       'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
     role: 'Identity and access governance',
-    stack: ['Node.js', 'TypeScript', 'BullMQ', 'Redis', 'MySQL', 'Kubernetes', 'Access control management'],
+    stack: ['Node.js', 'TypeScript', 'BullMQ', 'Redis', 'MySQL', 'Access control management'],
     title: 'HRIS automation workflow',
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     preview: '/portfolio-previews/work-sample-loan-collection.png',
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
     role: 'Collections operations',
-    stack: ['Next.js', 'Node.js', 'MySQL', 'Redis', 'Vonage', 'WhatsApp API', 'Datadog'],
+    stack: ['Next.js', 'Node.js', 'MySQL', 'Redis', 'Vonage', 'WhatsApp API'],
     title: 'Multi-channel loan collections',
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
