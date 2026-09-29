@@ -47,9 +47,12 @@ copied:
 
 ## Motion
 
-`motion/react`. Every looping animation goes through `cycle()` in
-`src/components/capability-instruments.tsx`, which returns `{}` under
-`useReducedMotion()`. Keep ambient drift under ~6px, and give each looping element its
+`motion/react`. Two drivers in `src/components/capability-instruments.tsx` own every
+loop. Ambient loops (drift, ripples, pulse rings) go through `cycle()`, which returns `{}`
+under `useReducedMotion()`. Story loops that step through beats go through
+`useEpisode()`, which walks a beat table and returns the still beat under reduced motion
+or off screen; render from its `(beat, episode)` and time sub-beat events with motion
+delays keyed by episode. Keep ambient drift under ~6px, and give each looping element its
 own duration and delay so a group never resyncs — see `docs/attio-motion-notes.md`.
 
 ## Portfolio copy

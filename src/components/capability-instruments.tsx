@@ -12,6 +12,7 @@ import {
   type Transition
 } from 'motion/react';
 import { Activity, Package } from 'lucide-react';
+import type { IconType } from 'react-icons';
 import { FaAws } from 'react-icons/fa6';
 import {
   SiApachekafka,
@@ -977,50 +978,75 @@ export function CapabilityInstrument({
   );
 }
 
-const stackTiles = [
-  { Icon: SiTypescript, drift: 'translateY(-5px)', duration: 4.6, label: 'TypeScript' },
-  { Icon: SiReact, drift: 'translateY(-4px)', duration: 5.2, label: 'React' },
-  { Icon: SiNextdotjs, drift: 'translateY(3px)', duration: 6.4, label: 'Next.js' },
-  { Icon: SiNodedotjs, drift: 'translateY(4px)', duration: 5.8, label: 'Node.js' },
-  { Icon: SiGraphql, drift: 'translateY(-3px)', duration: 6.9, label: 'GraphQL' },
-  { Icon: SiApachekafka, drift: 'translateY(5px)', duration: 5.5, label: 'Kafka' },
-  { Icon: SiRedis, drift: 'translateY(-4px)', duration: 6.1, label: 'Redis' },
-  { Icon: SiMongodb, drift: 'translateY(3px)', duration: 4.9, label: 'MongoDB' },
-  { Icon: SiPostgresql, drift: 'translateY(-3px)', duration: 5.9, label: 'PostgreSQL' },
-  { Icon: SiMysql, drift: 'translateY(4px)', duration: 6.6, label: 'MySQL' },
-  { Icon: SiDatadog, drift: 'translateY(-5px)', duration: 5.1, label: 'Datadog' },
-  { Icon: FaAws, drift: 'translateY(3px)', duration: 6.3, label: 'AWS' }
+// Positions are percent of the cloud and sizes are pixels. Faint tiles and empty ghost tiles sit
+// at the edges, so the cloud reads wider than the card.
+const cloudTiles: readonly { Icon?: IconType; label?: string; opacity: number; size: number; x: number; y: number }[] = [
+  { Icon: SiPostgresql, label: 'PostgreSQL', opacity: 0.6, size: 44, x: 10, y: 20 },
+  { Icon: SiGraphql, label: 'GraphQL', opacity: 1, size: 48, x: 30, y: 18 },
+  { Icon: SiApachekafka, label: 'Kafka', opacity: 1, size: 48, x: 50, y: 16 },
+  { Icon: SiRedis, label: 'Redis', opacity: 1, size: 48, x: 70, y: 18 },
+  { opacity: 0.5, size: 44, x: 90, y: 20 },
+  { Icon: SiTypescript, label: 'TypeScript', opacity: 1, size: 56, x: 20, y: 50 },
+  { Icon: SiReact, label: 'React', opacity: 1, size: 56, x: 40, y: 48 },
+  { Icon: SiNextdotjs, label: 'Next.js', opacity: 1, size: 56, x: 60, y: 48 },
+  { Icon: SiNodedotjs, label: 'Node.js', opacity: 1, size: 56, x: 80, y: 50 },
+  { opacity: 0.5, size: 44, x: 10, y: 80 },
+  { Icon: SiMysql, label: 'MySQL', opacity: 1, size: 48, x: 30, y: 80 },
+  { Icon: SiMongodb, label: 'MongoDB', opacity: 1, size: 48, x: 50, y: 82 },
+  { Icon: FaAws, label: 'AWS', opacity: 1, size: 48, x: 70, y: 80 },
+  { Icon: SiDatadog, label: 'Datadog', opacity: 0.6, size: 44, x: 90, y: 78 }
 ];
+const namedTiles = cloudTiles.flatMap((tile, index) => (tile.label && tile.opacity > 0.75 ? [index] : []));
+const glowOrder = [5, 6, 2, 7, 11, 8, 1, 10, 3, 12, 0, 4].map((step) => namedTiles[step % namedTiles.length]);
+const stackLabels = cloudTiles.flatMap(({ label }) => (label ? [label] : [])).join(', ');
 
-const stackLabels = stackTiles.map((tile) => tile.label).join(', ');
+const glowBeats = [
+  { ms: 600, name: 'rest' },
+  { ms: 1700, name: 'glow' }
+] as const;
 
-export function StackGrid({ className }: { className?: string }): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref);
-  const reduced = useReducedMotion() === true || !isInView;
+function CloudTiles({ still }: { still: boolean }): JSX.Element {
+  const { beat, episode } = useEpisode(glowBeats, 'rest', !still);
+  const glowing = beat === 'glow' ? glowOrder[episode % glowOrder.length] : -1;
 
   return (
-    <div className={className} ref={ref}>
-      <ul
-        aria-label={`Stack: ${stackLabels}`}
-        className="grid grid-cols-4 gap-3 md:grid-cols-6 lg:grid-cols-4"
-        key={reduced ? 'static' : 'looping'}
-      >
-        {stackTiles.map(({ Icon, drift, duration, label }, index) => (
-          <motion.li
-            key={label}
-            className="grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5"
-            {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
-              delay: index * 0.29
-            })}
-          >
-            <span className="grid justify-items-center gap-1.5">
-              <Icon aria-hidden="true" className="size-7" />
-              <span className="text-[10px] leading-none font-medium text-zinc-600">{label}</span>
+    <ul aria-label={`Stack: ${stackLabels}`} className="absolute inset-0">
+      {cloudTiles.map(({ Icon, label, opacity, size, x, y }, index) => (
+        <motion.li
+          aria-hidden={Icon ? undefined : true}
+          className={cn(
+            'absolute grid place-items-center rounded-[15px] text-zinc-700 transition-shadow duration-600',
+            liftClassName,
+            Icon ? 'bg-white' : 'bg-white/70',
+            index === glowing && 'ring-[5px] ring-sky-200/85'
+          )}
+          key={index}
+          style={{ height: size, left: `${x}%`, marginLeft: -size / 2, marginTop: -size / 2, opacity, top: `${y}%`, width: size }}
+          {...cycle(still, { y: [0, -4, 0] }, 4.2 + (index % 5) * 0.55, [0, 0.5, 1], { delay: index * 0.37 })}
+        >
+          {Icon ? <Icon aria-hidden="true" size={Math.round(size * 0.42)} /> : null}
+          {namedTiles.includes(index) ? (
+            <span className="absolute top-full left-1/2 mt-1.5 -translate-x-1/2 text-[10px] font-medium whitespace-nowrap text-zinc-500 @max-[360px]:hidden">
+              {label}
             </span>
-          </motion.li>
-        ))}
-      </ul>
+          ) : null}
+        </motion.li>
+      ))}
+    </ul>
+  );
+}
+
+export function LogoCloud(): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref);
+  const still = useReducedMotion() === true || !isInView;
+
+  return (
+    <div
+      className="@container relative mt-auto h-[250px] [mask-image:linear-gradient(to_right,transparent,black_16%,black_84%,transparent)]"
+      ref={ref}
+    >
+      <CloudTiles key={still ? 'still' : 'live'} still={still} />
     </div>
   );
 }

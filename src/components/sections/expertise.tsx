@@ -1,6 +1,6 @@
 import {
   CapabilityInstrument,
-  StackGrid,
+  LogoCloud,
   type InstrumentSize
 } from '@/components/capability-instruments';
 import { type DustFormation, ParticleStream } from '@/components/particle-stream';
@@ -82,7 +82,7 @@ function StackCard({ className }: { className: string }) {
         seed={expertiseItems.length + 1}
       />
       <BentoHeading tail="from the first screen to the database." title="Own the request end to end" />
-      <StackGrid className="mx-7 mt-auto mb-7 sm:mx-9 sm:mb-9" />
+      <LogoCloud />
     </RevealItem>
   );
 }
