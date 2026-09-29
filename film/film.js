@@ -7,13 +7,14 @@
    desk is left to the cat. The city lights up, a train crosses, a storm takes
    the power out and the cat wakes at the thunderclap. Power returns block by
    block. At dawn the first sun lands on the flame, a fresh glass of tea
-   arrives and the screen wakes. Morning, noon and afternoon compress into the
-   last few seconds and hand back to the same dusk.
+   arrives and the screen wakes. The sun crosses the north-facing window from
+   east to west through morning, noon and afternoon, and golden hour hands
+   back to the same dusk.
 
    Every frame is a pure function of t (seek(t)); no Math.random in render.
    Every oscillator runs whole cycles per DUR (cyc) so the seam is exact. */
 
-const DUR = 42;
+const DUR = 50;
 
 /* Beats. Every scene event keys off this table. */
 const T = {
@@ -39,13 +40,27 @@ const T = {
   deploy: 7.9,
   sleep: [8.9, 9.8],      // the screen dims, then goes dark
   wake: 32.6,             // back at dawn with a fresh glass; the screen wakes
-  dayTrain: [35.4, 40.0],
-  day: 34.5,              // morning to the next dusk, compressed
+  climb: 33.6,            // the sun leaves the horizon and climbs out of the top of the window
+  noon: [38, 42],         // the sun overhead, out of frame
+  dayTrain: [38, 42],
+  golden: 46,             // the sun comes back down into the window
+  kite: [41.5, 3.6],      // up over the kampung, reeled in after the seam
 };
-/* Morning look (1) against the evening look (0); they meet again at the loop. */
-const morn = t => (t > 24 ? 1 : 0) * (1 - sm(ramp(t, 36.5, 40)));
+T.catSit = [T.bolt, 23.0];  // sits up in the flash, lies back down in the blackout
 /* Loop-safe oscillators: every one of them completes whole cycles in DUR. */
 const cyc = (t, hz) => t * TAU * Math.max(1, Math.round(hz * DUR)) / DUR;
+/* Seconds since t0, counted across the loop seam. Bit-identical at t = 0 and
+   t = DUR, which a fract() form is not. */
+const since = (t, t0) => t >= t0 ? t - t0 : t + DUR - t0;
+
+/* The sun's bearing and height drive every sunlit face and the light on the
+   desk. It is the dry season and the window faces north, so the sun passes
+   north of overhead: east (+1, right) in the morning, overhead (0) at noon,
+   west (-1, left) from afternoon through dusk. Height runs 0 (low) to 1. */
+const sunSide = t => t < 24 ? -1 : (1 - ramp(t, T.noon[0] - 0.5, T.noon[0] + 1.2)) - ramp(t, T.noon[1] - 0.8, T.noon[1] + 1.2);
+const sunHigh = t => t < 24 ? 0 : ramp(t, T.climb, T.noon[0]) * (1 - ramp(t, T.noon[1], DUR));
+/* Morning look (1) against the evening look (0); they meet again at the loop. */
+const morn = t => (1 + sunSide(t)) / 2;
 
 /* Stage. */
 const GL = { x0: 96, y0: 84, x1: 984, y1: 800 };       // glass
@@ -101,7 +116,8 @@ const PAL = {
   afternoon: { yellow: [.02, .14, .42], pink: [.06, .14, .24], blue: [.44, .26, .1], indigo: [0, 0, 0] },
 };
 const SKYK = [[0, 'gold'], [5, 'late'], [9, 'blue'], [13, 'night'], [16.5, 'heavy'],
-  [19.1, 'heavy'], [19.8, 'dark'], [23.4, 'dark'], [25.8, 'heavy'], [27.8, 'predawn'], [31.2, 'dawn'], [34, 'morning'], [37, 'noon'], [39.4, 'afternoon'], [DUR, 'gold']];
+  [19.1, 'heavy'], [19.8, 'dark'], [23.4, 'dark'], [25.8, 'heavy'], [27.8, 'predawn'], [31.2, 'dawn'],
+  [34.2, 'morning'], [36.4, 'morning'], [T.noon[0] + 1, 'noon'], [T.noon[1] - 0.6, 'noon'], [43.2, 'afternoon'], [T.golden - 1, 'afternoon'], [DUR, 'gold']];
 const SKY_YS = [GL.y0, 360, HY + 10];
 function skyCov(a, b, u) {
   const o = {};
@@ -123,13 +139,13 @@ function sunAt(t) {
     const u = t / 5.6;
     return { x: 388 + 6 * u, y: lerp(446, 640, Math.pow(u, 1.2)), red: sm(u), a: 1 - ramp(t, 5.2, 6.2) };
   }
-  if (t > 28.5 && t < 37) {
-    const u = clamp((t - 29.3) / 4.7, 0, 1), rise = sm(ramp(t, 33.6, 36.6));
-    return { x: 892 - 6 * u - 90 * rise, y: lerp(640, 470, u) - 600 * rise, red: 1 - sm(u), a: ramp(t, 28.5, 29.6) };
+  if (t > 28.5 && t < T.noon[0]) {
+    const u = clamp((t - 29.3) / 4.7, 0, 1), rise = sm(ramp(t, T.climb, 37.4));
+    return { x: 892 - 6 * u - 90 * rise, y: lerp(640, 470, u) - 600 * rise, red: 1 - sm(u), a: ramp(t, 28.5, 29.6) * (1 - ramp(t, 36.6, T.noon[0])) };
   }
-  if (t > 38.8) {
-    const s = ramp(t, 38.8, DUR), f = s + 0.8 * s * (1 - s);
-    return { x: lerp(300, 388, f), y: lerp(-130, 446, f), red: 0, a: 1 };
+  if (t > T.golden - 0.8) {
+    const s = ramp(t, T.golden - 0.8, DUR), f = s + 0.8 * s * (1 - s);
+    return { x: lerp(300, 388, f), y: lerp(-130, 446, f), red: 0, a: ramp(t, T.golden - 0.8, T.golden + 0.4) };
   }
   return null;
 }
@@ -223,7 +239,8 @@ function fairClouds(t) {
   const look = lookAt(t), A = clamp(a, 0, 1);
   const L0 = GL.x0 - 170, WRAP = GL.x1 - GL.x0 + 340;
   for (const f of FAIR) {
-    const drift = f.v * Math.min(t, T.day) + (WRAP - f.v * T.day) * sm(ramp(t, T.day, DUR));
+    /* the storm hides them, so they jump back one loop's drift there and meet t = 0 again */
+    const drift = f.v * (t < T.bolt ? t : t - DUR);
     const x = L0 + (((f.x - L0 - drift) % WRAP) + WRAP) % WRAP;
     drawCloud(f.c, x, f.base, 1, look, A);
   }
@@ -545,7 +562,7 @@ const MON = (() => {
    At dusk it climbs from the ground to the flame; at dawn it comes down. */
 function sunLine(t) {
   if (t < 6.2) return { y: mY(terminatorAt(t)), a: 1 - ramp(t, 5.3, 5.9), side: -1 };
-  if (t > 29.5) return { y: mY(terminatorAt(t)), a: ramp(t, T.firstLight - 0.4, T.firstLight + 0.3), side: 1 - 2 * sm(ramp(t, 37.2, 39.2)) };
+  if (t > 29.5) return { y: mY(terminatorAt(t)), a: ramp(t, T.firstLight - 0.4, T.firstLight + 0.3), side: sunSide(t) };
   return null;
 }
 /* Runs fn(clip, weight) over the region above y with a soft 28 px edge. */
@@ -944,12 +961,15 @@ function room(t) {
   put(edge, mixCov({ pink: .4, blue: .42, yellow: .24, indigo: .2 }, { indigo: .9, blue: .55, pink: .12 }, d));
   knock(rect(0, 1046, W, 1049), { indigo: .5, blue: .5, pink: .4 });
 
-  /* window light on the desk at dusk and dawn */
+  /* window light on the desk: it falls away from the sun, short under a high sun, long and warm under a low one */
   const dayLight = (1 - d);
   if (dayLight > 0.02) {
-    const patch = poly([[GL.x0 + 40, DESK], [GL.x1 - 40, DESK], [GL.x1 + 30, 1040], [GL.x0 - 20, 1040]]);
-    knock(patch, { blue: { ys: [DESK, 960], as: [.14 * dayLight, 0] }, indigo: { ys: [DESK, 960], as: [.06 * dayLight, 0] }, pink: { ys: [DESK, 960], as: [.1 * dayLight, 0] } });
-    add(patch, { yellow: { ys: [DESK, 1000], as: [.14 * dayLight, 0] } });
+    const len = 1 - 0.65 * sunHigh(t), skew = -170 * sunSide(t);
+    const warm = t < 24 ? 1 : Math.max(1 - ramp(t, 31, 35), ramp(t, T.noon[1], DUR));
+    const a = dayLight, c = 1 - warm, ys = [DESK, DESK + 210 * len];
+    const patch = poly([[GL.x0 + 40, DESK], [GL.x1 - 40, DESK], [GL.x1 - 40 + (70 + skew) * len, ys[1]], [GL.x0 + 40 + (skew - 60) * len, ys[1]]]);
+    knock(patch, { blue: { ys, as: [.28 * a, .12 * a] }, indigo: { ys, as: [.12 * a, .05 * a] }, pink: { ys, as: [.18 * c * a, .08 * c * a] } });
+    add(patch, { yellow: { ys, as: [(.22 + .16 * warm) * a, (.1 + .1 * warm) * a] }, pink: { ys, as: [.11 * warm * a, .05 * warm * a] } });
   }
 
   /* the lamp's light on the wall and desk */
@@ -1061,9 +1081,9 @@ function lamp(t) {
 const TEA = { x: 808, yb: 1000, h: 166, tw: 50, bw: 41, k: 0.72, full: .62, low: .18 };
 /* Drunk down from the fresh glass at dawn until the log-off at dusk, left low overnight. */
 function teaLevel(t) {
-  const since = t >= T.wake ? t - T.wake : t + DUR - T.wake;
-  const drunk = clamp(since / (DUR - T.wake + T.lampOff), 0, 1);
-  return lerp(TEA.low, lerp(TEA.full, TEA.low, drunk), sm(since / 0.6));
+  const s = since(t, T.wake);
+  const drunk = clamp(s / (DUR - T.wake + T.lampOff), 0, 1);
+  return lerp(TEA.low, lerp(TEA.full, TEA.low, drunk), sm(s / 0.6));
 }
 function teaProfile(y) {
   const { yb, h, tw, bw } = TEA, u = clamp((yb - y) / h, 0, 1);
@@ -1152,7 +1172,7 @@ const sleepDim = t => t < 20 ? 1 - 0.6 * sm(ramp(t, T.sleep[0], T.sleep[0] + 0.3
 /* Lines of code on screen. Typing stops for the deploy; at dawn the file is
    scrolled back so the day's typing lands exactly where the evening began. */
 const CODE0 = 40;
-const codeAt = t => t < 20 ? CODE0 + Math.min(t, T.deploy - 0.3) * 3.1 : CODE0 - (DUR - t) * 3.1;
+const codeAt = t => t < 20 ? CODE0 + Math.min(t, T.deploy - 0.3) * 3.1 : CODE0 - (DUR - t) * 1.7;
 function laptop(t) {
   const d = roomDark(t), L = lampAt(t) * d;
   const { x, back, front, bw, fw, h } = LAP;
@@ -1434,7 +1454,8 @@ const SHOTS = [
   { at: 24.9, beat: 'Power returns, block by block.' },
   { at: 30.6, beat: 'First light lands on the flame.' },
   { at: 32.8, beat: 'Fresh tea. The screen wakes.' },
-  { at: 35.0, beat: 'Morning.' },
-  { at: 38.0, beat: 'Noon slides into afternoon; the day train.' },
-  { at: 41.0, beat: 'Afternoon gold, meeting the dusk it started from.' },
+  { at: 35.5, beat: 'Morning. The sun climbs out of the window.' },
+  { at: 40.0, beat: 'Noon. Flat, high light; the day train.' },
+  { at: 44.0, beat: 'Afternoon. The light comes back from the west.' },
+  { at: 48.0, beat: 'Golden hour, meeting the dusk it started from.' },
 ];

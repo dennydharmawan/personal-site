@@ -2,7 +2,7 @@ import { chromium } from 'playwright-core';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
-const TIMES = [2.4, 13.4, 19.03, 34.9];
+const TIMES = [2.4, 19.03, 34.9, 44.2, 47.3];
 // The film loops, so its last instant has to render the same bytes as its first.
 const SEAM = [0, 'DUR'];
 const film = new URL('../film.html', import.meta.url).href;

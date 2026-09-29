@@ -1,6 +1,6 @@
 # Desk scenery
 
-A 42 second silent riso print film of one day over Merdeka Square, drawn in code. It loops: the last frame is the first. Every frame is a pure function of `t`, so the film rebuilds from this folder.
+A 50 second silent riso print film of one day over Merdeka Square, drawn in code. It loops: the last frame is the first. Every frame is a pure function of `t`, so the film rebuilds from this folder.
 
 This folder is its own npm package. The site build does not read it.
 
@@ -18,7 +18,7 @@ Run these from `film/`.
 
 | Command | What it does |
 | --- | --- |
-| `npm run check` | Renders t=2.4, 13.4, 19.03, and 34.9 in two fresh pages and compares SHA-256 hashes. Also fails if t=0 and t=`DUR` differ, which would break the loop, or if `film.js` or `engine.js` calls `Math.random` or `Date.now`. |
+| `npm run check` | Renders t=2.4, 19.03, 34.9, 44.2, and 47.3 in two fresh pages and compares SHA-256 hashes. Also fails if t=0 and t=`DUR` differ, which would break the loop, or if `film.js` or `engine.js` calls `Math.random` or `Date.now`. |
 | `npm run palette` | Rebuilds `palette.js` from the root's `node_modules/tailwindcss/theme.css`. Run `pnpm install` at the root first. |
 | `npm run shoot -- --out out` | Writes a PNG for each beat in `SHOTS`, plus `out/meta.json`. Pass `--times 13.4,25.03` for other frames. |
 | `npm run render -- 30 out/master.mp4` | Renders frames 0 to `DUR` minus one frame at 30 fps into `frames/` and encodes a 1080 H.264 master with ffmpeg. The last frame is left out because it repeats the first. |
