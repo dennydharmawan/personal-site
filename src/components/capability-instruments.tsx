@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type JSX, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type JSX, type ReactNode, type RefObject } from 'react';
 import {
   AnimatePresence,
   animate,
@@ -45,7 +45,7 @@ const instrumentLabels: Record<CapabilityKind, string> = {
   production:
     'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
   release:
-    'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
+    'Illustration: a release plan for the week where planned work fills in up to Friday, a late request that would run past the ship date moves to the next release, and the release ships on time',
   standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
 };
 
@@ -238,7 +238,6 @@ function Pulse({ d, delay = 0, duration }: { d: string; delay?: number; duration
 }
 
 const panelClassName = 'flex h-full flex-col justify-center p-4';
-const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
 const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
 const monoClassName = 'font-mono text-[11px]';
 
@@ -440,132 +439,229 @@ function AccessLog({ frame }: { frame: Frame }): JSX.Element {
   );
 }
 
-// Two labels in one grid cell, crossfading on the parent loop. Under reduced motion only the
-// settled label shows, so the still frame tells the end of the story.
-function Swap({
-  align = 'center',
-  from,
-  reduced,
-  times,
-  to,
-  duration
-}: {
-  align?: 'center' | 'end';
-  from: ReactNode;
-  reduced: boolean;
-  times: [number, number, number, number];
-  to: ReactNode;
-  duration: number;
-}): JSX.Element {
-  const [inStart, inEnd, outStart, outEnd] = times;
+type Span = { from: number; title: string; to: number };
+
+// Each release plans three items and gets one late request. Positions are percent of the week.
+const releases: readonly { next: string; request: Span; work: readonly (Span & { tone: Tone })[] }[] = [
+  {
+    next: 'Rehire',
+    request: { from: 50, title: 'Bulk import', to: 95 },
+    work: [
+      { from: 0, title: 'Access on hire', to: 30, tone: 'sky' },
+      { from: 16, title: 'Access on exit', to: 48, tone: 'violet' },
+      { from: 38, title: 'Audit trail', to: 72, tone: 'amber' }
+    ]
+  },
+  {
+    next: 'Audit export',
+    request: { from: 46, title: 'Contractors', to: 93 },
+    work: [
+      { from: 0, title: 'Bulk import', to: 28, tone: 'sky' },
+      { from: 14, title: 'Rehire', to: 44, tone: 'violet' },
+      { from: 34, title: 'Access reviews', to: 71, tone: 'amber' }
+    ]
+  },
+  {
+    next: 'Vendors',
+    request: { from: 52, title: 'Offboarding', to: 95 },
+    work: [
+      { from: 0, title: 'Contractors', to: 32, tone: 'sky' },
+      { from: 18, title: 'Audit export', to: 50, tone: 'violet' },
+      { from: 40, title: 'Approvals', to: 73, tone: 'amber' }
+    ]
+  }
+];
+const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const shipAt = 76;
+const laneHeight = 30;
+const laneTop = 30;
+
+const releaseBeats = [
+  { ms: 1700, name: 'plan' },
+  { ms: 1600, name: 'request' },
+  { ms: 1100, name: 'defer' },
+  { ms: 2800, name: 'shipped' },
+  { ms: 450, name: 'next' }
+] as const;
+type ReleaseBeat = (typeof releaseBeats)[number]['name'];
+
+// The today line walks to the ship line across the first three beats.
+const sweepSeconds = releaseBeats.slice(0, 3).reduce((sum, { ms }) => sum + ms, 0) / 1000;
+
+const releaseScene: Record<
+  ReleaseBeat,
+  { request: 'none' | 'late' | 'moved'; shipped: boolean; status: Status; today: boolean }
+> = {
+  defer: { request: 'moved', shipped: false, status: { text: 'moved to next release', tone: 'active' }, today: true },
+  next: { request: 'moved', shipped: true, status: { text: 'shipped on time ✓', tone: 'done' }, today: false },
+  plan: { request: 'none', shipped: false, status: { text: 'on track', tone: 'idle' }, today: true },
+  request: { request: 'late', shipped: false, status: { text: "won't fit", tone: 'active' }, today: true },
+  shipped: { request: 'moved', shipped: true, status: { text: 'shipped on time ✓', tone: 'done' }, today: false }
+};
+
+const chipClassName = 'inline-flex h-[26px] items-center rounded-full border px-[11px] text-[11.5px] whitespace-nowrap';
+const overdueClassName =
+  'bg-[repeating-linear-gradient(135deg,var(--color-rose-100)_0_4px,var(--color-rose-50)_4px_8px)]';
+
+// A week of planned work that ships on Friday. The late request would run past the ship line,
+// so it moves into the next release as one object: the bar and the chip share a layoutId.
+function ReleasePlan({ frame }: { frame: Frame }): JSX.Element {
+  const { beat, episode } = useEpisode(releaseBeats, 'shipped', !frame.still);
+  const layoutPrefix = useId();
+  const scene = releaseScene[beat];
+  const { next, request, work } = releases[episode % releases.length];
+  const requestId = `${layoutPrefix}-request-${episode}`;
+  const overdueFrom = `${((shipAt - request.from) / (request.to - request.from)) * 100}%`;
+  const fading = beat === 'next' ? 'opacity-0' : '';
+
   return (
-    <span className={cn('grid', align === 'end' ? 'justify-items-end' : 'justify-items-center')}>
-      {reduced ? null : (
-        <motion.span
-          className="[grid-area:1/1]"
-          {...cycle(reduced, { opacity: [1, 1, 0, 0, 1, 1] }, duration, [0, inStart, inEnd, outStart, outEnd, 1])}
-        >
-          {from}
-        </motion.span>
-      )}
-      <motion.span
-        className="[grid-area:1/1]"
-        {...cycle(reduced, { opacity: [0, 0, 1, 1, 0, 0] }, duration, [0, inStart, inEnd, outStart, outEnd, 1])}
-      >
-        {to}
-      </motion.span>
-    </span>
-  );
-}
+    <Screen frame={frame} status={scene.status}>
+      <div className="absolute inset-0 flex flex-col">
+        <div className="flex items-baseline gap-2 px-5 pt-[18px] pb-1.5">
+          <span className="text-[13.5px] font-semibold text-zinc-900">Release 1.{4 + (episode % 6)}</span>
+          <span className={cn('text-[12px] text-zinc-400 transition-opacity duration-300', fading)}>due Friday</span>
+        </div>
 
-// The audit-log move: each stage lands before the next starts. The dot rests on a stage while
-// it runs, verify resolves from comparing to a match, and reads shift store once verified.
-const migrationStages = ['backfill', 'verify', 'reads', 'writes', 'retire'];
-const migrationCycle = 8.4;
-const stageAt = [0.04, 0.2, 0.42, 0.6, 0.76];
-const stageHold = 0.12;
-
-function MigrationPath({ reduced }: { reduced: boolean }): JSX.Element {
-  const last = migrationStages.length - 1;
-  const stops = migrationStages.map((_, index) => `${(index / last) * 100}%`);
-  const runnerFrames: string[] = [];
-  const runnerTimes: number[] = [];
-  stageAt.forEach((at, index) => {
-    runnerFrames.push(stops[index], stops[index]);
-    runnerTimes.push(at, Math.min(at + stageHold, 0.97));
-  });
-
-  return (
-    <div className={`${widePanelClassName} gap-4`}>
-      <div className="relative mx-6 h-9">
-        <span aria-hidden="true" className="absolute inset-x-0 top-[5px] h-px bg-zinc-200" />
-        <ol>
-          {migrationStages.map((stage, index) => (
-            <li
-              className="absolute top-0 grid -translate-x-1/2 justify-items-center gap-2"
-              key={stage}
-              style={{ left: stops[index] }}
-            >
-              <span className="size-[11px] rounded-full bg-white ring-1 ring-zinc-300" />
-              <span className={`${monoClassName} whitespace-nowrap text-zinc-600`}>{stage}</span>
-            </li>
-          ))}
-        </ol>
-        <motion.span
-          aria-hidden="true"
-          className="absolute top-0 -ml-[5.5px] size-[11px] rounded-full bg-sky-500 ring-4 ring-sky-500/10"
-          style={reduced ? { left: stops[last] } : undefined}
-          {...cycle(
-            reduced,
-            { left: [stops[0], ...runnerFrames, stops[last], stops[0]] },
-            migrationCycle,
-            [0, ...runnerTimes, 0.97, 1]
-          )}
-        />
-      </div>
-
-      <div className="flex items-center justify-between gap-3 rounded-lg bg-zinc-50 px-3 py-2 ring-1 ring-zinc-900/5">
-        <span className={`${monoClassName} text-zinc-500`}>audit log</span>
-        <span className={monoClassName}>
-          <Swap
-            align="end"
-            duration={migrationCycle}
-            from={
-              <span className="inline-flex items-center gap-1.5 text-zinc-500">
-                <motion.span
-                  aria-hidden="true"
-                  className="size-2.5 rounded-full border-[1.5px] border-zinc-300 border-t-zinc-600"
-                  {...cycle(reduced, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, 0.9, [0, 1], { ease: 'linear' })}
-                />
-                comparing rows
+        <div className={cn('relative mx-5 mt-1.5 h-[150px] transition-opacity duration-300', fading)}>
+          <div className="grid grid-cols-[repeat(5,15%)] text-[11px] text-zinc-400">
+            {weekdays.map((day) => (
+              <span className="pl-0.5" key={day}>
+                {day}
               </span>
-            }
-            reduced={reduced}
-            times={[0.3, 0.34, 0.93, 0.98]}
-            to={<span className="text-emerald-600">rows match ✓</span>}
-          />
-        </span>
-      </div>
-
-      <div className="grid gap-1.5">
-        <span className="relative block h-1.5 overflow-hidden rounded-full bg-zinc-200">
-          <motion.span
-            className="absolute inset-0 origin-left rounded-full bg-sky-500"
-            style={reduced ? { transform: 'scaleX(1)' } : undefined}
-            {...cycle(
-              reduced,
-              { transform: ['scaleX(0)', 'scaleX(0)', 'scaleX(1)', 'scaleX(1)', 'scaleX(0)'] },
-              migrationCycle,
-              [0, stageAt[2], stageAt[2] + stageHold, 0.95, 1]
+            ))}
+          </div>
+          <div className="absolute top-[22px] bottom-0 left-0 w-3/4 bg-[linear-gradient(to_right,var(--color-zinc-100)_1px,transparent_1px)] bg-[length:20%_100%]" />
+          <div
+            className={cn(
+              'absolute inset-y-0 border-l-[1.5px] border-dashed transition-colors duration-400',
+              scene.shipped ? 'border-emerald-300' : 'border-sky-300'
             )}
-          />
-        </span>
-        <span className="flex justify-between text-[10px] text-zinc-500">
-          <span>MongoDB</span>
-          <span>reads move to DocumentDB</span>
-        </span>
+            style={{ left: `${shipAt}%` }}
+          >
+            <span
+              className={cn(
+                pillClassName,
+                'absolute -top-0.5 left-1.5 text-[10.5px] font-semibold transition-colors duration-400',
+                scene.shipped ? mintClassName : `${toneClassName.sky.soft} ${toneClassName.sky.text}`
+              )}
+            >
+              {scene.shipped ? 'Shipped ✓' : 'Ship'}
+            </span>
+          </div>
+
+          <div key={episode}>
+            {work.map(({ from, title, to, tone }, lane) => (
+              <div
+                className={cn(
+                  'absolute flex h-6 items-center overflow-hidden rounded-full px-[11px] text-[11.5px] font-medium whitespace-nowrap text-zinc-700',
+                  toneClassName[tone].soft
+                )}
+                key={title}
+                style={{ left: `${from}%`, top: laneTop + lane * laneHeight, width: `${to - from}%` }}
+              >
+                <motion.span
+                  animate={{ scaleX: 1 }}
+                  className={cn('absolute inset-0 origin-left', toneClassName[tone].fill)}
+                  initial={frame.still ? false : { scaleX: 0 }}
+                  transition={{
+                    delay: (sweepSeconds * from) / shipAt,
+                    duration: (sweepSeconds * (to - from)) / shipAt,
+                    ease: 'linear'
+                  }}
+                />
+                <span className="relative">{title}</span>
+              </div>
+            ))}
+            {scene.request === 'late' ? (
+              <motion.div
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                  'absolute z-[2] flex h-6 items-center overflow-hidden rounded-full bg-white px-[11px] text-[11.5px] font-medium whitespace-nowrap text-zinc-700',
+                  liftClassName
+                )}
+                initial={{ opacity: 0, x: 16 }}
+                layoutId={requestId}
+                style={{
+                  left: `${request.from}%`,
+                  top: laneTop + work.length * laneHeight,
+                  width: `${request.to - request.from}%`
+                }}
+                transition={{ opacity: { duration: 0.35 }, x: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
+              >
+                <motion.span className="relative" layout>
+                  {request.title}
+                </motion.span>
+                <motion.span
+                  animate={{ scaleX: 1 }}
+                  className={cn(
+                    'absolute inset-y-0 right-0 flex origin-left items-center justify-end pr-[9px] text-[10.5px] font-semibold text-rose-700',
+                    overdueClassName
+                  )}
+                  initial={{ scaleX: 0 }}
+                  style={{ left: overdueFrom }}
+                  transition={{ delay: 0.55, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  +2 days
+                </motion.span>
+              </motion.div>
+            ) : null}
+          </div>
+
+          <AnimatePresence>
+            {scene.today ? (
+              <motion.div
+                animate={{ left: `${shipAt}%`, opacity: 1 }}
+                className="pointer-events-none absolute top-[22px] bottom-0 z-[3] border-l-[1.5px] border-sky-400"
+                exit={{ opacity: 0 }}
+                initial={{ left: '0%', opacity: 0 }}
+                key={episode}
+                transition={{ left: { duration: sweepSeconds, ease: 'linear' }, opacity: { duration: 0.3 } }}
+              >
+                <span className="absolute -top-1 -left-[4.75px] size-2 rounded-full bg-sky-400 ring-[3px] ring-sky-400/20" />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+
+        <div
+          className={cn(
+            'mt-auto flex h-[54px] shrink-0 items-center gap-2 border-t border-zinc-100 px-5 transition-opacity duration-300',
+            fading
+          )}
+        >
+          <span className="text-[11.5px] font-medium whitespace-nowrap text-zinc-400">Next release</span>
+          <span className={cn(chipClassName, 'border-dashed border-zinc-300 bg-white text-zinc-600')}>{next}</span>
+          {scene.request === 'moved' ? (
+            <motion.span
+              className={cn(chipClassName, 'relative border-rose-200 bg-rose-50 text-zinc-600')}
+              layoutId={requestId}
+              transition={{ layout: { duration: 0.75, ease: [0.65, 0, 0.35, 1] } }}
+            >
+              {beat === 'defer' ? (
+                <>
+                  <motion.span
+                    animate={{ opacity: 0 }}
+                    className={cn('absolute -inset-px rounded-full bg-white', liftClassName)}
+                    initial={{ opacity: 1 }}
+                    transition={{ duration: 0.75, ease: [0.65, 0, 0.35, 1] }}
+                  />
+                  <motion.span
+                    animate={{ opacity: 0 }}
+                    className={cn('absolute -inset-y-px -right-px rounded-r-full', overdueClassName)}
+                    initial={{ opacity: 1 }}
+                    style={{ left: overdueFrom }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </>
+              ) : null}
+              <motion.span className="relative" layout>
+                {request.title}
+              </motion.span>
+            </motion.span>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -708,11 +804,7 @@ const instruments: Record<CapabilityKind, (props: { frame: Frame }) => JSX.Eleme
       <ReliabilityBoard reduced={frame.still} />
     </Screen>
   ),
-  release: ({ frame }) => (
-    <Screen frame={frame} status={placeholderStatus}>
-      <MigrationPath reduced={frame.still} />
-    </Screen>
-  ),
+  release: ReleasePlan,
   standards: ({ frame }) => (
     <Screen frame={frame} status={placeholderStatus}>
       <AdoptedStandards reduced={frame.still} />
