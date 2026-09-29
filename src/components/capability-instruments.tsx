@@ -28,7 +28,7 @@ import {
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
-export type CapabilityKind = 'fullstack' | 'migration' | 'production' | 'standards';
+export type CapabilityKind = 'fullstack' | 'release' | 'production' | 'standards';
 export type InstrumentSize = 'small' | 'wide';
 
 // Below md each card stands alone, so the instrument takes its own height; a shared band there
@@ -40,13 +40,14 @@ const instrumentBoxClassName: Record<InstrumentSize, string> = {
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
-  migration:
-    'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
+  release:
+    'Illustration: a release plan where three must-haves fit before Friday, a new request would run two days over, so it moves to the next release and the plan ships on time',
   fullstack:
     'Illustration: an access log where each new change, such as a new hire added to Slack, arrives with who, what, and when, and is marked recorded',
   production:
     'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
-  standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
+  standards:
+    'Illustration: one fix published in a shared package, then each internal app that runs on it updates to the new version until every app is current'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -81,8 +82,6 @@ function cycle(
 }
 
 const panelClassName = 'flex h-full flex-col justify-center p-4';
-const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
-const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
 const monoClassName = 'font-mono text-[11px]';
 
 // The names are made up; the tools and reasons are the ones the real workflow handles.
@@ -209,7 +208,7 @@ function Swap({
   to,
   duration
 }: {
-  align?: 'center' | 'end';
+  align?: 'center' | 'end' | 'start';
   from: ReactNode;
   reduced: boolean;
   times: [number, number, number, number];
@@ -218,7 +217,7 @@ function Swap({
 }): JSX.Element {
   const [inStart, inEnd, outStart, outEnd] = times;
   return (
-    <span className={cn('grid', align === 'end' ? 'justify-items-end' : 'justify-items-center')}>
+    <span className={cn('grid', { center: 'justify-items-center', end: 'justify-items-end', start: 'justify-items-start' }[align])}>
       {reduced ? null : (
         <motion.span
           className="[grid-area:1/1]"
@@ -237,92 +236,101 @@ function Swap({
   );
 }
 
-// The audit-log move: each stage lands before the next starts. The dot rests on a stage while
-// it runs, verify resolves from comparing to a match, and reads shift store once verified.
-const migrationStages = ['backfill', 'verify', 'reads', 'writes', 'retire'];
-const migrationCycle = 8.4;
-const stageAt = [0.04, 0.2, 0.42, 0.6, 0.76];
-const stageHold = 0.12;
+// A release plan under a deadline. A new request lands on the plan, the team's time runs over, so
+// the request slides down into the next release and the must-haves ship on time. Rows have fixed heights,
+// so the request card's resting offsets are the rows' own positions.
+const releaseCycle = 10;
+const releaseRowHeight = 30;
+const releaseMustHaves = ['Grant access on hire', 'Remove access on exit', 'Record every change'];
+const requestOverRows = 62;
+const requestInNextRelease = 208;
+const releaseTimes = [0, 0.08, 0.14, 0.42, 0.52, 0.56, 1];
+const releaseRowClassName = 'flex items-center justify-between gap-3 border-b border-zinc-100 text-[12px]';
+const mustChipClassName = 'rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600';
+const laterChipClassName = 'rounded-full px-2 py-0.5 text-[10px] font-medium text-zinc-500 ring-1 ring-zinc-900/10';
 
-function MigrationPath({ reduced }: { reduced: boolean }): JSX.Element {
-  const last = migrationStages.length - 1;
-  const stops = migrationStages.map((_, index) => `${(index / last) * 100}%`);
-  const runnerFrames: string[] = [];
-  const runnerTimes: number[] = [];
-  stageAt.forEach((at, index) => {
-    runnerFrames.push(stops[index], stops[index]);
-    runnerTimes.push(at, Math.min(at + stageHold, 0.97));
-  });
-
+function ReleasePlan({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className={`${widePanelClassName} gap-4`}>
-      <div className="relative mx-6 h-9">
-        <span aria-hidden="true" className="absolute inset-x-0 top-[5px] h-px bg-zinc-200" />
-        <ol>
-          {migrationStages.map((stage, index) => (
-            <li
-              className="absolute top-0 grid -translate-x-1/2 justify-items-center gap-2"
-              key={stage}
-              style={{ left: stops[index] }}
-            >
-              <span className="size-[11px] rounded-full bg-white ring-1 ring-zinc-300" />
-              <span className={`${monoClassName} whitespace-nowrap text-zinc-600`}>{stage}</span>
-            </li>
-          ))}
-        </ol>
-        <motion.span
-          aria-hidden="true"
-          className="absolute top-0 -ml-[5.5px] size-[11px] rounded-full bg-sky-500 ring-4 ring-sky-500/10"
-          style={reduced ? { left: stops[last] } : undefined}
-          {...cycle(
-            reduced,
-            { left: [stops[0], ...runnerFrames, stops[last], stops[0]] },
-            migrationCycle,
-            [0, ...runnerTimes, 0.97, 1]
-          )}
-        />
-      </div>
-
-      <div className="flex items-center justify-between gap-3 rounded-lg bg-zinc-50 px-3 py-2 ring-1 ring-zinc-900/5">
-        <span className={`${monoClassName} text-zinc-500`}>audit log</span>
-        <span className={monoClassName}>
+    <div className="flex h-full items-center">
+      <div className="relative mx-auto h-[248px] w-full max-w-lg px-4 pt-3">
+        <div className="flex h-5 items-center justify-between text-[10px] font-medium text-zinc-400">
+          <span>Ships Friday</span>
           <Swap
             align="end"
-            duration={migrationCycle}
-            from={
-              <span className="inline-flex items-center gap-1.5 text-zinc-500">
-                <motion.span
-                  aria-hidden="true"
-                  className="size-2.5 rounded-full border-[1.5px] border-zinc-300 border-t-zinc-600"
-                  {...cycle(reduced, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, 0.9, [0, 1], { ease: 'linear' })}
-                />
-                comparing rows
-              </span>
-            }
+            duration={releaseCycle}
+            from={<span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">due Fri</span>}
             reduced={reduced}
-            times={[0.3, 0.34, 0.93, 0.98]}
-            to={<span className="text-emerald-600">rows match ✓</span>}
+            times={[0.62, 0.66, 0.93, 0.98]}
+            to={<span className="rounded-full bg-sky-100 px-2 py-0.5 text-sky-700">shipped on time ✓</span>}
           />
-        </span>
-      </div>
+        </div>
+        {releaseMustHaves.map((item) => (
+          <div className={releaseRowClassName} key={item} style={{ height: releaseRowHeight }}>
+            <span className="truncate text-zinc-900">{item}</span>
+            <span className={mustChipClassName}>must-have</span>
+          </div>
+        ))}
 
-      <div className="grid gap-1.5">
-        <span className="relative block h-1.5 overflow-hidden rounded-full bg-zinc-200">
-          <motion.span
-            className="absolute inset-0 origin-left rounded-full bg-sky-500"
-            style={reduced ? { transform: 'scaleX(1)' } : undefined}
-            {...cycle(
-              reduced,
-              { transform: ['scaleX(0)', 'scaleX(0)', 'scaleX(1)', 'scaleX(1)', 'scaleX(0)'] },
-              migrationCycle,
-              [0, stageAt[2], stageAt[2] + stageHold, 0.95, 1]
-            )}
-          />
-        </span>
-        <span className="flex justify-between text-[10px] text-zinc-500">
-          <span>MongoDB</span>
-          <span>reads move to DocumentDB</span>
-        </span>
+        <div className="grid h-9 content-center gap-1">
+          <span className="flex items-center justify-between text-[10px] text-zinc-500">
+            <span>team time before Friday</span>
+            <Swap
+              align="end"
+              duration={releaseCycle}
+              from={<span>fits</span>}
+              reduced={reduced}
+              times={[0.15, 0.18, 0.43, 0.47]}
+              to={<span className="font-medium text-amber-600">over by 2 days</span>}
+            />
+          </span>
+          <span className="relative block h-1.5 overflow-hidden rounded-full bg-zinc-100">
+            <span className="absolute inset-y-0 left-0 w-[78%] rounded-full bg-sky-500" />
+            <motion.span
+              className="absolute inset-0 rounded-full bg-amber-400"
+              style={reduced ? { opacity: 0 } : undefined}
+              {...cycle(reduced, { opacity: [0, 0, 1, 1, 0, 0] }, releaseCycle, [0, 0.14, 0.18, 0.42, 0.47, 1])}
+            />
+          </span>
+        </div>
+
+        <div className="flex h-5 items-center text-[10px] font-medium text-zinc-400">Next release</div>
+        <div className={releaseRowClassName} style={{ height: releaseRowHeight }}>
+          <span className="truncate text-zinc-700">Rehire support</span>
+          <span className={laterChipClassName}>next</span>
+        </div>
+        <motion.div
+          className={releaseRowClassName}
+          style={{ height: releaseRowHeight }}
+          {...cycle(reduced, { opacity: [0, 0, 0, 0, 0, 1, 1] }, releaseCycle, releaseTimes)}
+        >
+          <span className="truncate text-zinc-700">Bulk import</span>
+          <span className={laterChipClassName}>next</span>
+        </motion.div>
+
+        <motion.div
+          className="absolute inset-x-2 top-0 flex items-center justify-between gap-3 rounded-lg bg-white px-2 text-[12px] shadow-[0_8px_20px_-8px_--alpha(var(--color-zinc-900)/25%)] ring-1 ring-sky-500/40"
+          style={{ height: releaseRowHeight, ...(reduced ? { opacity: 0 } : {}) }}
+          {...cycle(
+            reduced,
+            {
+              opacity: [0, 0, 1, 1, 1, 0, 0],
+              transform: [
+                `translate(24px, ${requestOverRows}px)`,
+                `translate(24px, ${requestOverRows}px)`,
+                `translate(0px, ${requestOverRows}px)`,
+                `translate(0px, ${requestOverRows}px)`,
+                `translate(0px, ${requestInNextRelease}px)`,
+                `translate(0px, ${requestInNextRelease}px)`,
+                `translate(0px, ${requestInNextRelease}px)`
+              ]
+            },
+            releaseCycle,
+            releaseTimes
+          )}
+        >
+          <span className="truncate font-medium text-zinc-900">Bulk import</span>
+          <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-medium text-sky-700">new request</span>
+        </motion.div>
       </div>
     </div>
   );
@@ -394,66 +402,86 @@ function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
-// The package fans out to the internal apps that run on it. Each app lights when the dot
-// reaches it, on its own duration and delay so they never land together. The last row stands
-// for the rest, so the diagram doesn't claim an exact count.
-const adoptingApps = [
-  { delay: 0, duration: 5.4, label: 'internal app' },
-  { delay: 0.7, duration: 6.1, label: 'internal app' },
-  { delay: 1.4, duration: 5.8, label: 'internal app' },
-  { delay: 2.1, duration: 6.5, label: 'more' }
-];
-const fanTravel = 28;
+// One fix lands in the shared package, and each app that runs on it picks up the new version in
+// turn until the whole list is current. App names are illustrative.
+const rolloutCycle = 9.6;
+const rolloutFirstApp = 0.2;
+const rolloutAppGap = 0.1;
+const rolloutApps = ['hr-tools', 'admin-console', 'ops-dashboard', 'reports'];
+const rolloutDone = rolloutFirstApp + rolloutAppGap * (rolloutApps.length - 1) + 0.04;
 
-function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
+function SharedRollout({ reduced }: { reduced: boolean }): JSX.Element {
   return (
-    <div className={`${panelClassName} gap-3`}>
-      <p className="text-sm font-semibold text-zinc-900">Built once, adopted across teams.</p>
-      <div className="flex items-center">
-        <span className="grid shrink-0 gap-0.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 ring-1 ring-zinc-900/5">
-          <span className={`${monoClassName} font-medium text-zinc-900`}>shared package</span>
-          <span className="text-[10px] text-zinc-500">auth · logging · flags</span>
+    <div className={`${panelClassName} gap-2.5`}>
+      <div className="grid gap-1 rounded-xl bg-zinc-50 px-3 py-2 ring-1 ring-zinc-900/5">
+        <span className="flex items-center justify-between gap-2">
+          <span className={`${monoClassName} font-medium text-zinc-900`}>@shared/core</span>
+          <Swap
+            align="end"
+            duration={rolloutCycle}
+            from={<span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-zinc-500 ring-1 ring-zinc-900/5">v2.3</span>}
+            reduced={reduced}
+            times={[0.08, 0.12, 0.93, 0.98]}
+            to={<span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-medium text-sky-700">v2.4 published</span>}
+          />
         </span>
-        <span aria-hidden="true" className="h-px w-2 shrink-0 bg-zinc-200" />
-        <div className="relative grid flex-1 gap-1">
-          <span aria-hidden="true" className="absolute top-2.5 bottom-2.5 left-0 w-px bg-zinc-200" />
-          {adoptingApps.map(({ delay, duration, label }) => (
-            <div className="flex h-5 items-center" key={delay}>
-              <span aria-hidden="true" className="relative h-px shrink-0 bg-zinc-200" style={{ width: fanTravel }}>
-                <motion.span
-                  className="absolute -top-[2px] -left-[2px] size-[5px] rounded-full bg-sky-500"
-                  {...cycle(
-                    reduced,
-                    {
-                      opacity: [0, 1, 1, 0, 0],
-                      transform: ['translateX(0px)', 'translateX(4px)', `translateX(${fanTravel - 4}px)`, `translateX(${fanTravel}px)`, `translateX(${fanTravel}px)`]
-                    },
-                    duration,
-                    [0, 0.06, 0.2, 0.24, 1],
-                    { delay }
-                  )}
+        <span className="truncate text-[11px] text-zinc-500">fix: add a request id to every log line</span>
+      </div>
+
+      <ul className="grid">
+        {rolloutApps.map((name, index) => {
+          const at = rolloutFirstApp + rolloutAppGap * index;
+          return (
+            <li className="relative flex h-7 items-center gap-2 border-b border-zinc-100 px-1 last:border-b-0" key={name}>
+              <motion.span
+                aria-hidden="true"
+                className="absolute inset-0 rounded-md bg-emerald-50"
+                style={reduced ? { opacity: 0 } : undefined}
+                {...cycle(reduced, { opacity: [0, 0, 1, 0, 0] }, rolloutCycle, [0, at, at + 0.03, at + 0.16, 1])}
+              />
+              <span className={`relative grid size-5 shrink-0 place-items-center rounded-md bg-white text-[10px] font-semibold text-zinc-600 uppercase ring-1 ring-zinc-900/10`}>
+                {name[0]}
+              </span>
+              <span className={`${monoClassName} relative min-w-0 flex-1 truncate text-zinc-700`}>{name}</span>
+              <span className="relative text-[10px] font-medium tabular-nums">
+                <Swap
+                  align="end"
+                  duration={rolloutCycle}
+                  from={<span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-500">2.3</span>}
+                  reduced={reduced}
+                  times={[at, at + 0.03, 0.93, 0.98]}
+                  to={<span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">2.4 ✓</span>}
                 />
               </span>
-              <motion.span
-                className={`${monoClassName} inline-flex items-center gap-1 rounded-md px-1.5 py-px text-zinc-600 ring-1 ring-zinc-900/5`}
-                {...cycle(
-                  reduced,
-                  { backgroundColor: ['var(--color-white)', 'var(--color-white)', 'var(--color-sky-50)', 'var(--color-sky-50)', 'var(--color-white)'] },
-                  duration,
-                  [0, 0.22, 0.28, 0.7, 0.85],
-                  { delay }
-                )}
-              >
-                <span className="size-1.5 rounded-full bg-sky-500" />
-                {label}
-              </motion.span>
-            </div>
-          ))}
-        </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="grid gap-1">
+        <span className="relative block h-1 overflow-hidden rounded-full bg-zinc-100">
+          <motion.span
+            className="absolute inset-0 origin-left rounded-full bg-emerald-400"
+            style={reduced ? { transform: 'scaleX(1)' } : undefined}
+            {...cycle(
+              reduced,
+              { transform: ['scaleX(0)', 'scaleX(0)', `scaleX(1)`, 'scaleX(1)', 'scaleX(0)'] },
+              rolloutCycle,
+              [0, rolloutFirstApp - 0.02, rolloutDone, 0.93, 0.98]
+            )}
+          />
+        </span>
+        <span className="text-[10px] text-zinc-500">
+          <Swap
+            align="start"
+            duration={rolloutCycle}
+            from={<span>rolling out</span>}
+            reduced={reduced}
+            times={[rolloutDone, rolloutDone + 0.03, 0.93, 0.98]}
+            to={<span className="font-medium text-emerald-700">fixed once, every app current</span>}
+          />
+        </span>
       </div>
-      <p className="text-[11px] text-zinc-500">
-        dashboards <span className="text-zinc-400">→</span> company monitoring template
-      </p>
     </div>
   );
 }
@@ -488,9 +516,9 @@ export function CapabilityInstrument({
         key={reduced ? 'static' : 'looping'}
       >
         {kind === 'fullstack' ? <AccessLog reduced={reduced} /> : null}
-        {kind === 'migration' ? <MigrationPath reduced={reduced} /> : null}
+        {kind === 'release' ? <ReleasePlan reduced={reduced} /> : null}
         {kind === 'production' ? <ReliabilityBoard reduced={reduced} /> : null}
-        {kind === 'standards' ? <AdoptedStandards reduced={reduced} /> : null}
+        {kind === 'standards' ? <SharedRollout reduced={reduced} /> : null}
       </div>
     </div>
   );
@@ -528,7 +556,7 @@ export function StackGrid({ className }: { className?: string }): JSX.Element {
         {stackTiles.map(({ Icon, drift, duration, label }, index) => (
           <motion.li
             key={label}
-            className="grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-[0_10px_24px_-14px_--alpha(var(--color-zinc-900)/40%)] ring-1 ring-zinc-900/5"
+            className="grid aspect-square place-items-center rounded-2xl bg-white text-zinc-700 shadow-xs ring-1 ring-zinc-900/5"
             {...cycle(reduced, { transform: ['translateY(0px)', drift, 'translateY(0px)'] }, duration, [0, 0.5, 1], {
               delay: index * 0.29
             })}

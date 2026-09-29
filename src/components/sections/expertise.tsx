@@ -19,11 +19,12 @@ const bentoCardClassName =
 const bentoWindowShadowClassName =
   'shadow-[0_28px_56px_-24px_--alpha(var(--color-zinc-900)/30%)]';
 
+// The title runs straight into the grey tail, so the heading reads as one sentence that wraps
+// wherever the card width puts it.
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
-    <h3 className="max-w-[32rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
-      <span className="block">{title}</span>{' '}
-      <span className="text-zinc-500">{tail}</span>
+    <h3 className="max-w-[30rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-pretty sm:p-9 sm:text-[1.75rem]">
+      {title} <span className="text-zinc-500">{tail}</span>
     </h3>
   );
 }
@@ -110,7 +111,7 @@ function StackCard({ className }: { className: string }) {
         pattern="dust"
         seed={expertiseItems.length + 1}
       />
-      <BentoHeading tail="TypeScript from the interface to the queue." title="One language, end to end." />
+      <BentoHeading tail="from the first screen to the database." title="Own the request end to end" />
       <StackGrid className="mx-7 mt-auto mb-7 sm:mx-9 sm:mb-9" />
     </RevealItem>
   );
