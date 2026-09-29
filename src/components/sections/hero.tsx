@@ -78,16 +78,16 @@ function HeroProofLine() {
       <p id="hero-proof-label" className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
         Trusted by leading digital banks
       </p>
-      <ul aria-labelledby="hero-proof-label" className="flex items-center gap-1.5">
+      <ul aria-labelledby="hero-proof-label" className="flex items-center gap-2">
         {trustedTeams.map((team) => (
           <li
             key={team.name}
-            className="group grid h-14 w-28 place-items-center rounded-xl bg-white ring-1 ring-zinc-900/6 sm:h-16 sm:w-32"
+            className="flex h-10 items-center rounded-xl bg-white px-3.5 ring-1 ring-zinc-900/8"
           >
             <img
               src={team.logo}
               alt={team.name}
-              className="h-[1.1rem] w-auto max-w-[5.5rem] object-contain opacity-55 grayscale transition-opacity duration-200 group-hover:opacity-90"
+              className="h-[1.1rem] w-auto max-w-[5.5rem] object-contain opacity-75 grayscale"
               decoding="async"
               height={team.logoHeight}
               width={team.logoWidth}
@@ -114,7 +114,7 @@ export function HeroSection() {
         {/* From xl the hero uses the bento grid's three columns and gap, so the lede and actions
             start on the third card's edge. The headline only takes a side column from xl; below that a narrow column squeezes it.
             From xl the right column is a subgrid: the lede's last line shares the headline's
-            last baseline, and the actions sit on the proof row's bottom edge. Stacked, the proof follows the actions. */}
+            last baseline, and the actions sit on the proof row's top edge. Stacked, the proof follows the actions. */}
         <div
           className={`${pageShellClassName} relative mt-8 grid gap-6 md:mt-10 xl:grid-cols-3 xl:grid-rows-[auto_auto] xl:gap-x-6 xl:gap-y-8`}
         >
@@ -129,7 +129,7 @@ export function HeroSection() {
             style={riseDelay(0.08)}
           >
             <HeroLede yearsExperience={yearsExperience} className="xl:self-baseline-last" />
-            <HeroActions className="xl:self-end" />
+            <HeroActions className="xl:self-start" />
           </div>
 
           <div className="animate-rise-in xl:col-span-2 xl:col-start-1 xl:row-start-2" style={riseDelay(0.16)}>
