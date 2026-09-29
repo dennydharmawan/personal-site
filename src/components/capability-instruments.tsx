@@ -11,7 +11,7 @@ import {
   type TargetAndTransition,
   type Transition
 } from 'motion/react';
-import { Activity } from 'lucide-react';
+import { Activity, Package } from 'lucide-react';
 import { FaAws } from 'react-icons/fa6';
 import {
   SiApachekafka,
@@ -47,7 +47,8 @@ const instrumentLabels: Record<CapabilityKind, string> = {
     'Illustration: a lending service keeps pulsing while one of its three dependencies goes down and recovers, beside 99.98% uptime and 2M+ transactions a month for Flexi Cash at Jenius, 2019 to 2022',
   release:
     'Illustration: a release plan for the week where planned work fills in up to Friday, a late request that would run past the ship date moves to the next release, and the release ships on time',
-  standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
+  standards:
+    'Illustration: a shared package for auth, logging, and flags sends each new version down to four internal apps, HR tools, Admin, Ops, and Reports, and each app confirms it is on the new version'
 };
 
 type Cycle = { initial?: TargetAndTransition; animate?: TargetAndTransition; transition?: Transition };
@@ -238,9 +239,6 @@ function Pulse({ d, delay = 0, duration }: { d: string; delay?: number; duration
   );
 }
 
-const panelClassName = 'flex h-full flex-col justify-center p-4';
-const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
-const monoClassName = 'font-mono text-[11px]';
 
 const accessSources = [
   { Icon: SiSlack, name: 'Slack' },
@@ -770,81 +768,189 @@ function Uptime({ frame }: { frame: Frame }): JSX.Element {
   );
 }
 
-// The package fans out to the internal apps that run on it. Each app lights when the dot
-// reaches it, on its own duration and delay so they never land together. The last row stands
-// for the rest, so the diagram doesn't claim an exact count.
-const adoptingApps = [
-  { delay: 0, duration: 5.4, label: 'internal app' },
-  { delay: 0.7, duration: 6.1, label: 'internal app' },
-  { delay: 1.4, duration: 5.8, label: 'internal app' },
-  { delay: 2.1, duration: 6.5, label: 'more' }
+const sharedApps: readonly { initials: string; name: string; tone: Tone }[] = [
+  { initials: 'HR', name: 'HR tools', tone: 'sky' },
+  { initials: 'A', name: 'Admin', tone: 'amber' },
+  { initials: 'O', name: 'Ops', tone: 'rose' },
+  { initials: 'R', name: 'Reports', tone: 'emerald' }
 ];
-const fanTravel = 28;
+const travelSeconds = 0.75;
+const wireFadeSeconds = 0.6;
+const flashSeconds = 0.5;
+const departAt = (index: number): number => 0.5 + index * 0.26;
+const arriveAt = (index: number): number => departAt(index) + travelSeconds;
 
-function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
-  return (
-    <div className={`${panelClassName} gap-3`}>
-      <p className="text-sm font-semibold text-zinc-900">Built once, adopted across teams.</p>
-      <div className="flex items-center">
-        <span className="grid shrink-0 gap-0.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 ring-1 ring-zinc-900/5">
-          <span className={`${monoClassName} font-medium text-zinc-900`}>shared package</span>
-          <span className="text-[10px] text-zinc-500">auth · logging · flags</span>
-        </span>
-        <span aria-hidden="true" className="h-px w-2 shrink-0 bg-zinc-200" />
-        <div className="relative grid flex-1 gap-1">
-          <span aria-hidden="true" className="absolute top-2.5 bottom-2.5 left-0 w-px bg-zinc-200" />
-          {adoptingApps.map(({ delay, duration, label }) => (
-            <div className="flex h-5 items-center" key={delay}>
-              <span aria-hidden="true" className="relative h-px shrink-0 bg-zinc-200" style={{ width: fanTravel }}>
-                <motion.span
-                  className="absolute -top-[2px] -left-[2px] size-[5px] rounded-full bg-sky-500"
-                  {...cycle(
-                    reduced,
-                    {
-                      opacity: [0, 1, 1, 0, 0],
-                      transform: ['translateX(0px)', 'translateX(4px)', `translateX(${fanTravel - 4}px)`, `translateX(${fanTravel}px)`, `translateX(${fanTravel}px)`]
-                    },
-                    duration,
-                    [0, 0.06, 0.2, 0.24, 1],
-                    { delay }
-                  )}
-                />
-              </span>
-              <motion.span
-                className={`${monoClassName} inline-flex items-center gap-1 rounded-md px-1.5 py-px text-zinc-600 ring-1 ring-zinc-900/5`}
-                {...cycle(
-                  reduced,
-                  { backgroundColor: ['var(--color-white)', 'var(--color-white)', 'var(--color-sky-50)', 'var(--color-sky-50)', 'var(--color-white)'] },
-                  duration,
-                  [0, 0.22, 0.28, 0.7, 0.85],
-                  { delay }
-                )}
-              >
-                <span className="size-1.5 rounded-full bg-sky-500" />
-                {label}
-              </motion.span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <p className="text-[11px] text-zinc-500">
-        dashboards <span className="text-zinc-400">→</span> company monitoring template
-      </p>
-    </div>
-  );
+const rolloutRestMs = 1200;
+const rolloutUpdatingMs = Math.round(arriveAt(sharedApps.length - 1) * 1000) + 300;
+const rolloutBeats = [
+  { ms: rolloutRestMs, name: 'rest' },
+  { ms: rolloutUpdatingMs, name: 'updating' },
+  { ms: 7600 - rolloutRestMs - rolloutUpdatingMs, name: 'current' }
+] as const;
+type RolloutBeat = (typeof rolloutBeats)[number]['name'];
+
+const rolloutStatus: Record<RolloutBeat, (version: string) => Status> = {
+  current: (version) => ({ text: `all apps on ${version}`, tone: 'done' }),
+  rest: (version) => ({ text: `all apps on ${version}`, tone: 'done' }),
+  updating: (version) => ({ text: `updating to ${version}`, tone: 'active' })
+};
+
+// Versions run 2.5 to 2.9 and start over, so the label never grows into a long number.
+function packageVersion(episode: number): string {
+  return `v2.${5 + (episode % 5)}`;
 }
 
-const placeholderStatus: Status = { text: '', tone: 'idle' };
+function measureRollout(root: HTMLElement, box: DOMRect): { wires: string[] } {
+  const pkg = root.querySelector('[data-package]')!.getBoundingClientRect();
+  const x = pkg.left + pkg.width / 2 - box.left;
+  const y = pkg.bottom - box.top;
+  const wires = Array.from(root.querySelectorAll('[data-app]'), (app) => {
+    const rect = app.getBoundingClientRect();
+    return curve(x, y, rect.left + rect.width / 2 - box.left, rect.top - box.top, false);
+  });
+  return { wires };
+}
+
+// Each episode the package bumps its version and sends it down every wire. An app flips to the
+// new version when its pulse lands. Arrivals overlap within one beat, so they run on delays.
+function SharedCore({ frame }: { frame: Frame }): JSX.Element {
+  const { beat, episode } = useEpisode(rolloutBeats, 'rest', !frame.still);
+  const [ref, layout] = useMeasured(measureRollout);
+  const previous = packageVersion(episode);
+  const shown = beat === 'rest' ? previous : packageVersion(episode + 1);
+  const updating = beat === 'updating';
+  const rolling = beat !== 'rest';
+
+  return (
+    <Screen frame={frame} status={rolloutStatus[beat](shown)}>
+      <div className="absolute inset-0 flex flex-col px-[18px] pt-4 pb-[18px]" ref={ref}>
+        {layout ? (
+          <svg
+            className="pointer-events-none absolute inset-0 size-full"
+            fill="none"
+            viewBox={`0 0 ${layout.width} ${layout.height}`}
+          >
+            {layout.wires.map((d) => (
+              <path className="stroke-zinc-200" d={d} key={d} strokeWidth={1.25} />
+            ))}
+            {rolling
+              ? layout.wires.map((d, index) => {
+                  const end = arriveAt(index) + wireFadeSeconds;
+                  return (
+                    <motion.path
+                      animate={{ opacity: [0, 0, 1, 1, 0] }}
+                      className="stroke-sky-300"
+                      d={d}
+                      initial={{ opacity: 0 }}
+                      key={`live-${episode}-${index}`}
+                      strokeWidth={1.25}
+                      transition={{
+                        duration: end,
+                        ease: 'linear',
+                        times: [0, departAt(index) / end, (departAt(index) + 0.15) / end, arriveAt(index) / end, 1]
+                      }}
+                    />
+                  );
+                })
+              : null}
+            {updating
+              ? layout.wires.map((d, index) => (
+                  <Pulse d={d} delay={departAt(index)} duration={travelSeconds} key={`pulse-${episode}-${index}`} />
+                ))
+              : null}
+          </svg>
+        ) : null}
+
+        <div
+          className={cn('relative z-[1] flex items-center gap-2.5 self-center rounded-[14px] bg-white py-[9px] pr-3 pl-[9px]', liftClassName)}
+          data-package
+        >
+          <span className={cn('grid size-8 place-items-center rounded-[10px]', toneClassName.violet.soft, toneClassName.violet.text)}>
+            <Package size={17} strokeWidth={1.8} />
+          </span>
+          <span className="grid gap-[3px]">
+            <span className="font-mono text-[12.5px] leading-none font-medium text-zinc-900">@shared/core</span>
+            <span className="text-[10.5px] whitespace-nowrap text-zinc-400">auth, logging, flags</span>
+          </span>
+          <motion.span
+            animate={{ opacity: 1, scale: 1 }}
+            className={cn(pillClassName, toneClassName.violet.soft, toneClassName.violet.text)}
+            initial={updating ? { opacity: 0, scale: 0.8 } : false}
+            key={shown}
+            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+          >
+            {shown}
+          </motion.span>
+        </div>
+
+        <div className="relative z-[1] mt-auto grid grid-cols-4 gap-2">
+          {sharedApps.map(({ initials, name, tone }, index) => {
+            const arrive = arriveAt(index);
+            const flashEnd = arrive + 0.06 + flashSeconds;
+            return (
+              <div
+                className={cn('relative grid min-w-0 justify-items-center gap-[7px] rounded-[14px] bg-white px-1 pt-3 pb-2.5', liftClassName)}
+                data-app
+                key={name}
+              >
+                {rolling ? (
+                  <motion.span
+                    animate={{ opacity: [0, 0, 1, 1, 0] }}
+                    className="pointer-events-none absolute inset-0 rounded-[14px] ring-4 ring-emerald-200/75"
+                    initial={{ opacity: 0 }}
+                    key={episode}
+                    transition={{
+                      duration: flashEnd,
+                      ease: 'linear',
+                      times: [0, arrive / flashEnd, (arrive + 0.01) / flashEnd, (arrive + 0.06) / flashEnd, 1]
+                    }}
+                  />
+                ) : null}
+                <span
+                  className={cn(
+                    'grid size-7 place-items-center rounded-[9px] text-[11.5px] font-semibold',
+                    toneClassName[tone].soft,
+                    toneClassName[tone].text
+                  )}
+                >
+                  {initials}
+                </span>
+                <span className="max-w-full truncate text-[11.5px] font-medium text-zinc-700">{name}</span>
+                <span className="grid justify-items-center">
+                  {updating ? (
+                    <motion.span
+                      animate={{ opacity: 0 }}
+                      className={cn(pillClassName, 'h-[19px] bg-zinc-100 text-[10.5px] text-zinc-600 tabular-nums [grid-area:1/1]')}
+                      initial={{ opacity: 1 }}
+                      transition={{ delay: arrive, duration: 0.3 }}
+                    >
+                      {previous}
+                    </motion.span>
+                  ) : null}
+                  <motion.span
+                    animate={{ opacity: 1 }}
+                    className={cn(pillClassName, mintClassName, 'h-[19px] text-[10.5px] tabular-nums [grid-area:1/1]')}
+                    initial={updating ? { opacity: 0 } : false}
+                    key={shown}
+                    transition={{ delay: arrive, duration: 0.3 }}
+                  >
+                    {shown} ✓
+                  </motion.span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Screen>
+  );
+}
 
 const instruments: Record<CapabilityKind, (props: { frame: Frame }) => JSX.Element> = {
   fullstack: AccessLog,
   production: Uptime,
   release: ReleasePlan,
-  standards: ({ frame }) => (
-    <Screen frame={frame} status={placeholderStatus}>
-      <AdoptedStandards reduced={frame.still} />
-    </Screen>
-  )
+  standards: SharedCore
 };
 
 export function CapabilityInstrument({
