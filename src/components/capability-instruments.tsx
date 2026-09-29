@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState, type ComponentType, type JSX, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type JSX, type ReactNode, type RefObject } from 'react';
 import {
   AnimatePresence,
+  animate,
   motion,
   useInView,
+  useMotionValue,
   useReducedMotion,
+  useTransform,
   type Easing,
   type TargetAndTransition,
   type Transition
@@ -24,8 +27,7 @@ import {
   SiReact,
   SiRedis,
   SiSlack,
-  SiTypescript,
-  SiZoho
+  SiTypescript
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
@@ -39,7 +41,7 @@ const bodyClassName: Record<InstrumentSize, string> = {
 
 const instrumentLabels: Record<CapabilityKind, string> = {
   fullstack:
-    'Illustration: an access log where each new change, such as a new hire added to Slack, arrives with who, what, and when, and is marked recorded',
+    'Illustration: access changes from Slack, Google, Jira, and Confluence flow into one access log, where each arrives with who, what, and when and is marked recorded',
   production:
     'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
   release:
@@ -163,122 +165,278 @@ function Screen({ children, frame, status }: { children: ReactNode; frame: Frame
   );
 }
 
+const pillClassName = 'inline-flex h-5 items-center gap-1 rounded-full px-2 text-[11px] font-medium whitespace-nowrap';
+const mintClassName = `${toneClassName.emerald.soft} ${toneClassName.emerald.text}`;
+
+type Measured<T> = T & { height: number; width: number };
+
+// Measures the illustration in its own pixel space and remeasures whenever it resizes, so wires
+// drawn from the result line up with the elements they join.
+function useMeasured<T>(
+  read: (root: HTMLElement, box: DOMRect) => T
+): [RefObject<HTMLDivElement | null>, Measured<T> | null] {
+  const ref = useRef<HTMLDivElement>(null);
+  const [measured, setMeasured] = useState<Measured<T> | null>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const observer = new ResizeObserver(() => {
+      const box = root.getBoundingClientRect();
+      if (box.width) setMeasured({ ...read(root, box), height: box.height, width: box.width });
+    });
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [read]);
+
+  return [ref, measured];
+}
+
+function curve(ax: number, ay: number, bx: number, by: number, horizontal: boolean): string {
+  if (horizontal) {
+    const mx = (ax + bx) / 2;
+    return `M${ax} ${ay} C${mx} ${ay} ${mx} ${by} ${bx} ${by}`;
+  }
+  const my = (ay + by) / 2;
+  return `M${ax} ${ay} C${ax} ${my} ${bx} ${my} ${bx} ${by}`;
+}
+
+function easeInOutCubic(p: number): number {
+  return p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
+}
+
+// One trip along a wire. It mounts per trip, so keying it by episode replays it. Progress runs
+// linearly and the position eases, so the fade near the end keys off elapsed time.
+function Pulse({ d, delay = 0, duration }: { d: string; delay?: number; duration: number }): JSX.Element {
+  const pathRef = useRef<SVGPathElement>(null);
+  const progress = useMotionValue(0);
+  const pointAt = (p: number): { x: number; y: number } => {
+    const path = pathRef.current;
+    return path ? path.getPointAtLength(path.getTotalLength() * easeInOutCubic(p)) : { x: 0, y: 0 };
+  };
+  const cx = useTransform(progress, (p) => pointAt(p).x);
+  const cy = useTransform(progress, (p) => pointAt(p).y);
+  const opacity = useTransform(progress, [0, 0.001, 0.88, 1], [0, 1, 1, 0]);
+
+  useEffect(() => {
+    const controls = animate(progress, 1, { delay, duration, ease: 'linear' });
+    return () => controls.stop();
+  }, [delay, duration, progress]);
+
+  return (
+    <>
+      <path d={d} ref={pathRef} stroke="none" />
+      <motion.circle
+        className="fill-sky-400 drop-shadow-[0_0_4px_--alpha(var(--color-sky-400)/60%)]"
+        cx={cx}
+        cy={cy}
+        r={3.5}
+        style={{ opacity }}
+      />
+    </>
+  );
+}
+
 const panelClassName = 'flex h-full flex-col justify-center p-4';
 const widePanelClassName = `${panelClassName} mx-auto w-full max-w-md`;
 const captionClassName = 'text-[11px] leading-snug text-zinc-500 text-pretty';
 const monoClassName = 'font-mono text-[11px]';
 
-// The names are made up; the tools and reasons are the ones the real workflow handles.
-const accessEvents: { Icon: ComponentType<{ className?: string }>; change: string; name: string; reason: string; tool: string }[] = [
-  { Icon: SiSlack, change: 'Access added', name: 'Rina Aulia', reason: 'New hire', tool: 'Slack' },
-  { Icon: SiGoogle, change: 'Access removed', name: 'Budi Santoso', reason: 'Last day', tool: 'Google Workspace' },
-  { Icon: SiJira, change: 'Role changed', name: 'Dewi Kartika', reason: 'Moved to Risk', tool: 'Jira' },
-  { Icon: SiZoho, change: 'Access added', name: 'Andi Pratama', reason: 'Rehire', tool: 'Zoho' },
-  { Icon: SiConfluence, change: 'Access removed', name: 'Sari Wulandari', reason: 'Contract ended', tool: 'Confluence' },
-  { Icon: SiSlack, change: 'Access added', name: 'Fajar Nugroho', reason: 'New hire', tool: 'Slack' },
-  { Icon: SiGoogle, change: 'Access added', name: 'Maya Lestari', reason: 'New hire', tool: 'Google Workspace' },
-  { Icon: SiJira, change: 'Access removed', name: 'Yoga Permana', reason: 'Last day', tool: 'Jira' }
+const accessSources = [
+  { Icon: SiSlack, name: 'Slack' },
+  { Icon: SiGoogle, name: 'Google' },
+  { Icon: SiJira, name: 'Jira' },
+  { Icon: SiConfluence, name: 'Confluence' }
 ];
-const accessRowHeight = 46;
-const accessVisibleRows = 5;
-const accessArrivalMs = 5200;
-const accessRowClassName = 'grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] items-center gap-3 px-4';
+
+// The names are made up; the tools are the ones the real workflow handles.
+const accessEvents: readonly { action: string; initials: string; name: string; source: number; tone: Tone }[] = [
+  { action: 'Added to Slack', initials: 'RA', name: 'Rina Aulia', source: 0, tone: 'sky' },
+  { action: 'Moved to Risk in Jira', initials: 'DK', name: 'Dewi Kartika', source: 2, tone: 'violet' },
+  { action: 'Removed from Google', initials: 'BS', name: 'Budi Santoso', source: 1, tone: 'rose' },
+  { action: 'Added to Confluence', initials: 'AP', name: 'Andi Pratama', source: 3, tone: 'amber' },
+  { action: 'Added to Slack', initials: 'FN', name: 'Fajar Nugroho', source: 0, tone: 'emerald' },
+  { action: 'Added to Google', initials: 'ML', name: 'Maya Lestari', source: 1, tone: 'sky' },
+  { action: 'Removed from Jira', initials: 'YP', name: 'Yoga Permana', source: 2, tone: 'violet' }
+];
+const accessRowHeight = 48;
+const accessVisibleRows = 4;
+const accessPortDrop = 90;
+
+// The rest comes first, so the first live frame matches the still one.
+const accessBeats = [
+  { ms: 2700, name: 'recorded' },
+  { ms: 900, name: 'travel' }
+] as const;
+type AccessBeat = (typeof accessBeats)[number]['name'];
+
+const accessStatus: Record<AccessBeat, Status> = {
+  recorded: { text: 'recorded ✓', tone: 'done' },
+  travel: { text: 'recording', tone: 'active' }
+};
 
 function accessTime(sequence: number): string {
-  const minutes = 9 * 60 + 2 + (sequence + accessVisibleRows) * 7;
-  const hours = Math.floor(minutes / 60) % 24;
-  return `${String(hours).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+  const minutes = (9 * 60 + 2 + sequence * 6) % (24 * 60);
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 }
 
-// Every few seconds the next change arrives at the top, highlighted until it is recorded, and the
-// oldest row drops off the bottom. Sequence numbers key the rows, so each one slides down a slot.
-function AccessLog({ reduced }: { reduced: boolean }): JSX.Element {
-  const [latest, setLatest] = useState(0);
-
-  useEffect(() => {
-    if (reduced) return;
-    const timer = window.setInterval(() => setLatest((sequence) => sequence + 1), accessArrivalMs);
-    return () => window.clearInterval(timer);
-  }, [reduced]);
-
-  const rows = Array.from({ length: accessVisibleRows }, (_, slot) => {
-    const sequence = latest - slot;
-    const event = accessEvents[((sequence % accessEvents.length) + accessEvents.length) % accessEvents.length];
-    return { ...event, sequence, slot };
+function measureAccess(root: HTMLElement, box: DOMRect): { port: { x: number; y: number }; wires: string[] } {
+  const log = root.querySelector('[data-log]')!.getBoundingClientRect();
+  const port = { x: log.left - box.left, y: log.top - box.top + accessPortDrop };
+  const wires = Array.from(root.querySelectorAll('[data-source]'), (tile) => {
+    const rect = tile.getBoundingClientRect();
+    return curve(rect.right - box.left, rect.top + rect.height / 2 - box.top, port.x, port.y, true);
   });
+  return { port, wires };
+}
+
+// Each change leaves its tool as a pulse, lands on the log's port, and slides in as the newest
+// row while the oldest drops off. Sequence numbers key the rows, so each one slides down a slot.
+function AccessLog({ frame }: { frame: Frame }): JSX.Element {
+  const { beat, episode } = useEpisode(accessBeats, 'recorded', !frame.still);
+  const [ref, layout] = useMeasured(measureAccess);
+  const latest = accessVisibleRows - 1 + episode;
+  const source = accessEvents[(latest + 1) % accessEvents.length].source;
+  const traveling = beat === 'travel';
+  const arrived = beat === 'recorded' && episode > 0;
+  const rows = Array.from({ length: accessVisibleRows }, (_, slot) => ({ sequence: latest - slot, slot }));
 
   return (
-    <div className="flex h-full flex-col">
-      <div className={`${accessRowClassName} h-8 shrink-0 border-b border-zinc-100 text-[10px] font-medium text-zinc-400`}>
-        <span>Employee</span>
-        <span>Change</span>
-        <span className="text-right">Status</span>
-      </div>
-      <div className="relative min-h-0 flex-1 overflow-hidden" style={{ minHeight: accessRowHeight * 4 }}>
-        <AnimatePresence initial={false}>
-          {rows.map(({ Icon, change, name, reason, sequence, slot, tool }) => {
-            const arriving = sequence > 0;
-            return (
-              <motion.div
-                animate={{ opacity: 1, y: slot * accessRowHeight }}
-                className={`${accessRowClassName} absolute inset-x-0 top-0 border-b border-zinc-100`}
-                exit={{ opacity: 0 }}
-                initial={{ opacity: 0, y: -accessRowHeight }}
-                key={sequence}
-                style={{ height: accessRowHeight }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {arriving ? (
-                  <motion.span
-                    animate={{ opacity: 0 }}
-                    className="absolute inset-0 bg-sky-50"
-                    initial={{ opacity: 1 }}
-                    transition={{ delay: 1.6, duration: 1.4, ease: 'linear' }}
-                  />
-                ) : null}
-                <span className="relative flex min-w-0 items-center gap-2.5">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white ring-1 ring-zinc-900/10">
-                    <Icon className="size-3.5 text-zinc-700" />
-                  </span>
-                  <span className="grid min-w-0">
-                    <span className="truncate text-[12px] font-medium text-zinc-900">{name}</span>
-                    <span className="truncate text-[11px] text-zinc-500">{tool}</span>
-                  </span>
-                </span>
-                <span className="relative grid min-w-0">
-                  <span className="truncate text-[12px] text-zinc-700">{change}</span>
-                  <span className="truncate text-[11px] text-zinc-500">{reason}</span>
-                </span>
-                <span className="relative grid justify-items-end gap-0.5">
-                  <span className="grid text-[10px] font-medium">
-                    {arriving ? (
+    <Screen frame={frame} status={accessStatus[beat]}>
+      <div className="absolute inset-0" ref={ref}>
+        {layout ? (
+          <svg
+            className="pointer-events-none absolute inset-0 size-full"
+            fill="none"
+            viewBox={`0 0 ${layout.width} ${layout.height}`}
+          >
+            {layout.wires.map((d) => (
+              <path className="stroke-zinc-200" d={d} key={d} strokeWidth={1.25} />
+            ))}
+            <AnimatePresence>
+              {traveling ? (
+                <motion.path
+                  animate={{ opacity: 1 }}
+                  className="stroke-sky-300"
+                  d={layout.wires[source]}
+                  exit={{ opacity: 0, transition: { duration: 0.6 } }}
+                  initial={{ opacity: 0 }}
+                  key={episode}
+                  strokeWidth={1.25}
+                  transition={{ duration: 0.15 }}
+                />
+              ) : null}
+            </AnimatePresence>
+            {traveling ? <Pulse d={layout.wires[source]} duration={0.9} key={episode} /> : null}
+            {arrived ? (
+              <motion.circle
+                animate={{ opacity: 0, scale: 2.6 }}
+                className="origin-center stroke-sky-300 [transform-box:fill-box]"
+                cx={layout.port.x}
+                cy={layout.port.y}
+                initial={{ opacity: 0.9, scale: 1 }}
+                key={`ring-${episode}`}
+                r={4.5}
+                strokeWidth={1.25}
+                transition={{ duration: 0.7, ease: [0.2, 0.7, 0.3, 1] }}
+              />
+            ) : null}
+            <circle className="fill-white stroke-zinc-300" cx={layout.port.x} cy={layout.port.y} r={4.5} strokeWidth={1.25} />
+            {arrived ? (
+              <motion.circle
+                animate={{ opacity: 0 }}
+                className="stroke-sky-400"
+                cx={layout.port.x}
+                cy={layout.port.y}
+                initial={{ opacity: 1 }}
+                key={`hit-${episode}`}
+                r={4.5}
+                strokeWidth={1.25}
+                transition={{ delay: 0.12, duration: 0.5 }}
+              />
+            ) : null}
+          </svg>
+        ) : null}
+
+        <div className="absolute inset-y-0 left-[22px] z-[1] grid content-center gap-[18px]">
+          {accessSources.map(({ Icon, name }, index) => (
+            <span
+              className={cn('relative grid size-10 place-items-center rounded-xl bg-white text-zinc-700', liftClassName)}
+              data-source={name}
+              key={name}
+            >
+              {traveling && index === source ? (
+                <motion.span
+                  animate={{ opacity: [0, 1, 1, 0] }}
+                  className="absolute inset-0 rounded-xl ring-4 ring-sky-200/80"
+                  initial={{ opacity: 0 }}
+                  key={episode}
+                  transition={{ duration: 0.9, times: [0, 0.44, 0.56, 1] }}
+                />
+              ) : null}
+              <Icon className="relative" size={17} />
+            </span>
+          ))}
+        </div>
+
+        <div
+          className={cn(
+            'absolute top-[22px] -bottom-px left-[34%] z-[1] flex w-[min(300px,58%)] flex-col rounded-t-[14px] bg-white',
+            liftClassName
+          )}
+          data-log
+        >
+          <div className="flex h-[42px] shrink-0 items-center justify-between border-b border-zinc-100 px-3.5 text-[13px] font-semibold text-zinc-900">
+            Access log
+            <span className={cn(pillClassName, mintClassName)}>every change</span>
+          </div>
+          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(black_65%,transparent)]">
+            <AnimatePresence initial={false}>
+              {rows.map(({ sequence, slot }) => {
+                const { action, initials, name, tone } = accessEvents[sequence % accessEvents.length];
+                const fresh = sequence >= accessVisibleRows;
+                return (
+                  <motion.div
+                    animate={{ opacity: 1, y: slot * accessRowHeight }}
+                    className="absolute inset-x-0 top-0 flex items-center gap-2.5 px-3.5"
+                    exit={{ opacity: 0, y: accessVisibleRows * accessRowHeight }}
+                    initial={{ opacity: 0, y: -accessRowHeight }}
+                    key={sequence}
+                    style={{ height: accessRowHeight }}
+                    transition={{ opacity: { duration: 0.45 }, y: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } }}
+                  >
+                    {fresh ? (
                       <motion.span
                         animate={{ opacity: 0 }}
-                        className="col-start-1 row-start-1 rounded-full bg-sky-100 px-2 py-0.5 text-sky-700"
+                        className="absolute inset-x-2 inset-y-1 rounded-[10px] bg-sky-50"
                         initial={{ opacity: 1 }}
-                        transition={{ delay: 1.1, duration: 0.25 }}
-                      >
-                        <span className="hidden sm:inline">recording</span>
-                        <span className="sm:hidden">…</span>
-                      </motion.span>
+                        transition={{ delay: 1.5, duration: 1.6, ease: 'linear' }}
+                      />
                     ) : null}
                     <motion.span
-                      animate={{ opacity: 1 }}
-                      className="col-start-1 row-start-1 rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600"
-                      initial={{ opacity: arriving ? 0 : 1 }}
-                      transition={{ delay: 1.1, duration: 0.25 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={cn(
+                        'relative grid size-7 shrink-0 place-items-center rounded-full text-[10.5px] font-semibold text-zinc-700',
+                        toneClassName[tone].soft
+                      )}
+                      initial={fresh ? { opacity: 0, scale: 0.5 } : false}
+                      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
                     >
-                      <span className="hidden sm:inline">recorded </span>✓
+                      {initials}
                     </motion.span>
-                  </span>
-                  <span className="text-[10px] tabular-nums text-zinc-400">{accessTime(sequence)}</span>
-                </span>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                    <span className="relative grid min-w-0 flex-1">
+                      <span className="truncate text-[12.5px] font-medium text-zinc-900">{name}</span>
+                      <span className="truncate text-[11.5px] text-zinc-500">{action}</span>
+                    </span>
+                    <span className="relative text-[11px] text-zinc-400 tabular-nums">{accessTime(sequence)}</span>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -544,11 +702,7 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
 const placeholderStatus: Status = { text: '', tone: 'idle' };
 
 const instruments: Record<CapabilityKind, (props: { frame: Frame }) => JSX.Element> = {
-  fullstack: ({ frame }) => (
-    <Screen frame={frame} status={placeholderStatus}>
-      <AccessLog reduced={frame.still} />
-    </Screen>
-  ),
+  fullstack: AccessLog,
   production: ({ frame }) => (
     <Screen frame={frame} status={placeholderStatus}>
       <ReliabilityBoard reduced={frame.still} />
