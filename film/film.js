@@ -102,14 +102,16 @@ function flickerAt(t) {
 
 /* ── sky ──────────────────────────────────────────────────────────────────── */
 
+/* Jakarta's night sky is never black: sodium light in the haze keeps the
+   horizon warm and the whole sky lighter than the room. */
 const PAL = {
   gold:    { yellow: [.06, .36, .9], pink: [.2, .34, .48], blue: [.26, .08, 0], indigo: [0, 0, 0] },
   late:    { yellow: [0, .12, .58], pink: [.3, .48, .58], blue: [.48, .26, .06], indigo: [.1, .02, 0] },
-  blue:    { yellow: [0, .02, .2], pink: [.08, .22, .44], blue: [.66, .56, .4], indigo: [.58, .3, .08] },
-  night:   { yellow: [0, .02, .22], pink: [.04, .14, .42], blue: [.6, .52, .4], indigo: [.9, .64, .3] },
-  heavy:   { yellow: [0, .04, .18], pink: [.14, .24, .4], blue: [.5, .46, .4], indigo: [.7, .52, .32] },
-  dark:    { yellow: [0, 0, 0], pink: [.04, .05, .06], blue: [.54, .52, .5], indigo: [.8, .74, .66] },
-  predawn: { yellow: [0, .02, .18], pink: [.1, .28, .46], blue: [.6, .44, .28], indigo: [.52, .26, .08] },
+  blue:    { yellow: [0, .04, .26], pink: [.08, .2, .42], blue: [.6, .5, .36], indigo: [.46, .24, .06] },
+  night:   { yellow: [0, .1, .42], pink: [.1, .24, .46], blue: [.52, .44, .3], indigo: [.54, .34, .1] },
+  heavy:   { yellow: [0, .08, .34], pink: [.14, .26, .42], blue: [.5, .44, .34], indigo: [.5, .34, .12] },
+  dark:    { yellow: [0, .02, .1], pink: [.06, .1, .2], blue: [.5, .46, .4], indigo: [.58, .46, .3] },
+  predawn: { yellow: [0, .04, .22], pink: [.1, .26, .44], blue: [.56, .42, .28], indigo: [.44, .22, .06] },
   dawn:    { yellow: [.04, .3, .86], pink: [.18, .4, .44], blue: [.46, .18, .04], indigo: [.06, 0, 0] },
   morning: { yellow: [.05, .22, .56], pink: [.08, .18, .24], blue: [.44, .24, .1], indigo: [0, 0, 0] },
   noon:    { yellow: [0, .06, .2], pink: [0, .05, .1], blue: [.56, .4, .22], indigo: [.04, 0, 0] },
@@ -180,20 +182,34 @@ function cloudShape(key, w, h, o = {}) {
     billows.push({ dx: u * w / 2, dy: -(h * 0.95 + rad * 0.2 + r() * h * 0.2), r: rad, seed: key + ':t' + i });
   }
   if (o.mammatus) for (let i = 0; i < o.mammatus; i++) mam.push({ dx: (r() * 2 - 1) * w * 0.4, r: 7 + r() * 13, seed: key + ':m' + i });
-  return { w, h, billows, mam, key };
+  const belly = [];
+  if (o.belly) for (let i = 0; i < o.belly; i++) {                // a row of low billows, so the base is lumpy
+    const u = (i + 0.5) / o.belly * 2 - 1, rad = 16 + r() * 22;
+    belly.push({ dx: u * w * 0.46 + (r() - 0.5) * 18, dy: rad * 0.1 - r() * 10, r: rad, seed: key + ':b' + i });
+  }
+  return { w, h, billows, mam, belly, key };
 }
-function cloudPath(c, x, base, k) {
+function cloudPath(c, x, base, k, mam = true) {
   const p = new Path2D();
   for (const b of c.billows) p.addPath(cut(ringPts(x + b.dx * k, base + b.dy * k, b.r * k, b.r * 0.84 * k, 12), rngFor(b.seed), { amp: b.r * 0.05 * k }));
-  const hw = c.w / 2 * k;
-  p.addPath(cut([[x - hw, base], [x - hw * 0.7, base - c.h * 0.32 * k], [x + hw * 0.7, base - c.h * 0.32 * k], [x + hw, base], [x + hw * 0.4, base + 3], [x - hw * 0.4, base + 3]], rngFor(c.key + ':base'), { amp: 2 }));
-  for (const m of c.mam) p.addPath(cut(ringPts(x + m.dx * k, base + m.r * 0.45 * k, m.r * k, m.r * 0.78 * k, 10), rngFor(m.seed), { amp: 1.2 }));
+  const hw = c.w / 2 * k, belly = c.belly || [];
+  if (belly.length) {
+    for (const b of belly) p.addPath(cut(ringPts(x + b.dx * k, base + b.dy * k, b.r * k, b.r * 0.72 * k, 12), rngFor(b.seed), { amp: b.r * 0.06 * k }));
+    /* a round core, not a trapezoid: straight flanks show wherever the billows leave a gap */
+    p.addPath(cut(ringPts(x, base - c.h * 0.22 * k, hw * 0.82, c.h * 0.26 * k, 16), rngFor(c.key + ':base'), { amp: 3 }));
+  } else p.addPath(cut([[x - hw, base], [x - hw * 0.7, base - c.h * 0.32 * k], [x + hw * 0.7, base - c.h * 0.32 * k], [x + hw, base], [x + hw * 0.4, base + 3], [x - hw * 0.4, base + 3]], rngFor(c.key + ':base'), { amp: 2 }));
+  if (mam) p.addPath(mamPath(c, x, base, k));
+  return p;
+}
+function mamPath(c, x, base, k) {
+  const p = new Path2D();
+  for (const m of c.mam) p.addPath(cut(ringPts(x + m.dx * k, base + m.r * 0.45 * k + (c.belly && c.belly.length ? 14 * k : 0), m.r * k, m.r * 0.78 * k, 10), rngFor(m.seed), { amp: 1.2 }));
   return p;
 }
 /* look: body(top, base) → cov; light [lx, ly]; hi plates knocked on each billow's lit side; hiAdd inked there. */
-function drawCloud(c, x, base, k, look, a) {
+function drawCloud(c, x, base, k, look, a, mam = true) {
   if (a <= 0.01) return;
-  const p = cloudPath(c, x, base, k), top = base - c.h * 1.15 * k;
+  const p = cloudPath(c, x, base, k, mam), top = base - c.h * 1.15 * k;
   put(p, look.body(top, base), undefined, a);
   withClip(p, () => {
     for (const b of c.billows) {
@@ -216,51 +232,82 @@ const LOOK = {
     body: (t0, b) => ({ blue: ramp2(t0, b, .2, .24), pink: ramp2(t0, b, .3, .34), yellow: ramp2(t0, b, .14, .1), indigo: ramp2(t0, b, .02, .06) }),
     under: (y0, y1) => ({ pink: ramp2(y0, y1, 0, .14) }) },
 };
+const NOON_LOOK = {
+  hi: { blue: .16, indigo: .06, pink: .06, yellow: .04 }, hiAdd: {},
+  body: (t0, b) => ({ blue: ramp2(t0, b, .08, .3), indigo: ramp2(t0, b, 0, .1), pink: ramp2(t0, b, .02, .06), yellow: ramp2(t0, b, .02, .03) }),
+  under: (y0, y1) => ({ blue: ramp2(y0, y1, 0, .16), indigo: ramp2(y0, y1, 0, .07) }),
+};
+/* 0 at dawn and dusk, 1 through the high part of the day. */
+const noonW = t => sm(clamp((sunHigh(t) - 0.2) / 0.55, 0, 1));
 function lookAt(t) {
-  const n = nightness(t), m = morn(t), A = LOOK.dusk, B = LOOK.dawn, N = LOOK.night;
+  const n = nightness(t), m = morn(t), w = noonW(t), A = LOOK.dusk, B = LOOK.dawn, N = LOOK.night;
   const mixF = (f, g, u) => (t0, b) => mixCov(f(t0, b), g(t0, b), u);
   const mixO = (o1, o2, u) => { const o = {}; for (const pl of PL) { const v = lerp(o1[pl] || 0, o2[pl] || 0, u); if (v) o[pl] = v; } return o; };
-  const day = { light: [lerp(A.light[0], B.light[0], m), lerp(A.light[1], B.light[1], m)], hi: mixO(A.hi, B.hi, m), hiAdd: mixO(A.hiAdd, B.hiAdd, m),
-    body: mixF(A.body, B.body, m), under: mixF(A.under, B.under, m) };
-  return { light: [lerp(day.light[0], N.light[0], n), lerp(day.light[1], N.light[1], n)], hi: mixO(day.hi, N.hi, n), hiAdd: mixO(day.hiAdd, N.hiAdd, n),
-    body: mixF(day.body, N.body, n), under: mixF(day.under, N.under, n) };
+  const mixL = (a, b, u) => ({ light: [lerp(a.light[0], b.light[0], u), lerp(a.light[1], b.light[1], u)], hi: mixO(a.hi, b.hi, u), hiAdd: mixO(a.hiAdd, b.hiAdd, u),
+    body: mixF(a.body, b.body, u), under: mixF(a.under, b.under, u) });
+  const noon = Object.assign({ light: [0.45 * sunSide(t), -0.7] }, NOON_LOOK);
+  return mixL(mixL(mixL(A, B, m), noon, w), N, n);
 }
 
-/* Fair-weather sky: two cumulus, one small cloud by the sunset gap, and a
-   mackerel sky of small puffs high up. They clear out for the storm. */
+/* Fair-weather cumulus: flat shaded bases, domed lit tops. White at noon,
+   coloured by the low sun at either end of the day. They clear out for the storm. */
+function cumulus(key, w, h) {
+  const r = rngFor('cu:' + key), billows = [];
+  for (const [dx, dy, rad] of [[-0.34, -0.3, 0.32], [-0.1, -0.56, 0.46], [0.14, -0.64, 0.52], [0.36, -0.36, 0.34]])
+    billows.push({ dx: (dx + (r() - 0.5) * 0.05) * w, dy: dy * h * (0.92 + r() * 0.16), r: rad * h * (0.92 + r() * 0.16), seed: key + ':' + billows.length });
+  return { w, h, billows, mam: [], key };
+}
 const FAIR = [
-  { c: cloudShape('fairA', 240, 80), x: 470, base: 372, v: 3 },
-  { c: cloudShape('fairB', 220, 78, { n: 6 }), x: 820, base: 222, v: 4 },
-  { c: cloudShape('fairC', 180, 66, { n: 5 }), x: 250, base: 206, v: 3.5 },
+  { c: cumulus('A', 280, 112), x: 470, base: 384, v: 3 },
+  { c: cumulus('B', 240, 96), x: 830, base: 240, v: 4 },
+  { c: cumulus('C', 170, 70), x: 240, base: 198, v: 3.5 },
 ];
 function fairClouds(t) {
   const a = 1 - cloudAt(t) * 1.4 - ramp(t, 11.6, 13.6) * (1 - ramp(t, 25, 28));
   if (a <= 0.01) return;
   const look = lookAt(t), A = clamp(a, 0, 1);
-  const L0 = GL.x0 - 170, WRAP = GL.x1 - GL.x0 + 340;
+  const L0 = GL.x0 - 190, WRAP = GL.x1 - GL.x0 + 380;
   for (const f of FAIR) {
     /* the storm hides them, so they jump back one loop's drift there and meet t = 0 again */
     const drift = f.v * (t < T.bolt ? t : t - DUR);
     const x = L0 + (((f.x - L0 - drift) % WRAP) + WRAP) % WRAP;
-    drawCloud(f.c, x, f.base, 1, look, A);
+    withClip(rect(-200, -400, W + 200, f.base + 1), () => drawCloud(f.c, x, f.base, 1, look, A));
   }
 }
 
-/* The storm: cumulonimbus masses lower in from the top, each with a billowed
-   crown and mammatus pouches under its base. Their bellies carry the city's
-   sodium glow until the power fails. */
+/* The storm comes in as a mass: a dark deck lowers from the top with a
+   billowed leading edge, and cumulonimbus heads push down through it at
+   uneven heights. Their undersides are dark, and the lowest lumps carry the
+   city's sodium glow until the power fails. Mammatus hangs under the bases
+   only once the storm is overhead. */
 const CB = [
-  { c: cloudShape('cbFar', 760, 120, { mammatus: 6 }), x: 470, base: 468, far: 1 },
-  { c: cloudShape('cbL', 520, 250, { tower: 4, mammatus: 9 }), x: 170, base: 330, far: 0.4 },
-  { c: cloudShape('cbR', 460, 230, { tower: 3, mammatus: 8 }), x: 900, base: 350, far: 0.5 },
-  { c: cloudShape('cbM', 600, 210, { tower: 3, mammatus: 10 }), x: 610, base: 250, far: 0 },
+  { c: cloudShape('cbFarL', 420, 130, { mammatus: 4, belly: 9 }), x: 300, base: 470, far: 1 },
+  { c: cloudShape('cbFarR', 380, 110, { mammatus: 3, belly: 8 }), x: 770, base: 440, far: 0.85 },
+  { c: cloudShape('cbL', 520, 250, { tower: 4, mammatus: 9, belly: 11 }), x: 170, base: 330, far: 0.4 },
+  { c: cloudShape('cbR', 460, 230, { tower: 3, mammatus: 8, belly: 10 }), x: 900, base: 350, far: 0.5 },
+  { c: cloudShape('cbM', 600, 210, { tower: 3, mammatus: 10, belly: 13 }), x: 610, base: 250, far: 0 },
 ];
+const DECK = (() => {
+  const r = rngFor('deck'), out = [];
+  for (let x = GL.x0 - 140; x < GL.x1 + 220; x += 30 + r() * 26) out.push({ x, dy: r() * 34, r: 26 + r() * 30, seed: 'deck:' + out.length });
+  return out;
+})();
+function stormDeck(t, y, glowOn) {
+  if (y < GL.y0 - 100) return;
+  const dx = -2.5 * t, p = rect(GL.x0 - 200, -400, GL.x1 + 260, y - 12);
+  for (const b of DECK) p.addPath(cut(ringPts(b.x + dx, y - b.dy, b.r, b.r * 0.7, 12), rngFor(b.seed), { amp: b.r * 0.07 }));
+  put(p, { indigo: ramp2(GL.y0, y + 30, .62, .74), blue: ramp2(GL.y0, y + 30, .5, .46), pink: ramp2(GL.y0, y + 30, .08, .14 + .1 * glowOn), yellow: ramp2(GL.y0, y + 30, 0, .04 * glowOn) });
+  withClip(p, () => add(rect(GL.x0 - 200, y - 50, GL.x1 + 260, y + 40), { pink: ramp2(y - 50, y + 30, 0, .16 * glowOn), yellow: ramp2(y - 50, y + 30, 0, .08 * glowOn) }));
+}
 function storm(t) {
   const C = cloudAt(t);
   if (C <= 0.01) return;
   const glowOn = t < offAt(600) || t > T.restore[1] ? 1 : 0;
   const lift = ramp(t, T.cloudsOut[0], T.cloudsOut[1]);
   const inU = ramp(t, T.cloudsIn[0], T.cloudsIn[1]);
+  const deckY = lerp(GL.y0 - 110, 430, sm(clamp(inU / 0.85, 0, 1)));
+  stormDeck(t, deckY - sm(lift) * (deckY - GL.y0 + 130), glowOn);
+  const overhead = ramp(inU, 0.8, 1) * (1 - ramp(lift, 0, 0.3));
   for (const m of CB) {
     const arrive = sm(clamp((inU - (1 - m.far) * 0.35) / 0.65, 0, 1));
     const leave = sm(clamp((lift - m.far * 0.3) / 0.7, 0, 1));
@@ -268,11 +315,17 @@ function storm(t) {
     const base = m.base - (1 - arrive) * (m.base + 160) - leave * (m.base + 200);
     const k = 1 - m.far * 0.12, dim = 1 - m.far * 0.25;
     const look = {
-      light: [0, 0.8], hi: { indigo: (.18 + .26 * glowOn) * dim, blue: .1 }, hiAdd: { pink: .1 * glowOn, yellow: .03 * glowOn },
-      body: (t0, b) => ({ indigo: ramp2(t0, b, .94 * dim, .6 * dim), blue: ramp2(t0, b, .6 * dim, .5 * dim), pink: ramp2(t0, b, .04, .1 + .3 * glowOn), yellow: ramp2(t0, b, 0, .1 * glowOn) }),
-      under: (y0, y1) => ({ pink: ramp2(y0, y1, 0, .14 * glowOn), yellow: ramp2(y0, y1, 0, .06 * glowOn) }),
+      light: [0, 0.8], hi: { indigo: (.12 + .16 * glowOn) * dim, blue: .08 }, hiAdd: { pink: .12 * glowOn, yellow: .05 * glowOn },
+      body: (t0, b) => ({ indigo: ramp2(t0, b, .74 * dim, .9 * dim), blue: ramp2(t0, b, .52 * dim, .5 * dim), pink: ramp2(t0, b, .06, .1 + .1 * glowOn), yellow: ramp2(t0, b, 0, .03 * glowOn) }),
+      under: (y0, y1) => ({ pink: ramp2(y0, y1, 0, .24 * glowOn), yellow: ramp2(y0, y1, 0, .12 * glowOn) }),
     };
-    drawCloud(m.c, m.x - t * (3 + m.far * 3), base, k, look, 1);
+    const x = m.x - t * (3 + m.far * 3);
+    drawCloud(m.c, x, base, k, look, 1, false);
+    if (overhead > 0.01) {
+      const mp = mamPath(m.c, x, base, k);
+      put(mp, look.body(base - m.c.h * k, base), undefined, overhead);
+      withClip(mp, () => add(rect(x - m.c.w * k, base, x + m.c.w * k, base + 60), scaleCov({ pink: ramp2(base, base + 40, .06, .2 * glowOn), yellow: ramp2(base, base + 40, 0, .08 * glowOn) }, overhead)));
+    }
   }
   const f = flickerAt(t);
   if (f) {
@@ -377,16 +430,16 @@ function rainbow(t) {
 
 /* ── the city ─────────────────────────────────────────────────────────────── */
 
+/* A calm, low far city: flat blocks, one mast, a few lit floors. */
 const FAR = (() => {
-  const r = rngFor('far'), out = [];
+  const r = rngFor('far2'), out = [];
   let x = GL.x0 - 30;
   while (x < GL.x1 + 30) {
-    const w = 14 + r() * 38, h = 12 + Math.pow(r(), 1.7) * 74;
-    const dots = [];
-    const k = Math.floor(w * h / 70);
-    for (let i = 0; i < k; i++) dots.push([x + 3 + r() * (w - 6), HY - h + 6 + r() * (h - 8), r()]);
-    out.push({ x, w, h, dots, mast: r() < 0.12 });
-    x += w * (0.55 + r() * 0.55);
+    const w = 26 + r() * 40, h = 16 + Math.pow(r(), 1.4) * 46;
+    const lights = [];
+    for (let y = HY - h + 7; y < HY - 4; y += 8) for (let lx = x + 4; lx < x + w - 9; lx += 10) if (r() < 0.32) lights.push([lx, y, r()]);
+    out.push({ x, w, h, lights, mast: r() < 0.06 });
+    x += w * (0.7 + r() * 0.4);
   }
   return out;
 })();
@@ -395,19 +448,19 @@ function farCity(t) {
   const p = new Path2D();
   for (const b of FAR) {
     p.rect(b.x, HY - b.h, b.w, b.h + 40);
-    if (b.mast) p.rect(b.x + b.w * 0.5 - 1, HY - b.h - 26, 2, 26);
+    if (b.mast) p.rect(b.x + b.w * 0.5 - 1.5, HY - b.h - 20, 3, 20);
   }
-  const day = { blue: .3, pink: .3, yellow: .1, indigo: .03 }, night = { indigo: .5, blue: .5, pink: .16, yellow: .03 };
+  const day = { blue: .28, pink: .28, yellow: .1, indigo: .03 }, night = { indigo: .46, blue: .48, pink: .18, yellow: .04 };
   const c = mixCov(day, night, n);
-  put(p, { yellow: c.yellow, pink: c.pink, blue: { ys: [HY - 90, HY + 30], as: [c.blue * 0.9, c.blue * 1.1] }, indigo: { ys: [HY - 90, HY + 30], as: [c.indigo * 0.85, c.indigo * 1.15] } });
+  put(p, { yellow: c.yellow, pink: c.pink, blue: { ys: [HY - 70, HY + 30], as: [c.blue * 0.9, c.blue * 1.1] }, indigo: { ys: [HY - 70, HY + 30], as: [c.indigo * 0.85, c.indigo * 1.15] } });
   const lit = new Path2D();
   const rate = n * (1 - 0.55 * ramp(t, 11.6, 20)) * (1 - 0.6 * R);
   for (let i = 0; i < FAR.length; i++) {
     const b = FAR[i];
     if (!powered(b.x, t, 'far' + (i >> 2))) continue;
-    for (const [x, y, q] of b.dots) if (q < rate * 0.8) lit.rect(x, y, 2.2, 2.6);
+    for (const [x, y, q] of b.lights) if (q < rate * 0.8) lit.rect(x, y, 6, 3);
   }
-  knock(lit, { indigo: .9, blue: .8 }); add(lit, { yellow: .9, pink: .3 });
+  knock(lit, { indigo: .85, blue: .75 }); add(lit, { yellow: .8, pink: .3 });
 }
 
 const TOWERS = [
@@ -432,23 +485,41 @@ function towerShape(b) {
   if (b.crown === 'flat') p.rect(b.x0 + w * 0.55, b.top - 10, w * 0.3, 11);
   return { p, tip };
 }
-const WIN = TOWERS.map((b, i) => {
-  const r = rngFor('win' + i), out = [], cw = 6.2, ch = 9;
-  for (let y = b.top + 8; y < TBASE - 8; y += ch) for (let x = b.x0 + 4; x < b.x1 - 5; x += cw) {
-    const late = r();
-    const on = lerp(T.towersOn[0], T.towersOn[1], Math.pow(r(), 0.8)) + (b.far ? 0.4 : 0);
-    const off = late < 0.34 ? 31 + r() * 4 : 11.5 + Math.pow(r(), 0.9) * 7.5;
-    out.push({ x, y, on, off, cool: r() < 0.45, q: r() });
+const FLOOR = 12, BAY = 16, GAP = 3.5;
+/* Offices light whole floors at dusk and empty out through the evening, leaving
+   a few late bays; apartments light unit by unit and stay on later. */
+const OFFICE = [false, true, true, false, false, true, true, true, false];
+const LIT = TOWERS.map((b, i) => {
+  const r = rngFor('floors' + i), bays = [];
+  const bayXs = [];
+  for (let x = b.x0 + 3; x < b.x1 - 6; x += BAY) bayXs.push([x, Math.min(BAY - GAP, b.x1 - 3 - x)]);
+  for (let y = b.top + 7; y < TBASE - 8; y += FLOOR) {
+    if (OFFICE[i]) {
+      const on = lerp(T.towersOn[0], T.towersOn[0] + 3.8, r()) + (b.far ? 0.4 : 0);
+      const lateFloor = r() < 0.06, off = lateFloor ? 31 + r() * 3 : 11.6 + r() * 6.5;
+      const cool = r() < 0.8;
+      for (const [x, w] of bayXs) bays.push({ x, y, w, on, off: !lateFloor && r() < 0.08 ? 31 + r() * 3.5 : off, cool });
+    } else {
+      for (const [x, w] of bayXs) {
+        if (r() > 0.5) continue;
+        const on = lerp(T.towersOn[0] + 0.6, T.towersOn[1], Math.pow(r(), 0.8)) + (b.far ? 0.4 : 0);
+        bays.push({ x, y, w, on, off: r() < 0.3 ? 30.5 + r() * 4 : 12.5 + r() * 7, cool: r() < 0.15 });
+      }
+    }
   }
-  return out;
+  return bays;
 });
 function towers(t) {
   const n = nightness(t);
   for (let i = 0; i < TOWERS.length; i++) {
     const b = TOWERS[i], { p, tip } = towerShape(b), w = b.x1 - b.x0, k = b.far ? 0.8 : 1;
-    const day = { blue: .52 * k, pink: .34 * k, indigo: .2 * k, yellow: .08 };
-    const nite = { indigo: .93 * k, blue: .6 * k, pink: .1, yellow: 0 };
-    const dawn = { blue: .5 * k, pink: .3 * k, indigo: .2 * k, yellow: .06 };
+    const ys = [b.top - 30, TBASE];
+    /* the glass reflects the sky: blue at noon, warm when the sun is low */
+    const hi = { blue: { ys, as: [.42 * k, .62 * k] }, pink: { ys, as: [.12 * k, .26 * k] }, indigo: { ys, as: [.06 * k, .26 * k] }, yellow: .05 };
+    const low = { blue: { ys, as: [.34 * k, .56 * k] }, pink: { ys, as: [.26 * k, .36 * k] }, indigo: { ys, as: [.06 * k, .22 * k] }, yellow: .08 };
+    const day = mixCov(low, hi, noonW(t));
+    const nite = { indigo: .8 * k, blue: .56 * k, pink: .1, yellow: 0 };
+    const dawn = { blue: { ys, as: [.38 * k, .56 * k] }, pink: { ys, as: [.2 * k, .3 * k] }, indigo: { ys, as: [.06 * k, .24 * k] }, yellow: .06 };
     let c = mixCov(day, nite, n);
     c = mixCov(c, dawn, (1 - n) * morn(t));
     put(p, c);
@@ -465,28 +536,43 @@ function towers(t) {
         })));
       }
     }
-    if (b.band && n < 0.9) {
-      const lines = new Path2D();
-      for (let y = b.top + 6; y < TBASE; y += 10) lines.rect(b.x0, y, w, 2.2);
-      withClip(p, () => knock(lines, { blue: .22 * (1 - n), pink: .12 * (1 - n) }));
-    }
+    /* curtain wall: spandrel lines at each floor, faint mullions */
+    const dayK = 1 - n;
+    if (dayK > 0.05) withClip(p, () => {
+      const spandrel = new Path2D(), mull = new Path2D();
+      for (let y = b.top + 7 + FLOOR - 4.5; y < TBASE; y += FLOOR) spandrel.rect(b.x0, y, w, 4.5);
+      for (let x = b.x0 + 3 + BAY - GAP; x < b.x1 - 4; x += BAY) mull.rect(x, b.top, 2.5, TBASE - b.top);
+      add(spandrel, { indigo: .28 * dayK * k });
+      knock(mull, { blue: .12 * dayK, indigo: .08 * dayK });
+    });
     const warm = new Path2D(), cool = new Path2D();
-    for (const wd of WIN[i]) {
-      if (t < wd.on || t > wd.off) continue;
-      if (!powered(wd.x, t, 'tower' + i)) continue;
-      (wd.cool ? cool : warm).rect(wd.x, wd.y, 3.6, 5.2);
+    for (const bay of LIT[i]) {
+      if (t < bay.on || t > bay.off) continue;
+      if (!powered(bay.x, t, 'tower' + i)) continue;
+      (bay.cool ? cool : warm).rect(bay.x, bay.y, bay.w, 5.5);
     }
     const lf = ramp(t, T.towersOn[0], T.towersOn[0] + 1.5) * (1 - 0.85 * ramp(t, 30.5, 33.5));
-    knock(warm, { indigo: lf, blue: lf, pink: .6 * lf }); add(warm, { yellow: .95 * lf, pink: .28 * lf });
-    knock(cool, { indigo: lf, blue: .85 * lf, pink: lf }); add(cool, { blue: .18 * lf, yellow: .12 * lf });
-    if (tip && n > 0.3 && powered(tip[0], t, 'tower' + i) && Math.sin(TAU * (t * 0.8 + i * 0.37)) > 0.2) {
-      glow('indigo', tip[0], tip[1], 1, 16, 1, 'destination-out'); glow('blue', tip[0], tip[1], 1, 12, .8, 'destination-out');
-      glow('pink', tip[0], tip[1], 1, 11, 1); glow('yellow', tip[0], tip[1], 0, 5, .5);
+    knock(warm, { indigo: lf, blue: lf, pink: .6 * lf }); add(warm, { yellow: .9 * lf, pink: .3 * lf });
+    knock(cool, { indigo: lf, blue: .85 * lf, pink: lf }); add(cool, { blue: .16 * lf, yellow: .14 * lf });
+    /* aircraft warning lights: steady on the tall roofs, slow blink on the masts */
+    if (n > 0.3 && powered(b.x0, t, 'tower' + i)) {
+      const reds = [];
+      if (tip && Math.sin(cyc(t, 0.8) + i * 2.3) > -0.2) reds.push(tip);
+      if (b.top < 380 && b.crown === 'dome') reds.push([(b.x0 + b.x1) / 2, b.top - 24]);
+      else if (b.top < 380 && b.crown !== 'mast') { const y = b.crown === 'step' ? b.top - 30 : b.top; const e = b.crown === 'step' ? 0.3 : 0.08; reds.push([b.x0 + w * e + 2, y], [b.x1 - w * e - 2, y]); }
+      const a = ramp(n, 0.3, 0.6);
+      for (const [x, y] of reds) {
+        glow('indigo', x, y, 1, 12, .9 * a, 'destination-out'); glow('blue', x, y, 1, 10, .9 * a, 'destination-out');
+        const dot = new Path2D(); dot.arc(x, y, 3, 0, TAU);
+        add(dot, { pink: a, yellow: .5 * a }); glow('pink', x, y, 2, 11, .5 * a);
+      }
     }
   }
 }
 
-/* KRL commuter train on its viaduct, behind the square. */
+
+/* KRL commuter train on its viaduct, behind the square: a stainless body with
+   the red stripe by day, lit windows after dark. */
 const TRAIN_Y = 603;
 function viaduct(t) {
   const n = nightness(t);
@@ -497,20 +583,23 @@ function viaduct(t) {
 function train(t) {
   const run = [T.train, T.dayTrain].find(([a, b]) => t >= a && t <= b);
   if (!run) return;
-  const u = (t - run[0]) / (run[1] - run[0]);
-  const len = 8 * 60, head = lerp(GL.x0 - 20, GL.x1 + len + 20, u);
-  const body = new Path2D(), win = new Path2D(), stripe = new Path2D();
+  const n = nightness(t), u = (t - run[0]) / (run[1] - run[0]);
+  const CAR = 62, len = 8 * CAR, head = lerp(GL.x0 - 20, GL.x1 + len + 20, u);
+  const y0 = TRAIN_Y - 10, y1 = TRAIN_Y + 10;
+  const body = new Path2D(), win = new Path2D(), stripe = new Path2D(), roof = new Path2D();
   for (let c = 0; c < 8; c++) {
-    const x1 = head - c * 60, x0 = x1 - 57;
-    const nose = c === 0 ? 6 : 0;
-    body.moveTo(x0, TRAIN_Y - 3); body.lineTo(x1 - nose, TRAIN_Y - 3); body.lineTo(x1, TRAIN_Y + 3); body.lineTo(x1, TRAIN_Y + 10); body.lineTo(x0, TRAIN_Y + 10); body.closePath();
-    for (let k = 0; k < 5; k++) win.rect(x0 + 5 + k * 10.5, TRAIN_Y, 6.5, 4.2);
-    stripe.rect(x0, TRAIN_Y + 6, 57 - nose * 0.5, 1.8);
+    const x1 = head - c * CAR, x0 = x1 - CAR + 3, nose = c === 0 ? 7 : 0;
+    body.moveTo(x0, y0); body.lineTo(x1 - nose, y0); body.lineTo(x1, y0 + 8); body.lineTo(x1, y1); body.lineTo(x0, y1); body.closePath();
+    roof.rect(x0, y0, CAR - 3 - nose, 2.5);
+    for (let k = 0; k < 5; k++) win.rect(x0 + 4 + k * 11.4, y0 + 4, 8, 6);
+    if (c === 0) win.rect(x1 - nose + 1, y0 + 3, nose - 2, 5);
+    stripe.rect(x0, y0 + 12, CAR - 3 - nose * 0.2, 4);
   }
-  put(body, { blue: .3, indigo: .42, pink: .08 });
-  knock(win, { indigo: 1, blue: 1, pink: 1 }); add(win, { yellow: .9, pink: .18 });
-  add(stripe, { pink: .95, yellow: .25 });
-  const hl = [head + 2, TRAIN_Y + 5];
+  put(body, mixCov({ blue: .14, indigo: .07, pink: .05, yellow: .04 }, { indigo: .6, blue: .5, pink: .08 }, n));
+  add(roof, { indigo: .2 + .2 * n, blue: .1 });
+  put(win, mixCov({ indigo: .5, blue: .42, pink: .06 }, { yellow: .88, pink: .2 }, n));
+  put(stripe, mixCov({ pink: .95, yellow: .55 }, { pink: .7, yellow: .25, indigo: .25 }, n));
+  const hl = [head + 2, y0 + 12];
   glow('indigo', hl[0], hl[1], 1, 16, .9, 'destination-out'); glow('yellow', hl[0] + 4, hl[1], 0, 14, .8);
 }
 
@@ -689,8 +778,8 @@ const PALMS = [[140, 704, 1.0], [520, 712, 0.9], [706, 714, 1.05], [948, 706, 0.
 });
 function greens(t, which) {
   const n = nightness(t);
-  const day = { blue: .44, yellow: .34, pink: .1, indigo: .08 }, night = { indigo: .62, blue: .5, yellow: .1, pink: .04 };
-  const k = which === 'back' ? 0.8 : 1;
+  const day = { blue: .44, yellow: .34, pink: .1, indigo: .08 }, night = { indigo: .8, blue: .56, yellow: .06, pink: .08 };
+  const k = which === 'back' ? 0.85 : 1;
   const T0 = which === 'back' ? BACKTREES : FRONTTREES;
   put(T0.p, scaleCov(mixCov(day, night, n), k));
   if (n < 0.8) {
@@ -701,7 +790,7 @@ function greens(t, which) {
   }
   if (which === 'front') {
     for (const pm of PALMS) {
-      const c = mixCov({ blue: .5, yellow: .3, pink: .12, indigo: .14 }, { indigo: .74, blue: .52, yellow: .06, pink: .06 }, n);
+      const c = mixCov({ blue: .5, yellow: .3, pink: .12, indigo: .14 }, { indigo: .86, blue: .56, yellow: .04, pink: .06 }, n);
       put(pm.tr, c); put(pm.fronds, c);
     }
   }
@@ -765,25 +854,57 @@ function road(t) {
   if (wet > 0) { knock(refl, { indigo: .45 * wet, blue: .4 * wet }); add(refl, { yellow: .22 * wet, pink: .1 * wet }); }
 }
 
-/* The nearest roofs: kampung houses, water tanks, a TV glowing blue. */
+/* The nearest roofs: kampung houses with water tanks (toren), lit windows and a
+   TV glowing blue. */
 const ROOFS = (() => {
-  const r = rngFor('roofs'), p = new Path2D(), tanks = [], wins = [];
+  const r = rngFor('roofs'), houses = [], tanks = [], wins = [];
   let x = GL.x0 - 20;
   while (x < GL.x1 + 20) {
-    const w = 40 + r() * 70, top = 784 + r() * 8;
-    p.moveTo(x, 804); p.lineTo(x, top + 4); p.lineTo(x + w * 0.5, top - 5 - r() * 4); p.lineTo(x + w, top + 4); p.lineTo(x + w, 804); p.closePath();
-    if (r() < 0.45) { const tx = x + w * (0.2 + r() * 0.5); tanks.push([tx, top - 8]); }
+    const w = 40 + r() * 70, top = 784 + r() * 8, ridge = top - 5 - r() * 4;
+    houses.push({ x, w, top, ridge });
+    if (r() < 0.45) r();
     if (r() < 0.5) wins.push([x + 8 + r() * (w - 20), top + 8, r() < 0.3]);
     x += w * (0.8 + r() * 0.3);
   }
-  return { p, tanks, wins };
+  const p = new Path2D();
+  for (const h of houses) p.addPath(poly([[h.x, 804], [h.x, h.top + 4], [h.x + h.w * 0.5, h.ridge], [h.x + h.w, h.top + 4], [h.x + h.w, 804]]));
+  const roofY = (h, x) => { const u = Math.abs((x - h.x) / h.w - 0.5) * 2; return lerp(h.ridge, h.top + 4, u); };
+  /* the skyline of the roofs, for anything that must pass behind them */
+  const profile = x => Math.min(...houses.filter(h => x >= h.x && x <= h.x + h.w).map(h => roofY(h, x)), 804);
+  const above = new Path2D();
+  above.moveTo(GL.x0 - 20, -100);
+  for (let x2 = GL.x0 - 20; x2 <= GL.x1 + 20; x2 += 2) above.lineTo(x2, profile(x2));
+  above.lineTo(GL.x1 + 20, -100); above.closePath();
+  /* placed by hand where the desk leaves the roofline visible */
+  const houseAt = x => houses.find(h => x >= h.x && x <= h.x + h.w);
+  for (const [x, orange, stand] of [[168, 0, 4], [250, 1, 7], [428, 0, 3], [722, 0, 6], [760, 1, 3], [842, 0, 5]])
+    tanks.push({ x, orange, stand, y: roofY(houseAt(x), x) });
+  return { p, houses, tanks, wins, profile, above };
 })();
 function roofs(t) {
   const n = nightness(t);
-  put(ROOFS.p, mixCov({ pink: .32, blue: .34, indigo: .14, yellow: .1 }, { indigo: .78, blue: .52, pink: .14 }, n));
-  const tank = new Path2D();
-  for (const [x, y] of ROOFS.tanks) { tank.rect(x - 6, y - 10, 12, 12); tank.rect(x - 7, y + 2, 14, 3); }
-  put(tank, mixCov({ blue: .7, indigo: .1, yellow: .05 }, { indigo: .7, blue: .6 }, n));
+  put(ROOFS.p, mixCov({ pink: .44, yellow: .3, blue: .22, indigo: .14 }, { indigo: .78, blue: .52, pink: .16 }, n));
+  const legs = new Path2D(), blue = new Path2D(), orange = new Path2D(), lids = { b: new Path2D(), o: new Path2D() }, shade = new Path2D(), hi = new Path2D(), rib = new Path2D();
+  const side = sunSide(t) || 1;
+  for (const tk of ROOFS.tanks) {
+    const R = 7, H = 16, x = tk.x, yb = tk.y - tk.stand, yt = yb - H;
+    legs.rect(x - R + 1, yb, 2, tk.stand + 2); legs.rect(x + R - 3, yb, 2, tk.stand + 2); legs.rect(x - R, yb, 2 * R, 2);
+    const body = tk.orange ? orange : blue;
+    body.addPath(rrect(x - R, yt + 2, x + R, yb, 2.5));
+    const lid = new Path2D(); lid.ellipse(x, yt + 2, R + 0.5, 3, 0, 0, TAU);
+    (tk.orange ? lids.o : lids.b).addPath(lid);
+    shade.addPath(rect(side > 0 ? x - R : x + R * 0.25, yt + 2, side > 0 ? x - R * 0.25 : x + R, yb));
+    hi.addPath(rect(side > 0 ? x + R * 0.2 : x - R * 0.6, yt + 4, side > 0 ? x + R * 0.6 : x - R * 0.2, yb - 1));
+    rib.rect(x - R, yt + H * 0.55, 2 * R, 1.6);
+  }
+  add(legs, { indigo: .5 + .2 * n, blue: .3 });
+  const dark = { indigo: .72, blue: .56, pink: .1 };
+  put(blue, mixCov({ blue: .9, indigo: .1, yellow: .04 }, dark, n));
+  put(orange, mixCov({ yellow: .88, pink: .52, indigo: .02 }, mixCov(dark, { pink: .22 }, 0.4), n));
+  put(lids.b, mixCov({ blue: .95, indigo: .34 }, dark, n));
+  put(lids.o, mixCov({ yellow: .8, pink: .66, indigo: .1 }, dark, n));
+  add(shade, { indigo: .2 * (1 - n) }); add(rib, { indigo: .18 * (1 - n) });
+  knock(hi, { indigo: .08 * (1 - n), blue: .2 * (1 - n), pink: .12 * (1 - n) });
   const warm = new Path2D(), tv = new Path2D();
   for (let i = 0; i < ROOFS.wins.length; i++) {
     const [x, y, isTv] = ROOFS.wins[i];
@@ -793,6 +914,83 @@ function roofs(t) {
   }
   knock(warm, { indigo: 1, blue: 1 }); add(warm, { yellow: .85, pink: .35 });
   knock(tv, { indigo: 1, pink: 1 }); add(tv, { blue: .3 });
+}
+
+/* ── the kite ─────────────────────────────────────────────────────────────── */
+
+const KITE = { hover: [812, 262], anchor: [744, 0], span: 40 };
+KITE.anchor[1] = ROOFS.profile(KITE.anchor[0]) + 2;
+const kiteOn = t => t >= T.kite[0] || t <= T.kite[1];
+function kitePose(t) {
+  const [hx, hy] = KITE.hover, [ax, ay] = KITE.anchor;
+  const dip = 16 * Math.pow(Math.max(0, Math.sin(cyc(t, 0.2) + 2)), 14);
+  const wob = [9 * Math.sin(cyc(t, 0.16)) + 3 * Math.sin(cyc(t, 0.52) + 1), 5 * Math.sin(cyc(t, 0.3) + 0.5) + dip];
+  const rot = 0.1 * Math.sin(cyc(t, 0.42) + 0.7) + 0.012 * dip;
+  let x = hx + wob[0], y = hy + wob[1];
+  /* launched from behind the roofs: it climbs over 2.5 s and slows into the hover */
+  const u = clamp(since(t, T.kite[0]) / 2.5, 0, 1), up = 1 - Math.pow(1 - u, 2.2);
+  x = lerp(ax + 10, x, sm(u)); y = lerp(ay + 40, y, up);
+  /* reeled in after the seam, sinking behind the roofs by T.kite[1] */
+  if (t <= T.kite[1]) {
+    const v = Math.pow(t / T.kite[1], 1.6);
+    x = lerp(x, ax + 14, v); y = lerp(y, ay + 34, v);
+  }
+  return { x, y, rot: rot * (1 - 0.5 * (1 - u)) };
+}
+function kite(t) {
+  if (!kiteOn(t)) return;
+  const { x, y, rot } = kitePose(t), s = KITE.span / 30;
+  const c = Math.cos(rot), sn = Math.sin(rot);
+  const P = (dx, dy) => [x + (dx * c - dy * sn) * s, y + (dx * sn + dy * c) * s];
+  const top = P(0, -19), rt = P(15, -5), bot = P(0, 17), lf = P(-15, -5), mid = P(0, -5);
+  const L = clamp(-sunSide(t), 0, 1) * (1 - nightness(t));
+  withClip(ROOFS.above, () => {
+    const [ax, ay] = KITE.anchor, br = P(0, 0);
+    const line = new Path2D(); line.moveTo(br[0], br[1]);
+    line.quadraticCurveTo((br[0] + ax) / 2 - 10, (br[1] + ay) / 2 + 70, ax, ay);
+    strokeOn('indigo', line, 1.5, .5); strokeOn('blue', line, 1.5, .2);
+    const tail = [], tailW = new Path2D();
+    for (let k = 0; k <= 6; k++) { const v = k / 6; tail.push(P(Math.sin(cyc(t, 1.1) + v * 3) * 4 * v, 17 + v * 22)); }
+    tailW.addPath(nib(tail, u => 2.6 - u, { per: 4 }));
+    put(tailW, { pink: .9, yellow: .3 });
+    const q = (a, b, u) => [lerp(a[0], b[0], u), lerp(a[1], b[1], u)];
+    put(poly([top, rt, bot, lf]), { pink: .9, yellow: .14 });
+    put(poly([q(mid, top, 0.55), q(mid, rt, 0.55), q(mid, bot, 0.5), q(mid, lf, 0.55)]), { yellow: .95, pink: .06 });
+    /* lit from the sun's side, shaded on the other */
+    const shadeHalf = poly([top, rt, bot]), litHalf = poly([top, lf, bot]);
+    add(shadeHalf, { indigo: .08 + .12 * L, blue: .04 });
+    knock(litHalf, { indigo: .1 * L, blue: .1 * L }); add(litHalf, { yellow: .08 * L });
+    const spar = new Path2D(); spar.moveTo(...lf); spar.quadraticCurveTo(...P(0, -12), ...rt);
+    const spine = new Path2D(); spine.moveTo(...top); spine.lineTo(...bot);
+    strokeOn('indigo', spar, 2.6, .62); strokeOn('indigo', spine, 2, .45);
+    strokeOn('indigo', poly([top, rt, bot, lf]), 1.8, .55);
+  });
+}
+
+/* ── noon: shadows of clouds overhead slide across the city ───────────────── */
+
+function softEllipse(pl, x, y, rx, ry, a, op) {
+  if (a <= 0.001) return;
+  const g = PG[pl];
+  g.save(); g.translate(x, y); g.scale(1, ry / rx);
+  g.globalCompositeOperation = op || 'source-over'; g.globalAlpha = 1;
+  g.fillStyle = radial(g, 0, 0, rx * 0.35, rx, a, 0); g.fillRect(-rx, -rx, 2 * rx, 2 * rx);
+  g.restore();
+}
+function cloudShadows(t) {
+  const a = noonW(t) * (1 - cloudAt(t));
+  if (a <= 0.01) return;
+  const ground = new Path2D();
+  for (const p of [BACKTREES.p, FRONTTREES.p, MON.body, MON.terrace, rect(GL.x0 - 4, ROAD[0], GL.x1 + 4, GL.y1 + 4)]) ground.addPath(p);
+  for (const b of TOWERS) ground.addPath(towerShape(b).p);
+  const SPAN = GL.x1 - GL.x0 + 700;
+  withClip(ground, () => {
+    for (const [x0, y, rx, ry] of [[1654, 672, 250, 74], [2134, 560, 170, 160]]) {
+      const x = GL.x0 - 350 + (((x0 - 22 * t) % SPAN) + SPAN) % SPAN;
+      softEllipse('blue', x, y, rx, ry, .13 * a); softEllipse('indigo', x, y, rx, ry, .07 * a);
+      softEllipse('yellow', x, y, rx, ry, .1 * a, 'destination-out');
+    }
+  });
 }
 
 /* ── weather ──────────────────────────────────────────────────────────────── */
@@ -813,6 +1011,7 @@ function rainOutside(t) {
   for (const [pl, a] of [['indigo', .56], ['blue', .36], ['pink', .18]]) strokeOn(pl, p, 2.8, a * R, 'destination-out');
   strokeOn('blue', p, 1.2, .1 * R);
 }
+/* Rain haze belongs to distance: it thickens over the far city and thins over the near square. */
 function haze(t) {
   const R = rainAt(t), pre = ramp(t, 25, 28) * (1 - ramp(t, 29.5, 33));
   const D = Math.max(R * 0.46, pre * 0.3);
@@ -820,7 +1019,7 @@ function haze(t) {
   const out = t >= offAt(540) && t < T.restore[1] ? 1 - ramp(t, T.restore[0], T.restore[1]) : 0;
   const col = t < 25 ? mixCov({ blue: .34, indigo: .3, pink: .08, yellow: .02 }, { blue: .42, indigo: .62, pink: .02 }, out) : { pink: .2, blue: .22, yellow: .06, indigo: .04 };
   const area = rect(GL.x0 - 4, 300, GL.x1 + 4, GL.y1 + 4);
-  const e = { ys: [300, HY, GL.y1], as: [0.2 * D, D, D * 0.7] };
+  const e = { ys: [300, HY, 650, 720, GL.y1], as: [0.2 * D, D, 0.4 * D, 0.14 * D, 0.1 * D] };
   knock(area, { yellow: e, pink: e, blue: e, indigo: e });
   const c = {};
   for (const n in col) c[n] = { ys: e.ys, as: e.as.map(a => a * col[n]) };
@@ -911,14 +1110,15 @@ function drops(t) {
   if (L > 0) { knock(warm, { indigo: L, blue: L }); add(warm, { yellow: .9 * L, pink: .3 * L }); }
 }
 
-/* At night the glass becomes a faint mirror of the room: the lamp floats in it. */
+/* At night the glass becomes a faint mirror of the room: the lamp floats in it
+   as a small warm spot, not a pale bloom over the trees. */
 function mirror(t) {
   const M0 = roomDark(t) * lampAt(t) * (1 - 0.8 * flashAt(t));
   if (M0 <= 0.01) return;
   const [x, y] = MIRROR_LAMP;
-  glow('indigo', x, y, 6, 60, .26 * M0, 'destination-out');
-  glow('blue', x, y, 6, 52, .2 * M0, 'destination-out');
-  glow('yellow', x, y, 3, 34, .22 * M0);
+  glow('indigo', x, y, 4, 34, .3 * M0, 'destination-out');
+  glow('blue', x, y, 4, 30, .2 * M0, 'destination-out');
+  glow('yellow', x, y, 3, 30, .3 * M0);
   const deskGlow = rect(GL.x0, GL.y1 - 34, 620, GL.y1);
   knock(deskGlow, { indigo: { ys: [GL.y1 - 34, GL.y1], as: [0, .3 * M0] } });
   add(deskGlow, { yellow: { ys: [GL.y1 - 34, GL.y1], as: [0, .12 * M0] } });
@@ -1003,6 +1203,17 @@ function room(t) {
   const sill = rect(FR.x0 - 10, FR.y1 - 8, FR.x1 + 10, FR.y1 + 4);
   put(sill, mixCov({ yellow: .3, pink: .22, blue: .26, indigo: .08 }, { indigo: .7, blue: .44, pink: .08 }, d));
   knock(rect(FR.x0 - 10, FR.y1 - 8, FR.x1 + 10, FR.y1 - 5), { indigo: .5, blue: .5, pink: .4 });
+  /* at night the city glow catches the frame's inner edge, strongest low down */
+  const rimK = nightness(t) * (t < offAt(600) || t > T.restore[1] ? 1 : 0.45);
+  if (rimK > 0.01) {
+    const ring = rect(GL.x0 - 5, GL.y0 - 5, GL.x1 + 5, GL.y1 + 5);
+    ring.addPath(rect(GL.x0 - 1.4, GL.y0 - 1.4, GL.x1 + 1.4, GL.y1 + 1.4));
+    ring.addPath(rect(MUL[0] - 1.5, GL.y0, MUL[0] + 1.6, GL.y1));
+    ring.addPath(rect(MUL[1] - 1.6, GL.y0, MUL[1] + 1.5, GL.y1));
+    const e = { ys: [GL.y0, GL.y1], as: [.18 * rimK, .5 * rimK] };
+    knock(ring, { indigo: e, pink: { ys: e.ys, as: e.as.map(a => a * 0.5) } }, 'evenodd');
+    add(ring, { blue: { ys: e.ys, as: e.as.map(a => a * 0.2) } }, 'evenodd');
+  }
 
   const desk = rect(0, DESK, W, W);
   put(desk, mixCov(DESK_WOOD.day, DESK_WOOD.night, d));
@@ -1718,7 +1929,7 @@ function drawArt(t) {
     sky(t); sun(t); fairClouds(t); storm(t); westCell(t); rainbow(t); plane(t);
     farCity(t); viaduct(t); train(t); towers(t);
     greens(t, 'back'); monas(t); greens(t, 'front'); swifts(t);
-    streetLamps(t); road(t); roofs(t);
+    streetLamps(t); road(t); roofs(t); cloudShadows(t); kite(t);
     rainOutside(t); haze(t); bolt(t);
     drops(t); mirror(t);
   });
