@@ -11,6 +11,7 @@ import {
   type TargetAndTransition,
   type Transition
 } from 'motion/react';
+import { Activity } from 'lucide-react';
 import { FaAws } from 'react-icons/fa6';
 import {
   SiApachekafka,
@@ -43,7 +44,7 @@ const instrumentLabels: Record<CapabilityKind, string> = {
   fullstack:
     'Illustration: access changes from Slack, Google, Jira, and Confluence flow into one access log, where each arrives with who, what, and when and is marked recorded',
   production:
-    'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
+    'Illustration: a lending service keeps pulsing while one of its three dependencies goes down and recovers, beside 99.98% uptime and 2M+ transactions a month for Flexi Cash at Jenius, 2019 to 2022',
   release:
     'Illustration: a release plan for the week where planned work fills in up to Friday, a late request that would run past the ship date moves to the next release, and the release ships on time',
   standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
@@ -665,69 +666,107 @@ function ReleasePlan({ frame }: { frame: Frame }): JSX.Element {
   );
 }
 
-// One traffic line that dips once and recovers. The shape is illustrative; the figures under it
-// are the real ones. The marker sits on the dip, so its position is the path's own coordinates.
-const trafficLine = 'M0 84 C 36 80, 64 72, 96 62 S 150 46, 182 42 L 196 58 L 210 36 S 252 22, 280 14';
-const trafficArea = `${trafficLine} L 280 96 L 0 96 Z`;
-const dip = { x: 196 / 280, y: 58 / 96 };
-const trafficCycle = 8.2;
-const reliabilityFigures = [
-  { label: 'uptime', value: '99.98%' },
-  { label: 'transactions a month', value: '2M+' },
-  { label: 'users, three years', value: '+147%' }
+// The rings sit in a fixed block placed by percentage, so nothing here needs measuring.
+const ringBox = 240;
+const ringCenter = ringBox / 2;
+const ringRadii = [46, 80, 114];
+const rippleDelays = [0, 1.2, 2.4];
+const dependencyOffsets = [-135, 165, 80].map((degrees) => {
+  const radians = (degrees * Math.PI) / 180;
+  return { x: Math.cos(radians) * ringRadii[1], y: Math.sin(radians) * ringRadii[1] };
+});
+const uptimeStats = [
+  { delay: 0.4, duration: 4.6, label: 'uptime', left: 'min(calc(36% + 96px), calc(100% - 116px))', top: '12%', value: '99.98%' },
+  { delay: 1.2, duration: 5.3, label: 'transactions a month', left: 'min(calc(36% + 70px), calc(100% - 150px))', top: '58%', value: '2M+' }
 ];
 
-function ReliabilityBoard({ reduced }: { reduced: boolean }): JSX.Element {
+const uptimeBeats = [
+  { ms: 3000, name: 'up' },
+  { ms: 2200, name: 'down' }
+] as const;
+type UptimeBeat = (typeof uptimeBeats)[number]['name'];
+
+const uptimeStatus: Record<UptimeBeat, Status> = {
+  down: { text: '1 dependency down, still up', tone: 'warn' },
+  up: { text: 'operational', tone: 'done' }
+};
+
+// The service keeps pulsing while one dependency at a time goes down and comes back.
+function Uptime({ frame }: { frame: Frame }): JSX.Element {
+  const { beat, episode } = useEpisode(uptimeBeats, 'up', !frame.still);
+  const down = beat === 'down' ? episode % dependencyOffsets.length : -1;
+
   return (
-    <div className={`${panelClassName} gap-4`}>
-      <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
-        <span>Flexi Cash lending</span>
-        <span>Jenius, 2019 to 2022</span>
-      </div>
-
-      <div className="relative aspect-[280/96]">
-        <svg aria-hidden="true" className="absolute inset-0 size-full overflow-visible" fill="none" viewBox="0 0 280 96">
-          {[24, 48, 72].map((y) => (
-            <line className="stroke-zinc-100" key={y} x1="0" x2="280" y1={y} y2={y} />
+    <Screen frame={frame} status={uptimeStatus[beat]}>
+      <div className="absolute top-[47%] left-[36%] -translate-1/2" style={{ height: ringBox, width: ringBox }}>
+        <svg className="absolute inset-0 size-full overflow-visible" fill="none" viewBox={`0 0 ${ringBox} ${ringBox}`}>
+          <circle className="fill-emerald-50" cx={ringCenter} cy={ringCenter} r={ringRadii[0]} />
+          {ringRadii.map((radius) => (
+            <circle className="stroke-zinc-200" cx={ringCenter} cy={ringCenter} key={radius} r={radius} strokeWidth={1} />
           ))}
-          <motion.path
-            className="fill-sky-500/10"
-            d={trafficArea}
-            {...cycle(reduced, { opacity: [0, 0, 1, 1, 0] }, trafficCycle, [0, 0.2, 0.5, 0.92, 1])}
-          />
-          <motion.path
-            className="stroke-sky-500"
-            d={trafficLine}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            {...cycle(
-              reduced,
-              { opacity: [1, 1, 1, 0], pathLength: [0, 1, 1, 1] },
-              trafficCycle,
-              [0, 0.45, 0.92, 1]
-            )}
-          />
+          {frame.still
+            ? null
+            : rippleDelays.map((delay) => (
+                <motion.circle
+                  className="origin-center stroke-emerald-200 [transform-box:fill-box]"
+                  cx={ringCenter}
+                  cy={ringCenter}
+                  key={delay}
+                  r={ringRadii[2]}
+                  strokeWidth={1.25}
+                  {...cycle(frame.still, { opacity: [0.7, 0], scale: [0.3, 1] }, 3.6, [0, 1], {
+                    delay,
+                    ease: [0.2, 0.6, 0.3, 1]
+                  })}
+                  initial={{ opacity: 0, scale: 0.3 }}
+                />
+              ))}
         </svg>
-        <motion.span
-          className="absolute grid -translate-x-1/2 justify-items-center gap-1.5"
-          style={{ left: `${dip.x * 100}%`, top: `calc(${dip.y * 100}% - 4px)` }}
-          {...cycle(reduced, { opacity: [0, 0, 1, 1, 0] }, trafficCycle, [0, 0.33, 0.38, 0.92, 1])}
+        <span
+          className={cn(
+            'absolute top-1/2 left-1/2 grid size-14 -translate-1/2 place-items-center rounded-full bg-white text-emerald-400',
+            liftClassName
+          )}
         >
-          <span className="size-2 rounded-full bg-white ring-2 ring-zinc-900" />
-          <span className="whitespace-nowrap text-[10px] text-zinc-500">bad day, recovered</span>
-        </motion.span>
+          <Activity size={26} />
+        </span>
+        {dependencyOffsets.map(({ x, y }, index) => (
+          <span
+            className={cn(
+              'absolute grid size-[22px] -translate-1/2 place-items-center rounded-full transition-[background-color,box-shadow] duration-350',
+              liftClassName,
+              index === down ? 'bg-rose-50 ring-4 ring-rose-200/70' : 'bg-white'
+            )}
+            key={index}
+            style={{ left: ringCenter + x, top: ringCenter + y }}
+          >
+            <span
+              className={cn(
+                'size-[7px] rounded-full transition-colors duration-350',
+                index === down ? 'bg-rose-300' : 'bg-emerald-300'
+              )}
+            />
+          </span>
+        ))}
       </div>
 
-      <dl className="grid grid-cols-3 gap-3 border-t border-zinc-100 pt-3">
-        {reliabilityFigures.map(({ label, value }) => (
-          <div className="grid gap-0.5" key={label}>
-            <dt className="order-last text-[10px] leading-snug text-zinc-500">{label}</dt>
-            <dd className="text-sm font-semibold tabular-nums text-zinc-900">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+      {uptimeStats.map(({ delay, duration, label, left, top, value }) => (
+        <motion.span
+          className={cn('absolute grid gap-px rounded-xl bg-white px-3 py-2', liftClassName)}
+          key={label}
+          style={{ left, top }}
+          {...cycle(frame.still, { y: [0, -4, 0] }, duration, [0, 0.5, 1], { delay })}
+        >
+          <span className="font-heading text-[19px] leading-[1.05] font-medium tracking-[-0.02em] text-zinc-900 tabular-nums">
+            {value}
+          </span>
+          <span className="text-[10.5px] whitespace-nowrap text-zinc-500">{label}</span>
+        </motion.span>
+      ))}
+      <span className="absolute bottom-3 left-4 text-[10.5px] whitespace-nowrap text-zinc-400">
+        Flexi Cash at Jenius, 2019 to 2022
+      </span>
+    </Screen>
   );
 }
 
@@ -799,11 +838,7 @@ const placeholderStatus: Status = { text: '', tone: 'idle' };
 
 const instruments: Record<CapabilityKind, (props: { frame: Frame }) => JSX.Element> = {
   fullstack: AccessLog,
-  production: ({ frame }) => (
-    <Screen frame={frame} status={placeholderStatus}>
-      <ReliabilityBoard reduced={frame.still} />
-    </Screen>
-  ),
+  production: Uptime,
   release: ReleasePlan,
   standards: ({ frame }) => (
     <Screen frame={frame} status={placeholderStatus}>
