@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import {
   CapabilityInstrument,
   StackGrid,
@@ -21,42 +20,16 @@ const bentoWindowShadowClassName =
 
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
-    <h3 className="max-w-[32rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:p-9 sm:text-[1.75rem]">
-      <span className="block">{title}</span>{' '}
-      <span className="text-zinc-500">{tail}</span>
+    <h3 className="max-w-[30rem] p-7 pb-8 text-2xl font-heading font-normal leading-tight tracking-tight text-zinc-900 text-pretty sm:p-9 sm:text-[1.75rem]">
+      {title} <span className="text-zinc-500">{tail}</span>
     </h3>
   );
 }
 
-function BentoWindow({
-  children,
-  label,
-  size
-}: {
-  children: ReactNode;
-  label: string;
-  size: InstrumentSize;
-}) {
-  return (
-    <div
-      className={`mt-auto overflow-hidden rounded-t-xl border border-b-0 border-zinc-200 bg-white ${bentoWindowShadowClassName} ${
-        size === 'wide'
-          ? 'mx-7 sm:mr-0 sm:ml-[18%] sm:rounded-tr-none sm:border-r-0'
-          : 'mx-7 sm:mx-9'
-      }`}
-    >
-      <div className="relative flex items-center gap-1.5 border-b border-zinc-200 px-4 py-3">
-        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
-        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
-        <span aria-hidden="true" className="size-2 rounded-full bg-zinc-300" />
-        <span className="pointer-events-none absolute inset-x-0 text-center text-[11px] font-medium text-zinc-500">
-          {label}
-        </span>
-      </div>
-      {children}
-    </div>
-  );
-}
+const windowInsetClassName: Record<InstrumentSize, string> = {
+  small: 'ml-7 sm:ml-9',
+  wide: 'ml-7 sm:ml-[18%]'
+};
 
 const wideCardCount = 2;
 const spiralOrigin: [number, number] = [0.1, 1.2];
@@ -85,13 +58,11 @@ function CapabilityCards() {
               seed={index + 1}
             />
             <BentoHeading tail={item.tail} title={item.title} />
-            <BentoWindow label={item.windowLabel} size={size}>
-              <CapabilityInstrument
-                className="rounded-none shadow-none ring-0"
-                kind={item.kind}
-                size={size}
-              />
-            </BentoWindow>
+            <div
+              className={`mt-auto overflow-hidden rounded-tl-xl border border-r-0 border-b-0 border-zinc-200 bg-white ${bentoWindowShadowClassName} ${windowInsetClassName[size]}`}
+            >
+              <CapabilityInstrument kind={item.kind} label={item.windowLabel} size={size} />
+            </div>
           </RevealItem>
         );
       })}
@@ -110,7 +81,7 @@ function StackCard({ className }: { className: string }) {
         pattern="dust"
         seed={expertiseItems.length + 1}
       />
-      <BentoHeading tail="TypeScript from the interface to the queue." title="One language, end to end." />
+      <BentoHeading tail="from the first screen to the database." title="Own the request end to end" />
       <StackGrid className="mx-7 mt-auto mb-7 sm:mx-9 sm:mb-9" />
     </RevealItem>
   );

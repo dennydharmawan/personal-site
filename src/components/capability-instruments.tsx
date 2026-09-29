@@ -4,6 +4,7 @@ import {
   motion,
   useInView,
   useReducedMotion,
+  type Easing,
   type TargetAndTransition,
   type Transition
 } from 'motion/react';
@@ -28,24 +29,21 @@ import {
 } from 'react-icons/si';
 import { cn } from '@/lib/utils';
 
-export type CapabilityKind = 'fullstack' | 'migration' | 'production' | 'standards';
+export type CapabilityKind = 'fullstack' | 'release' | 'production' | 'standards';
 export type InstrumentSize = 'small' | 'wide';
 
-// Below md each card stands alone, so the instrument takes its own height; a shared band there
-// floats the shorter diagrams in up to 150px of blank window. From md cards share rows, so the
-// band is fixed, and a 4:3 box below lg would leave the panel mostly blank.
-const instrumentBoxClassName: Record<InstrumentSize, string> = {
-  small: 'py-2 md:h-60 md:py-0 lg:aspect-[4/3] lg:h-auto',
-  wide: 'py-2 md:h-64 md:py-0 lg:h-[17.5rem]'
+const bodyClassName: Record<InstrumentSize, string> = {
+  small: 'h-[252px]',
+  wide: 'h-[280px]'
 };
 
 const instrumentLabels: Record<CapabilityKind, string> = {
-  migration:
-    'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
   fullstack:
     'Illustration: an access log where each new change, such as a new hire added to Slack, arrives with who, what, and when, and is marked recorded',
   production:
     'Illustration: a traffic line that dips once on a bad day and recovers, over 99.98% uptime, 2M+ transactions a month, and 147% user growth',
+  release:
+    'Illustration: an audit log moving from MongoDB to DocumentDB in five stages, backfill, verify, reads, writes, and retire, with rows checked before reads switch',
   standards: 'Illustration: a shared package for auth, logging, and flags fanning out to internal apps, and dashboards that became the company monitoring template'
 };
 
@@ -64,7 +62,7 @@ function cycle(
   keyframes: TargetAndTransition,
   duration: number,
   times: number[],
-  options: { delay?: number; ease?: 'easeInOut' | 'linear' } = {}
+  options: { delay?: number; ease?: Easing } = {}
 ): Cycle {
   if (reduced) return {};
   return {
@@ -78,6 +76,91 @@ function cycle(
       times
     }
   };
+}
+
+type Beat<Name extends string> = { readonly ms: number; readonly name: Name };
+
+// Story loops step through a beat table: one timeout per beat, wrapping to the first beat with
+// the next episode. Inactive, it holds the still beat and schedules nothing.
+function useEpisode<Name extends string>(
+  beats: readonly Beat<Name>[],
+  still: NoInfer<Name>,
+  active: boolean
+): { beat: Name; episode: number } {
+  const [step, setStep] = useState({ episode: 0, index: 0 });
+
+  useEffect(() => {
+    if (!active) return;
+    const timer = window.setTimeout(() => {
+      setStep(({ episode, index }) =>
+        index + 1 < beats.length ? { episode, index: index + 1 } : { episode: episode + 1, index: 0 }
+      );
+    }, beats[step.index].ms);
+    return () => window.clearTimeout(timer);
+  }, [active, beats, step]);
+
+  return active ? { beat: beats[step.index].name, episode: step.episode } : { beat: still, episode: 0 };
+}
+
+type StatusTone = 'idle' | 'active' | 'warn' | 'done';
+type Status = { text: string; tone: StatusTone };
+
+const statusToneClassName: Record<StatusTone, { dot: string; text: string }> = {
+  active: { dot: 'bg-sky-400', text: 'text-sky-700' },
+  done: { dot: 'bg-emerald-300', text: 'text-emerald-700' },
+  idle: { dot: 'bg-zinc-300', text: 'text-zinc-400' },
+  warn: { dot: 'bg-rose-300', text: 'text-rose-700' }
+};
+
+type Tone = 'sky' | 'violet' | 'rose' | 'amber' | 'emerald';
+
+const toneClassName: Record<Tone, { fill: string; soft: string; text: string }> = {
+  amber: { fill: 'bg-amber-200', soft: 'bg-amber-100', text: 'text-amber-700' },
+  emerald: { fill: 'bg-emerald-200', soft: 'bg-emerald-100', text: 'text-emerald-700' },
+  rose: { fill: 'bg-rose-200', soft: 'bg-rose-100', text: 'text-rose-700' },
+  sky: { fill: 'bg-sky-200', soft: 'bg-sky-100', text: 'text-sky-700' },
+  violet: { fill: 'bg-violet-200', soft: 'bg-violet-100', text: 'text-violet-700' }
+};
+
+// Layered depth: offsets and blur double per layer while the alpha climbs one point.
+const liftClassName =
+  'shadow-[0_0_0_1px_--alpha(var(--color-zinc-900)/6%),0_1px_3px_--alpha(var(--color-black)/3%),0_4px_8px_-2px_--alpha(var(--color-black)/4%),0_12px_24px_-8px_--alpha(var(--color-black)/6%),0_28px_56px_-20px_--alpha(var(--color-black)/8%)]';
+
+function StatusBar({ label, status, still }: { label: string; status: Status; still: boolean }): JSX.Element {
+  const tone = statusToneClassName[status.tone];
+  return (
+    <div className="flex h-10 items-center justify-between gap-3 border-b border-zinc-100 px-4">
+      <span className="text-[12px] font-medium whitespace-nowrap text-zinc-500">{label}</span>
+      <motion.span
+        animate={{ opacity: 1, y: 0 }}
+        className={cn('inline-flex items-center gap-[7px] text-[11.5px] font-medium whitespace-nowrap', tone.text)}
+        initial={still ? false : { opacity: 0, y: 3 }}
+        key={`${status.tone}:${status.text}`}
+        transition={{ duration: 0.26, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        <span className={cn('relative size-1.5 rounded-full', tone.dot)}>
+          {status.tone === 'active' ? (
+            <motion.span
+              className="absolute inset-0 rounded-full bg-sky-400/25"
+              {...cycle(still, { scale: [1, 2.3, 1] }, 1.2, [0, 0.5, 1])}
+            />
+          ) : null}
+        </span>
+        {status.text}
+      </motion.span>
+    </div>
+  );
+}
+
+type Frame = { bodyClassName: string; label: string; still: boolean };
+
+function Screen({ children, frame, status }: { children: ReactNode; frame: Frame; status: Status }): JSX.Element {
+  return (
+    <>
+      <StatusBar label={frame.label} status={status} still={frame.still} />
+      <div className={cn('relative overflow-hidden', frame.bodyClassName)}>{children}</div>
+    </>
+  );
 }
 
 const panelClassName = 'flex h-full flex-col justify-center p-4';
@@ -458,39 +541,50 @@ function AdoptedStandards({ reduced }: { reduced: boolean }): JSX.Element {
   );
 }
 
+const placeholderStatus: Status = { text: '', tone: 'idle' };
+
+const instruments: Record<CapabilityKind, (props: { frame: Frame }) => JSX.Element> = {
+  fullstack: ({ frame }) => (
+    <Screen frame={frame} status={placeholderStatus}>
+      <AccessLog reduced={frame.still} />
+    </Screen>
+  ),
+  production: ({ frame }) => (
+    <Screen frame={frame} status={placeholderStatus}>
+      <ReliabilityBoard reduced={frame.still} />
+    </Screen>
+  ),
+  release: ({ frame }) => (
+    <Screen frame={frame} status={placeholderStatus}>
+      <MigrationPath reduced={frame.still} />
+    </Screen>
+  ),
+  standards: ({ frame }) => (
+    <Screen frame={frame} status={placeholderStatus}>
+      <AdoptedStandards reduced={frame.still} />
+    </Screen>
+  )
+};
+
 export function CapabilityInstrument({
-  className,
   kind,
+  label,
   size
 }: {
-  className?: string;
   kind: CapabilityKind;
+  label: string;
   size: InstrumentSize;
 }): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref);
-  // Off screen, the illustration remounts in its static state so no loop ticks where nobody can see it.
-  const reduced = useReducedMotion() === true || !isInView;
+  // Off screen, the illustration remounts in its still state so no loop ticks where nobody can see it.
+  const still = useReducedMotion() === true || !isInView;
+  const Instrument = instruments[kind];
 
   return (
-    <div
-      ref={ref}
-      aria-label={instrumentLabels[kind]}
-      className={cn(
-        'relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-900/5',
-        className
-      )}
-      role="img"
-    >
-      <div
-        aria-hidden="true"
-        className={cn('w-full', instrumentBoxClassName[size])}
-        key={reduced ? 'static' : 'looping'}
-      >
-        {kind === 'fullstack' ? <AccessLog reduced={reduced} /> : null}
-        {kind === 'migration' ? <MigrationPath reduced={reduced} /> : null}
-        {kind === 'production' ? <ReliabilityBoard reduced={reduced} /> : null}
-        {kind === 'standards' ? <AdoptedStandards reduced={reduced} /> : null}
+    <div ref={ref} aria-label={instrumentLabels[kind]} role="img">
+      <div aria-hidden="true" key={still ? 'still' : 'live'}>
+        <Instrument frame={{ bodyClassName: bodyClassName[size], label, still }} />
       </div>
     </div>
   );

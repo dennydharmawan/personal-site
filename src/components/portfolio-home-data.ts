@@ -10,27 +10,27 @@ export type ExpertiseItem = {
 export const expertiseItems: ExpertiseItem[] = [
   {
     kind: 'fullstack',
-    tail: 'Every access change has a who, what, and when.',
-    title: 'Leave a trail.',
+    tail: 'so every access change shows who, what, and when.',
+    title: 'Audit trail by default',
     windowLabel: 'access.log'
   },
   {
-    kind: 'migration',
-    tail: 'No big-bang cutovers. Each stage is checked before the next.',
-    title: 'Change it in small steps.',
-    windowLabel: 'audit-log.migrate'
+    kind: 'release',
+    tail: 'and move the rest to the next release.',
+    title: 'Ship what matters on time',
+    windowLabel: 'release.plan'
   },
   {
     kind: 'production',
-    tail: '99.98% uptime through 147% user growth.',
-    title: 'Plan for the bad day.',
-    windowLabel: 'reliability'
+    tail: 'so the loan service stays up when something breaks.',
+    title: 'Plan for the bad day',
+    windowLabel: 'status'
   },
   {
     kind: 'standards',
-    tail: 'Shared tools other teams chose to adopt.',
-    title: 'Make the right way easy.',
-    windowLabel: 'shared.tools'
+    tail: 'with one package for auth, logging, and flags.',
+    title: 'Keep every app consistent',
+    windowLabel: 'shared-core'
   }
 ];
 
