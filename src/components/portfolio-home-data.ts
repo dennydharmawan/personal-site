@@ -24,13 +24,13 @@ export const expertiseItems: ExpertiseItem[] = [
     kind: 'production',
     tail: 'so the loan service stays up when something breaks.',
     title: 'Plan for the bad day',
-    windowLabel: 'reliability'
+    windowLabel: 'status'
   },
   {
     kind: 'standards',
-    tail: 'so one fix reaches every app.',
-    title: 'Build reusable systems',
-    windowLabel: 'shared.tools'
+    tail: 'with one package for auth, logging, and flags.',
+    title: 'Keep every app consistent',
+    windowLabel: 'shared-core'
   }
 ];
 
