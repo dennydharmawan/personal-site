@@ -240,7 +240,6 @@ function Pulse({ d, delay = 0, duration }: { d: string; delay?: number; duration
   );
 }
 
-
 const accessSources = [
   { Icon: SiSlack, name: 'Slack' },
   { Icon: SiGoogle, name: 'Google' },
@@ -357,7 +356,7 @@ function AccessLog({ frame }: { frame: Frame }): JSX.Element {
           </svg>
         ) : null}
 
-        <div className="absolute inset-y-0 left-[22px] z-[1] grid content-center gap-[18px]">
+        <div className="absolute inset-y-0 left-4 z-[1] grid content-center gap-[18px] sm:left-[22px]">
           {accessSources.map(({ Icon, name }, index) => (
             <span
               className={cn('relative grid size-10 place-items-center rounded-xl bg-white text-zinc-700', liftClassName)}
@@ -380,12 +379,12 @@ function AccessLog({ frame }: { frame: Frame }): JSX.Element {
 
         <div
           className={cn(
-            'absolute top-[22px] -bottom-px left-[34%] z-[1] flex w-[min(300px,58%)] flex-col rounded-t-[14px] bg-white',
+            'absolute top-[22px] -bottom-px left-[28%] z-[1] flex w-[68%] flex-col rounded-t-[14px] bg-white sm:left-[34%] sm:w-[min(300px,58%)]',
             liftClassName
           )}
           data-log
         >
-          <div className="flex h-[42px] shrink-0 items-center justify-between border-b border-zinc-100 px-3.5 text-[13px] font-semibold text-zinc-900">
+          <div className="flex h-[42px] shrink-0 items-center justify-between gap-2 border-b border-zinc-100 px-3.5 text-[13px] font-semibold whitespace-nowrap text-zinc-900">
             Access log
             <span className={cn(pillClassName, mintClassName)}>every change</span>
           </div>
