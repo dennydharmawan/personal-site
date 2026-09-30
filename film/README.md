@@ -40,7 +40,7 @@ The run then checks the files against their budgets and fails when one is over.
 | `desk-scenery-poster.avif` | 160 KB |
 | `desk-scenery-poster.jpg` | 280 KB |
 
-Each run adds about 8.5 MB to git history, so commit the media once per approved art state.
+Each run adds about 11 MB to git history, so commit the media once per approved art state.
 
 ## Toolchain
 
