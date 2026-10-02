@@ -44,11 +44,12 @@ function jumpToEvidence(event: MouseEvent<HTMLAnchorElement>, target: EvidenceTa
   focusTargetName(target);
 }
 
-const phraseClassName = 'transition-colors duration-200 group-data-[active=true]:text-sky-700';
+const phraseClassName = 'transition-colors duration-200 group-data-[active=true]:text-sky-800';
 
-// The entrance plays once, when the paragraph's top clears the lower 30% of the viewport.
-// Phrases go in reading order: the tile pops, then its glyph plays.
-const entranceRootMargin = '0px 0px -30% 0px';
+// The entrance plays once, when the paragraph's top clears the lower 15% of the viewport, so a
+// phone never shows the heading over an empty gap. Phrases go in reading order: the tile pops,
+// then its glyph plays.
+const entranceRootMargin = '0px 0px -15% 0px';
 const firstBeat = 0.35;
 const beatGap = 0.42;
 const beat = (index: number) => firstBeat + index * beatGap;

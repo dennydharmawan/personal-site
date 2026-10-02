@@ -6,9 +6,9 @@ import { useReducedMotion } from 'motion/react';
 const DRUM = ' .?→ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,:-+%/@';
 
 const KEY_LABEL = 'EMAIL ME →';
-// The key starts as the headline's tail is landing and flaps slower, so it still finishes last
-// and reads as the payoff. Whole board: headline in about 1s, key readable by about 1.7s.
-const KEY_START_MS = 700;
+// The key starts while the headline is still flapping and flaps slower, so it still finishes last
+// and reads as the payoff. Whole board: headline in about 1s, key readable by about 1.35s.
+const KEY_START_MS = 350;
 
 type Layout = 'wide' | 'narrow';
 
@@ -58,8 +58,8 @@ function readTile(el: HTMLElement): Tile {
     leafFront: glyphs[2],
     leafBack: glyphs[3],
     shades: [...el.querySelectorAll<HTMLElement>('.flap-shade')],
-    current: ' ',
-    target: ' ',
+    current: el.dataset.glyph ?? ' ',
+    target: el.dataset.glyph ?? ' ',
     busy: false,
     slow: false
   };
@@ -149,13 +149,14 @@ function flipTo(tile: Tile, glyph: string, delay: number, flaps: number) {
 }
 
 function FlapTile({ glyph, tone, wideOnly }: { glyph: string; tone?: 'accent' | 'key'; wideOnly?: boolean }) {
+  const shown = glyph === ' ' ? '' : glyph;
   return (
     <span className="flap" data-glyph={glyph} data-tone={tone} data-wide-only={wideOnly || undefined} aria-hidden="true">
       <span className="flap-half flap-top">
-        <span />
+        <span>{shown}</span>
       </span>
       <span className="flap-half flap-bottom">
-        <span />
+        <span>{shown}</span>
       </span>
       <span className="flap-leaf">
         <span className="flap-half flap-top">
@@ -182,8 +183,8 @@ export function DepartureBoard({ email }: { email: string }) {
   const narrowKeyBlanks = layouts.narrow.columns - KEY_LABEL.length;
 
   // Both layouts are in the markup and CSS shows one, so the server HTML already has the final
-  // size and nothing jumps when this hydrates. The tiles start blank, which is also what the
-  // server rendered.
+  // size and nothing jumps when this hydrates. The server renders the final glyphs, so the board
+  // reads before hydration and without JS; tiles blank only while the board is still below the fold.
   useEffect(() => {
     const board = boardRef.current;
     if (!board) return;
@@ -206,8 +207,12 @@ export function DepartureBoard({ email }: { email: string }) {
       return () => all.forEach(stop);
     }
 
-    // The board clatters in once, the first time most of it is on screen. Nothing loops. Only the
-    // layout on screen animates; the hidden one settles at once in case the window crosses the
+    // Already on screen or scrolled past at mount, the board stays as rendered.
+    if (board.getBoundingClientRect().top < window.innerHeight) return () => all.forEach(stop);
+    all.forEach((tile) => setNow(tile, ' '));
+
+    // The board clatters in once, the first time a quarter of it is on screen. Nothing loops. Only
+    // the layout on screen animates; the hidden one settles at once in case the window crosses the
     // breakpoint later.
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -225,7 +230,7 @@ export function DepartureBoard({ email }: { email: string }) {
         });
         key.forEach((tile, i) => flipTo(tile, KEY_LABEL[i], KEY_START_MS + i * 45, 4 + Math.floor(Math.random() * 3)));
       },
-      { threshold: 0.45 }
+      { threshold: 0.25 }
     );
 
     observer.observe(board);

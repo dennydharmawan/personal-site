@@ -12,12 +12,12 @@ export type Part = {
 export const calloutY = 52;
 
 export const parts: readonly Part[] = [
-  { id: 'intake', label: 'INTAKE', footprint: { x: 44, y: 84, w: 162, h: 250 }, callout: { x: 125, leadTo: 88 }, panX: 125, dwellMs: 3200 },
-  { id: 'queue', label: 'QUEUE', footprint: { x: 86, y: 226, w: 322, h: 44 }, callout: { x: 250, leadTo: 240 }, panX: 250, dwellMs: 3800 },
-  { id: 'process', label: 'PROCESS', footprint: { x: 406, y: 132, w: 206, h: 202 }, callout: { x: 510, leadTo: 138 }, panX: 510, dwellMs: 3400 },
-  { id: 'route', label: 'ROUTE', footprint: { x: 614, y: 152, w: 166, h: 162 }, callout: { x: 660, leadTo: 219 }, panX: 700, dwellMs: 3400 },
-  { id: 'settle', label: 'SETTLE', footprint: { x: 786, y: 136, w: 72, h: 198 }, callout: { x: 821, leadTo: 142 }, panX: 821, dwellMs: 2800 },
-  { id: 'revenue', label: 'REVENUE', footprint: { x: 900, y: 70, w: 260, h: 264 }, callout: { x: 922, leadTo: 76 }, panX: 1040, dwellMs: 3200 }
+  { id: 'intake', label: 'INTAKE', footprint: { x: 44, y: 84, w: 162, h: 250 }, callout: { x: 125, leadTo: 88 }, panX: 125, dwellMs: 2400 },
+  { id: 'queue', label: 'QUEUE', footprint: { x: 86, y: 226, w: 322, h: 44 }, callout: { x: 250, leadTo: 240 }, panX: 250, dwellMs: 2800 },
+  { id: 'process', label: 'PROCESS', footprint: { x: 406, y: 132, w: 206, h: 202 }, callout: { x: 510, leadTo: 138 }, panX: 510, dwellMs: 2600 },
+  { id: 'route', label: 'ROUTE', footprint: { x: 614, y: 152, w: 166, h: 162 }, callout: { x: 660, leadTo: 219 }, panX: 700, dwellMs: 2600 },
+  { id: 'settle', label: 'SETTLE', footprint: { x: 786, y: 136, w: 72, h: 198 }, callout: { x: 821, leadTo: 142 }, panX: 821, dwellMs: 2200 },
+  { id: 'revenue', label: 'REVENUE', footprint: { x: 900, y: 70, w: 260, h: 264 }, callout: { x: 922, leadTo: 76 }, panX: 1040, dwellMs: 2600 }
 ];
 
 // Footprints overlap where the belt runs through the intake legs; the smallest one names the part.

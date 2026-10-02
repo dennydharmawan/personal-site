@@ -282,7 +282,7 @@ function afterHold({ auto, at }: Tour): TourState {
 function holdMs({ auto, at }: Tour): number | null {
   switch (at.kind) {
     case 'establishing':
-      return 1400;
+      return 750;
     case 'touring':
       return parts[at.index].dwellMs;
     case 'resting':

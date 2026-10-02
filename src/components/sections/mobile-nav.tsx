@@ -120,7 +120,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
               initial="closed"
               animate="open"
               transition={
-                shouldReduceMotion ? { duration: 0 } : { delayChildren: 0.05, staggerChildren: 0.04 }
+                shouldReduceMotion ? { duration: 0 } : { delayChildren: 0.03, staggerChildren: 0.03 }
               }
             >
               <ul className="grid">
@@ -133,7 +133,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                       open: { opacity: 1, y: 0 }
                     }}
                     transition={
-                      shouldReduceMotion ? { duration: 0 } : { duration: 0.32, ease: easeOut }
+                      shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: easeOut }
                     }
                   >
                     <a
@@ -153,7 +153,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                       </span>
                       <ArrowRight
                         aria-hidden="true"
-                        className="size-5 shrink-0 text-zinc-400 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-sky-600"
+                        className="size-5 shrink-0 text-zinc-400 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-sky-700"
                       />
                     </a>
                   </motion.li>
@@ -166,7 +166,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={
-                shouldReduceMotion ? { duration: 0 } : { delay: 0.18, duration: 0.32, ease: easeOut }
+                shouldReduceMotion ? { duration: 0 } : { delay: 0.08, duration: 0.2, ease: easeOut }
               }
             >
               <a

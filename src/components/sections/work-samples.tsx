@@ -266,7 +266,7 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
         )}
       >
         <header className={cn('grid gap-4 px-1 lg:row-start-2', textColumn)}>
-          <p className="text-sm font-medium text-sky-700">{project.role}</p>
+          <p className="text-sm font-medium text-sky-800">{project.role}</p>
           <div className="grid gap-2">
             <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
               {project.title}

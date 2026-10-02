@@ -104,7 +104,7 @@
     --destructive: var(--color-rose-600);
     --border: var(--color-zinc-200);
     --input: var(--color-zinc-200);
-    --ring: var(--color-sky-600);
+    --ring: var(--color-sky-700);
     --chart-1: var(--color-sky-600);
     --chart-2: var(--color-sky-700);
     --chart-3: var(--color-sky-800);
@@ -118,8 +118,8 @@
     --sidebar-accent: var(--color-sky-50);
     --sidebar-accent-foreground: var(--color-sky-800);
     --sidebar-border: var(--color-zinc-200);
-    --sidebar-ring: var(--color-sky-600);
-    --focus-ring: var(--color-sky-600);
+    --sidebar-ring: var(--color-sky-700);
+    --focus-ring: var(--color-sky-700);
 }
 
 @layer base {
@@ -133,14 +133,14 @@
     }
   html {
     accent-color: var(--color-zinc-900);
-    caret-color: var(--color-sky-600);
+    caret-color: var(--color-sky-700);
     scrollbar-color: var(--color-zinc-300) transparent;
     }
   body {
     @apply bg-background text-foreground antialiased;
     }
   ::selection {
-    background-color: var(--color-sky-200);
+    background-color: var(--color-sky-300);
     color: var(--color-zinc-900);
     }
   a {
@@ -172,8 +172,8 @@
 /*
   One focus ring for the whole page. Unlayered, so it outranks the utilities layer where
   per-component `outline-hidden` and `focus-visible:ring-*` classes would otherwise win.
-  No single sky step clears 3:1 on both surfaces: sky-600 is 4.0:1 on white and 2.6:1 on
-  zinc-700, sky-300 is 6.3:1 on zinc-700 and 1.7:1 on white. So the color is a token and
+  No single sky step clears 3:1 on both surfaces: sky-700 is 5.9:1 on white and 1.8:1 on
+  zinc-700, sky-400 is 4.8:1 on zinc-700 and 2.2:1 on white. So the color is a token and
   the surface picks it.
 */
 :focus-visible {
@@ -187,11 +187,11 @@
 }
 
 .bg-zinc-700, .bg-zinc-800, .bg-zinc-900 {
-  --focus-ring: var(--color-sky-300);
+  --focus-ring: var(--color-sky-400);
 }
 
 .bg-white, .bg-zinc-50 {
-  --focus-ring: var(--color-sky-600);
+  --focus-ring: var(--color-sky-700);
 }
 
 @keyframes rise-in {
@@ -353,7 +353,7 @@
 .bp-thin { stroke-width: 1; }
 .bp-heavy { stroke-width: 3; }
 .bp-solid { fill: var(--color-white); }
-.bp-cons { fill: none; stroke: var(--color-violet-200); stroke-width: 0.8; }
+.bp-cons { fill: none; stroke: var(--color-sky-300); stroke-width: 0.8; }
 .bp-mark { fill: none; stroke: var(--color-zinc-300); stroke-width: 1; }
 .bp-zone { font-size: 9px; font-weight: 500; fill: var(--color-zinc-300); }
 .bp-dim { fill: none; stroke: var(--color-zinc-400); stroke-width: 0.9; }
@@ -367,10 +367,10 @@
 .bp-lamp { fill: var(--color-zinc-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1; transition: stroke 320ms ease-out; }
 .bp-glow { fill: var(--color-emerald-400); }
 .bp-tick { fill: none; stroke: var(--color-zinc-400); stroke-width: 1; }
-.bp-bar { fill: var(--color-violet-300); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
-.bp-bar.is-full { fill: var(--color-violet-100); }
-.bp-trend { fill: none; stroke: var(--color-violet-600); stroke-width: 1.6; }
-.bp-trend-head { fill: var(--color-violet-600); }
+.bp-bar { fill: var(--color-sky-400); stroke: var(--bp-ink, var(--color-zinc-800)); stroke-width: 1.2; transition: fill 300ms ease-out, stroke 320ms ease-out; }
+.bp-bar.is-full { fill: var(--color-sky-300); }
+.bp-trend { fill: none; stroke: var(--color-sky-700); stroke-width: 1.6; }
+.bp-trend-head { fill: var(--color-sky-700); }
 
 .bp-pipe-o {
   fill: none;
@@ -396,8 +396,8 @@
 }
 
 .bp-tok[data-done] > * {
-  fill: var(--color-violet-500);
-  stroke: var(--color-violet-700);
+  fill: var(--color-sky-400);
+  stroke: var(--color-sky-800);
 }
 
 /* Tour focus. Nothing moves: the part recolors and its corners are marked. Entrances are slower
@@ -413,18 +413,18 @@
 }
 
 .bp-part.is-focus :is(.bp-ink, .bp-pipe-o) {
-  stroke: var(--color-violet-600);
+  stroke: var(--color-sky-700);
   transition: stroke 260ms ease-out var(--bp-wait);
 }
 
 .bp-part.is-focus .bp-bar {
-  stroke: var(--color-violet-600);
+  stroke: var(--color-sky-700);
   transition: fill 300ms ease-out, stroke 260ms ease-out var(--bp-wait);
 }
 
 .bp-bracket {
   fill: none;
-  stroke: var(--color-violet-500);
+  stroke: var(--color-sky-600);
   stroke-width: 1.2;
   stroke-linecap: square;
   opacity: 0;
@@ -452,7 +452,7 @@
   --bp-ink: var(--color-zinc-500);
 }
 
-.bp-call.is-on .bp-lead { stroke: var(--color-violet-400); }
+.bp-call.is-on .bp-lead { stroke: var(--color-sky-600); }
 
 .bp-bubble {
   fill: var(--color-white);
@@ -467,13 +467,13 @@
 }
 
 .bp-call.is-on .bp-pulse { animation: bp-pulse 260ms ease-in-out var(--bp-wait); }
-.bp-call.is-on .bp-bubble { fill: var(--color-violet-500); stroke: var(--color-violet-600); transition-duration: 260ms; }
-.bp-call.is-on .bp-num { fill: var(--color-white); }
-.bp-call.is-on .bp-lbl { fill: var(--color-violet-700); }
+.bp-call.is-on .bp-bubble { fill: var(--color-sky-400); stroke: var(--color-zinc-900); transition-duration: 260ms; }
+.bp-call.is-on .bp-num { fill: var(--color-zinc-900); }
+.bp-call.is-on .bp-lbl { fill: var(--color-sky-800); }
 
 .bp-ring {
   fill: none;
-  stroke: var(--color-violet-500);
+  stroke: var(--color-sky-600);
   stroke-width: 1.5;
   stroke-dasharray: 1 1;
   animation: bp-draw var(--dwell) linear backwards;
@@ -496,8 +496,8 @@
   --flap-tile-hi: var(--color-zinc-700);
   --flap-ink: var(--color-zinc-50);
   --flap-gap: var(--color-zinc-950);
-  --flap-accent: var(--color-sky-300);
-  --focus-ring: var(--color-sky-300);
+  --flap-accent: var(--color-sky-400);
+  --focus-ring: var(--color-sky-400);
   container: flap-board / inline-size;
   position: relative;
   border-radius: 22px;

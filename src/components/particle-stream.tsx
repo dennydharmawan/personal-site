@@ -221,6 +221,13 @@ export function ParticleStream({
         y += shift.y * particle.depth * parallaxPixels;
         if (x < -8 || y < -8 || x > width + 8 || y > height + 8) continue;
         context.globalAlpha = alpha;
+        if (pattern === 'spiral') {
+          // Thousands of sub-2px dots a frame: a square is indistinguishable from a circle at this size
+          // and skips building a path per dot.
+          const side = particle.size * 2 * dpr;
+          context.fillRect(x * dpr - side / 2, y * dpr - side / 2, side, side);
+          continue;
+        }
         context.beginPath();
         context.arc(x * dpr, y * dpr, particle.size * dpr, 0, Math.PI * 2);
         context.fill();
@@ -253,7 +260,9 @@ export function ParticleStream({
     });
     intersectionObserver.observe(canvas);
 
+    // A touch that starts a scroll on the card is not a hover.
     const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return;
       const rect = host.getBoundingClientRect();
       pointer.x = (event.clientX - rect.left) / rect.width - 0.5;
       pointer.y = (event.clientY - rect.top) / rect.height - 0.5;
@@ -261,6 +270,7 @@ export function ParticleStream({
       pointerPixels.y = event.clientY - rect.top;
     };
     const onPointerEnter = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return;
       hovered = pattern === 'dust';
       const rect = host.getBoundingClientRect();
       cursor.x = pointerPixels.x = event.clientX - rect.left;

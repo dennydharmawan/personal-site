@@ -230,7 +230,7 @@ export function PlayBulletMarker({ className = 'text-zinc-400' }: { className?: 
       viewBox="0 0 16 16"
       className={`mt-[0.3125rem] size-3.5 shrink-0 ${className}`}
     >
-      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/45" />
+      <path d="M2 3.4 L2 14.6 L11.2 9 Z" className="fill-sky-400/70" />
       <path
         d="M5 1.8 L5 13 L14 7.4 Z"
         fill="none"

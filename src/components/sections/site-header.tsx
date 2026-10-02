@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
-import { ChevronDown, Download } from 'lucide-react';
+import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { isEvidenceTarget } from '@/components/portfolio-home-data';
 import { Button } from '@/components/ui/button';
@@ -200,18 +200,13 @@ function NavHoverPill({ isActive }: { isActive: boolean }) {
           layoutId="nav-hover-pill"
           aria-hidden="true"
           className="absolute inset-0 rounded-lg bg-zinc-100/90 shadow-sm ring-1 ring-zinc-300/70"
-          initial={shouldReduceMotion ? false : { filter: 'blur(4px)', opacity: 0, scale: 0.96 }}
-          animate={{ filter: 'blur(0px)', opacity: 1, scale: 1 }}
-          exit={{ filter: 'blur(3px)', opacity: 0, scale: 0.98 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
           transition={
             shouldReduceMotion
               ? { duration: 0 }
-              : {
-                  ...spring,
-                  duration: 0.38,
-                  filter: { duration: 0.3, ease: easeOut },
-                  opacity: { duration: 0.3, ease: easeOut }
-                }
+              : { ...spring, duration: 0.24, opacity: { duration: 0.18, ease: easeOut } }
           }
         />
       ) : null}
@@ -230,7 +225,8 @@ export function SiteHeader() {
   if (isMenuOpen) {
     surfaceClassName = 'border-zinc-200 bg-white';
   } else if (isNavCompact) {
-    surfaceClassName = 'border-zinc-200/90 bg-white/86';
+    // Blur only behind a visible surface; at the top it would smear the hero under a clear header.
+    surfaceClassName = 'border-zinc-200/90 bg-white/86 backdrop-blur';
   }
 
   useEffect(() => {
@@ -257,7 +253,7 @@ export function SiteHeader() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
       <div
-        className={`pointer-events-auto relative border-b backdrop-blur transition-[background-color,border-color] duration-[280ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none ${surfaceClassName}`}
+        className={`pointer-events-auto relative border-b transition-[background-color,border-color] duration-[280ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none ${surfaceClassName}`}
       >
         <div
           className={`${pageShellClassName} flex items-center justify-between gap-4 px-0 transition-[height] duration-[280ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none md:px-0 ${
@@ -320,32 +316,17 @@ export function SiteHeader() {
                   </span>
                 </a>
               ))}
-              {/* From lg only: below that the row has no room, and the hero's button covers it. */}
-              <a
-                href="/resume.pdf"
-                download
-                className="animate-rise-in relative hidden min-h-11 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:text-zinc-950 focus-visible:text-zinc-950 lg:inline-flex"
-                style={riseDelay(0.12 + navItems.length * 0.04)}
-                onBlur={() => setHoveredNavHref(null)}
-                onFocus={() => setHoveredNavHref('resume')}
-                onMouseEnter={() => setHoveredNavHref('resume')}
-              >
-                <NavHoverPill isActive={hoveredNavHref === 'resume'} />
-                <span className="relative z-10 inline-flex items-center gap-1.5">
-                  <Download aria-hidden="true" className="size-3.5 text-zinc-500" />
-                  Resume
-                </span>
-              </a>
             </div>
             <Button
               asChild
               variant="outline"
               className="animate-rise-in ml-1 h-11 px-4"
-              style={riseDelay(0.12 + (navItems.length + 1) * 0.04)}
+              style={riseDelay(0.12 + navItems.length * 0.04)}
             >
               <a href={`mailto:${contactEmail}`} aria-label={`Email ${contactEmail}`}>
-                <span className="lg:hidden">Email</span>
-                <span className="hidden lg:inline">{contactEmail}</span>
+                <span className="lg:hidden">Hire me</span>
+                <span className="hidden lg:inline">Want to hire me?</span>
+                <ArrowUpRight aria-hidden="true" className="size-4 text-zinc-500" />
               </a>
             </Button>
           </nav>
