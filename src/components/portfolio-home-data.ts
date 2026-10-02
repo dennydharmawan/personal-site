@@ -4,33 +4,28 @@ export type ExpertiseItem = {
   kind: CapabilityKind;
   tail: string;
   title: string;
-  windowLabel: string;
 };
 
 export const expertiseItems: ExpertiseItem[] = [
   {
-    kind: 'fullstack',
-    tail: 'so every access change shows who, what, and when.',
-    title: 'Audit trail by default',
-    windowLabel: 'access.log'
+    kind: 'release',
+    tail: 'Solve the real problem.',
+    title: 'Understand the business.'
   },
   {
-    kind: 'release',
-    tail: 'and move the rest to the next release.',
-    title: 'Ship what matters on time',
-    windowLabel: 'release.plan'
+    kind: 'fullstack',
+    tail: 'Connect business priorities to technical decisions.',
+    title: 'Lead where the decisions are hard.'
   },
   {
     kind: 'production',
-    tail: 'so the loan service stays up when something breaks.',
-    title: 'Plan for the bad day',
-    windowLabel: 'status'
+    tail: 'Keep quality high at scale.',
+    title: 'Deliver end to end.'
   },
   {
     kind: 'standards',
-    tail: 'with one package for auth, logging, and flags.',
-    title: 'Keep every app consistent',
-    windowLabel: 'shared-core'
+    tail: 'Solve shared problems once.',
+    title: 'Make the team faster.'
   }
 ];
 
@@ -166,7 +161,8 @@ export const experiences: ReadonlyArray<{
       {
         target: 'krom-shared-package',
         text: 'Shipped a shared auth, logging, and feature-flag package adopted by multiple internal apps'
-      }
+      },
+      { text: 'Mentored two engineers on the team' }
     ],
     period: 'Jan 2023 – Present',
     role: 'Senior Full-Stack Engineer',
@@ -175,7 +171,7 @@ export const experiences: ReadonlyArray<{
       { period: 'Jan 2023 – May 2026', role: 'Full-Stack Engineer' }
     ],
     summary:
-      'Frontend and backend work for a digital bank on Next.js, Node.js, and TypeScript. Mentored two engineers.',
+      'Frontend and backend work for a digital bank on Next.js, Node.js, and TypeScript.',
     years: '2023'
   },
   {
@@ -183,7 +179,7 @@ export const experiences: ReadonlyArray<{
     highlights: [
       {
         target: 'jenius-lending',
-        text: 'Owned the Flexi Cash lending services as main contributor, at 2M+ transactions a month and 99.98% uptime on Node.js and GraphQL'
+        text: 'Owned the Flexi Cash lending services: 2M+ transactions a month at 99.98% uptime, on Node.js and GraphQL'
       },
       { text: 'Kept loan applications and payouts stable while users grew 147% in three years' },
       { text: 'Built event-driven partner APIs on Kafka that brought Flexi Cash to more retail partners' }
@@ -198,7 +194,7 @@ export const experiences: ReadonlyArray<{
     highlights: [
       { text: 'Customized ERP workflows and reports for clients including JNE and Gramedia' },
       { text: 'Integrated data warehouse, enterprise portal, and point-of-sale systems' },
-      { text: 'Trained hundreds of professionals across 2+ companies on Dynamics AX customization' }
+      { text: 'Trained hundreds of professionals at client companies on Dynamics AX customization' }
     ],
     period: 'Dec 2017 – Dec 2019',
     role: 'Technical Consultant',

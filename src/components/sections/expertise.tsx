@@ -1,8 +1,4 @@
-import {
-  CapabilityInstrument,
-  LogoCloud,
-  type InstrumentSize
-} from '@/components/capability-instruments';
+import { CapabilityInstrument } from '@/components/capability-instruments';
 import { type DustFormation, ParticleStream } from '@/components/particle-stream';
 import { expertiseItems } from '@/components/portfolio-home-data';
 import {
@@ -15,8 +11,6 @@ import {
 
 const bentoCardClassName =
   'relative isolate flex flex-col lg:min-h-[27rem] overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100';
-const bentoWindowShadowClassName =
-  'shadow-[0_28px_56px_-24px_--alpha(var(--color-zinc-900)/30%)]';
 
 function BentoHeading({ tail, title }: { tail: string; title: string }) {
   return (
@@ -25,11 +19,6 @@ function BentoHeading({ tail, title }: { tail: string; title: string }) {
     </h3>
   );
 }
-
-const windowInsetClassName: Record<InstrumentSize, string> = {
-  small: 'ml-7 sm:ml-9',
-  wide: 'ml-7 sm:ml-[18%]'
-};
 
 const wideCardCount = 2;
 const spiralOrigin: [number, number] = [0.1, 1.2];
@@ -42,12 +31,12 @@ function CapabilityCards() {
   return (
     <RevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 lg:gap-6" stagger={0.1}>
       {expertiseItems.map((item, index) => {
-        const size: InstrumentSize = index < wideCardCount ? 'wide' : 'small';
+        const wide = index < wideCardCount;
         return (
           <RevealItem
             key={item.title}
             className={`${bentoCardClassName} ${
-              size === 'wide' ? 'md:col-span-2 lg:col-span-3 lg:min-h-[31rem]' : 'lg:col-span-2'
+              wide ? 'md:col-span-2 lg:col-span-3 lg:min-h-[31rem]' : 'lg:col-span-2'
             }`}
           >
             <ParticleStream
@@ -58,10 +47,8 @@ function CapabilityCards() {
               seed={index + 1}
             />
             <BentoHeading tail={item.tail} title={item.title} />
-            <div
-              className={`mt-auto overflow-hidden rounded-tl-xl border border-r-0 border-b-0 border-zinc-200 bg-white ${bentoWindowShadowClassName} ${windowInsetClassName[size]}`}
-            >
-              <CapabilityInstrument kind={item.kind} label={item.windowLabel} size={size} />
+            <div className="mt-auto">
+              <CapabilityInstrument kind={item.kind} />
             </div>
           </RevealItem>
         );
@@ -81,8 +68,10 @@ function StackCard({ className }: { className: string }) {
         pattern="dust"
         seed={expertiseItems.length + 1}
       />
-      <BentoHeading tail="from the first screen to the database." title="Own the request end to end" />
-      <LogoCloud />
+      <BentoHeading tail="Frontend, backend, and UI/UX." title="Work on every layer." />
+      <div className="mt-auto">
+        <CapabilityInstrument kind="stack" />
+      </div>
     </RevealItem>
   );
 }
@@ -94,7 +83,7 @@ export function CapabilitiesSection() {
         <RevealGroup className={sectionHeaderMarginClassName}>
           <RevealItem>
             <h2 className="max-w-4xl text-4xl font-heading font-normal leading-[1.1] tracking-tight text-balance sm:text-5xl">
-              <span className="block text-zinc-900">What I aim for.</span>
+              <span className="block text-zinc-900">What I optimize for.</span>
               <span className="block text-zinc-500">Fewer incidents. Easier audits. A faster team.</span>
             </h2>
           </RevealItem>

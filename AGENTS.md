@@ -6,7 +6,7 @@ Design tokens live in `src/styles/global.css`.
 ## Color: use the native Tailwind palette. Never invent a color.
 
 Every color must resolve to a stock Tailwind v4 palette value — `zinc`, `sky`,
-`emerald`, `violet`, `white`, `black`, and so on. Do not introduce a hex, `rgb()`,
+`emerald`, `white`, `black`, and so on. Do not introduce a hex, `rgb()`,
 `hsl()`, or `oklch()` literal, and do not add a custom named color to the theme.
 
 The current palette is:
@@ -14,21 +14,21 @@ The current palette is:
 | role | value |
 | --- | --- |
 | brand / primary | `zinc-900` (near-black: logo mark, favicon, primary buttons) |
-| accent | `sky` |
+| accent | `sky` (bright steps are fills and strokes with zinc-900 on top; tinted text on white is `sky-700` or darker) |
 | text and surfaces | `zinc` |
 | pass / healthy | `emerald` |
-| secondary chip | `violet` |
+| secondary chip | `zinc` |
 
 Order of preference when you need a color:
 
 1. A semantic token from `global.css` — `bg-primary`, `text-muted-foreground`,
    `ring-border`. Reach here first; it is what keeps the two themes coherent.
-2. A stock palette utility — `text-sky-700`, `fill-emerald-500`.
+2. A stock palette utility — `text-sky-800`, `fill-emerald-500`.
 3. A stock palette value through a CSS variable — `var(--color-sky-400)`. Tailwind v4
    exposes every palette entry this way, so an inline `style` or an SVG `fill` still has
    no excuse to hardcode a hex.
 
-For transparency use the slash modifier (`bg-sky-500/15`, `ring-black/5`) rather than
+For transparency use the slash modifier (`bg-sky-400/40`, `ring-black/5`) rather than
 writing an `rgba()`.
 
 To change the brand color, edit the token in `:root` in `global.css`. Do not sweep
@@ -39,21 +39,22 @@ utility classes across components.
 These predate the rule and should migrate to `var(--color-*)` when touched, not be
 copied:
 
-- `src/components/sections/site-header.tsx` — the compact nav animates its background and
-  border between `rgba()` values. The numbers are palette colors (`rgba(228,228,231,…)` is
-  `zinc-200`), spelled out because Motion interpolates concrete color values.
 - `public/logo-mark.svg` and `public/favicon.svg` — `#18181B` is `zinc-900`. A static `.svg` in `public/` is not
   processed by Tailwind, so it cannot reference a token; a hex is correct here.
 
 ## Motion
 
-`motion/react`. Two drivers in `src/components/capability-instruments.tsx` own every
-loop. Ambient loops (drift, ripples, pulse rings) go through `cycle()`, which returns `{}`
+`motion/react`. Two drivers in `src/components/instruments/shared.tsx` own every
+Motion loop. The hero blueprint engine and `particle-stream.tsx` run their own rAF loops;
+each stops off screen and under reduced motion. Ambient loops (drift, ripples, pulse rings) go through `cycle()`, which returns `{}`
 under `useReducedMotion()`. Story loops that step through beats go through
 `useEpisode()`, which walks a beat table and returns the still beat under reduced motion
 or off screen; render from its `(beat, episode)` and time sub-beat events with motion
 delays keyed by episode. Keep ambient drift under ~6px, and give each looping element its
 own duration and delay so a group never resyncs — see `docs/attio-motion-notes.md`.
+Loop keyframes animate `transform` or `opacity` strings (`'translateY(-4px)'`, not `y`), so
+Motion hands them to WAAPI on the compositor; independent `x`, `y`, `scale` tick on the
+main thread.
 
 ## Portfolio copy
 
