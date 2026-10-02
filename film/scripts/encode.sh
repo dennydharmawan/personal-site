@@ -14,14 +14,9 @@ node render.mjs 30 out/master.mkv
 # Full-range BT.601 matches what the JPEG-based pipeline shipped before.
 yuv=(-vf scale=out_range=pc:out_color_matrix=bt601,format=yuv420p -color_range pc -colorspace bt470bg)
 
-# SVT-AV1's temporal filter blends neighbouring frames, and at this crf it leaves a ghost of the
-# cat's old pose when it jumps up at the bolt and when it lies back down, so it is off. That costs
-# about 5% in size and changes nothing visible in frames that hold still. The key frames sit on the
-# bolt (T.bolt in film.js) and on the first dark frame after its flash, where the jump happens.
 # SVT-AV1 ignores ffmpeg's -loglevel, so SVT_LOG=1 keeps its banner out of the log.
 SVT_LOG=1 ffmpeg -y -loglevel error -i out/master.mkv "${yuv[@]}" \
-  -c:v libsvtav1 -crf 54 -preset 5 -svtav1-params enable-tf=0 -force_key_frames 19.0,19.1 \
-  -an -movflags +faststart out/desk-scenery-av1.mp4
+  -c:v libsvtav1 -crf 54 -preset 5 -an -movflags +faststart out/desk-scenery-av1.mp4
 
 ffmpeg -y -loglevel error -i out/master.mkv "${yuv[@]}" \
   -c:v libx264 -crf 31 -preset slow -an -movflags +faststart out/desk-scenery-h264.mp4
