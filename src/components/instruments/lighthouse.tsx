@@ -1,6 +1,8 @@
 import { useId, type CSSProperties, type JSX, type ReactNode } from 'react';
 import { motion, type Transition } from 'motion/react';
-import { cycle, useEpisode, type Frame } from '@/components/instruments/shared';
+import { phased, useEpisode, type Frame } from '@/components/instruments/shared';
+
+const cycle = phased(0.45);
 
 export const lighthouseLabel =
   'Illustration: a harbour at dusk. A white lighthouse with pink bands stands on a headland beside a keeper’s cottage and a few village houses, above a jetty with a lamp. The sun is half set behind the sea. The lighthouse beam rests on clear water by the jetty, and the jetty lamp and the house windows are lit.';
@@ -424,6 +426,8 @@ export function Lighthouse({ frame }: { frame: Frame }): JSX.Element {
   const id = useId();
   const { still } = frame;
   const { beat, episode } = useEpisode(beats, 'hold', !still);
+  // Counts lamp lightings, so the glow remounts only when the lamp lights, not when the lit beat ends.
+  const lampPops = episode + (beat === 'lit' ? 1 : 0);
 
   const drive = (move: Move, key: 'opacity' | 'transform') =>
     still ? {} : { animate: { [key]: move.value }, initial: false as const, transition: move.transition };
@@ -822,8 +826,8 @@ export function Lighthouse({ frame }: { frame: Frame }): JSX.Element {
       >
         <motion.span
           className="absolute size-0"
-          key={beat === 'lit' ? `lit-${episode}` : 'steady'}
-          {...(beat === 'lit'
+          key={lampPops}
+          {...(lampPops > 0
             ? {
                 animate: { transform: ['scale(0.5)', 'scale(1.18)', 'scale(1)'] },
                 initial: { transform: 'scale(0.5)' },

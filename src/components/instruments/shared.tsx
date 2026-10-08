@@ -32,6 +32,13 @@ export function cycle(
   };
 }
 
+// Instruments share some loop tables (smoke, gulls, clouds), and every visible card remounts in one
+// commit when the tab returns. A per-instrument phase on each delay keeps the copies out of step.
+export function phased(phase: number): typeof cycle {
+  return (reduced, keyframes, duration, times, options = {}) =>
+    cycle(reduced, keyframes, duration, times, { ...options, delay: (options.delay ?? 0) + phase });
+}
+
 type Beat<Name extends string> = { readonly ms: number; readonly name: Name };
 
 // Story loops step through a beat table: one timeout per beat, wrapping to the first beat with
