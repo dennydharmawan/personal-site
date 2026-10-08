@@ -74,6 +74,8 @@ export const aboutParagraph: AboutSegment[] = [
 ];
 
 export type Project = {
+  /** A simplified diagram of the system, shown behind the clip's "How it's built" tab. */
+  architecture: { alt: string; src: string };
   built: string;
   chapters: readonly [Chapter, Chapter, Chapter];
   preview: string;
@@ -87,6 +89,10 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    architecture: {
+      alt: 'Simplified architecture. A hire, rehire, or offboard event in Zoho People reaches the provisioning API (Node.js, TypeScript) by webhook. The API enqueues the job in BullMQ on Redis, and workers run it, skipping any account that already exists. Workers create or remove accounts in 8 tools: JumpCloud, Zoho, Slack, Confluence, Jira, Bitbucket, Datadog, and Tailscale. A failed job goes back to the queue to retry with backoff and resumes at the failed step. Workers record every change in a MySQL audit log.',
+      src: '/portfolio-previews/architecture/hris-automation.svg'
+    },
     built:
       'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',
     chapters: [
@@ -103,6 +109,10 @@ export const projects: Project[] = [
     video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
   },
   {
+    architecture: {
+      alt: "Simplified architecture. A collector sets each loan's next step in a Next.js console, which sends it to the collections API (Node.js with a Redis queue). The API places browser calls through Vonage Voice and sends template reminders through WhatsApp. Call status from Vonage and replies from WhatsApp land on one MySQL timeline per loan, with entries such as a call with no answer, a reminder read, and a promise to pay.",
+      src: '/portfolio-previews/architecture/loan-collection.svg'
+    },
     built:
       'Each overdue loan gets an owner and a next step: a call, a WhatsApp message, or a field visit. Collectors call from the browser through Vonage and send WhatsApp reminders from templates. Every contact and promise to pay lands on one timeline.',
     chapters: [
@@ -118,6 +128,10 @@ export const projects: Project[] = [
     video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
   },
   {
+    architecture: {
+      alt: "Simplified architecture. A Next.js checkout places the order with the order service, which owns the order's state. The order service asks the payment service to pay, and the payment service charges through Midtrans. Midtrans confirms by webhook into Kafka, Kafka passes the payment back to the order service as paid, and the order service moves the order in the SQL orders database from awaiting to paid. A reconciliation job compares those orders with Midtrans settlement data and flags mismatches.",
+      src: '/portfolio-previews/architecture/ecommerce-payment.svg'
+    },
     built:
       'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to money received.',
     chapters: [

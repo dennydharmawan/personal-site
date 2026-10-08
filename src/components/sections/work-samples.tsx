@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Pause, Play } from 'lucide-react';
 import {
   motion,
@@ -22,6 +22,16 @@ import { cn } from '@/lib/utils';
 // One frame for all four clips: same inset, radius, ring, and backing, so they read as one body of work.
 const clipFrameClassName = 'rounded-2xl bg-zinc-100 p-1.5 ring-1 ring-zinc-900/5';
 const clipClassName = 'block aspect-[3/2] w-full rounded-xl object-cover ring-1 ring-zinc-900/10';
+// The clip and the diagram share one grid cell, so switching views never changes the row's height.
+const stackedClassName =
+  '[grid-area:1/1] transition-opacity duration-200 motion-reduce:transition-none data-[hidden=true]:pointer-events-none data-[hidden=true]:opacity-0';
+
+const views = [
+  { id: 'walkthrough', label: 'Walkthrough' },
+  { id: 'architecture', label: 'How it’s built' }
+] as const;
+
+type View = (typeof views)[number]['id'];
 
 function chapterIndexAt(chapters: readonly Chapter[], seconds: number) {
   let index = 0;
@@ -87,6 +97,9 @@ function ProjectClip({ project }: { project: Project }) {
   const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [duration, setDuration] = useState<number | null>(null);
+  const [view, setView] = useState<View>('walkthrough');
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const baseId = useId();
   const { chapters } = project;
 
   useEffect(() => {
@@ -150,12 +163,26 @@ function ProjectClip({ project }: { project: Project }) {
       return;
     }
 
-    if (isInView && !shouldReduceMotion && !isUserPaused) {
+    if (view === 'walkthrough' && isInView && !shouldReduceMotion && !isUserPaused) {
       playMuted(video);
     } else {
       video.pause();
     }
-  }, [isInView, isUserPaused, shouldReduceMotion]);
+  }, [isInView, isUserPaused, shouldReduceMotion, view]);
+
+  // Arrow keys move between the two tabs and select as they go, the WAI-ARIA tabs pattern.
+  function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+
+    if (step === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const index = (views.findIndex((item) => item.id === view) + step + views.length) % views.length;
+    setView(views[index].id);
+    tabRefs.current[index]?.focus();
+  }
 
   function togglePlayback() {
     const video = videoRef.current;
@@ -199,51 +226,124 @@ function ProjectClip({ project }: { project: Project }) {
     video.load();
   }
 
+  const panelId = (id: View) => `${baseId}-${id}-panel`;
+  const tabId = (id: View) => `${baseId}-${id}-tab`;
+  const isWalkthrough = view === 'walkthrough';
+
   return (
     <div className="grid content-start gap-3">
-      <div className={clipFrameClassName}>
-        <video
-          ref={videoRef}
-          aria-label={`${project.title}, animated walkthrough with sample data`}
-          className={clipClassName}
-          disablePictureInPicture
-          disableRemotePlayback
-          loop
-          muted
-          playsInline
-          poster={isNear ? project.preview : undefined}
-          preload="none"
-          src={project.video}
-          onPause={() => setIsPlaying(false)}
-          onPlaying={() => setIsPlaying(true)}
-        />
+      <div
+        aria-label={`${project.title} view`}
+        className="flex w-fit gap-1 rounded-full bg-zinc-100 p-1 ring-1 ring-zinc-900/5"
+        role="tablist"
+        onKeyDown={onTabKeyDown}
+      >
+        {views.map((item, index) => {
+          const isSelected = item.id === view;
+          return (
+            <button
+              key={item.id}
+              ref={(node) => {
+                tabRefs.current[index] = node;
+              }}
+              type="button"
+              role="tab"
+              id={tabId(item.id)}
+              aria-controls={panelId(item.id)}
+              aria-selected={isSelected}
+              tabIndex={isSelected ? 0 : -1}
+              className={cn(
+                'relative h-8 rounded-full px-3.5 text-sm font-medium transition-colors duration-200 after:absolute after:-inset-1.5 [--focus-offset:2px]',
+                isSelected ? 'bg-white text-zinc-900 ring-1 ring-zinc-900/10' : 'text-zinc-500 hover:text-zinc-900'
+              )}
+              onClick={() => setView(item.id)}
+            >
+              {item.label}
+            </button>
+          );
+        })}
       </div>
-      <div className="flex items-start gap-3 px-1 sm:gap-4">
-        <ol aria-label={`${project.title} chapters`} className="grid min-w-0 flex-1 grid-cols-3 gap-3 sm:gap-4">
-          {chapters.map((chapter, index) => (
-            <ChapterButton
-              key={chapter.label}
-              chapter={chapter}
-              end={chapters[index + 1]?.at ?? duration ?? Number.POSITIVE_INFINITY}
-              isActive={index === activeIndex}
-              onSelect={() => selectChapter(chapter)}
-              time={time}
-            />
-          ))}
-        </ol>
-        {/* Beside the chapters, not over the clip: on a phone it covered the clip's last line. */}
-        <button
-          type="button"
-          aria-label={`${isPlaying ? 'Pause' : 'Play'} ${project.title} walkthrough`}
-          className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 ring-1 ring-zinc-900/10 transition-colors duration-200 after:absolute after:-inset-1 hover:bg-zinc-100"
-          onClick={togglePlayback}
+      <div className={cn(clipFrameClassName, 'grid')}>
+        <div
+          aria-labelledby={tabId('walkthrough')}
+          className={stackedClassName}
+          data-hidden={!isWalkthrough}
+          id={panelId('walkthrough')}
+          inert={!isWalkthrough}
+          role="tabpanel"
         >
-          {isPlaying ? (
-            <Pause aria-hidden="true" className="size-3.5 fill-current" />
-          ) : (
-            <Play aria-hidden="true" className="size-3.5 translate-x-px fill-current" />
-          )}
-        </button>
+          <video
+            ref={videoRef}
+            aria-label={`${project.title}, animated walkthrough with sample data`}
+            className={clipClassName}
+            disablePictureInPicture
+            disableRemotePlayback
+            loop
+            muted
+            playsInline
+            poster={isNear ? project.preview : undefined}
+            preload="none"
+            src={project.video}
+            onPause={() => setIsPlaying(false)}
+            onPlaying={() => setIsPlaying(true)}
+          />
+        </div>
+        <div
+          aria-labelledby={tabId('architecture')}
+          className={stackedClassName}
+          data-hidden={isWalkthrough}
+          id={panelId('architecture')}
+          inert={isWalkthrough}
+          role="tabpanel"
+        >
+          <img
+            alt={project.architecture.alt}
+            className={cn(clipClassName, 'bg-white object-contain')}
+            decoding="async"
+            loading="lazy"
+            src={project.architecture.src}
+          />
+        </div>
+      </div>
+      <div className="grid">
+        <div
+          className={cn('flex items-start gap-3 px-1 sm:gap-4', stackedClassName)}
+          data-hidden={!isWalkthrough}
+          inert={!isWalkthrough}
+        >
+          <ol aria-label={`${project.title} chapters`} className="grid min-w-0 flex-1 grid-cols-3 gap-3 sm:gap-4">
+            {chapters.map((chapter, index) => (
+              <ChapterButton
+                key={chapter.label}
+                chapter={chapter}
+                end={chapters[index + 1]?.at ?? duration ?? Number.POSITIVE_INFINITY}
+                isActive={index === activeIndex}
+                onSelect={() => selectChapter(chapter)}
+                time={time}
+              />
+            ))}
+          </ol>
+          {/* Beside the chapters, not over the clip: on a phone it covered the clip's last line. */}
+          <button
+            type="button"
+            aria-label={`${isPlaying ? 'Pause' : 'Play'} ${project.title} walkthrough`}
+            className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 ring-1 ring-zinc-900/10 transition-colors duration-200 after:absolute after:-inset-1 hover:bg-zinc-100"
+            onClick={togglePlayback}
+          >
+            {isPlaying ? (
+              <Pause aria-hidden="true" className="size-3.5 fill-current" />
+            ) : (
+              <Play aria-hidden="true" className="size-3.5 translate-x-px fill-current" />
+            )}
+          </button>
+        </div>
+        <p
+          aria-hidden={isWalkthrough}
+          className={cn('px-1 pt-2.5 text-xs leading-5 text-zinc-500 text-pretty sm:text-sm', stackedClassName)}
+          data-hidden={isWalkthrough}
+        >
+          Simplified. Tool names and data are samples.
+        </p>
       </div>
     </div>
   );
