@@ -597,6 +597,11 @@
   place-items: center;
 }
 
+/* Each glyph is drawn four times per tile; generated content keeps the copies out of the page text crawlers read. */
+.flap-half > span::before {
+  content: attr(data-char);
+}
+
 .flap-top {
   top: 0;
   border-radius: var(--flap-r) var(--flap-r) 0 0;

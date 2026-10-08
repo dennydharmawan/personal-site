@@ -66,7 +66,7 @@ function readTile(el: HTMLElement): Tile {
 }
 
 const paint = (el: HTMLElement, glyph: string) => {
-  el.textContent = glyph === ' ' ? '' : glyph;
+  el.dataset.char = glyph === ' ' ? '' : glyph;
 };
 
 function stop(tile: Tile) {
@@ -153,10 +153,10 @@ function FlapTile({ glyph, tone, wideOnly }: { glyph: string; tone?: 'accent' | 
   return (
     <span className="flap" data-glyph={glyph} data-tone={tone} data-wide-only={wideOnly || undefined} aria-hidden="true">
       <span className="flap-half flap-top">
-        <span>{shown}</span>
+        <span data-char={shown} />
       </span>
       <span className="flap-half flap-bottom">
-        <span>{shown}</span>
+        <span data-char={shown} />
       </span>
       <span className="flap-leaf">
         <span className="flap-half flap-top">
