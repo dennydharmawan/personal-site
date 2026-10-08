@@ -275,6 +275,8 @@ export function SiteHeader() {
               aria-hidden="true"
               src="/logo-mark.svg"
               alt=""
+              width={32}
+              height={32}
               className="mr-2 size-8 shrink-0"
               decoding="async"
             />
