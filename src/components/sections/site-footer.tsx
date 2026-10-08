@@ -3,6 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { pageShellClassName, scrollToTargetName } from '@/components/sections/shared';
 import { DeskScenery } from '@/components/desk-scenery';
+import { profileLinks } from '@/components/portfolio-home-data';
 
 const footerPillClassName =
   'h-11 gap-2 rounded-full border-zinc-900/15 bg-white/60 px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/25 hover:bg-white hover:text-zinc-900';
@@ -18,14 +19,14 @@ const footerTakeaways = [
     download: true
   },
   {
-    href: 'https://www.linkedin.com/in/ddharmawan',
+    href: profileLinks.linkedIn,
     label: 'LinkedIn',
     ariaLabel: 'LinkedIn profile, in/ddharmawan',
     meta: 'in/ddharmawan',
     icon: ArrowUpRight
   },
   {
-    href: 'https://github.com/dennydharmawan',
+    href: profileLinks.gitHub,
     label: 'GitHub',
     ariaLabel: 'GitHub profile, dennydharmawan',
     meta: 'dennydharmawan',

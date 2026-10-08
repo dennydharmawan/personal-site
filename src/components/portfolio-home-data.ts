@@ -203,6 +203,18 @@ export const experiences: ReadonlyArray<{
   }
 ];
 
+export const siteMeta = {
+  url: 'https://dennydharmawan.com/',
+  title: 'Denny Dharmawan | Senior Software Engineer, Full-Stack',
+  description:
+    'Senior full-stack engineer in Jakarta. I built access automation at Krom Bank and owned lending services at Jenius that handled 2M+ transactions a month.'
+} as const;
+
+export const profileLinks = {
+  linkedIn: 'https://www.linkedin.com/in/ddharmawan',
+  gitHub: 'https://github.com/dennydharmawan'
+} as const;
+
 export const trustedTeams = [
   {
     logo: '/company-logos/krom-bank.webp',

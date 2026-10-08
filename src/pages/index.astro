@@ -1,16 +1,49 @@
 ---
 import PortfolioHome from "@/components/portfolio-home";
+import { experiences, profileLinks, projects, siteMeta } from "@/components/portfolio-home-data";
 import bricolageLatinUrl from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url";
 import instrumentSansLatinUrl from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
 
-const siteUrl = "https://dennydharmawan.com/";
-const title = "Denny Dharmawan | Senior Software Engineer, Full-Stack";
-const description =
-	"Senior full-stack engineer in Jakarta. I built access automation at Krom Bank and owned lending services at Jenius that handled 2M+ transactions a month.";
+const { url: siteUrl, title, description } = siteMeta;
 const ogImageUrl = new URL("/og.png", siteUrl).href;
 const ogImageAlt =
 	"Denny Dharmawan, senior software engineer building fintech systems.";
+
+const currentJob = experiences.find((job) => job.current) ?? experiences[0];
+const structuredData = {
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "WebSite",
+			"@id": `${siteUrl}#website`,
+			url: siteUrl,
+			name: "Denny Dharmawan",
+			inLanguage: "en",
+		},
+		{
+			"@type": "ProfilePage",
+			"@id": `${siteUrl}#profile`,
+			url: siteUrl,
+			name: title,
+			description,
+			isPartOf: { "@id": `${siteUrl}#website` },
+			mainEntity: { "@id": `${siteUrl}#person` },
+		},
+		{
+			"@type": "Person",
+			"@id": `${siteUrl}#person`,
+			name: "Denny Dharmawan",
+			url: siteUrl,
+			image: ogImageUrl,
+			jobTitle: currentJob.role,
+			worksFor: { "@type": "Organization", name: currentJob.company },
+			address: { "@type": "PostalAddress", addressLocality: "Jakarta", addressCountry: "ID" },
+			knowsAbout: [...new Set(projects.flatMap((project) => project.stack))],
+			sameAs: Object.values(profileLinks),
+		},
+	],
+};
 ---
 
 <html lang="en">
@@ -40,6 +73,7 @@ const ogImageAlt =
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImageUrl} />
 		<meta name="twitter:image:alt" content={ogImageAlt} />
+		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 	</head>
 	<body>
 		<PortfolioHome client:load />
