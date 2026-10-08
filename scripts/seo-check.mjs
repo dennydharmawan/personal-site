@@ -59,8 +59,8 @@ const CHECKS = [
   }],
   ['text-doubling', ({ home }) => {
     const text = home.body.replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ');
-    const run = text.match(/(?:([A-Z])\s?\1\s?){3,}/);
-    return !run || `page text repeats letters: "${run[0].trim().slice(0, 30)}"`;
+    const run = text.match(/(?:([A-Z])\s*\1\s*){3,}/);
+    return !run || `page text repeats letters: "${run[0].replace(/\s+/g, ' ').trim().slice(0, 30)}"`;
   }],
   ['img-alt', ({ home }) => {
     const bad = tags(home.body, 'img').filter((t) => attr(t, 'alt') == null);
