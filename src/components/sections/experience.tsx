@@ -179,7 +179,9 @@ export function ExperienceSection() {
 
   return (
     <section
-      className={`bg-zinc-800 text-zinc-50 ${sectionPaddingClassName}`}
+      // A soft light from the top left under a fine print grain, so the dark fill is not flat. Both are
+      // background layers, blended at paint, so the section needs no extra compositor layer.
+      className={`bg-zinc-800 bg-[image:url(/grain.webp),radial-gradient(90%_55rem_at_15%_0%,--alpha(var(--color-zinc-600)/25%),transparent)] bg-[size:128px,auto] [background-blend-mode:soft-light,normal] text-zinc-50 ${sectionPaddingClassName}`}
       data-scroll-target="experience"
     >
       <div

@@ -19,7 +19,8 @@ const instruments: Record<CapabilityKind, { Instrument: (props: { frame: Frame }
 
 export function CapabilityInstrument({ kind }: { kind: CapabilityKind }): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref);
+  // The margin swaps still and live just outside the viewport, where the remount cannot be seen.
+  const isInView = useInView(ref, { margin: '150px 0px' });
   const pageVisible = usePageVisible();
   // Off screen, the illustration remounts in its still state so no loop ticks where nobody can see it.
   const still = useReducedMotion() === true || !isInView || !pageVisible;

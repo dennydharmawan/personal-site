@@ -3,7 +3,9 @@ import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { overshootEase } from '@/components/sections/shared';
-import { cycle, useEpisode, type Frame } from '@/components/instruments/shared';
+import { phased, useEpisode, type Frame } from '@/components/instruments/shared';
+
+const cycle = phased(0.9);
 
 export const parcelLineLabel =
   'Illustration: a small parcel depot on a clear day. A conveyor belt runs from a workshop on the left to a delivery van on the right. Three pastel parcels sit on the belt; the one under the scanner and the one past it carry a green check seal, and the scanner shows a green check.';

@@ -1,6 +1,7 @@
 ---
 import PortfolioHome from "@/components/portfolio-home";
 import { experiences, profileLinks, projects, siteMeta } from "@/components/portfolio-home-data";
+import { getYearsExperience } from "@/components/sections/shared";
 import bricolageLatinUrl from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url";
 import instrumentSansLatinUrl from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
@@ -77,6 +78,6 @@ const structuredData = {
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 	</head>
 	<body>
-		<PortfolioHome client:load />
+		<PortfolioHome client:load yearsExperience={getYearsExperience()} />
 	</body>
 </html>

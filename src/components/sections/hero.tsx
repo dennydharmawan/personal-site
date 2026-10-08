@@ -5,7 +5,6 @@ import { trustedTeams } from '@/components/portfolio-home-data';
 import {
   detailStackGapClassName,
   focusTargetName,
-  getYearsExperience,
   pageShellClassName,
   riseDelay,
   scrollToTarget
@@ -74,16 +73,13 @@ function HeroActions({ className = '' }: { className?: string }) {
 // integrations under the buttons.
 function HeroProofLine() {
   return (
-    <div className="grid gap-2.5">
+    <div className="grid gap-2">
       <p id="hero-proof-label" className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
         Trusted by leading digital banks
       </p>
-      <ul aria-labelledby="hero-proof-label" className="flex items-center gap-2">
+      <ul aria-labelledby="hero-proof-label" className="flex items-center gap-7">
         {trustedTeams.map((team) => (
-          <li
-            key={team.name}
-            className="flex h-10 items-center rounded-xl bg-white px-3.5 ring-1 ring-zinc-900/8"
-          >
+          <li key={team.name} className="flex h-6 items-center">
             <img
               src={team.logo}
               alt={team.name}
@@ -99,9 +95,7 @@ function HeroProofLine() {
   );
 }
 
-export function HeroSection() {
-  const yearsExperience = getYearsExperience();
-
+export function HeroSection({ yearsExperience }: { yearsExperience: number }) {
   return (
     <section className="relative isolate">
       <div className="relative bg-linear-to-b from-zinc-50 from-70% to-white pt-16 pb-16 md:pt-20 md:pb-20">

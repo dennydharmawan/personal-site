@@ -1,5 +1,5 @@
 import { useEffect, useId, useReducer, useRef, useState } from 'react';
-import type { CSSProperties, JSX, PointerEvent } from 'react';
+import type { CSSProperties, JSX, PointerEvent, UIEvent, WheelEvent } from 'react';
 import { cn } from '@/lib/utils';
 import {
   bay,
@@ -260,7 +260,7 @@ type TourEvent =
   | { type: 'elapsed' }
   | { type: 'hover'; id: PartId }
   | { type: 'leave' }
-  | { type: 'tap'; id: PartId };
+  | { type: 'pin'; id: PartId };
 
 const partIndex = (id: PartId) => parts.findIndex((part) => part.id === id);
 
@@ -308,8 +308,9 @@ function tourReducer(tour: Tour, event: TourEvent): Tour {
       return at.kind === 'hovering' && at.id === event.id ? tour : { ...tour, at: { kind: 'hovering', id: event.id } };
     case 'leave':
       return at.kind === 'hovering' ? { ...tour, at: { kind: 'lingering', id: at.id } } : tour;
-    case 'tap':
-      return { ...tour, at: { kind: 'pinned', id: event.id } };
+    case 'pin':
+      // A repeat pin keeps its clock; a fresh one would restart the hold under a ring that keeps filling.
+      return at.kind === 'pinned' && at.id === event.id ? tour : { ...tour, at: { kind: 'pinned', id: event.id } };
     default:
       return tour;
   }
@@ -486,9 +487,10 @@ function createEngine(n: EngineNodes): Engine {
       token.lastX = x;
       paintToken(token, x, y, dt);
     }
-    // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties.
+    // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties. At the steady
+    // spawn rate the chamber is never empty, so the swing stays shallow enough to read as a glow.
     lamp += ((processing ? 1 : 0) - lamp) * (1 - Math.exp(-sdt * 10));
-    write(n.processLamp, 'opacity', (lamp * (0.45 + 0.55 * (0.5 + 0.5 * Math.cos(clock * Math.PI * 4)))).toFixed(2));
+    write(n.processLamp, 'opacity', (lamp * (0.75 + 0.25 * (0.5 + 0.5 * Math.cos(clock * Math.PI * 4)))).toFixed(2));
   }
 
   function stepVane(sdt: number) {
@@ -625,6 +627,12 @@ function createEngine(n: EngineNodes): Engine {
 
 /* ---------- component ---------- */
 
+// The scroll offset that centers a part, clamped at the edges the way the browser clamps a snap.
+function stopLeft(frame: HTMLElement, panX: number) {
+  const max = frame.scrollWidth - frame.clientWidth;
+  return Math.min(max, Math.max(0, (panX / 1200) * frame.scrollWidth - frame.clientWidth / 2));
+}
+
 function Callout({ part, index, on, ids }: { part: Part; index: number; on: boolean; ids: Ids }) {
   const { x, leadTo } = part.callout;
   const y = calloutY;
@@ -673,9 +681,12 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const prefix = useId().replace(/[^a-zA-Z0-9]/g, '');
   const ids: Ids = { hatch: `${prefix}-hatch`, arrow: `${prefix}-arrow`, clip: `${prefix}-clip`, tokens: `${prefix}-tokens`, prefix };
 
+  const gesture = useRef({ touching: false, wheelAt: -Infinity, moved: false, settle: 0 });
+
   const drawn = tour.at.kind !== 'drafting';
   const halted = !onScreen;
   const focus = focusOf(tour.at);
+  const focusX = focus?.panX;
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -722,11 +733,23 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
     engineRef.current?.focus(focus?.footprint ?? null);
   }, [focus]);
 
+  // The tour scrolls the frame only where the sheet overflows it, and never under a finger. With no part in
+  // focus the sheet holds still: its middle is not a snap stop, so a scroll there would land on a part anyway.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (focusX === undefined || !frame || frame.scrollWidth <= frame.clientWidth || gesture.current.touching) return;
+    frame.scrollTo({ left: stopLeft(frame, focusX), behavior: tour.auto ? 'smooth' : 'instant' });
+  }, [focusX, tour.auto]);
+
   useEffect(() => {
     const ms = holdMs(tour);
     if (ms === null) return;
     if (hold.current.at !== tour.at) hold.current = { at: tour.at, remaining: ms };
     if (halted) return;
+    // A hidden tab never recalcs style, so the ring's CSS clock runs on past its pause. Set it from the hold.
+    for (const animation of svgRef.current?.querySelector('.bp-ring:not(.is-full)')?.getAnimations() ?? []) {
+      animation.currentTime = ms - hold.current.remaining;
+    }
     const started = performance.now();
     const timer = window.setTimeout(() => dispatch({ type: 'elapsed' }), hold.current.remaining);
     return () => {
@@ -753,17 +776,45 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
   const onPointerUp = (event: PointerEvent<SVGSVGElement>) => {
     if (event.pointerType !== 'touch') return;
     const id = partAt(event);
-    if (id) dispatch({ type: 'tap', id });
+    if (id) dispatch({ type: 'pin', id });
   };
 
-  const panX = focus?.panX ?? (tour.at.kind === 'resting' ? 600 : parts[0].panX);
+  // A swipe pins the part it settles on, so the tour stops pulling the sheet out from under the reader.
+  // The tour's own scrolls fire the same events, so only a scroll under a finger or a sideways wheel counts.
+  const onScroll = (event: UIEvent<HTMLDivElement>) => {
+    const frame = event.currentTarget;
+    const g = gesture.current;
+    if (g.touching || performance.now() - g.wheelAt < 200) g.moved = true;
+    window.clearTimeout(g.settle);
+    g.settle = window.setTimeout(() => {
+      if (!g.moved) return;
+      g.moved = false;
+      const off = (part: Part) => Math.abs(stopLeft(frame, part.panX) - frame.scrollLeft);
+      dispatch({ type: 'pin', id: parts.reduce((best, part) => (off(part) < off(best) ? part : best)).id });
+    }, 150);
+  };
+  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) gesture.current.wheelAt = performance.now();
+  };
+  const setTouching = (touching: boolean) => () => {
+    gesture.current.touching = touching;
+  };
+
   const cons = createPen(0, draw.consStep, draw.consMs);
   const base = createPen(draw.partAt(0));
   const baseLine = base.draw(`M${ground.x1} ${ground.y} H${ground.x2}`, 'bp-ink');
 
   return (
-    <div ref={frameRef} className={cn('relative overflow-hidden @container', className)}>
-      <div className="bp-camera" style={{ '--bp-pan': panX } as CSSProperties}>
+    <div
+      ref={frameRef}
+      className={cn('bp-frame relative', className)}
+      onScroll={onScroll}
+      onWheel={onWheel}
+      onTouchStart={setTouching(true)}
+      onTouchEnd={setTouching(false)}
+      onTouchCancel={setTouching(false)}
+    >
+      <div className="bp-camera">
         <svg
           ref={svgRef}
           viewBox={`0 0 1200 ${sheetHeight}`}
@@ -862,6 +913,9 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
             </g>
           </g>
         </svg>
+        {parts.map((part) => (
+          <span key={part.id} aria-hidden="true" className="bp-stop" style={{ left: `${part.panX / 12}%` }} />
+        ))}
       </div>
     </div>
   );

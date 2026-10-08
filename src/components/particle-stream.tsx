@@ -176,7 +176,7 @@ export function ParticleStream({
           else if (particle.x > 1 + marginX) particle.x -= 1 + marginX * 2;
           if (particle.y < -marginY) particle.y += 1 + marginY * 2;
           else if (particle.y > 1 + marginY) particle.y -= 1 + marginY * 2;
-          alpha *= 1 - twinkleDepth + twinkleDepth * Math.sin(particle.phase * 1.3);
+          alpha *= 1 - twinkleDepth * (0.5 + 0.5 * Math.sin(particle.phase * 1.3));
           x = particle.x * width + Math.cos(particle.phase) * dustFloatPixels * particle.depth;
           y = particle.y * height + Math.sin(particle.phase * 0.8) * dustFloatPixels;
           if (pull > 0.001) {

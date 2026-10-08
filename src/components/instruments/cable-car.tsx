@@ -1,6 +1,8 @@
 import { useId, type CSSProperties, type JSX, type ReactNode } from 'react';
 import { motion } from 'motion/react';
-import { cycle, type Frame } from '@/components/instruments/shared';
+import { phased, type Frame } from '@/components/instruments/shared';
+
+const cycle = phased(1.35);
 
 export const cableCarLabel =
   'Illustration: a cable car line climbing a snowy hillside from a small station hut at the lower left to the upper right, in front of violet mountains. Four pastel gondolas, evenly spaced, ride the one cable past two pylons, and a green lamp on the top pylon lights as each gondola clears it.';
