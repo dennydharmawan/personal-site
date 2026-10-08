@@ -5,7 +5,7 @@
 //   node scripts/seo-check.mjs [--runs 3] [--no-lighthouse] [--json out.json]
 
 import { spawn, execFile } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 
 const SITE = 'https://dennydharmawan.com/';
@@ -57,6 +57,11 @@ const CHECKS = [
     );
     return joined.length === 0 || `${joined.length} headings run words together across spans`;
   }],
+  ['text-doubling', ({ home }) => {
+    const text = home.body.replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ');
+    const run = text.match(/(?:([A-Z])\s?\1\s?){3,}/);
+    return !run || `page text repeats letters: "${run[0].trim().slice(0, 30)}"`;
+  }],
   ['img-alt', ({ home }) => {
     const bad = tags(home.body, 'img').filter((t) => attr(t, 'alt') == null);
     return bad.length === 0 || `${bad.length} img without alt`;
@@ -84,6 +89,12 @@ const CHECKS = [
   ['robots-sitemap', ({ robots }) => robots.body.includes(`Sitemap: ${SITE}sitemap.xml`) || 'robots.txt does not name the sitemap'],
   ['sitemap-lastmod', ({ sitemap }) => /<lastmod>\d{4}-\d{2}-\d{2}/.test(sitemap.body) || 'sitemap has no lastmod'],
   ['llms-txt', ({ llms }) => (llms.status === 200 && llms.body.startsWith('# ')) || `llms.txt is ${llms.status}`],
+  ['security-headers', ({ vercel }) => {
+    // astro preview ignores vercel.json, so this reads the config; curl the deploy to confirm.
+    const set = new Set(vercel.headers?.find((h) => h.source === '/(.*)')?.headers.map((h) => h.key.toLowerCase()));
+    const gaps = ['x-content-type-options', 'referrer-policy', 'permissions-policy', 'content-security-policy'].filter((k) => !set.has(k));
+    return gaps.length === 0 || `vercel.json lacks ${gaps.join(', ')}`;
+  }],
   ['not-found', ({ notFound }) =>
     (notFound.status === 404 && notFound.body.includes('name="robots" content="noindex"')) || `unknown path is ${notFound.status}`],
 ];
@@ -118,7 +129,7 @@ async function lighthouse(preset) {
   if (report.runtimeError) throw new Error(report.runtimeError.message);
   const failing = CATEGORIES.filter((c) => c !== 'performance').flatMap((c) =>
     report.categories[c].auditRefs
-      .filter((r) => r.weight > 0 && report.audits[r.id].score !== null && report.audits[r.id].score < 1)
+      .filter((r) => report.audits[r.id].score !== null && report.audits[r.id].score < 1)
       .map((r) => r.id),
   );
   return {
@@ -139,7 +150,8 @@ try {
   const [home, og, robots, sitemap, llms, notFound] = await Promise.all(
     ['/', '/og.png', '/robots.txt', '/sitemap.xml', '/llms.txt', '/seo-check-missing-page'].map(get),
   );
-  const ctx = { home, og, robots, sitemap, llms, notFound, ld: jsonLd(home.body) };
+  const vercel = JSON.parse(await readFile('vercel.json', 'utf8').catch(() => '{}'));
+  const ctx = { home, og, robots, sitemap, llms, notFound, vercel, ld: jsonLd(home.body) };
   for (const [id, test] of CHECKS) result.checks[id] = test(ctx);
 
   if (!flag('--no-lighthouse')) {
