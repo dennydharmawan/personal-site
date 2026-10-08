@@ -309,7 +309,8 @@ function tourReducer(tour: Tour, event: TourEvent): Tour {
     case 'leave':
       return at.kind === 'hovering' ? { ...tour, at: { kind: 'lingering', id: at.id } } : tour;
     case 'pin':
-      return { ...tour, at: { kind: 'pinned', id: event.id } };
+      // A repeat pin keeps its clock; a fresh one would restart the hold under a ring that keeps filling.
+      return at.kind === 'pinned' && at.id === event.id ? tour : { ...tour, at: { kind: 'pinned', id: event.id } };
     default:
       return tour;
   }
@@ -486,9 +487,10 @@ function createEngine(n: EngineNodes): Engine {
       token.lastX = x;
       paintToken(token, x, y, dt);
     }
-    // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties.
+    // A soft 2 Hz pulse while work is inside the chamber, easing out once it empties. At the steady
+    // spawn rate the chamber is never empty, so the swing stays shallow enough to read as a glow.
     lamp += ((processing ? 1 : 0) - lamp) * (1 - Math.exp(-sdt * 10));
-    write(n.processLamp, 'opacity', (lamp * (0.45 + 0.55 * (0.5 + 0.5 * Math.cos(clock * Math.PI * 4)))).toFixed(2));
+    write(n.processLamp, 'opacity', (lamp * (0.75 + 0.25 * (0.5 + 0.5 * Math.cos(clock * Math.PI * 4)))).toFixed(2));
   }
 
   function stepVane(sdt: number) {
@@ -744,6 +746,10 @@ export function HeroBlueprint({ className = '' }: { className?: string }) {
     if (ms === null) return;
     if (hold.current.at !== tour.at) hold.current = { at: tour.at, remaining: ms };
     if (halted) return;
+    // A hidden tab never recalcs style, so the ring's CSS clock runs on past its pause. Set it from the hold.
+    for (const animation of svgRef.current?.querySelector('.bp-ring:not(.is-full)')?.getAnimations() ?? []) {
+      animation.currentTime = ms - hold.current.remaining;
+    }
     const started = performance.now();
     const timer = window.setTimeout(() => dispatch({ type: 'elapsed' }), hold.current.remaining);
     return () => {

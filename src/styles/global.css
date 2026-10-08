@@ -379,8 +379,8 @@
 .bp-mark { fill: none; stroke: var(--color-zinc-300); stroke-width: 1; }
 .bp-zone { font-size: 9px; font-weight: 500; fill: var(--color-zinc-300); }
 .bp-dim { fill: none; stroke: var(--color-zinc-400); stroke-width: 0.9; }
-.bp-dimtxt { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; fill: var(--color-zinc-500); }
-.bp-lbl { font-size: 10.5px; font-weight: 500; letter-spacing: 0.1em; fill: var(--color-zinc-500); transition: fill 200ms ease-in-out; }
+.bp-dimtxt { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; fill: var(--color-zinc-600); }
+.bp-lbl { font-size: 10.5px; font-weight: 500; letter-spacing: 0.1em; fill: var(--color-zinc-600); transition: fill 200ms ease-in-out; }
 .bp-num { font-size: 11px; font-weight: 600; fill: var(--bp-ink, var(--color-zinc-800)); transition: fill 200ms ease-in-out; }
 .bp-plate { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; fill: var(--bp-ink, var(--color-zinc-700)); transition: fill 320ms ease-out; }
 .bp-hatch { stroke: var(--color-zinc-300); stroke-width: 1.1; }
