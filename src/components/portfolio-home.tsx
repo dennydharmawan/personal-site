@@ -14,7 +14,9 @@ function skipToContent(event: MouseEvent<HTMLAnchorElement>) {
   document.getElementById('content')?.focus();
 }
 
-export default function PortfolioHome() {
+// The page counts years at build time. Counting again in the browser would differ after a December
+// rollover, and that hydration mismatch makes React rebuild the page and replay every entrance.
+export default function PortfolioHome({ yearsExperience }: { yearsExperience: number }) {
   usePreventHashNavigation();
 
   return (
@@ -30,7 +32,7 @@ export default function PortfolioHome() {
       <SiteHeader />
 
       <main id="content" tabIndex={-1} data-scroll-target="top">
-        <HeroSection />
+        <HeroSection yearsExperience={yearsExperience} />
 
         <WorkSamplesSection />
 

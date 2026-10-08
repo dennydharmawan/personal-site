@@ -5,7 +5,6 @@ import { trustedTeams } from '@/components/portfolio-home-data';
 import {
   detailStackGapClassName,
   focusTargetName,
-  getYearsExperience,
   pageShellClassName,
   riseDelay,
   scrollToTarget
@@ -99,9 +98,7 @@ function HeroProofLine() {
   );
 }
 
-export function HeroSection() {
-  const yearsExperience = getYearsExperience();
-
+export function HeroSection({ yearsExperience }: { yearsExperience: number }) {
   return (
     <section className="relative isolate">
       <div className="relative bg-linear-to-b from-zinc-50 from-70% to-white pt-16 pb-16 md:pt-20 md:pb-20">

@@ -1,5 +1,6 @@
 ---
 import PortfolioHome from "@/components/portfolio-home";
+import { getYearsExperience } from "@/components/sections/shared";
 import bricolageLatinUrl from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url";
 import instrumentSansLatinUrl from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
@@ -42,6 +43,6 @@ const ogImageAlt =
 		<meta name="twitter:image:alt" content={ogImageAlt} />
 	</head>
 	<body>
-		<PortfolioHome client:load />
+		<PortfolioHome client:load yearsExperience={getYearsExperience()} />
 	</body>
 </html>
