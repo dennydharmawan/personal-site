@@ -13,7 +13,6 @@ const footerTakeaways = [
   {
     href: '/resume.pdf',
     label: 'Resume',
-    ariaLabel: 'Download my resume, PDF, 52 KB',
     meta: 'PDF, 52 KB',
     icon: ArrowDown,
     download: true
@@ -21,14 +20,12 @@ const footerTakeaways = [
   {
     href: profileLinks.linkedIn,
     label: 'LinkedIn',
-    ariaLabel: 'LinkedIn profile, in/ddharmawan',
     meta: 'in/ddharmawan',
     icon: ArrowUpRight
   },
   {
     href: profileLinks.gitHub,
     label: 'GitHub',
-    ariaLabel: 'GitHub profile, dennydharmawan',
     meta: 'dennydharmawan',
     icon: ArrowUpRight
   }
@@ -43,14 +40,13 @@ function FooterTakeaways() {
         return (
           <li key={item.href} className="border-b border-zinc-900/15">
             <a
-              aria-label={item.ariaLabel}
               className="group flex min-h-16 items-center justify-between gap-6 py-4 sm:min-h-20"
               href={item.href}
               {...(item.download ? { download: true } : { rel: 'noopener noreferrer', target: '_blank' })}
             >
               <span className="font-heading text-3xl font-normal tracking-tight text-zinc-900 transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none sm:text-4xl">
                 {item.label}
-              </span>
+              </span>{' '}
               <span className="flex items-center gap-4 text-sm text-zinc-600">
                 <span className="hidden sm:inline">{item.meta}</span>
                 <span className="grid size-11 place-items-center rounded-full bg-white/60 text-zinc-900 ring-1 ring-zinc-900/15 transition-colors duration-200 group-hover:bg-zinc-900 group-hover:text-white">

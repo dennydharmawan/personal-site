@@ -264,7 +264,6 @@ export function SiteHeader() {
             className="animate-rise-in inline-flex min-h-11 items-center whitespace-nowrap text-zinc-950 transition-colors hover:text-sky-700 rounded-sm"
             style={riseDelay(0.04)}
             href="/"
-            aria-label="Denny Dharmawan home"
             onClick={(event) => {
               event.preventDefault();
               setIsMenuOpen(false);
@@ -281,7 +280,7 @@ export function SiteHeader() {
               decoding="async"
             />
             <span className="grid gap-px leading-none">
-              <span className="text-base font-semibold">Denny Dharmawan</span>
+              <span className="text-base font-semibold">Denny Dharmawan</span>{' '}
               <span className="text-xs font-medium text-zinc-600">Senior Full-Stack Engineer</span>
             </span>
           </a>
