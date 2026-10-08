@@ -91,8 +91,8 @@ export const projects: Project[] = [
       'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',
     chapters: [
       { at: 0, label: 'Setup fails halfway' },
-      { at: 4.3, label: 'Retry, no duplicates' },
-      { at: 12.7, label: 'Ready on day one' }
+      { at: 4, label: 'Retry, no duplicates' },
+      { at: 9, label: 'Ready on day one' }
     ],
     preview: '/portfolio-previews/work-sample-auth-access.png',
     problem:

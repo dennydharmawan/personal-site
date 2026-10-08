@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 
 out=../public/portfolio-previews
 clips=(
-  "AuthAccess:work-sample-auth-access:470"
+  "AuthAccess:work-sample-auth-access:300"
   "LoanCollection:work-sample-loan-collection:490"
   "EcommercePayment:work-sample-ecommerce-payment:490"
 )

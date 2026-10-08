@@ -1,663 +1,488 @@
-import { AbsoluteFill, interpolateColors, useCurrentFrame } from "remotion";
-import { settleSwap, swapAt, useSettle } from "../components/loop";
-import { Check, Cross, fade } from "../components/shapes";
+import {
+  AbsoluteFill,
+  Easing,
+  Img,
+  interpolate,
+  interpolateColors,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
+import { Check, Cross, Lock, fade } from "../components/shapes";
 import { codeFont, displayFont, palette, uiFont } from "../theme";
 
 /**
- * A new hire's first morning. HR records the new hire, the accounts create themselves,
- * one provider times out, and the retry finishes the job without making a second copy
- * of the account that already exists. The person on the left is the point: she can sign
- * in on day one, and the audit log says how it happened.
+ * A new hire's accounts across eight tools, triggered by her Zoho People record.
+ * Attempt 1 times out at Confluence. Attempt 2 runs the same job marker quickly
+ * past the three accounts that already exist, slows into Confluence, and finishes,
+ * so the counter never counts an account twice. The tool set is sample data.
+ *
+ * The site's chapter buttons seek to 0, 4 and 9 s. Each of those frames is a hard
+ * state swap, so a seek always lands on a fully drawn state, never mid-fade.
  */
+export const AUTH_DURATION = 390;
 
-/** Runs 18 s, longer than the default, so each account changes state on its own. */
-export const AUTH_DURATION = 540;
-// The return to the opening state is staggered so each slot swaps on its own
-// frames instead of every crossfade landing at once. All end by 536 so the
-// last frames match frame 0.
-const SETTLE = {
-  overlay: [510, 524],
-  row: (index: number) => [512 + 4 * index, 530 + 4 * index] as const,
-  profile: [522, 538],
-} as const;
+const CHAPTER = { retry: 120, ready: 270 } as const;
+const FAIL_AT = 84;
+const RESUME_AT = 160;
+const MARKER_OUT = 276;
+// The stage leaves left on an ease-in and the fresh one arrives from the right on an
+// ease-out at about the same speed, settling by 388 so the last frames match frame 0.
+const SEAM = { exit: [340, 362], enter: [362, 388] } as const;
+const PUSH = 1520;
 
-const MARGIN = 56;
-const PROFILE = { left: MARGIN, top: 214, width: 420, height: 560 };
-const ROWS = { left: 520, top: 286, width: 864, height: 136, gap: 26 };
-const RESULT = { top: 800, height: 96 };
+const MARGIN = 64;
+const CARD = { left: MARGIN, top: MARGIN, width: 480, height: 720, pad: 40 };
+const GRID = { left: 576, top: MARGIN, colGap: 24, rowGap: 20, width: 388, height: 165 };
+const LOG = { left: MARGIN, top: 816, width: 1440 - 2 * MARGIN, height: 80 };
+const PILL = {
+  left: CARD.left + CARD.pad,
+  top: CARD.top + CARD.height - CARD.pad - 88,
+  width: CARD.width - 2 * CARD.pad,
+  height: 88,
+};
 
-const beats = {
-  fail: [0, 130],
-  retry: [130, 256],
-  resume: [256, 382],
-  done: [382, 510],
-} as const;
+type Rect = { left: number; top: number; width: number; height: number };
 
-const EVENT_AT = 10;
-const ATTEMPT_AT = 14;
-const FAIL_AT = 58;
-const PROFILE_FAIL_AT = 62;
-const RETRY_AT = 136;
-// The retry beat's claim is "skips accounts already created", so the retry has
-// to be seen reaching the directory row and turning away: its accent re-runs
-// there, leaves, and the skip note lands in the gap it left.
-const SCAN_AT = 168;
-const SKIPPED_AT = 190;
-// The person resolves as the last account lands, not 40 frames later.
-const DONE_AT = 350;
-const RESULT_AT = 396;
-const ENTRY_AT = 440;
+const tileRect = (index: number): Rect => ({
+  left: GRID.left + (index % 2) * (GRID.width + GRID.colGap),
+  top: GRID.top + Math.floor(index / 2) * (GRID.height + GRID.rowGap),
+  width: GRID.width,
+  height: GRID.height,
+});
 
-type Kind = "waiting" | "creating" | "failed" | "ready";
-
-const providers: ReadonlyArray<{
+type Tool = {
   readonly name: string;
-  readonly states: ReadonlyArray<{ readonly at: number; readonly kind: Kind }>;
-}> = [
-  {
-    name: "Directory",
-    states: [
-      { at: -1, kind: "waiting" },
-      { at: 18, kind: "creating" },
-      { at: 36, kind: "ready" },
-    ],
-  },
-  {
-    name: "Email & docs",
-    states: [
-      { at: -1, kind: "waiting" },
-      { at: 40, kind: "creating" },
-      { at: FAIL_AT, kind: "failed" },
-      { at: 262, kind: "creating" },
-      { at: 292, kind: "ready" },
-    ],
-  },
-  {
-    name: "Issue tracker",
-    states: [
-      { at: -1, kind: "waiting" },
-      { at: 304, kind: "creating" },
-      { at: 340, kind: "ready" },
-    ],
-  },
+  /** Single-colour brand mark in `public/logos`. */
+  readonly logo: string;
+  /** Frames the job marker spends working on this tool, as [from, done). */
+  readonly work: ReadonlyArray<readonly [number, number]>;
+  readonly skippedAt?: number;
+};
+
+const FAILING = 3;
+
+const tools: ReadonlyArray<Tool> = [
+  { name: "JumpCloud", logo: "jumpcloud", work: [[10, 20]], skippedAt: 122 },
+  { name: "Zoho Mail", logo: "zoho", work: [[26, 34]], skippedAt: 132 },
+  { name: "Slack", logo: "slack", work: [[40, 48]], skippedAt: 142 },
+  { name: "Confluence", logo: "confluence", work: [[54, FAIL_AT], [RESUME_AT, 188]] },
+  { name: "Jira", logo: "jira", work: [[194, 200]] },
+  { name: "Bitbucket", logo: "bitbucket", work: [[206, 212]] },
+  { name: "Datadog", logo: "datadog", work: [[218, 224]] },
+  { name: "Tailscale", logo: "tailscale", work: [[230, 236]] },
 ];
 
-const kindStyle: Record<
-  Kind,
-  {
-    readonly bg: string;
-    readonly ink: string;
-    readonly line: string;
-    readonly text: string;
+const doneAt = (tool: Tool) => tool.work[tool.work.length - 1][1];
+
+const countAt = (frame: number) =>
+  tools.filter((tool) => frame >= doneAt(tool)).length;
+
+/** Where the job marker sits. Each move runs [from, to] toward a target rect. */
+const markerMoves: ReadonlyArray<{ from: number; to: number; target: Rect }> = [
+  { from: 20, to: 26, target: tileRect(1) },
+  { from: 34, to: 40, target: tileRect(2) },
+  { from: 48, to: 54, target: tileRect(3) },
+  // Attempt 2 starts back at the first tool, on the chapter frame.
+  { from: CHAPTER.retry, to: CHAPTER.retry, target: tileRect(0) },
+  { from: 126, to: 130, target: tileRect(1) },
+  { from: 136, to: 140, target: tileRect(2) },
+  // The marker skims the existing accounts, then slows into the one that failed.
+  { from: 146, to: RESUME_AT, target: tileRect(3) },
+  { from: 188, to: 194, target: tileRect(4) },
+  { from: 200, to: 206, target: tileRect(5) },
+  { from: 212, to: 218, target: tileRect(6) },
+  { from: 224, to: 230, target: tileRect(7) },
+  { from: 240, to: 258, target: PILL },
+];
+
+const move = Easing.bezier(0.45, 0, 0.2, 1);
+
+const markerRect = (frame: number): Rect => {
+  let rect = tileRect(0);
+  for (const step of markerMoves) {
+    if (frame < step.from) break;
+    const progress =
+      step.to === step.from
+        ? 1
+        : interpolate(frame, [step.from, step.to], [0, 1], {
+            easing: move,
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+    rect = {
+      left: rect.left + (step.target.left - rect.left) * progress,
+      top: rect.top + (step.target.top - rect.top) * progress,
+      width: rect.width + (step.target.width - rect.width) * progress,
+      height: rect.height + (step.target.height - rect.height) * progress,
+    };
   }
-> = {
-  creating: {
-    bg: palette.indigo100,
-    ink: palette.indigo800,
-    line: palette.indigo100,
-    text: "creating account",
-  },
-  failed: {
-    bg: palette.rose50,
-    ink: palette.rose700,
-    line: palette.rose200,
-    text: "timed out",
-  },
-  ready: {
-    bg: palette.zinc100,
-    ink: palette.zinc700,
-    line: palette.zinc100,
-    text: "ready",
-  },
-  waiting: {
-    bg: palette.amber50,
-    ink: palette.amber700,
-    line: palette.amber200,
-    text: "waiting",
-  },
+  return rect;
 };
 
-const Pill: React.FC<{
-  readonly bg: string;
-  readonly children: React.ReactNode;
-  readonly ink: string;
-  readonly line?: string;
-}> = ({ bg, children, ink, line = bg }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      padding: "7px 18px",
-      border: `2px solid ${line}`,
-      borderRadius: 999,
-      whiteSpace: "nowrap",
-      backgroundColor: bg,
-      fontFamily: uiFont,
-      fontSize: 26,
-      fontWeight: 600,
-      color: ink,
-    }}
-  >
-    {children}
-  </div>
-);
+const markerOpacity = (frame: number) => {
+  if (frame < 10 || frame >= MARKER_OUT) return 0;
+  if (frame < CHAPTER.retry) return fade(frame, [FAIL_AT, FAIL_AT + 3], [1, 0]);
+  return fade(frame, [CHAPTER.ready, MARKER_OUT], [1, 0]);
+};
 
-const Spinner: React.FC<{ readonly color: string }> = ({ color }) => {
-  const frame = useCurrentFrame();
+const Marker: React.FC<{ readonly frame: number }> = ({ frame }) => {
+  const rect = markerRect(frame);
+  const outset = 8;
   return (
-    <svg
-      height={28}
-      style={{ rotate: `${frame * 14}deg` }}
-      viewBox="0 0 30 30"
-      width={28}
-    >
-      <path
-        d="M15 3 A12 12 0 1 1 3 15"
-        fill="none"
-        stroke={color}
-        strokeLinecap="round"
-        strokeWidth={4.5}
-      />
-    </svg>
+    <div
+      style={{
+        position: "absolute",
+        left: rect.left - outset,
+        top: rect.top - outset,
+        width: rect.width + 2 * outset,
+        height: rect.height + 2 * outset,
+        boxSizing: "border-box",
+        borderRadius: Math.min(32, (rect.height + 2 * outset) / 2),
+        border: `5px solid ${palette.sky500}`,
+        opacity: markerOpacity(frame),
+      }}
+    />
   );
 };
 
-const ProviderRow: React.FC<{ readonly index: number }> = ({ index }) => {
-  const frame = useCurrentFrame();
-  const settle = useSettle(SETTLE.row(index));
-  const overlay = useSettle(SETTLE.overlay);
-  const [settleOut, settleIn] = settleSwap(frame, SETTLE.row(index));
-  const { name, states } = providers[index];
-  const on = (at: number) => (at < 0 ? 1 : swapAt(frame, at)[1]);
-  const off = (at: number) => swapAt(frame, at)[0];
-  // Tints cross-fade, so a row changes colour without a gap. Settle blends the
-  // whole row straight back to "waiting" instead of replaying the states.
-  const weights = states.map(
-    (state, i) =>
-      on(state.at) * (1 - (states[i + 1] ? on(states[i + 1].at) : 0)) * settle +
-      (i === 0 ? 1 - settle : 0),
+const Tile: React.FC<{ readonly frame: number; readonly index: number }> = ({ frame, index }) => {
+  const tool = tools[index];
+  const rect = tileRect(index);
+  const isFailing = index === FAILING;
+  // Each state is a 0..1 weight so colours cross-fade over a few frames.
+  const working = tool.work.reduce(
+    (sum, [from, to]) => sum + fade(frame, [from, from + 3, to, to + 3], [0, 1, 1, 0]),
+    0,
   );
-  // Labels do not cross-fade: each pill is gone before the next one inks.
-  const pillWeights = states.map(
-    (state, i) =>
-      on(state.at) * (states[i + 1] ? off(states[i + 1].at) : 1) * settleOut +
-      (i === 0 ? settleIn : 0),
+  const done = fade(frame, [doneAt(tool), doneAt(tool) + 4], [0, 1]);
+  const failed = isFailing ? fade(frame, [FAIL_AT, FAIL_AT + 3, RESUME_AT, RESUME_AT + 3], [0, 1, 1, 0]) : 0;
+  const skipped = tool.skippedAt === undefined ? 0 : fade(frame, [tool.skippedAt, tool.skippedAt + 5], [0, 1]);
+  const tag = Math.max(failed, skipped);
+  // The logo stays grey until the job reaches its tool, so colour reads as "touched".
+  const lit = Math.min(1, working + done + failed);
+  const mix = (weights: ReadonlyArray<readonly [number, string]>, base: string) =>
+    weights.reduce((color, [weight, to]) => interpolateColors(weight, [0, 1], [color, to]), base);
+  const tileBg = mix(
+    [
+      [done, palette.emerald50],
+      [failed, palette.rose50],
+    ],
+    "#ffffff",
   );
-  const weightOf = (kind: Kind) =>
-    states.reduce(
-      (sum, state, i) => sum + (state.kind === kind ? weights[i] : 0),
-      0,
-    );
-  const ready = weightOf("ready");
-  const failed = weightOf("failed");
-  // Every provider ends ready, and that is the frame its slots swap on.
-  const [leaveWaiting, enterHandle] = swapAt(
-    frame,
-    states[states.length - 1].at,
+  const tileLine = mix(
+    [
+      [done, palette.emerald200],
+      [failed, palette.rose600],
+    ],
+    palette.zinc200,
   );
-  const waitingInk = leaveWaiting + settleIn;
-  const handleInk = enterHandle * settleOut;
-  const arriving =
-    index === 0
-      ? fade(
-          frame,
-          [SCAN_AT, SCAN_AT + 8, SCAN_AT + 18, SCAN_AT + 26],
-          [0, 1, 1, 0],
-        ) * overlay
-      : 0;
-  const skippedIn =
-    index === 0 ? fade(frame, [SKIPPED_AT, SKIPPED_AT + 10], [0, 1]) : 0;
-  const skipped = skippedIn * overlay;
 
   return (
     <div
       style={{
         position: "absolute",
-        left: ROWS.left,
-        top: ROWS.top + index * (ROWS.height + ROWS.gap),
-        width: ROWS.width,
-        height: ROWS.height,
+        ...rect,
         boxSizing: "border-box",
-        padding: "0 32px",
         borderRadius: 24,
-        border: `2px solid ${palette.zinc200}`,
-        backgroundColor: "#ffffff",
+        backgroundColor: tileBg,
+        border: `${2 + 2 * failed}px solid ${tileLine}`,
         display: "flex",
         alignItems: "center",
-        gap: 24,
-        fontFamily: uiFont,
+        gap: 20,
+        padding: "0 24px",
       }}
     >
       <div
         style={{
-          position: "absolute",
-          inset: -2,
-          borderRadius: 24,
-          border: `4px solid ${interpolateColors(failed, [0, 1], [palette.indigo700, palette.rose600])}`,
-          opacity: Math.min(1, weightOf("creating") + failed + arriving),
-        }}
-      />
-      <div
-        style={{
-          width: 72,
-          height: 72,
-          borderRadius: 18,
+          position: "relative",
+          flexShrink: 0,
+          width: 88,
+          height: 88,
+          borderRadius: 22,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: interpolateColors(
-            ready,
-            [0, 1],
-            [palette.indigo100, palette.emerald600],
-          ),
-          fontFamily: displayFont,
-          fontSize: 34,
-          fontWeight: 600,
-          color: palette.indigo800,
+          backgroundColor: "#ffffff",
+          border: `2px solid ${palette.zinc200}`,
         }}
       >
-        <div style={{ position: "absolute", opacity: waitingInk }}>
-          {name[0]}
-        </div>
-        <div style={{ display: "flex", opacity: handleInk }}>
-          <Check color="#ffffff" size={36} />
-        </div>
-      </div>
-      <div style={{ position: "relative", flex: 1, height: 84 }}>
+        <Img
+          src={staticFile(`logos/${tool.logo}.svg`)}
+          style={{
+            width: 64,
+            height: 52,
+            objectFit: "contain",
+            filter: `grayscale(${1 - lit})`,
+            opacity: 0.35 + 0.65 * lit,
+          }}
+        />
+        {working > 0 ? (
+          <svg
+            height={112}
+            style={{ position: "absolute", left: -14, top: -14, rotate: `${frame * 14}deg`, opacity: working }}
+            viewBox="0 0 112 112"
+            width={112}
+          >
+            <path
+              d="M56 4 A52 52 0 0 1 108 56"
+              fill="none"
+              stroke={palette.sky500}
+              strokeLinecap="round"
+              strokeWidth={6}
+            />
+          </svg>
+        ) : null}
         <div
           style={{
-            fontSize: 34,
+            position: "absolute",
+            right: -12,
+            bottom: -12,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: isFailing && failed > 0 ? palette.rose600 : palette.emerald600,
+            border: "3px solid #ffffff",
+            opacity: Math.max(done, failed),
+            scale: 0.6 + 0.4 * Math.max(done, failed),
+          }}
+        >
+          {failed > 0 ? <Cross color="#ffffff" size={26} /> : <Check color="#ffffff" size={26} />}
+        </div>
+      </div>
+      <div style={{ position: "relative", flex: 1, height: 104 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 26 - 24 * tag,
+            fontFamily: uiFont,
+            fontSize: 42,
             fontWeight: 600,
+            lineHeight: "52px",
+            letterSpacing: "-0.01em",
             whiteSpace: "nowrap",
             color: palette.zinc900,
           }}
         >
-          {name}
+          {tool.name}
         </div>
         <div
           style={{
             position: "absolute",
-            top: 48,
+            top: 56,
+            fontFamily: uiFont,
+            fontSize: 40,
+            fontWeight: 600,
+            lineHeight: "48px",
             whiteSpace: "nowrap",
-            fontSize: 24,
-            color: palette.zinc500,
-            opacity: waitingInk,
+            color: isFailing ? palette.rose700 : palette.sky700,
+            opacity: tag,
+            translate: `0px ${(1 - tag) * 8}px`,
           }}
         >
-          no account yet
+          {isFailing ? "Timed out" : "Skipped"}
         </div>
-        <div
+      </div>
+    </div>
+  );
+};
+
+const Counter: React.FC<{ readonly frame: number }> = ({ frame }) => {
+  const count = countAt(frame);
+  const changedAt = Math.max(...tools.map(doneAt).filter((at) => at <= frame), -1);
+  const enter = count === 0 ? 1 : fade(frame, [changedAt, changedAt + 6], [0, 1]);
+  return (
+    <div style={{ position: "absolute", left: CARD.pad, top: 340 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, fontFamily: displayFont, fontWeight: 600 }}>
+        <span
           style={{
-            position: "absolute",
-            top: 48,
-            whiteSpace: "nowrap",
-            fontFamily: codeFont,
-            fontSize: 24,
-            color: palette.zinc600,
-            opacity: handleInk,
+            display: "inline-block",
+            fontSize: 168,
+            lineHeight: "168px",
+            letterSpacing: "-0.04em",
+            color: palette.zinc900,
+            opacity: 0.4 + 0.6 * enter,
+            translate: `0px ${(1 - enter) * 18}px`,
           }}
         >
-          m.santoso
-        </div>
+          {count}
+        </span>
+        <span style={{ fontSize: 80, color: palette.zinc300, letterSpacing: "-0.02em" }}>/8</span>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          left: 340,
-          top: 40,
-          opacity: skipped,
-          translate: `${(1 - skippedIn) * -18}px 0px`,
-        }}
-      >
-        <Pill bg={palette.indigo100} ink={palette.indigo800}>
-          already exists, skipped
-        </Pill>
-      </div>
-      <div style={{ position: "relative", width: 270, height: 50 }}>
-        {states.map((state, i) => {
-          const style = kindStyle[state.kind];
-          return (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                right: 0,
-                top: 0,
-                opacity: pillWeights[i],
-              }}
-            >
-              <Pill bg={style.bg} ink={style.ink} line={style.line}>
-                {state.kind === "waiting" ? (
-                  <div
-                    style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: 6,
-                      backgroundColor: palette.amber500,
-                    }}
-                  />
-                ) : null}
-                {state.kind === "creating" ? (
-                  <Spinner color={palette.indigo700} />
-                ) : null}
-                {state.kind === "failed" ? (
-                  <Cross color={palette.rose600} size={22} />
-                ) : null}
-                {style.text}
-              </Pill>
-            </div>
-          );
-        })}
-      </div>
+      <div style={{ marginTop: 8, fontFamily: uiFont, fontSize: 40, color: palette.zinc500 }}>accounts ready</div>
     </div>
   );
 };
 
-const Profile: React.FC = () => {
-  const frame = useCurrentFrame();
-  const [settleOut, settleIn] = settleSwap(frame, SETTLE.profile);
-  const [noRecord, record] = swapAt(frame, EVENT_AT);
-  const [blocked, done] = swapAt(frame, DONE_AT);
-  const failed =
-    fade(frame, [PROFILE_FAIL_AT, PROFILE_FAIL_AT + 10], [0, 1]) *
-    fade(frame, [DONE_AT, DONE_AT + 12], [1, 0]);
-  const field: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 26,
-    color: palette.zinc500,
-  };
-  const status: React.CSSProperties = {
-    position: "absolute",
-    left: 36,
-    bottom: 36,
-  };
+const StatusPill: React.FC<{ readonly frame: number }> = ({ frame }) => {
+  const failed = frame >= FAIL_AT ? fade(frame, [FAIL_AT, FAIL_AT + 4], [0, 1]) : 0;
+  const ready = frame >= CHAPTER.ready;
+  // The payoff lands on the chapter frame at full colour and settles from a slight swell.
+  const swell = ready ? interpolate(frame, [CHAPTER.ready, CHAPTER.ready + 10], [1.06, 1], {
+    easing: Easing.out(Easing.exp),
+    extrapolateRight: "clamp",
+  }) : 1;
+  const bg = ready ? palette.emerald600 : interpolateColors(failed, [0, 1], [palette.zinc100, palette.rose50]);
+  const ink = ready ? "#ffffff" : interpolateColors(failed, [0, 1], [palette.zinc700, palette.rose700]);
 
   return (
     <div
       style={{
         position: "absolute",
-        ...PROFILE,
-        boxSizing: "border-box",
-        padding: 36,
-        borderRadius: 28,
-        border: `2px solid ${palette.zinc200}`,
-        backgroundColor: "#ffffff",
+        left: PILL.left - CARD.left,
+        top: PILL.top - CARD.top,
+        width: PILL.width,
+        height: PILL.height,
+        borderRadius: PILL.height / 2,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 12,
+        backgroundColor: bg,
+        scale: swell,
         fontFamily: uiFont,
-      }}
-    >
-      <div
-        style={{
-          width: 112,
-          height: 112,
-          borderRadius: 56,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: palette.indigo100,
-          fontFamily: displayFont,
-          fontSize: 44,
-          fontWeight: 600,
-          color: palette.indigo800,
-        }}
-      >
-        MS
-      </div>
-      <div
-        style={{
-          marginTop: 24,
-          fontFamily: displayFont,
-          fontSize: 42,
-          fontWeight: 600,
-          letterSpacing: "-0.02em",
-          color: palette.zinc900,
-        }}
-      >
-        Maya Santoso
-      </div>
-      <div style={{ marginTop: 4, fontSize: 27, color: palette.zinc600 }}>
-        Software engineer
-      </div>
-      <div
-        style={{
-          marginTop: 28,
-          paddingTop: 24,
-          borderTop: `1px solid ${palette.zinc200}`,
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
-        <div style={field}>
-          <span>Team</span>
-          <span style={{ color: palette.zinc900 }}>Engineering</span>
-        </div>
-        <div style={field}>
-          <span>HR record</span>
-          <span style={{ position: "relative", width: 200, height: 34 }}>
-            <span
-              style={{
-                position: "absolute",
-                right: 0,
-                opacity: noRecord + settleIn,
-              }}
-            >
-              none yet
-            </span>
-            <span
-              style={{
-                position: "absolute",
-                right: 0,
-                whiteSpace: "nowrap",
-                fontWeight: 600,
-                color: palette.indigo800,
-                opacity: record * settleOut,
-              }}
-            >
-              new hire, 08:02
-            </span>
-          </span>
-        </div>
-      </div>
-      <div style={{ ...status, opacity: blocked + settleIn }}>
-        <Pill
-          bg={interpolateColors(
-            failed,
-            [0, 1],
-            [palette.zinc100, palette.rose50],
-          )}
-          ink={interpolateColors(
-            failed,
-            [0, 1],
-            [palette.zinc700, palette.rose700],
-          )}
-          line={interpolateColors(
-            failed,
-            [0, 1],
-            [palette.zinc100, palette.rose200],
-          )}
-        >
-          cannot sign in yet
-        </Pill>
-      </div>
-      <div style={{ ...status, opacity: done * settleOut }}>
-        <Pill bg={palette.zinc100} ink={palette.zinc700}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: palette.emerald600,
-            }}
-          >
-            <Check color="#ffffff" size={24} />
-          </div>
-          ready for day one
-        </Pill>
-      </div>
-    </div>
-  );
-};
-
-const Attempt: React.FC = () => {
-  const frame = useCurrentFrame();
-  const started = fade(frame, [ATTEMPT_AT, ATTEMPT_AT + 10], [0, 1]);
-  const [first, second] = swapAt(frame, RETRY_AT);
-  const label: React.CSSProperties = { gridArea: "1 / 1" };
-  // Both labels share one grid cell, so the pill keeps the wider label's
-  // footprint while the sequenced swap hands the cell from one to the other.
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: ROWS.left,
-        top: PROFILE.top,
-        opacity: started,
-      }}
-    >
-      <Pill bg={palette.indigo700} ink="#ffffff">
-        <div style={{ display: "grid" }}>
-          <span style={{ ...label, opacity: first }}>
-            provisioning, attempt 1
-          </span>
-          <span style={{ ...label, opacity: second }}>retry, attempt 2</span>
-        </div>
-      </Pill>
-    </div>
-  );
-};
-
-const Caption: React.FC<{
-  readonly range: readonly [number, number];
-  readonly text: string;
-}> = ({ range, text }) => {
-  const frame = useCurrentFrame();
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: MARGIN,
-        top: 124,
-        fontFamily: uiFont,
-        fontSize: 44,
-        fontWeight: 500,
+        fontSize: 40,
+        fontWeight: 600,
         whiteSpace: "nowrap",
-        color: palette.zinc700,
-        opacity: fade(
-          frame,
-          [range[0], range[0] + 12, range[1] - 12, range[1]],
-          [0, 1, 1, 0],
-        ),
-        translate: `0px ${fade(frame, [range[0], range[0] + 14], [10, 0])}px`,
+        color: ink,
       }}
     >
-      {text}
+      {ready ? <Check color="#ffffff" size={38} /> : <Lock color={ink} size={36} />}
+      {ready ? "Ready on day one" : "Can't sign in yet"}
+    </div>
+  );
+};
+
+const Card: React.FC<{ readonly frame: number }> = ({ frame }) => (
+  <div
+    style={{
+      position: "absolute",
+      left: CARD.left,
+      top: CARD.top,
+      width: CARD.width,
+      height: CARD.height,
+      boxSizing: "border-box",
+      borderRadius: 32,
+      border: `2px solid ${palette.zinc200}`,
+      backgroundColor: "#ffffff",
+    }}
+  >
+    <div
+      style={{
+        position: "absolute",
+        left: CARD.pad,
+        top: CARD.pad,
+        width: 112,
+        height: 112,
+        borderRadius: 56,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: palette.sky100,
+        fontFamily: displayFont,
+        fontSize: 44,
+        fontWeight: 600,
+        color: palette.sky800,
+      }}
+    >
+      MS
+    </div>
+    <div
+      style={{
+        position: "absolute",
+        left: CARD.pad,
+        top: 176,
+        fontFamily: displayFont,
+        fontSize: 56,
+        fontWeight: 600,
+        letterSpacing: "-0.02em",
+        whiteSpace: "nowrap",
+        color: palette.zinc900,
+      }}
+    >
+      Maya Santoso
+    </div>
+    <div style={{ position: "absolute", left: CARD.pad, top: 250, fontFamily: uiFont, fontSize: 40, color: palette.zinc500 }}>
+      Starts today
+    </div>
+    <div
+      style={{
+        position: "absolute",
+        left: CARD.pad,
+        right: CARD.pad,
+        top: 324,
+        height: 2,
+        backgroundColor: palette.zinc200,
+      }}
+    />
+    <Counter frame={frame} />
+    <StatusPill frame={frame} />
+  </div>
+);
+
+const logLines: ReadonlyArray<{ at: number; text: string; dot: string }> = [
+  { at: -Infinity, text: "Zoho People · new hire, 08:02", dot: palette.zinc500 },
+  { at: 10, text: "Attempt 1 · creating 8 accounts", dot: palette.sky400 },
+  { at: FAIL_AT, text: "Attempt 1 · Confluence timed out", dot: palette.rose500 },
+  { at: CHAPTER.retry, text: "Attempt 2 · skip what exists", dot: palette.sky400 },
+  { at: RESUME_AT, text: "Attempt 2 · resuming at Confluence", dot: palette.sky400 },
+  { at: CHAPTER.ready, text: "Audit log · 8 created, 0 duplicates", dot: palette.emerald400 },
+];
+
+/** The job's own log. It never moves, so it carries the eye across the loop seam. */
+const LogStrip: React.FC<{ readonly frame: number }> = ({ frame }) => {
+  const line = [...logLines].reverse().find((entry) => frame >= entry.at) ?? logLines[0];
+  return (
+    <div
+      style={{
+        position: "absolute",
+        ...LOG,
+        boxSizing: "border-box",
+        borderRadius: 20,
+        padding: "0 36px",
+        display: "flex",
+        alignItems: "center",
+        gap: 22,
+        backgroundColor: palette.zinc900,
+      }}
+    >
+      <div style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: line.dot }} />
+      <div style={{ fontFamily: codeFont, fontSize: 40, color: palette.zinc100, whiteSpace: "nowrap" }}>
+        {line.text}
+      </div>
     </div>
   );
 };
 
 export const AuthAccess: React.FC = () => {
   const frame = useCurrentFrame();
-  const settle = useSettle(SETTLE.overlay);
-  // The log opens first and the line lands after it, so the closing beat keeps
-  // changing instead of holding one frame for three seconds.
-  const result = fade(frame, [RESULT_AT, RESULT_AT + 14], [0, 1]);
-  const entry = fade(frame, [ENTRY_AT, ENTRY_AT + 14], [0, 1]);
+  // After the stage leaves, the arriving copy plays the frames before 0: the opening state.
+  const story = frame >= SEAM.enter[0] ? frame - AUTH_DURATION : frame;
+  const shift =
+    frame < SEAM.enter[0]
+      ? interpolate(frame, [...SEAM.exit], [0, -PUSH], {
+          easing: Easing.in(Easing.cubic),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        })
+      : interpolate(frame, [...SEAM.enter], [PUSH, 0], {
+          easing: Easing.out(Easing.cubic),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: palette.indigo50 }}>
-      <div
-        style={{
-          position: "absolute",
-          left: MARGIN,
-          right: MARGIN,
-          top: 48,
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: displayFont,
-            fontSize: 52,
-            fontWeight: 600,
-            letterSpacing: "-0.022em",
-            color: palette.zinc900,
-          }}
-        >
-          A new hire starts today
-        </div>
-        <div
-          style={{ fontFamily: uiFont, fontSize: 28, color: palette.indigo800 }}
-        >
-          accounts created from the HR record
-        </div>
-      </div>
-
-      <Profile />
-      {providers.map((_, index) => (
-        <ProviderRow index={index} key={index} />
-      ))}
-
-      <AbsoluteFill style={{ opacity: settle }}>
-        <Attempt />
-        <div
-          style={{
-            position: "absolute",
-            left: MARGIN,
-            right: MARGIN,
-            top: RESULT.top,
-            height: RESULT.height,
-            boxSizing: "border-box",
-            padding: "0 36px",
-            borderRadius: 24,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: palette.zinc700,
-            opacity: result,
-            translate: `0px ${(1 - result) * 16}px`,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: uiFont,
-              fontSize: 28,
-              color: palette.zinc300,
-            }}
-          >
-            Audit log
-          </div>
-          <div
-            style={{
-              fontFamily: displayFont,
-              fontSize: 36,
-              fontWeight: 600,
-              color: "#ffffff",
-              opacity: entry,
-              translate: `0px ${(1 - entry) * 8}px`,
-            }}
-          >
-            m.santoso: 3 accounts, 0 duplicates
-          </div>
-        </div>
-
-        <Caption range={beats.fail} text="A new hire's setup fails halfway." />
-        <Caption
-          range={beats.retry}
-          text="The retry skips accounts already created."
-        />
-        <Caption
-          range={beats.resume}
-          text="Setup resumes at the failed step."
-        />
-        <Caption range={beats.done} text="Ready on day one. No duplicates." />
+    <AbsoluteFill style={{ backgroundColor: palette.zinc50 }}>
+      <AbsoluteFill style={{ translate: `${shift}px 0px` }}>
+        <Card frame={story} />
+        {tools.map((_, index) => (
+          <Tile frame={story} index={index} key={index} />
+        ))}
+        <Marker frame={story} />
       </AbsoluteFill>
+      <LogStrip frame={story} />
     </AbsoluteFill>
   );
 };
