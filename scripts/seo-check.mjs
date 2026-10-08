@@ -90,7 +90,7 @@ async function startPreview() {
   const server = spawn('node_modules/.bin/astro', ['preview', '--port', String(PORT), '--host', '127.0.0.1'], {
     stdio: 'ignore',
   });
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 240; i++) {
     try {
       if ((await fetch(ORIGIN)).ok) return server;
     } catch {}
