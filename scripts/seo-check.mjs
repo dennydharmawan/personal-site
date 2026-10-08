@@ -50,6 +50,13 @@ const CHECKS = [
     return (d.length >= 70 && d.length <= 160) || `description is ${d.length} chars`;
   }],
   ['single-h1', ({ home }) => tags(home.body, 'h1').length === 1 || `${tags(home.body, 'h1').length} h1 elements`],
+  ['heading-spacing', ({ home }) => {
+    // A block span reads as a line break on screen, but text extractors join the words: "systems<span>to" -> "systemsto".
+    const joined = [...home.body.matchAll(/<(h[1-6])\b[^>]*>([\s\S]*?)<\/\1>/g)].filter((m) =>
+      /[^\s>](?:<\/[^>]+>)*<span\b[^>]*>[^\s<]/.test(m[2]),
+    );
+    return joined.length === 0 || `${joined.length} headings run words together across spans`;
+  }],
   ['img-alt', ({ home }) => {
     const bad = tags(home.body, 'img').filter((t) => attr(t, 'alt') == null);
     return bad.length === 0 || `${bad.length} img without alt`;
