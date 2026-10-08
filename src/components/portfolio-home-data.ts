@@ -106,9 +106,9 @@ export const projects: Project[] = [
     built:
       'Each overdue loan gets an owner and a next step: a call, a WhatsApp message, or a field visit. Collectors call from the browser through Vonage and send WhatsApp reminders from templates. Every contact and promise to pay lands on one timeline.',
     chapters: [
-      { at: 0, label: 'Overdue accounts queued' },
-      { at: 8.6, label: 'WhatsApp reminder sent' },
-      { at: 12.4, label: 'Promise to pay logged' }
+      { at: 0, label: 'No single record' },
+      { at: 2.5, label: 'Call, then WhatsApp' },
+      { at: 8, label: 'Promise to pay logged' }
     ],
     preview: '/portfolio-previews/work-sample-loan-collection.png',
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
@@ -121,9 +121,9 @@ export const projects: Project[] = [
     built:
       'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to money received.',
     chapters: [
-      { at: 0, label: 'Customer pays' },
-      { at: 4.6, label: 'Order waits' },
-      { at: 13.2, label: 'Payment matched' }
+      { at: 0, label: 'Paid, order waits' },
+      { at: 4, label: 'Provider confirms' },
+      { at: 7, label: 'Every order matched' }
     ],
     preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
     problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
