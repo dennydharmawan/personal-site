@@ -56,6 +56,10 @@ Loop keyframes animate `transform` or `opacity` strings (`'translateY(-4px)'`, n
 Motion hands them to WAAPI on the compositor; independent `x`, `y`, `scale` tick on the
 main thread.
 
+The Work samples clips are rendered video, built in the separate Remotion package
+`clips/`. Read `clips/AGENTS.md` before you change anything under `clips/` or a
+chapter's `at` in `src/components/portfolio-home-data.ts`.
+
 ## Portfolio copy
 
 Before changing portfolio positioning, homepage copy, resume-facing language, or

@@ -31,7 +31,7 @@
     "check:seam": "node scripts/seam.mjs",
     "check:chapters": "node scripts/chapters.mjs",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src scripts && tsc"
   },
   "sideEffects": [
     "*.css"
