@@ -280,12 +280,30 @@
   font-family: var(--font-mono);
 }
 
+/* On a phone the sheet is wider than the frame, so the frame scrolls and snaps to one part at a time. */
+.bp-frame {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.bp-frame::-webkit-scrollbar {
+  display: none;
+}
+
 .bp-camera {
-  --bp-w: 960px;
-  width: var(--bp-w);
-  /* Centers the focused part, clamped so the sheet edge never shows inside the frame. */
-  translate: clamp(calc(100cqw - var(--bp-w)), calc(50cqw - var(--bp-pan) * var(--bp-w) / 1200), 0px) 0;
-  transition: translate 900ms cubic-bezier(0.65, 0, 0.35, 1);
+  position: relative;
+  width: 960px;
+}
+
+.bp-stop {
+  position: absolute;
+  inset-block: 0;
+  width: 1px;
+  scroll-snap-align: center;
+  pointer-events: none;
 }
 
 @media (width >= 48rem) {
@@ -293,9 +311,13 @@
     --bp-wait: 0ms;
   }
 
+  .bp-frame {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+
   .bp-camera {
     width: 100%;
-    translate: none;
   }
 }
 
