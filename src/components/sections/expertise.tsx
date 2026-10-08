@@ -83,7 +83,7 @@ export function CapabilitiesSection() {
         <RevealGroup className={sectionHeaderMarginClassName}>
           <RevealItem>
             <h2 className="max-w-4xl text-4xl font-heading font-normal leading-[1.1] tracking-tight text-balance sm:text-5xl">
-              <span className="block text-zinc-900">What I optimize for.</span>
+              <span className="block text-zinc-900">What I optimize for.</span>{' '}
               <span className="block text-zinc-500">Fewer incidents. Easier audits. A faster team.</span>
             </h2>
           </RevealItem>

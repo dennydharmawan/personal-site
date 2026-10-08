@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 function HeroHeadline({ className }: { className: string }) {
   return (
     <h1 className={`font-heading font-normal tracking-tight text-zinc-900 ${className}`}>
-      Building systems
+      Building systems{' '}
       <span className="block">to grow revenue.</span>
     </h1>
   );

@@ -112,7 +112,7 @@ export function SiteFooter() {
       >
         <div className="flex flex-col gap-12 lg:justify-between">
           <h2 className="max-w-3xl font-heading text-4xl font-normal leading-[1.04] tracking-tight text-balance text-zinc-900 sm:text-5xl lg:text-6xl">
-            Thanks for stopping by.
+            Thanks for stopping by.{' '}
             <span className="block text-zinc-500">Hope you found what you came for.</span>
           </h2>
           <FooterTakeaways />
