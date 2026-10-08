@@ -714,6 +714,7 @@
 
 .flap-key:active {
   transform: translateY(1px);
+  transition-duration: 80ms;
 }
 
 .flap-key:hover .flap {

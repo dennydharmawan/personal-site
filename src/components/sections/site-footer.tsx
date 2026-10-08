@@ -5,7 +5,7 @@ import { pageShellClassName, scrollToTargetName } from '@/components/sections/sh
 import { DeskScenery } from '@/components/desk-scenery';
 
 const footerPillClassName =
-  'h-11 gap-2 rounded-full border-zinc-900/15 bg-white/60 px-4 text-zinc-900 shadow-none transition-colors hover:border-zinc-900/25 hover:bg-white hover:text-zinc-900';
+  'h-11 gap-2 rounded-full border-zinc-900/15 bg-white/60 px-4 text-zinc-900 shadow-none hover:border-zinc-900/25 hover:bg-white hover:text-zinc-900';
 
 // The board above already asks for email, so the footer only hands over what a reader takes away.
 const footerTakeaways = [

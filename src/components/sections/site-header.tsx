@@ -230,7 +230,9 @@ export function SiteHeader() {
   }
 
   useEffect(() => {
-    const updateCompactState = () => setIsNavCompact(window.scrollY > 28);
+    // Two thresholds, so a scroll resting near one edge does not flip the header back and forth.
+    const updateCompactState = () =>
+      setIsNavCompact((isCompact) => (isCompact ? window.scrollY > 16 : window.scrollY > 40));
 
     updateCompactState();
     window.addEventListener('scroll', updateCompactState, { passive: true });
@@ -319,14 +321,13 @@ export function SiteHeader() {
             </div>
             <Button
               asChild
-              variant="outline"
               className="animate-rise-in ml-1 h-11 px-4"
               style={riseDelay(0.12 + navItems.length * 0.04)}
             >
-              <a href={`mailto:${contactEmail}`} aria-label={`Email ${contactEmail}`}>
+              <a href={`mailto:${contactEmail}`} aria-label={`Want to hire me? Email ${contactEmail}`}>
                 <span className="lg:hidden">Hire me</span>
                 <span className="hidden lg:inline">Want to hire me?</span>
-                <ArrowUpRight aria-hidden="true" className="size-4 text-zinc-500" />
+                <ArrowUpRight aria-hidden="true" className="size-4 text-sky-300" />
               </a>
             </Button>
           </nav>

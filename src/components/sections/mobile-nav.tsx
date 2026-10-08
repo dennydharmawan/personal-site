@@ -70,7 +70,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
   }, [isOpen]);
 
   const iconClassName =
-    'absolute size-5 transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)]';
+    'absolute size-5 transition-[opacity,rotate] duration-200 ease-[cubic-bezier(0.2,0,0,1)]';
 
   return (
     <>
@@ -153,7 +153,7 @@ export function MobileNav({ items, isOpen, onOpenChange, onSelect, triggerStyle 
                       </span>
                       <ArrowRight
                         aria-hidden="true"
-                        className="size-5 shrink-0 text-zinc-400 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-sky-700"
+                        className="size-5 shrink-0 text-zinc-400 transition-[color,translate] duration-200 group-hover:translate-x-0.5 group-hover:text-sky-700"
                       />
                     </a>
                   </motion.li>
