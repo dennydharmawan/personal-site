@@ -94,7 +94,7 @@ export const projects: Project[] = [
       { at: 4.3, label: 'Retry, no duplicates' },
       { at: 12.7, label: 'Ready on day one' }
     ],
-    preview: '/portfolio-previews/work-sample-auth-access.png',
+    preview: '/portfolio-previews/work-sample-auth-access.webp',
     problem:
       'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
     role: 'Identity and access governance',
@@ -110,7 +110,7 @@ export const projects: Project[] = [
       { at: 8.6, label: 'WhatsApp reminder sent' },
       { at: 12.4, label: 'Promise to pay logged' }
     ],
-    preview: '/portfolio-previews/work-sample-loan-collection.png',
+    preview: '/portfolio-previews/work-sample-loan-collection.webp',
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
     role: 'Collections operations',
     stack: ['Next.js', 'Node.js', 'MySQL', 'Redis', 'Vonage', 'WhatsApp API'],
@@ -125,7 +125,7 @@ export const projects: Project[] = [
       { at: 4.6, label: 'Order waits' },
       { at: 13.2, label: 'Payment matched' }
     ],
-    preview: '/portfolio-previews/work-sample-ecommerce-payment.png',
+    preview: '/portfolio-previews/work-sample-ecommerce-payment.webp',
     problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
     role: 'Checkout and payments',
     stack: ['Next.js', 'Microservices', 'Kafka', 'Payment API', 'Webhooks', 'SQL'],
