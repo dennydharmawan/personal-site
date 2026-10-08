@@ -26,6 +26,10 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "render:work-samples": "./render-work-samples.sh",
+    "render:diagrams": "node scripts/architecture/generate.mjs",
+    "check:storyboard": "node scripts/storyboard.mjs",
+    "check:seam": "node scripts/seam.mjs",
+    "check:chapters": "node scripts/chapters.mjs",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },
