@@ -10,6 +10,7 @@ import {
 } from 'motion/react';
 import { projects, type Chapter, type Project } from '@/components/portfolio-home-data';
 import {
+  Reveal,
   RevealGroup,
   RevealItem,
   pageShellClassName,
@@ -200,7 +201,7 @@ function ProjectClip({ project }: { project: Project }) {
 
   return (
     <div className="grid content-start gap-3">
-      <div className={cn(clipFrameClassName, 'group relative')}>
+      <div className={clipFrameClassName}>
         <video
           ref={videoRef}
           aria-label={`${project.title}, animated walkthrough with sample data`}
@@ -216,13 +217,25 @@ function ProjectClip({ project }: { project: Project }) {
           onPause={() => setIsPlaying(false)}
           onPlaying={() => setIsPlaying(true)}
         />
+      </div>
+      <div className="flex items-start gap-3 px-1 sm:gap-4">
+        <ol aria-label={`${project.title} chapters`} className="grid min-w-0 flex-1 grid-cols-3 gap-3 sm:gap-4">
+          {chapters.map((chapter, index) => (
+            <ChapterButton
+              key={chapter.label}
+              chapter={chapter}
+              end={chapters[index + 1]?.at ?? duration ?? Number.POSITIVE_INFINITY}
+              isActive={index === activeIndex}
+              onSelect={() => selectChapter(chapter)}
+              time={time}
+            />
+          ))}
+        </ol>
+        {/* Beside the chapters, not over the clip: on a phone it covered the clip's last line. */}
         <button
           type="button"
           aria-label={`${isPlaying ? 'Pause' : 'Play'} ${project.title} walkthrough`}
-          className={cn(
-            'absolute right-4 bottom-4 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-zinc-900 ring-1 ring-zinc-900/10 transition-opacity duration-200 after:absolute after:-inset-1 hover:bg-white focus-visible:opacity-100',
-            isPlaying && 'opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100'
-          )}
+          className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 ring-1 ring-zinc-900/10 transition-colors duration-200 after:absolute after:-inset-1 hover:bg-zinc-100"
           onClick={togglePlayback}
         >
           {isPlaying ? (
@@ -232,18 +245,6 @@ function ProjectClip({ project }: { project: Project }) {
           )}
         </button>
       </div>
-      <ol aria-label={`${project.title} chapters`} className="grid grid-cols-3 gap-3 px-1 sm:gap-4">
-        {chapters.map((chapter, index) => (
-          <ChapterButton
-            key={chapter.label}
-            chapter={chapter}
-            end={chapters[index + 1]?.at ?? duration ?? Number.POSITIVE_INFINITY}
-            isActive={index === activeIndex}
-            onSelect={() => selectChapter(chapter)}
-            time={time}
-          />
-        ))}
-      </ol>
     </div>
   );
 }
@@ -254,8 +255,9 @@ function ProjectClip({ project }: { project: Project }) {
 function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
   const textColumn = flip ? 'lg:col-start-1' : 'lg:col-start-2';
 
+  // Each row reveals on its own entry, so a row below the fold still animates when it arrives.
   return (
-    <RevealItem>
+    <Reveal>
       <article
         data-scroll-target={project.target}
         className={cn(
@@ -303,7 +305,7 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
           </ul>
         </div>
       </article>
-    </RevealItem>
+    </Reveal>
   );
 }
 
@@ -324,11 +326,11 @@ export function WorkSamplesSection() {
           </RevealItem>
         </RevealGroup>
 
-        <RevealGroup className="grid gap-16 lg:gap-24">
+        <div className="grid gap-16 lg:gap-24">
           {projects.map((project, index) => (
             <ProjectRow key={project.title} flip={index % 2 === 1} project={project} />
           ))}
-        </RevealGroup>
+        </div>
       </div>
     </section>
   );
