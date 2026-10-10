@@ -180,7 +180,7 @@ function IntroSlide({ yearsExperience }: { yearsExperience: number }) {
         <p className={cn(stickerClassName, 'w-fit bg-sky-300')}>Senior Full-Stack Engineer, Jakarta</p>
         <p className="font-heading text-6xl font-extrabold tracking-tight wide:text-8xl">Denny Dharmawan</p>
         <p className="max-w-3xl text-xl text-zinc-700 wide:text-2xl">
-          {`${yearsExperience}+ years building systems for Indonesian digital banks. I learn how a business works before I write the code.`}
+          {`Senior full-stack engineer with ${yearsExperience}+ years of experience. I've built distributed systems for Indonesian digital banks, from lending backends at Jenius handling 2M+ transactions a month to workflow orchestration at Krom Bank.`}
         </p>
       </div>
       <ol className="grid gap-4 sm:grid-cols-2 wide:grid-cols-4">
