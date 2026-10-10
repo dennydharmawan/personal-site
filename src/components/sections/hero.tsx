@@ -23,7 +23,7 @@ function HeroHeadline({ className }: { className: string }) {
 function HeroLede({ yearsExperience, className = '' }: { yearsExperience: number; className?: string }) {
   return (
     <p className={`max-w-xl text-lg font-normal leading-7 text-zinc-600 text-pretty xl:max-w-none ${className}`}>
-      Senior full-stack engineer with {yearsExperience}+ years of experience. I build distributed
+      Senior full-stack engineer with {yearsExperience}+ years of experience. I've built distributed
       systems for Indonesian digital banks, from lending backends at Jenius handling 2M+
       transactions a month to workflow orchestration at Krom Bank.
     </p>

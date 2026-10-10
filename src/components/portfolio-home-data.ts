@@ -64,7 +64,7 @@ export const aboutEvidence: Record<EvidenceTarget, AboutEvidence> = {
 };
 
 export const aboutParagraph: AboutSegment[] = [
-  "I'm a senior full-stack engineer at Krom Bank in Jakarta. I learn how a business works before I write the code. At Krom I built ",
+  "I'm a senior full-stack engineer at Krom Bank in Jakarta. I learn how a business works before I write the code. At Krom, I built ",
   { evidence: 'krom-access' },
   ', and ',
   { evidence: 'krom-shared-package' },
@@ -133,7 +133,7 @@ export const projects: Project[] = [
       src: '/portfolio-previews/architecture/ecommerce-payment.svg'
     },
     built:
-      'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to money received.',
+      'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to the money received.',
     chapters: [
       { at: 0, label: 'Paid, order waits' },
       { at: 4, label: 'Provider confirms' },
@@ -195,18 +195,18 @@ export const experiences: ReadonlyArray<{
         target: 'jenius-lending',
         text: 'Owned the Flexi Cash lending services: 2M+ transactions a month at 99.98% uptime, on Node.js and GraphQL'
       },
-      { text: 'Kept loan applications and payouts stable while users grew 147% in three years' },
+      { text: 'Kept loan applications and payouts stable while the user base grew 147% in three years' },
       { text: 'Built event-driven partner APIs on Kafka that brought Flexi Cash to more retail partners' }
     ],
     period: 'Dec 2019 – Dec 2022',
-    role: 'Back End Engineer',
+    role: 'Backend Engineer',
     summary: 'Backend services for Flexi Cash, a digital lending product.',
     years: '2019'
   },
   {
     company: 'Iverson Technology',
     highlights: [
-      { text: 'Customized ERP workflows and reports for clients including JNE and Gramedia' },
+      { text: 'Customized ERP workflows and reports for clients, including JNE and Gramedia' },
       { text: 'Integrated data warehouse, enterprise portal, and point-of-sale systems' },
       { text: 'Trained hundreds of professionals at client companies on Dynamics AX customization' }
     ],
