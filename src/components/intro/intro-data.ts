@@ -33,7 +33,12 @@ export const stories: Record<StoryId, Story> = {
     flow: [
       [{ label: 'Pipeline step' }, { label: 'Slack mention' }],
       [{ label: 'Orchestrator', tag: 'pulls repository context' }],
-      [{ label: '4 specialist agents', tag: 'security, correctness, testing, conventions' }],
+      [
+        { label: 'Security agent' },
+        { label: 'Correctness agent' },
+        { label: 'Testing agent' },
+        { label: 'Conventions agent' }
+      ],
       [{ label: 'Merger and gate', tag: 'drops unsupported findings' }],
       [{ label: 'PR comment' }, { label: 'Slack approval', tag: 'security or low confidence' }]
     ],
