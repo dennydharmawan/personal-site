@@ -60,7 +60,7 @@ export const stories: Record<StoryId, Story> = {
     period: '2024–2026',
     proof: { label: 'tools on one workflow', value: '8' },
     role: 'I built the workflow engine from scratch. A failed step retries where it stopped, and every change is audited.',
-    shortName: 'HRIS'
+    shortName: 'HRIS automation'
   },
   'loan-collections': {
     context: 'Krom Bank',
@@ -81,7 +81,7 @@ export const stories: Record<StoryId, Story> = {
     period: '2024–2025',
     proof: { label: 'every overdue loan assigned, daily', value: '8 AM' },
     role: 'I designed the data model and built most of the app: daily assignment, browser calls, and one record per case.',
-    shortName: 'Collections'
+    shortName: 'Loan collections'
   },
   lending: {
     context: 'Jenius',
@@ -98,7 +98,7 @@ export const stories: Record<StoryId, Story> = {
     period: '2019–2022',
     proof: { label: 'transactions a month', value: '2M+' },
     role: 'I owned the lending services on Node.js and GraphQL and built the Kafka partner APIs, at 99.98% uptime.',
-    shortName: 'Lending'
+    shortName: 'Flexi Cash'
   }
 };
 

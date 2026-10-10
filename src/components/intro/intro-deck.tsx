@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Network, X } from 'lucide-react';
 import { revealSteps, slides, stack, storyOrder, stories } from '@/components/intro/intro-data';
 import type { Flow, Slide, Story, StoryId } from '@/components/intro/intro-data';
 import { profileLinks, siteMeta, trustedTeams } from '@/components/portfolio-home-data';
-import { contactEmail } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
 const panelClassName = 'border-[3px] border-zinc-900 bg-white shadow-[6px_6px_0_0_var(--color-zinc-900)]';
@@ -44,7 +43,7 @@ function slideTitle(slide: Slide) {
 function slideShortTitle(slide: Slide) {
   if (slide.kind === 'intro') return 'Intro';
   if (slide.kind === 'story') return slide.story.shortName;
-  return 'Stack';
+  return 'Tech stack';
 }
 
 function architectureDialogId(story: Story) {
@@ -334,9 +333,8 @@ function StackSlide() {
         ))}
       </ul>
       <ul aria-label="Contact" className="flex flex-wrap gap-3">
-        <ContactLink href={`mailto:${contactEmail}`}>{contactEmail}</ContactLink>
-        <ContactLink href={profileLinks.linkedIn}>LinkedIn</ContactLink>
-        <ContactLink href={siteMeta.url}>dennydharmawan.com</ContactLink>
+        <ContactLink href={profileLinks.linkedIn}>{profileLinks.linkedIn}</ContactLink>
+        <ContactLink href={siteMeta.url}>{siteMeta.url.replace(/\/$/, '')}</ContactLink>
       </ul>
     </>
   );
@@ -371,8 +369,7 @@ function DeckControls({ dispatch, state }: { dispatch: (action: DeckAction) => v
               aria-current={index === state.slide ? 'step' : undefined}
               className={cn(
                 pressableClassName,
-                'bg-white px-2.5 py-2 text-sm aria-[current=step]:bg-sky-300',
-                index < state.slide && 'bg-zinc-100'
+                'bg-white px-2.5 py-2 text-sm aria-[current=step]:bg-sky-300'
               )}
               onClick={() => dispatch({ slide: index, type: 'go' })}
               type="button"
