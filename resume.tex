@@ -1,6 +1,6 @@
 \documentclass[10pt,letterpaper]{article}
 
-\usepackage[margin=0.5in,top=0.42in,bottom=0.48in]{geometry}
+\usepackage[margin=0.55in,top=0.45in,bottom=0.55in]{geometry}
 \usepackage{fontspec}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
@@ -8,7 +8,6 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{xcolor}
-\usepackage{tabularx}
 \usepackage{ragged2e}
 \usepackage{needspace}
 
@@ -25,7 +24,7 @@
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-\fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Updated Sep 2026}
+\fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Page \thepage{} of \pageref{LastPage}}
 
 \titleformat{\section}
   {\large\bfseries\color{accent}}
@@ -33,7 +32,7 @@
   {0pt}
   {}
   [\vspace{-2pt}{\color{rulecolor}\titlerule}]
-\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing*{\section}{0pt}{10pt}{5pt}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
@@ -41,34 +40,51 @@
 \hyphenpenalty=10000
 \exhyphenpenalty=10000
 \RaggedRight
+% Plain bullet glyphs extract as text, so ATS parsers keep every line.
 \setlist[itemize]{
+  label=\textbullet,
   leftmargin=1.1em,
-  itemsep=1.4pt,
-  topsep=2pt,
+  itemsep=2pt,
+  topsep=3pt,
   parsep=0pt,
   partopsep=0pt,
   % Never split a single bullet mid-sentence across a page break.
   before={\interlinepenalty=10000\relax}
 }
 
-\newcommand{\resumeEntry}[4]{
-  % Keep an entry header with enough of its bullets to avoid orphaned
-  % headings or bullets split mid-sentence across a page break.
-  \Needspace{9\baselineskip}
-  \textbf{#1}\hfill\textbf{#4}\par
-  #2\hfill\textcolor{muted}{#3}\par
-  \vspace{2pt}
+% Company name and its full span of dates on one line.
+\newcommand{\company}[2]{%
+  \Needspace{8\baselineskip}
+  \vspace{4pt}
+  {\textbf{\color{heading}#1}\hfill\textbf{#2}\par}
 }
 
-\newcommand{\educationEntry}[4]{
-  \Needspace{2\baselineskip}
-  \textbf{#1}, #2\hfill\textbf{#4}\par
+% One title held at the company, its dates, the location, and a one-line scope.
+\newcommand{\role}[4]{%
+  \Needspace{6\baselineskip}
+  \vspace{2pt}
+  {\itshape #1 \textbar{} #2\hfill #3\par}
+  \vspace{1pt}
+  #4\par
+}
+
+\newcommand{\keyResults}[1]{\item \textbf{Key results:} #1}
+\newcommand{\techStack}[1]{\item \textbf{Tech stack:} #1}
+
+\newcommand{\school}[2]{%
+  \Needspace{6\baselineskip}
+  \vspace{3pt}
+  {\textbf{\color{heading}#1}\hfill\textbf{#2}\par}
+}
+
+\newcommand{\degree}[2]{%
+  {\itshape #1\hfill #2\par}
 }
 
 \newcommand{\skillLine}[2]{%
   \Needspace{2\baselineskip}
   \par\noindent\textbf{#1:} #2\par
-  \vspace{0.6pt}
+  \vspace{1pt}
 }
 
 \begin{document}
@@ -79,7 +95,7 @@
   {\normalsize\bfseries\color{heading} Senior Full-Stack Engineer\par}
   \vspace{5pt}
   {\normalsize\color{accent}
-    Jakarta, Indonesia \textbar{}
+    Jakarta, Indonesia (UTC+7), open to remote \textbar{}
     \href{mailto:contact@dennydharmawan.com}{contact@dennydharmawan.com} \textbar{}
     +62 859-5961-0206\par
     \vspace{2pt}
@@ -91,47 +107,87 @@
 \vspace{1pt}
 
 \section{Professional Summary}
-Senior full-stack engineer with 8+ years building TypeScript systems in digital banking, across React, Next.js, and Node.js. Owns Krom Bank's identity and access governance platform, the system of record for access decisions across internal applications. Previously spent three years on Jenius Flexi Cash lending backends through 147\% user-base growth.
+Senior Full-Stack Engineer with 8+ years of experience in TypeScript, React, Next.js, and Node.js, including almost seven years in digital banking. Builds fintech products end to end, from user-facing frontends to distributed backend systems, with an AI-native workflow that uses coding agents every day.
 
-\section{Experience}
-\resumeEntry{Krom Bank \textnormal{(digital bank, Indonesia)}}{Senior Full-Stack Engineer}{Jakarta, Indonesia}{Jan 2023 -- Present}
+\section{Work Experience}
+
+\company{Krom Bank}{Jan 2023 -- Present}
+\role{Senior Full-Stack Engineer}{May 2026 -- Present}{Jakarta, Indonesia}{Own the bank's employee access lifecycle, from HR events to account changes in 8 company tools, and drive its delivery across product, QA, database, and release teams.}
 \begin{itemize}
-  \item Built the bank's identity and access governance platform from scratch on Next.js (App Router), React, TypeScript, and Node.js, covering RBAC administration, employee directory, audit logging, and periodic user access review. It is now the system of record for access decisions across internal applications.
-  \item Specified a CASL approval framework that stores permissions as JSON data instead of hardcoded conditionals.
-  \item Designed HRIS-driven account provisioning as checkpointed BullMQ and Redis workflows. Provider mutations stay separate from local finalization, so a retry is idempotent when a third-party call fails halfway.
-  \item Cut average API execution time by 37\% by refactoring legacy modules and adding targeted caching.
-  \item Published a shared npm package for authentication, structured logging, and feature flags, adopted by four production applications through Express.js and Next.js adapters.
-  \item Built a multi-agent pull-request reviewer on AWS Bedrock, Bitbucket, and Slack. Four specialist agents review diffs in parallel against retrieved repository context, with confidence and security gates before a finding can post.
-  \item Delivered an internal operations platform end to end as primary engineer, introducing Next.js to the team and integrating third-party telephony with partner-company engineers.
-  \item Authored the Git workflow standard used by 5+ teams. Mentor two engineers, run design and code review, and built Datadog dashboards and tracing that other teams adopted as their monitoring template.
+  \item Granting and removing access to 8 company tools was a manual checklist, and late removal is an audit risk for a bank. Designed an HRIS-driven lifecycle system on Node.js, BullMQ, and Redis that checkpoints each step and keeps provider calls separate from local finalization, so a retry after a half-finished call never creates a duplicate account. New hires now get access on their first day and lose it when they leave, with an audit record for every change.
+  \item Handled the cases that make HR automation hard to trust (rehires, overlapping joins and exits, and tools that need the company mailbox first), then moved 170+ existing employees onto the new access model in staged production batches.
+  \item The audit log ran on a MongoDB instance the team had to operate, and its offset pagination could skip or repeat rows while new actions were written. Migrated it to Amazon DocumentDB in phases (dual-write behind a feature flag, read cutover, then retiring MongoDB) and switched to keyset pagination, keeping the log available to auditors throughout.
+  \item EKS services showed stale release versions in Datadog, so errors could not be traced to the release that caused them. Traced it to a missing DD\_VERSION in the shared Helm chart and handed infra the evidence; they fixed the chart that every EKS service deploys from.
+  \item Release reviews depended on people reading each release ticket, its pull requests, and its prerequisites by hand. Prototyped a release-triage agent on AWS Bedrock that reads the ticket, its Bitbucket diffs, and Jira context and drafts a triage comment, with a Promptfoo eval harness scored against past releases.
+  \item Mentor two engineers and run design and code reviews.
+  \begin{itemize}
+    \keyResults{Shipped HRIS-driven access automation for 8 tools to production in Sep 2026 and moved 170+ existing employees onto it.}
+    \techStack{TypeScript, Node.js, Next.js, BullMQ, Redis, MySQL, Amazon DocumentDB, AWS (Bedrock, EKS), Datadog}
+  \end{itemize}
 \end{itemize}
 
-\resumeEntry{Bank SMBC Indonesia (Jenius)}{Back End Engineer}{Jakarta, Indonesia}{Dec 2019 -- Dec 2022}
+\role{Full-Stack Engineer}{Jan 2023 -- May 2026}{Jakarta, Indonesia}{Built the bank's internal platforms on Next.js and Node.js: access governance, loan collections, and shared libraries.}
 \begin{itemize}
-  \item Built and operated Flexi Cash lending backends on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka, covering loan origination, funding disbursement, and retail-partner APIs.
-  \item Designed Kafka event-driven partner integrations and kept origination and disbursement stable through a 147\% user-base increase over three years from launch.
+  \item Access decisions for internal applications had no single auditable record. Built the identity and access governance platform from scratch on Next.js (App Router), React, TypeScript, and Node.js, covering RBAC administration, the employee directory, audit logging, and periodic user access review. It is now the system of record for access decisions across internal applications.
+  \item Specified a CASL approval framework that stores permissions as JSON data instead of hardcoded conditionals, so approval rules change through data instead of code releases.
+  \item Collectors chased overdue loans by phone, WhatsApp, and field visits with no shared record of who was contacted or what they promised. As primary engineer, designed the data model and built most of a collections platform, introduced Next.js to the team, and integrated Vonage browser calling with partner-company engineers. Each overdue loan now has an owner, a next step, and one timeline of calls, reminders, and promises to pay.
+  \item Legacy modules made core APIs slow. Refactored them and added Redis caching, cutting average API execution time by 37\%.
+  \item Each internal app carried its own authentication, logging, and feature-flag code. Published a shared npm package with Express.js and Next.js adapters, now used by four production applications.
+  \item Teams branched and released in different ways. Authored the Git workflow standard now used by 5+ teams, and built Datadog dashboards and tracing that other teams adopted as their monitoring template.
+  \begin{itemize}
+    \keyResults{Cut average API execution time by 37\%, moved four production apps onto one shared package, and set the Git workflow used by 5+ teams.}
+    \techStack{TypeScript, Next.js (App Router), React, Mantine, Node.js, Express.js, MySQL, MongoDB, Redis, CASL, Vonage, AWS (ECS), Datadog}
+  \end{itemize}
 \end{itemize}
 
-\resumeEntry{PT Iverson Technology}{Technical Consultant}{Jakarta, Indonesia}{Dec 2017 -- Dec 2019}
+\company{Bank SMBC Indonesia (Jenius)}{Dec 2019 -- Dec 2022}
+\role{Back End Engineer}{Dec 2019 -- Dec 2022}{Jakarta, Indonesia}{Backend engineer on Flexi Cash, the Jenius consumer credit line sold in the app and through retail partners.}
 \begin{itemize}
-  \item Customized Microsoft Dynamics AX ERP workflows for enterprise clients including JNE and Gramedia, built integrations across data warehouse, enterprise portal, and point-of-sale systems, and trained hundreds of professionals at 2+ companies.
+  \item Built and operated the Flexi Cash lending backends for loan origination, funding disbursement, and retail-partner APIs on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.
+  \item Each new retail partner needed its own integration into the lending flow. Designed event-driven partner APIs on Kafka, which brought Flexi Cash to more retail partners.
+  \item Kept origination and disbursement stable through a 147\% user-base increase over three years from launch.
+  \begin{itemize}
+    \keyResults{Ran lending services at 2M+ transactions a month and 99.98\% uptime while the user base grew 147\%.}
+    \techStack{Microservice architecture, Node.js, Express.js, GraphQL, MongoDB, Redis, Kafka}
+  \end{itemize}
 \end{itemize}
 
-\section{Technical Skills}
-\skillLine{Core}{TypeScript, JavaScript, Node.js, Express.js, GraphQL, REST, React, Next.js (App Router), Mantine}
-\skillLine{Architecture}{System design, distributed workflows, idempotent retries, caching, event-driven integration, RBAC, CASL, audit logging, HRIS provisioning}
-\skillLine{Data \& platform}{MySQL, MongoDB, DocumentDB, Redis, Kafka, BullMQ, AWS (ECS, EKS), Kubernetes, Docker, CI/CD, Datadog}
-\skillLine{Practices}{RFC authoring, Git workflow standards, design and code review, shared package ownership, mentoring}
-
-\section{Education}
-\educationEntry{RWTH Aachen University}{DAAD Exchange, Information Technology}{Aachen, Germany}{Oct 2014 -- Nov 2015}
-\educationEntry{KMUTNB}{DAAD Exchange, Information Technology}{Bangkok, Thailand}{Aug 2013 -- Sep 2014}
-\educationEntry{BINUS University}{B.S. Computer Science}{Jakarta, Indonesia}{Mar 2011 -- Jun 2013}
+\company{PT Iverson Technology}{Dec 2017 -- Dec 2019}
+\role{Technical Consultant}{Dec 2017 -- Dec 2019}{Jakarta, Indonesia}{Microsoft Dynamics AX ERP consultant for enterprise clients, including JNE and Gramedia.}
+\begin{itemize}
+  \item Customized Dynamics AX ERP workflows for enterprise clients and built integrations across data warehouse, enterprise portal, and point-of-sale systems.
+  \item Trained hundreds of professionals at 2+ client companies on Dynamics AX customization.
+\end{itemize}
 
 \section{Selected Achievements}
 \begin{itemize}
   \item Won an internal AI engineering competition and presented spec-driven development to Krom Bank engineering teams.
-  \item DAAD scholar at KMUTNB and RWTH Aachen. Top-performing teaching assistant at BINUS University.
 \end{itemize}
+
+\section{Technical Skills}
+\skillLine{Frontend}{TypeScript, JavaScript, React, Next.js (App Router), Mantine, Storybook}
+\skillLine{Backend}{Node.js, Express.js, NestJS, GraphQL, REST, BullMQ, Kafka, event-driven integration}
+\skillLine{Data}{MySQL, MongoDB, Amazon DocumentDB, Redis}
+\skillLine{Cloud and operations}{AWS (ECS, EKS, Bedrock), Kubernetes, Docker, CI/CD, Datadog}
+\skillLine{Architecture}{System design, distributed workflows, idempotent retries, caching, RBAC, CASL, audit logging, HRIS provisioning}
+\skillLine{AI engineering}{AWS Bedrock agents, LLM evals with Promptfoo, spec-driven development}
+\skillLine{Practices}{RFC authoring, Git workflow standards, design and code review, shared package ownership, mentoring}
+\skillLine{Languages}{Indonesian (native), English (professional working proficiency)}
+\skillLine{For fun}{Weightlifting and running}
+
+\section{Education}
+\school{Thai-German Graduate School of Engineering (TGGS), KMUTNB}{Aug 2013 -- Nov 2015}
+\degree{Master of Engineering (M.Eng.), Software Systems Engineering}{Bangkok, Thailand and Aachen, Germany}
+\begin{itemize}
+  \item \textbf{GPA: 3.84/4.00.} Full DAAD scholarship, funded by the German Academic Exchange Service and the German Federal Foreign Office.
+  \item Selected for the scholarship through a competitive application and interview process open to graduates across Southeast Asia, and spent the second year on a computer vision research stay at RWTH Aachen University \mbox{(Oct 2014 -- Nov 2015)}.
+\end{itemize}
+
+\school{BINUS University}{Mar 2011 -- Jun 2013}
+\degree{Bachelor of Science (B.S.), Computer Science}{Jakarta, Indonesia}
+\begin{itemize}
+  \item Top-performing teaching assistant at the Software Laboratory Center, teaching programming and reviewing code for undergraduates.
+\end{itemize}
+
 
 \end{document}
