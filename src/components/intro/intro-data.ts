@@ -56,11 +56,11 @@ export const stories: Record<StoryId, Story> = {
     ],
     headline: 'New hires get access on day one. Leavers lose it when they go.',
     id: 'employee-access',
-    name: 'Employee access system',
+    name: 'HRIS automation system',
     period: '2024–2026',
     proof: { label: 'tools on one workflow', value: '8' },
     role: 'I built the workflow engine from scratch. A failed step retries where it stopped, and every change is audited.',
-    shortName: 'Access'
+    shortName: 'HRIS'
   },
   'loan-collections': {
     context: 'Krom Bank',

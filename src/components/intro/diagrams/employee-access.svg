@@ -1,5 +1,5 @@
 <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="employee-access-title employee-access-desc" id="employee-access-root">
-        <title id="employee-access-title">Employee access system</title>
+        <title id="employee-access-title">HRIS automation system</title>
         <desc id="employee-access-desc">HR system events reach a webhook API, a wave scheduler saves a workflow job and sends its ID through a BullMQ queue on Redis, and workers run checkpointed steps through one adapter per tool while every change lands in an audit log.</desc>
         <defs>
       <style>
