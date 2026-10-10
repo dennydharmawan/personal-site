@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { experiences } from '@/components/portfolio-home-data';
 import {
@@ -118,59 +118,109 @@ function useRoleInView() {
   return { active, rolesRef };
 }
 
+// Dot centers measured from the top of the rail, so the line and the marker can target the same y.
+function useDotCenters() {
+  const railRef = useRef<HTMLDivElement>(null);
+  const [centers, setCenters] = useState<number[]>([]);
+
+  useLayoutEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const measure = () => {
+      const top = rail.getBoundingClientRect().top;
+      setCenters(
+        [...rail.querySelectorAll('[data-rail-dot]')].map((dot) => {
+          const box = dot.getBoundingClientRect();
+          return box.top - top + box.height / 2;
+        })
+      );
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(rail);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return { centers, railRef };
+}
+
 function RoleRail({ active }: { active: number }) {
   const shouldReduceMotion = useReducedMotion();
+  const { centers, railRef } = useDotCenters();
+  const transition = shouldReduceMotion ? instant : { duration: 0.45, ease: revealEase };
+  const first = centers[0] ?? 0;
+  const length = (centers.at(-1) ?? 0) - first;
+  const target = centers[active] ?? first;
 
   return (
-    <ol aria-label="Roles" className="grid gap-5">
-      {experiences.map((item, index) => {
-        const reached = index <= active;
-
-        return (
-          <li key={item.company} className="relative pl-6">
-            <span
-              aria-hidden="true"
-              className={cn(
-                'absolute top-[0.45em] left-0 size-[7px] rounded-full transition-colors duration-300',
-                reached ? 'bg-sky-400' : 'bg-zinc-500'
-              )}
+    <div ref={railRef} className="relative">
+      {/* One track for every role, so a scroll that skips a role still fills the line in one stroke.
+          The fill and the marker share a target and a transition, which keeps the marker on the head of the line. */}
+      {length > 0 ? (
+        <>
+          <span
+            aria-hidden="true"
+            className="absolute left-[3px] w-px overflow-hidden bg-white/15"
+            style={{ top: first, height: length }}
+          >
+            <motion.span
+              className="block size-full origin-top bg-sky-400"
+              initial={false}
+              animate={{ transform: `scaleY(${(target - first) / length})` }}
+              transition={transition}
             />
-            {index < experiences.length - 1 ? (
+          </span>
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-0 left-[-5px] z-10 size-[17px] rounded-full ring-1 ring-sky-400/70 shadow-[0_0_10px_--alpha(var(--color-sky-400)/35%)]"
+            initial={false}
+            animate={{ transform: `translateY(${target - 8.5}px)` }}
+            transition={transition}
+          />
+        </>
+      ) : null}
+      <ol aria-label="Roles" className="relative grid gap-5">
+        {experiences.map((item, index) => {
+          const reached = index <= active;
+
+          return (
+            <li key={item.company} className="relative pl-6">
               <span
                 aria-hidden="true"
-                className="absolute top-[calc(0.45em+7px)] left-[3px] h-[calc(100%+1.25rem-7px)] w-px overflow-hidden bg-white/15"
-              >
-                <motion.span
-                  className="block size-full origin-top bg-sky-400"
-                  initial={false}
-                  animate={{ scaleY: index < active ? 1 : 0 }}
-                  transition={shouldReduceMotion ? instant : { duration: 0.45, ease: revealEase }}
-                />
-              </span>
-            ) : null}
-            <button
-              type="button"
-              aria-current={index === active ? 'step' : undefined}
-              className="group grid w-full gap-0.5 rounded-sm text-left text-sm [--focus-offset:4px]"
-              onClick={() => {
-                scrollToTargetName(roleTarget(index));
-                focusTargetName(roleTarget(index));
-              }}
-            >
-              <span
+                data-rail-dot
                 className={cn(
-                  'font-medium transition-colors duration-300',
-                  index === active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'
+                  'absolute top-[0.45em] left-0 size-[7px] rounded-full transition-colors duration-300',
+                  // The delay lets the marker land before the dot lights, so the color reads as its arrival.
+                  reached ? 'bg-sky-400 delay-150' : 'bg-zinc-500'
                 )}
+              />
+              <button
+                type="button"
+                aria-current={index === active ? 'step' : undefined}
+                className="group grid w-full gap-0.5 rounded-sm text-left text-sm [--focus-offset:4px]"
+                onClick={() => {
+                  scrollToTargetName(roleTarget(index));
+                  focusTargetName(roleTarget(index));
+                }}
               >
-                {item.company}
-              </span>
-              <span className="tabular-nums text-zinc-400">{item.period}</span>
-            </button>
-          </li>
-        );
-      })}
-    </ol>
+                <span
+                  className={cn(
+                    'font-medium transition-colors duration-300',
+                    index === active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'
+                  )}
+                >
+                  {item.company}
+                </span>
+                <span className="tabular-nums text-zinc-400">{item.period}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
