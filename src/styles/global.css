@@ -41,6 +41,16 @@
 }
 
 @custom-variant dark (&:is(.dark *));
+/* The /intro deck: one slide per screen on a laptop or a screen share. */
+@custom-variant deck (@media screen and (width >= 48rem));
+/* A laptop browser with its toolbars showing, about 640px tall. */
+@custom-variant short (@media screen and (width >= 48rem) and (height < 46rem));
+/* The /intro desktop layout. Print takes it too, because md: does not match when Chrome prints the page. */
+@custom-variant wide {
+    @media print, (width >= 48rem) {
+        @slot;
+    }
+}
 
 @theme inline {
     --font-sans: 'Instrument Sans Variable', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;

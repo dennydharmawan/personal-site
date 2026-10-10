@@ -1,0 +1,169 @@
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="employee-access-title employee-access-desc" id="employee-access-root">
+        <title id="employee-access-title">Employee access system</title>
+        <desc id="employee-access-desc">HR system events reach a webhook API, a wave scheduler saves a workflow job and sends its ID through a BullMQ queue on Redis, and workers run checkpointed steps through one adapter per tool while every change lands in an audit log.</desc>
+        <defs>
+      <style>
+      #employee-access-root { --color-paper:  var(--color-white);
+      --color-ink:    var(--color-zinc-900);
+      --color-muted:  var(--color-zinc-600);
+      --font-display: var(--font-heading);
+      --font-mono:    ui-monospace, SFMono-Regular, Menlo, monospace; }
+      #employee-access-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #employee-access-root .diagram-container { width: 100%; overflow-x: auto; }
+      #employee-access-root .diagram-container { overflow-x: visible; }</style>
+          <marker id="employee-access-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-zinc-600)"/></marker>
+          <marker id="employee-access-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-sky-700)"/></marker>
+          <marker id="employee-access-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-sky-600)"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="var(--color-white)"/>
+
+        <!-- ============ ARROWS (drawn before nodes) ============ -->
+
+        <!-- HR system -> Webhook API -->
+        <path d="M 120,224 V 310" fill="none" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow-link)"/>
+
+        <!-- Webhook API -> Wave scheduler -->
+        <path d="M 200,352 H 274" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <rect x="214" y="328" width="52" height="16" fill="var(--color-white)"/>
+        <text x="240" y="340" fill="var(--color-zinc-500)" font-size="12" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.04em">DATES</text>
+
+        <!-- Wave scheduler -> Slack summary -->
+        <path d="M 356,312 V 230" fill="none" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow-link)"/>
+
+        <!-- Wave scheduler -> Workflow jobs -->
+        <path d="M 356,392 V 486" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <rect x="364" y="433" width="76" height="16" fill="var(--color-white)"/>
+        <text x="370" y="445" fill="var(--color-zinc-500)" font-size="12" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.04em">SAVE JOB</text>
+
+        <!-- Wave scheduler -> BullMQ queue -->
+        <path d="M 436,352 H 510" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <rect x="448" y="328" width="56" height="16" fill="var(--color-white)"/>
+        <text x="476" y="340" fill="var(--color-zinc-500)" font-size="12" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.04em">JOB ID</text>
+
+        <!-- BullMQ queue -> Workers -->
+        <path d="M 672,352 H 746" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+
+        <!-- Workers -> Tool adapters (headline path) -->
+        <path d="M 908,352 H 982" fill="none" stroke="var(--color-sky-700)" stroke-width="2" marker-end="url(#employee-access-arrow-accent)"/>
+
+        <!-- Workers -> Workflow jobs (checkpoint) -->
+        <path d="M 800,392 V 520 Q 800,528 792,528 H 442" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <rect x="572" y="504" width="92" height="16" fill="var(--color-white)"/>
+        <text x="618" y="516" fill="var(--color-zinc-500)" font-size="12" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.04em">CHECKPOINT</text>
+
+        <!-- Workers -> Audit log -->
+        <path d="M 856,392 V 520 Q 856,528 864,528 H 1022" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <rect x="890" y="504" width="108" height="16" fill="var(--color-white)"/>
+        <text x="944" y="516" fill="var(--color-zinc-500)" font-size="12" font-weight="500" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.04em">EVERY CHANGE</text>
+
+        <!-- ============ NODES ============ -->
+
+        <!-- HR system (external) -->
+        <rect x="44" y="148" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="40" y="144" width="160" height="80" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="120" y="178" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">HR system</text>
+        <text x="120" y="200" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">hire, rehire, exit</text>
+
+        <!-- Slack summary (external) -->
+        <rect x="280" y="148" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="276" y="144" width="160" height="80" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="356" y="178" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Slack summary</text>
+        <text x="356" y="200" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">D-8 · D-1</text>
+
+        <!-- Webhook API (backend) -->
+        <rect x="44" y="316" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="40" y="312" width="160" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="120" y="340" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Webhook API</text>
+        <text x="120" y="360" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">names the bad field</text>
+        <text x="120" y="376" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">rehires → a person</text>
+
+        <!-- Wave scheduler (backend) -->
+        <rect x="280" y="316" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="276" y="312" width="160" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="356" y="346" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Wave scheduler</text>
+        <text x="356" y="368" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">D-7 · D-0 · on exit</text>
+
+        <!-- BullMQ queue (backend) -->
+        <rect x="516" y="316" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="512" y="312" width="160" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="592" y="346" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">BullMQ queue</text>
+        <text x="592" y="368" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">on Redis</text>
+
+        <!-- Workers (focal) -->
+        <rect x="752" y="316" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="748" y="312" width="160" height="80" fill="var(--color-sky-300)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="828" y="346" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Workers</text>
+        <text x="828" y="368" fill="var(--color-zinc-900)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">checkpoint per step</text>
+
+        <!-- Tool adapters (backend, lists the tools) -->
+        <rect x="988" y="276" width="240" height="160" fill="var(--color-zinc-900)"/>
+        <rect x="984" y="272" width="240" height="160" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="1104" y="302" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Tool adapters</text>
+        <text x="1104" y="322" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">one per tool</text>
+        <rect x="1008" y="338" width="112" height="20" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1064" y="352" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Google Workspace</text>
+        <rect x="1128" y="338" width="68" height="20" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1162" y="352" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">JumpCloud</text>
+        <rect x="1020" y="366" width="44" height="20" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1042" y="380" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Slack</text>
+        <rect x="1072" y="366" width="40" height="20" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1092" y="380" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Zoho</text>
+        <rect x="1120" y="366" width="68" height="20" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1154" y="380" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Atlassian</text>
+        <rect x="1056" y="394" width="96" height="20" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1104" y="408" fill="var(--color-zinc-900)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">internal apps</text>
+
+        <!-- Workflow jobs (store) -->
+        <rect x="280" y="492" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="276" y="488" width="160" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="356" y="522" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Workflow jobs</text>
+        <text x="356" y="544" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">MySQL · one per run</text>
+
+        <!-- Audit log (store) -->
+        <rect x="1028" y="492" width="160" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="1024" y="488" width="160" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <text x="1104" y="522" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Audit log</text>
+        <text x="1104" y="544" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Amazon DocumentDB</text>
+
+        <!-- ============ CALLOUTS ============ -->
+
+        <text x="1104" y="176" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-heading)" text-anchor="middle">A new tool is one adapter.</text>
+        <line x1="1104" y1="188" x2="1104" y2="270" stroke="var(--color-zinc-900)" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="1104" cy="272" r="3" fill="var(--color-zinc-900)"/>
+
+        <text x="828" y="218" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-heading)" text-anchor="middle">A retry resumes at the failed step</text>
+        <text x="828" y="240" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-heading)" text-anchor="middle">and never creates a second account.</text>
+        <line x1="828" y1="252" x2="828" y2="310" stroke="var(--color-zinc-900)" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="828" cy="312" r="3" fill="var(--color-zinc-900)"/>
+
+        <!-- ============ LEGEND ============ -->
+
+        <line x1="40" y1="652" x2="1240" y2="652" stroke="var(--color-zinc-200)" stroke-width="1"/>
+        <text x="40" y="689" fill="var(--color-zinc-600)" font-size="10" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.14em">LEGEND</text>
+
+        <rect x="138" y="680" width="24" height="14" fill="var(--color-zinc-900)"/>
+        <rect x="136" y="678" width="24" height="14" fill="var(--color-sky-300)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+        <text x="168" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">FOCAL</text>
+
+        <rect x="258" y="680" width="24" height="14" fill="var(--color-zinc-900)"/>
+        <rect x="256" y="678" width="24" height="14" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+        <text x="288" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">SERVICE</text>
+
+        <rect x="378" y="680" width="24" height="14" fill="var(--color-zinc-900)"/>
+        <rect x="376" y="678" width="24" height="14" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+        <text x="408" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">STORE</text>
+
+        <rect x="498" y="680" width="24" height="14" fill="var(--color-zinc-900)"/>
+        <rect x="496" y="678" width="24" height="14" fill="var(--color-sky-50)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+        <text x="528" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">EXTERNAL</text>
+
+        <line x1="640" y1="685" x2="666" y2="685" stroke="var(--color-sky-700)" stroke-width="2" marker-end="url(#employee-access-arrow-accent)"/>
+        <text x="676" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">MAIN PATH</text>
+
+        <line x1="792" y1="685" x2="818" y2="685" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow-link)"/>
+        <text x="828" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">EXTERNAL CALL</text>
+
+        <line x1="968" y1="685" x2="994" y2="685" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#employee-access-arrow)"/>
+        <text x="1004" y="689" fill="var(--color-zinc-600)" font-size="10" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">INTERNAL</text>
+      </svg>

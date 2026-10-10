@@ -1,0 +1,164 @@
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lending-title lending-desc" id="lending-root">
+        <title id="lending-title">Flexi Cash lending</title>
+        <desc id="lending-desc">Flexi Cash lending backend at Jenius, where the app calls one GraphQL API with a Redis cache and retail partners call a Partner API, both reaching origination and disbursement services that keep loan records in MongoDB and publish Kafka events back to the partners.</desc>
+        <defs>
+      <style>
+      #lending-root { --color-paper:  var(--color-white);
+      --color-ink:    var(--color-zinc-900);
+      --color-muted:  var(--color-zinc-600);
+      --color-soft:   var(--color-zinc-500);
+      --font-display: var(--font-heading);
+      --font-mono:    ui-monospace, SFMono-Regular, Menlo, monospace; }
+      #lending-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #lending-root .diagram-container { width: 100%; overflow-x: auto; }
+      #lending-root .diagram-container { overflow-x: visible; }</style>
+          <marker id="lending-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-zinc-600)"/></marker>
+          <marker id="lending-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-sky-700)"/></marker>
+          <marker id="lending-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color-sky-600)"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="var(--color-white)"/>
+
+        <!-- ============ Arrows (drawn before nodes) ============ -->
+
+        <!-- Jenius app -> GraphQL API -->
+        <path d="M 134,192 V 288" fill="none" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#lending-arrow-link)"/>
+        <!-- GraphQL API -> Redis cache -->
+        <path d="M 134,368 V 464" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- GraphQL API -> Origination (upper port on GraphQL's right edge) -->
+        <path d="M 224,316 H 284 Q 292,316 292,308 V 160 Q 292,152 300,152 H 380" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- GraphQL API -> Disbursement (lower port on GraphQL's right edge) -->
+        <path d="M 224,340 H 308 Q 316,340 316,348 V 496 Q 316,504 324,504 H 380" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- Origination -> MongoDB -->
+        <path d="M 470,192 V 288" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- Disbursement -> MongoDB (ends at the shadow edge under MongoDB) -->
+        <path d="M 470,464 V 372" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- Partner checkout -> Partner API (ends at the shadow edge) -->
+        <path d="M 1052,152 H 900" fill="none" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#lending-arrow-link)"/>
+        <!-- Partner API -> Origination (upper port on Origination's right edge) -->
+        <path d="M 716,140 H 564" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+        <!-- Origination -> Kafka (lower port on Origination's right edge) -->
+        <path d="M 560,164 H 588 Q 596,164 596,172 V 320 Q 596,328 604,328 H 716" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#lending-arrow)"/>
+        <!-- Disbursement -> Kafka (enters Kafka's bottom edge at the shadow line) -->
+        <path d="M 560,504 H 768 Q 776,504 776,496 V 372" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#lending-arrow)"/>
+        <!-- Kafka -> Partner API -->
+        <path d="M 806,288 V 196" fill="none" stroke="var(--color-zinc-600)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#lending-arrow)"/>
+
+        <!-- ============ Arrow labels (opaque masks, 8px clear of the stroke) ============ -->
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="500" letter-spacing="0.04em" text-anchor="middle">
+          <rect x="232" y="228" width="52" height="14" fill="var(--color-white)"/>
+          <text x="258" y="239" fill="var(--color-zinc-500)">APPLY</text>
+
+          <rect x="248" y="416" width="60" height="14" fill="var(--color-white)"/>
+          <text x="278" y="427" fill="var(--color-zinc-500)">PAYOUT</text>
+
+          <rect x="614" y="118" width="52" height="14" fill="var(--color-white)"/>
+          <text x="640" y="129" fill="var(--color-zinc-500)">APPLY</text>
+
+          <rect x="604" y="236" width="100" height="14" fill="var(--color-white)"/>
+          <text x="654" y="247" fill="var(--color-zinc-500)">LOAN EVENTS</text>
+
+          <rect x="608" y="482" width="116" height="14" fill="var(--color-white)"/>
+          <text x="666" y="493" fill="var(--color-zinc-500)">PAYOUT EVENTS</text>
+        </g>
+
+        <!-- ============ Nodes: hard shadow first, then the box ============ -->
+
+        <!-- Jenius app (input) -->
+        <rect x="48" y="116" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="44" y="112" width="180" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="52" y="120" width="32" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="68" y="130" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
+        <text x="134" y="158" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Jenius app</text>
+        <text x="134" y="176" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">customers</text>
+
+        <!-- GraphQL API (focal) -->
+        <rect x="48" y="292" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="44" y="288" width="180" height="80" fill="var(--color-sky-300)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="52" y="296" width="32" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="68" y="306" fill="var(--color-zinc-950)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+        <text x="134" y="334" fill="var(--color-zinc-950)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">GraphQL API</text>
+        <text x="134" y="352" fill="var(--color-zinc-700)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Node.js · Express</text>
+
+        <!-- Redis cache (store) -->
+        <rect x="48" y="468" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="44" y="464" width="180" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="52" y="472" width="40" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="72" y="482" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">CACHE</text>
+        <text x="134" y="510" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Redis cache</text>
+        <text x="134" y="528" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">hot reads</text>
+
+        <!-- Origination service (backend) -->
+        <rect x="384" y="116" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="380" y="112" width="180" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="388" y="120" width="52" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="414" y="130" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">SERVICE</text>
+        <text x="470" y="158" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Origination</text>
+        <text x="470" y="176" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">loan applications</text>
+
+        <!-- MongoDB (store) -->
+        <rect x="384" y="292" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="380" y="288" width="180" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="388" y="296" width="24" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="400" y="306" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">DB</text>
+        <text x="470" y="334" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">MongoDB</text>
+        <text x="470" y="352" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">loan records</text>
+
+        <!-- Disbursement service (backend) -->
+        <rect x="384" y="468" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="380" y="464" width="180" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="388" y="472" width="52" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="414" y="482" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">SERVICE</text>
+        <text x="470" y="510" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Disbursement</text>
+        <text x="470" y="528" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">payouts</text>
+
+        <!-- Partner API (backend) -->
+        <rect x="720" y="116" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="716" y="112" width="180" height="80" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="724" y="120" width="32" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="740" y="130" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+        <text x="806" y="158" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Partner API</text>
+        <text x="806" y="176" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">Node.js · Express</text>
+
+        <!-- Kafka (focal) -->
+        <rect x="720" y="292" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="716" y="288" width="180" height="80" fill="var(--color-sky-300)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="724" y="296" width="48" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="748" y="306" fill="var(--color-zinc-950)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">EVENTS</text>
+        <text x="806" y="334" fill="var(--color-zinc-950)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Kafka</text>
+        <text x="806" y="352" fill="var(--color-zinc-700)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">partner events</text>
+
+        <!-- Partner checkout (input) -->
+        <rect x="1056" y="116" width="180" height="80" fill="var(--color-zinc-900)"/>
+        <rect x="1052" y="112" width="180" height="80" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="2"/>
+        <rect x="1060" y="120" width="52" height="14" fill="none" stroke="var(--color-zinc-900)" stroke-width="1"/>
+        <text x="1086" y="130" fill="var(--color-zinc-900)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.08em">PARTNER</text>
+        <text x="1142" y="158" fill="var(--color-zinc-900)" font-size="16" font-weight="600" font-family="var(--font-sans)" text-anchor="middle">Partner checkout</text>
+        <text x="1142" y="176" fill="var(--color-zinc-600)" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">retail partners</text>
+
+        <!-- ============ Callout (margin, orthogonal dashed leader to Kafka) ============ -->
+        <path d="M 1060,412 V 336 Q 1060,328 1052,328 H 908" fill="none" stroke="var(--color-zinc-900)" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="906" cy="328" r="2.5" fill="var(--color-zinc-900)"/>
+        <text font-family="var(--font-heading)" font-size="14" font-weight="600" fill="var(--color-zinc-900)">
+          <tspan x="1052" y="432">Partner integrations</tspan>
+          <tspan x="1052" y="450">run on Kafka events.</tspan>
+        </text>
+
+        <!-- ============ Legend strip ============ -->
+        <line x1="40" y1="616" x2="1240" y2="616" stroke="var(--color-zinc-200)" stroke-width="1"/>
+        <text x="40" y="653" fill="var(--color-zinc-500)" font-size="8" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing="0.08em">LEGEND</text>
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="500" letter-spacing="0.06em" fill="var(--color-zinc-500)">
+          <rect x="120" y="642" width="20" height="14" fill="var(--color-sky-300)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+          <text x="148" y="653">FOCAL</text>
+          <rect x="216" y="642" width="20" height="14" fill="var(--color-white)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+          <text x="244" y="653">SERVICE OR API</text>
+          <rect x="384" y="642" width="20" height="14" fill="var(--color-zinc-100)" stroke="var(--color-zinc-900)" stroke-width="1.5"/>
+          <text x="412" y="653">INPUT OR STORE</text>
+          <line x1="552" y1="649" x2="580" y2="649" stroke="var(--color-sky-600)" stroke-width="1.5" marker-end="url(#lending-arrow-link)"/>
+          <text x="592" y="653">API CALL</text>
+          <line x1="684" y1="649" x2="712" y2="649" stroke="var(--color-zinc-600)" stroke-width="1.5" marker-end="url(#lending-arrow)"/>
+          <text x="724" y="653">INTERNAL CALL</text>
+          <line x1="848" y1="649" x2="876" y2="649" stroke="var(--color-zinc-600)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#lending-arrow)"/>
+          <text x="888" y="653">KAFKA EVENT</text>
+        </g>
+      </svg>
