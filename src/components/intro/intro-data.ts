@@ -6,13 +6,13 @@ export type FlowNode = { label: string; tag?: string };
 export type Flow = readonly (readonly FlowNode[])[];
 
 /**
- * One system, told with HERO. The slide carries the headline and the effect for every reader.
+ * One system, told with HERO. The slide carries the headline, the problem, and my part for every reader.
  * The architecture diagram in docs/intro-diagrams carries the rationale and the operations.
  */
 export type Story = {
   /** Where the work happened: an employer, or "Design study" for work that was never deployed. */
   context: string;
-  effect: string;
+  problem: string;
   flow: Flow;
   headline: string;
   id: StoryId;
@@ -23,14 +23,13 @@ export type Story = {
   shortName: string;
 };
 
-export type Closing = { heading: string; points: readonly string[]; shortHeading: string };
+export type StackGroup = { items: readonly string[]; name: string };
 
 
 export const stories: Record<StoryId, Story> = {
   'pr-reviewer': {
     context: 'Design study',
-    effect:
-      'AI reviewers that post every finding get muted within weeks. In my design, four agents review each diff, and a gate posts only the findings they are confident about. Every security finding goes to a person first.',
+    problem: 'AI reviewers post every finding, so teams mute them within weeks.',
     flow: [
       [{ label: 'Pipeline step' }, { label: 'Slack mention' }],
       [{ label: 'Orchestrator', tag: 'pulls repository context' }],
@@ -42,32 +41,30 @@ export const stories: Record<StoryId, Story> = {
     id: 'pr-reviewer',
     name: 'Multi-agent PR reviewer',
     period: '2026',
-    proof: { label: 'specialist agents behind one gate', value: '4' },
-    role: 'I wrote the whole design: the PRD, the architecture, the API, and the data model.',
+    proof: { label: 'agents behind one gate', value: '4' },
+    role: 'I designed four agents behind a gate that posts only confident findings and sends security ones to a person.',
     shortName: 'PR reviewer'
   },
   'employee-access': {
     context: 'Krom Bank',
-    effect:
-      'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',
+    problem: 'Access to 8 company tools was a manual checklist, and at a bank, late removal is an audit risk.',
     flow: [
       [{ label: 'HR system', tag: 'start or exit date' }],
       [{ label: 'Workflow engine' }],
       [{ label: 'Job queue', tag: 'one checkpoint per step' }],
       [{ label: '8 company tools' }, { label: 'Audit log' }]
     ],
-    headline: 'New hires get their accounts on day one. Leavers lose them when they leave.',
+    headline: 'New hires get access on day one. Leavers lose it when they go.',
     id: 'employee-access',
     name: 'Employee access system',
     period: '2024–2026',
-    proof: { label: 'company tools on one workflow, with every change audited', value: '8' },
-    role: 'I built it from scratch: a workflow engine that grants and removes access across 8 company tools, with an audit trail.',
+    proof: { label: 'tools on one workflow', value: '8' },
+    role: 'I built the workflow engine from scratch. A failed step retries where it stopped, and every change is audited.',
     shortName: 'Access'
   },
   'loan-collections': {
     context: 'Krom Bank',
-    effect:
-      'Collectors used to chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
+    problem: 'Collectors chased loans by phone, WhatsApp, and visits, with no record of who was contacted or what they promised.',
     flow: [
       [{ label: 'Overdue loans', tag: 'daily feed' }],
       [{ label: 'Assignment job', tag: 'rules and round robin' }],
@@ -82,26 +79,25 @@ export const stories: Record<StoryId, Story> = {
     id: 'loan-collections',
     name: 'Loan collections system',
     period: '2024–2025',
-    proof: { label: 'every overdue loan has a collector, every day', value: '8 AM' },
-    role: 'I designed the data model and built most of the frontend and the backend.',
+    proof: { label: 'every overdue loan assigned, daily', value: '8 AM' },
+    role: 'I designed the data model and built most of the app: daily assignment, browser calls, and one record per case.',
     shortName: 'Collections'
   },
   lending: {
     context: 'Jenius',
-    effect:
-      'I owned the Flexi Cash lending services on Node.js and GraphQL: 2M+ transactions a month at 99.98% uptime. I kept loan applications and payouts stable while the user base grew 147% in three years.',
+    problem: 'Lending had to stay stable at 2M+ transactions a month while users grew 147% and retail partners joined.',
     flow: [
       [{ label: 'Jenius app' }, { label: 'Retail partners' }],
       [{ label: 'GraphQL API' }],
       [{ label: 'Lending services', tag: 'origination, disbursement' }],
       [{ label: 'Kafka events', tag: 'partner integrations' }]
     ],
-    headline: 'I built the partner APIs that brought Flexi Cash to more retail partners.',
+    headline: 'I brought Flexi Cash to more retail partners.',
     id: 'lending',
     name: 'Flexi Cash lending',
     period: '2019–2022',
     proof: { label: 'transactions a month', value: '2M+' },
-    role: 'Backend engineer for three years, from loan applications to payouts.',
+    role: 'I owned the lending services on Node.js and GraphQL and built the Kafka partner APIs, at 99.98% uptime.',
     shortName: 'Lending'
   }
 };
@@ -113,25 +109,22 @@ export const storyOrder: readonly StoryId[] = [
   'lending'
 ];
 
-export const closing: Closing = {
-  heading: "What I'm looking for",
-  points: [
-    'A senior full-stack or backend role.',
-    'In fintech or digital banking.',
-    'With a path to tech lead.'
-  ],
-  shortHeading: "What's next"
-};
+export const stack: readonly StackGroup[] = [
+  { items: ['TypeScript', 'React', 'Next.js', 'Tailwind CSS'], name: 'Frontend' },
+  { items: ['Node.js', 'Express', 'GraphQL', 'REST', 'BullMQ'], name: 'Backend' },
+  { items: ['MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Kafka'], name: 'Data' },
+  { items: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Datadog'], name: 'Cloud and ops' }
+];
 
 export type Slide =
   | { kind: 'intro' }
   | { kind: 'story'; story: Story }
-  | { closing: Closing; kind: 'closing' };
+  | { kind: 'stack' };
 
 export const slides: readonly Slide[] = [
   { kind: 'intro' },
   ...storyOrder.map((id): Slide => ({ kind: 'story', story: stories[id] })),
-  { closing, kind: 'closing' }
+  { kind: 'stack' }
 ];
 
 /** How many arrow presses a slide takes before the next press moves to the next slide. */

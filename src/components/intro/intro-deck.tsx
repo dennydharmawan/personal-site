@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useReducer, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowLeft, ArrowRight, Network, X } from 'lucide-react';
-import { revealSteps, slides, storyOrder, stories } from '@/components/intro/intro-data';
-import type { Closing, Flow, Slide, Story, StoryId } from '@/components/intro/intro-data';
+import { revealSteps, slides, stack, storyOrder, stories } from '@/components/intro/intro-data';
+import type { Flow, Slide, Story, StoryId } from '@/components/intro/intro-data';
 import { profileLinks, siteMeta, trustedTeams } from '@/components/portfolio-home-data';
 import { contactEmail } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
@@ -38,13 +38,13 @@ function deckReducer(state: DeckState, action: DeckAction): DeckState {
 function slideTitle(slide: Slide) {
   if (slide.kind === 'intro') return 'Who I am';
   if (slide.kind === 'story') return slide.story.name;
-  return slide.closing.heading;
+  return 'Tech stack';
 }
 
 function slideShortTitle(slide: Slide) {
   if (slide.kind === 'intro') return 'Intro';
   if (slide.kind === 'story') return slide.story.shortName;
-  return slide.closing.shortHeading;
+  return 'Stack';
 }
 
 function architectureDialogId(story: Story) {
@@ -151,7 +151,7 @@ export default function IntroDeck({
               {slide.kind === 'story' && (
                 <StorySlide number={storyOrder.indexOf(slide.story.id) + 1} step={step} story={slide.story} />
               )}
-              {slide.kind === 'closing' && <ClosingSlide closing={slide.closing} />}
+              {slide.kind === 'stack' && <StackSlide />}
             </SlideFrame>
             {slide.kind === 'story' && <ArchitectureDialog diagram={diagrams[slide.story.id]} story={slide.story} />}
           </Fragment>
@@ -222,7 +222,7 @@ function StorySlide({ number, step, story }: { number: number; step: number; sto
           <h2 className="font-heading text-4xl font-extrabold tracking-tight text-balance wide:text-5xl short:text-4xl">
             {story.headline}
           </h2>
-          <p className="max-w-4xl text-lg text-pretty text-zinc-700 wide:text-xl short:text-base">{story.effect}</p>
+          <p className="max-w-4xl text-lg text-pretty text-zinc-700 wide:text-xl short:text-base">{story.problem}</p>
           <p className="flex max-w-3xl flex-wrap items-baseline gap-2 font-semibold text-pretty short:text-sm">
             <span className={cn(stickerClassName, 'bg-white py-0.5 text-xs tracking-wide uppercase')}>My part</span>
             {story.role}
@@ -315,14 +315,21 @@ function ArchitectureDialog({ diagram, story }: { diagram: ReactNode; story: Sto
   );
 }
 
-function ClosingSlide({ closing }: { closing: Closing }) {
+function StackSlide() {
   return (
     <>
-      <h2 className="font-heading text-5xl font-extrabold tracking-tight wide:text-7xl">{closing.heading}</h2>
-      <ul className="grid gap-4 wide:grid-cols-3">
-        {closing.points.map((point) => (
-          <li key={point} className={cn(panelClassName, 'p-5 text-lg font-semibold text-pretty')}>
-            {point}
+      <h2 className="font-heading text-5xl font-extrabold tracking-tight wide:text-7xl">Tech stack</h2>
+      <ul className="grid gap-4 sm:grid-cols-2 wide:grid-cols-4">
+        {stack.map((group) => (
+          <li key={group.name} className={cn(panelClassName, 'grid content-start gap-3 p-5')}>
+            <h3 className={cn(stickerClassName, 'w-fit bg-sky-300')}>{group.name}</h3>
+            <ul className="flex flex-wrap gap-2">
+              {group.items.map((item) => (
+                <li key={item} className="border-2 border-zinc-900 bg-white px-2.5 py-1 font-semibold">
+                  {item}
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
       </ul>
