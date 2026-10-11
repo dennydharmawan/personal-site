@@ -13,9 +13,9 @@ const footerTakeaways = [
   {
     href: '/resume.pdf',
     label: 'Resume',
-    meta: 'PDF, 52 KB',
+    meta: 'PDF, 71 KB',
     icon: ArrowDown,
-    download: true
+    download: 'Denny_Dharmawan_Resume.pdf'
   },
   {
     href: profileLinks.linkedIn,
@@ -42,7 +42,7 @@ function FooterTakeaways() {
             <a
               className="group flex min-h-16 items-center justify-between gap-6 py-4 sm:min-h-20"
               href={item.href}
-              {...(item.download ? { download: true } : { rel: 'noopener noreferrer', target: '_blank' })}
+              {...(item.download ? { download: item.download } : { rel: 'noopener noreferrer', target: '_blank' })}
             >
               <span className="font-heading text-3xl font-normal tracking-tight text-zinc-900 transition-transform duration-300 ease-out group-hover:translate-x-1.5 motion-reduce:transition-none sm:text-4xl">
                 {item.label}
