@@ -197,7 +197,7 @@ export const experiences: ReadonlyArray<{
     highlights: [
       { text: 'Customized ERP workflows and reports for clients, including JNE and Gramedia' },
       { text: 'Integrated data warehouse, enterprise portal, and point-of-sale systems' },
-      { text: 'Trained hundreds of professionals at client companies on Dynamics AX customization' }
+      { text: 'Trained 64+ client staff on Dynamics AX customization' }
     ],
     period: 'Dec 2017 – Dec 2019',
     role: 'Technical Consultant',

@@ -1,6 +1,6 @@
-\documentclass[10pt,letterpaper]{article}
+\documentclass[11pt,letterpaper]{article}
 
-\usepackage[margin=0.55in,top=0.45in,bottom=0.55in]{geometry}
+\usepackage[margin=0.7in,top=0.6in,bottom=0.7in]{geometry}
 \usepackage{fontspec}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
@@ -14,6 +14,7 @@
 % Arial on machines that have it (macOS/Windows); Liberation Sans is a
 % metric-compatible fallback, so pagination is identical on Linux/CI builds.
 \IfFontExistsTF{Arial}{\setmainfont{Arial}}{\setmainfont{Liberation Sans}}
+\IfFontExistsTF{Arial}{\newfontfamily\headfont{Arial}[Ligatures=TeX]}{\newfontfamily\headfont{Liberation Sans}[Ligatures=TeX]}
 
 \definecolor{heading}{HTML}{111827}
 \definecolor{accent}{HTML}{005EA8}
@@ -27,13 +28,14 @@
 \fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Page \thepage{} of \pageref{LastPage}}
 
 \titleformat{\section}
-  {\large\bfseries\color{accent}}
+  {\headfont\large\bfseries\color{heading}}
   {}
   {0pt}
-  {}
-  [\vspace{-2pt}{\color{rulecolor}\titlerule}]
-\titlespacing*{\section}{0pt}{10pt}{5pt}
+  {\MakeUppercase}
+  [\vspace{-2pt}{\color{heading}\titlerule[0.8pt]}]
+\titlespacing*{\section}{0pt}{16pt}{7pt}
 
+\linespread{1.08}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
 \setlength{\emergencystretch}{2em}
@@ -44,26 +46,27 @@
 \setlist[itemize]{
   label=\textbullet,
   leftmargin=1.1em,
-  itemsep=2pt,
+  itemsep=4pt,
   topsep=3pt,
   parsep=0pt,
   partopsep=0pt,
   % Never split a single bullet mid-sentence across a page break.
   before={\interlinepenalty=10000\relax}
 }
+\setlist[itemize,2]{label=$\circ$}
 
 % Company name and its full span of dates on one line.
 \newcommand{\company}[2]{%
   \Needspace{8\baselineskip}
-  \vspace{4pt}
-  {\textbf{\color{heading}#1}\hfill\textbf{#2}\par}
+  \vspace{8pt}
+  {\headfont\bfseries\color{heading}#1\hfill#2\par}
 }
 
 % One title held at the company, its dates, the location, and a one-line scope.
 \newcommand{\role}[4]{%
   \Needspace{6\baselineskip}
   \vspace{2pt}
-  {\itshape #1 \textbar{} #2\hfill #3\par}
+  {\itshape\color{muted}#1\if\relax\detokenize{#2}\relax\else{} \textbar{} #2\fi\hfill #3\par}
   \vspace{1pt}
   #4\par
 }
@@ -73,121 +76,111 @@
 
 \newcommand{\school}[2]{%
   \Needspace{6\baselineskip}
-  \vspace{3pt}
-  {\textbf{\color{heading}#1}\hfill\textbf{#2}\par}
+  \vspace{8pt}
+  {\headfont\bfseries\color{heading}#1\hfill#2\par}
 }
 
 \newcommand{\degree}[2]{%
-  {\itshape #1\hfill #2\par}
+  {\itshape\color{muted}#1\hfill #2\par}
 }
 
-\newcommand{\skillLine}[2]{%
-  \Needspace{2\baselineskip}
-  \par\noindent\textbf{#1:} #2\par
-  \vspace{1pt}
-}
+\newcommand{\skillLine}[2]{\item \textbf{#1:} #2}
 
 \begin{document}
 
 \begin{center}
-  {\fontsize{24}{28}\selectfont\bfseries\color{accent} Denny Dharmawan\par}
+  {\headfont\fontsize{22}{26}\selectfont\bfseries\color{heading} DENNY DHARMAWAN\par}
   \vspace{2pt}
-  {\normalsize\bfseries\color{heading} Senior Full-Stack Engineer\par}
+  {\headfont\normalsize\bfseries\color{heading} Senior Full-Stack Engineer\par}
   \vspace{5pt}
-  {\normalsize\color{accent}
+  {\normalsize\color{heading}
     Jakarta, Indonesia (UTC+7), open to remote \textbar{}
-    \href{mailto:contact@dennydharmawan.com}{contact@dennydharmawan.com} \textbar{}
+    \href{mailto:contact@dennydharmawan.com}{\textcolor{accent}{contact@dennydharmawan.com}} \textbar{}
     +62 859-5961-0206\par
     \vspace{2pt}
-    \href{https://dennydharmawan.com}{dennydharmawan.com} \textbar{}
-    \href{https://linkedin.com/in/ddharmawan}{linkedin.com/in/ddharmawan} \textbar{}
-    \href{https://github.com/dennydharmawan}{github.com/dennydharmawan}
+    \href{https://dennydharmawan.com}{\textcolor{accent}{dennydharmawan.com}} \textbar{}
+    \href{https://linkedin.com/in/ddharmawan}{\textcolor{accent}{linkedin.com/in/ddharmawan}} \textbar{}
+    \href{https://github.com/dennydharmawan}{\textcolor{accent}{github.com/dennydharmawan}}
   }
 \end{center}
 \vspace{1pt}
 
 \section{Professional Summary}
-Senior Full-Stack Engineer with 8+ years of experience in TypeScript, React, Next.js, and Node.js, including almost seven years in digital banking. Builds fintech products end to end, from user-facing frontends to distributed backend systems, with an AI-native workflow that uses coding agents every day.
+Senior full-stack engineer with 8+ years of experience building large-scale and customer-facing products for digital banking and SaaS using TypeScript, React, Next.js, and Node.js.
 
 \section{Work Experience}
 
 \company{Krom Bank}{Jan 2023 -- Present}
-\role{Senior Full-Stack Engineer}{May 2026 -- Present}{Jakarta, Indonesia}{Own the bank's employee access lifecycle, from HR events to account changes in 8 company tools, and drive its delivery across product, QA, database, and release teams.}
+\role{Senior Full-Stack Engineer}{May 2026 -- Present}{Jakarta, Indonesia}{Develop the internal tools that Krom, an Indonesian digital bank, uses to run its daily operations.}
 \begin{itemize}
-  \item Granting and removing access to 8 company tools was a manual checklist, and late removal is an audit risk for a bank. Designed an HRIS-driven lifecycle system on Node.js, BullMQ, and Redis that checkpoints each step and keeps provider calls separate from local finalization, so a retry after a half-finished call never creates a duplicate account. New hires now get access on their first day and lose it when they leave, with an audit record for every change.
-  \item Handled the cases that make HR automation hard to trust (rehires, overlapping joins and exits, and tools that need the company mailbox first), then moved 170+ existing employees onto the new access model in staged production batches.
-  \item The audit log ran on a MongoDB instance the team had to operate, and its offset pagination could skip or repeat rows while new actions were written. Migrated it to Amazon DocumentDB in phases (dual-write behind a feature flag, read cutover, then retiring MongoDB) and switched to keyset pagination, keeping the log available to auditors throughout.
-  \item EKS services showed stale release versions in Datadog, so errors could not be traced to the release that caused them. Traced it to a missing DD\_VERSION in the shared Helm chart and handed infra the evidence; they fixed the chart that every EKS service deploys from.
-  \item Release reviews depended on people reading each release ticket, its pull requests, and its prerequisites by hand. Prototyped a release-triage agent on AWS Bedrock that reads the ticket, its Bitbucket diffs, and Jira context and drafts a triage comment, with a Promptfoo eval harness scored against past releases.
-  \item Mentor two engineers and run design and code reviews.
+  \item Automated access provisioning and revocation for 8 company tools with an HRIS-driven workflow on Node.js, BullMQ, and Redis.
+  \item Migrated the bank's audit log from self-hosted MongoDB to Amazon DocumentDB in phases. Auditors had access to the log during all phases.
+  \item Won an internal AI engineering competition. Then trained engineering teams across Krom and Kredivo Group to build software from written specs with AI coding agents.
+  \item Mentor two engineers and run architecture design reviews and code reviews.
   \begin{itemize}
-    \keyResults{Shipped HRIS-driven access automation for 8 tools to production in Sep 2026 and moved 170+ existing employees onto it.}
-    \techStack{TypeScript, Node.js, Next.js, BullMQ, Redis, MySQL, Amazon DocumentDB, AWS (Bedrock, EKS), Datadog}
+    \keyResults{Built the \textbf{HRIS workflow engine} that now manages access for \textbf{170+ employees}. It replaced a manual process and keeps an \textbf{audit record of each change}.}
+    \techStack{TypeScript, Node.js, Next.js, BullMQ, Redis, MySQL, Amazon DocumentDB, AWS~(Bedrock, EKS), Datadog}
   \end{itemize}
 \end{itemize}
 
-\role{Full-Stack Engineer}{Jan 2023 -- May 2026}{Jakarta, Indonesia}{Built the bank's internal platforms on Next.js and Node.js: access governance, loan collections, and shared libraries.}
+\vspace{6pt}
+\role{Full-Stack Engineer}{Jan 2023 -- May 2026}{Jakarta, Indonesia}{}
 \begin{itemize}
-  \item Access decisions for internal applications had no single auditable record. Built the identity and access governance platform from scratch on Next.js (App Router), React, TypeScript, and Node.js, covering RBAC administration, the employee directory, audit logging, and periodic user access review. It is now the system of record for access decisions across internal applications.
-  \item Specified a CASL approval framework that stores permissions as JSON data instead of hardcoded conditionals, so approval rules change through data instead of code releases.
-  \item Collectors chased overdue loans by phone, WhatsApp, and field visits with no shared record of who was contacted or what they promised. As primary engineer, designed the data model and built most of a collections platform, introduced Next.js to the team, and integrated Vonage browser calling with partner-company engineers. Each overdue loan now has an owner, a next step, and one timeline of calls, reminders, and promises to pay.
-  \item Legacy modules made core APIs slow. Refactored them and added Redis caching, cutting average API execution time by 37\%.
-  \item Each internal app carried its own authentication, logging, and feature-flag code. Published a shared npm package with Express.js and Next.js adapters, now used by four production applications.
-  \item Teams branched and released in different ways. Authored the Git workflow standard now used by 5+ teams, and built Datadog dashboards and tracing that other teams adopted as their monitoring template.
+  \item Built a new access management system for the bank on Next.js, React, and Node.js (RBAC, employee directory, audit log, access reviews). It is the single record of who can use each app.
+  \item Designed and built the loan collections system with in-browser calling (Vonage). It replaced scattered phone, WhatsApp, and field-visit follow-ups with one owner and one call history for each loan.
+  \item Refactored legacy modules and added Redis caching. Average API execution time decreased by 37\%.
+  \item Published a shared npm package for login, logging, and feature flags. This removed duplicate code from four production apps.
+  \item Wrote the Git branching and release standard. 5+ engineering teams now use this standard.
   \begin{itemize}
-    \keyResults{Cut average API execution time by 37\%, moved four production apps onto one shared package, and set the Git workflow used by 5+ teams.}
-    \techStack{TypeScript, Next.js (App Router), React, Mantine, Node.js, Express.js, MySQL, MongoDB, Redis, CASL, Vonage, AWS (ECS), Datadog}
+    \keyResults{Built the bank's new \textbf{loan collections system} as the \textbf{main engineer}. Collectors now track \textbf{each overdue loan in one place} and are less likely to miss a follow-up.}
+    \techStack{TypeScript, Next.js, React, Mantine, Node.js, Express.js, MySQL, MongoDB, Redis, Vonage, AWS~(ECS), Datadog}
   \end{itemize}
 \end{itemize}
 
 \company{Bank SMBC Indonesia (Jenius)}{Dec 2019 -- Dec 2022}
-\role{Back End Engineer}{Dec 2019 -- Dec 2022}{Jakarta, Indonesia}{Backend engineer on Flexi Cash, the Jenius consumer credit line sold in the app and through retail partners.}
+\role{Back End Engineer}{}{Jakarta, Indonesia}{Worked in the lending squad on Flexi Cash, the credit line of Jenius, SMBC Indonesia's digital bank.}
 \begin{itemize}
-  \item Built and operated the Flexi Cash lending backends for loan origination, funding disbursement, and retail-partner APIs on Node.js, Express.js, GraphQL, MongoDB, Redis, and Kafka.
-  \item Each new retail partner needed its own integration into the lending flow. Designed event-driven partner APIs on Kafka, which brought Flexi Cash to more retail partners.
-  \item Kept origination and disbursement stable through a 147\% user-base increase over three years from launch.
+  \item Built and operated the loan approval (origination) and loan payout (disbursement) services.
+  \item Built scheduled jobs that send loan payment reminders to Flexi Cash customers before each due date.
+  \item Refactored the legacy admin site for lending. Customer service agents use this site to find customer and loan data for Flexi Cash during calls.
+  \item Designed Kafka-based partner APIs for retail stores that sell Flexi Cash. Each new partner connects through the same integration.
   \begin{itemize}
-    \keyResults{Ran lending services at 2M+ transactions a month and 99.98\% uptime while the user base grew 147\%.}
-    \techStack{Microservice architecture, Node.js, Express.js, GraphQL, MongoDB, Redis, Kafka}
+    \keyResults{\textbf{Main engineer} during the rapid growth of Flexi Cash (\textbf{147\%} more users). The services handled \textbf{2M+ transactions a month} at \textbf{99.98\% uptime}.}
+    \techStack{Node.js, Express.js, GraphQL, MongoDB, Redis, Kafka}
   \end{itemize}
 \end{itemize}
 
 \company{PT Iverson Technology}{Dec 2017 -- Dec 2019}
-\role{Technical Consultant}{Dec 2017 -- Dec 2019}{Jakarta, Indonesia}{Microsoft Dynamics AX ERP consultant for enterprise clients, including JNE and Gramedia.}
+\role{Technical Consultant}{}{Jakarta, Indonesia}{Microsoft Dynamics AX ERP consultant for enterprise clients, including JNE and Gramedia.}
 \begin{itemize}
-  \item Customized Dynamics AX ERP workflows for enterprise clients and built integrations across data warehouse, enterprise portal, and point-of-sale systems.
-  \item Trained hundreds of professionals at 2+ client companies on Dynamics AX customization.
-\end{itemize}
-
-\section{Selected Achievements}
-\begin{itemize}
-  \item Won an internal AI engineering competition and presented spec-driven development to Krom Bank engineering teams.
+  \item Customized Dynamics AX workflows and integrated the ERP with clients' data warehouse, enterprise portal, and point-of-sale systems.
+  \item Trained 64+ client staff to customize Dynamics AX themselves.
 \end{itemize}
 
 \section{Technical Skills}
-\skillLine{Frontend}{TypeScript, JavaScript, React, Next.js (App Router), Mantine, Storybook}
-\skillLine{Backend}{Node.js, Express.js, NestJS, GraphQL, REST, BullMQ, Kafka, event-driven integration}
-\skillLine{Data}{MySQL, MongoDB, Amazon DocumentDB, Redis}
-\skillLine{Cloud and operations}{AWS (ECS, EKS, Bedrock), Kubernetes, Docker, CI/CD, Datadog}
-\skillLine{Architecture}{System design, distributed workflows, idempotent retries, caching, RBAC, CASL, audit logging, HRIS provisioning}
-\skillLine{AI engineering}{AWS Bedrock agents, LLM evals with Promptfoo, spec-driven development}
-\skillLine{Practices}{RFC authoring, Git workflow standards, design and code review, shared package ownership, mentoring}
-\skillLine{Languages}{Indonesian (native), English (professional working proficiency)}
-\skillLine{For fun}{Weightlifting and running}
+\begin{itemize}
+  \skillLine{Frontend}{TypeScript, JavaScript, React, Next.js (App Router), Mantine, Storybook}
+  \skillLine{Backend}{Node.js, Express.js, NestJS, GraphQL, REST, BullMQ, Kafka, event-driven integration}
+  \skillLine{Data}{MySQL, MongoDB, Amazon DocumentDB, Redis}
+  \skillLine{Cloud and operations}{AWS (ECS, EKS, Bedrock), Kubernetes, Docker, CI/CD, Datadog}
+  \skillLine{AI engineering}{AWS Bedrock agents, LLM evals with Promptfoo, spec-driven development}
+  \skillLine{Languages}{Indonesian (native), English (professional working proficiency)}
+  \skillLine{For fun}{Weightlifting (120 kg deadlift PR at 60 kg bodyweight)}
+\end{itemize}
 
 \section{Education}
 \school{Thai-German Graduate School of Engineering (TGGS), KMUTNB}{Aug 2013 -- Nov 2015}
-\degree{Master of Engineering (M.Eng.), Software Systems Engineering}{Bangkok, Thailand and Aachen, Germany}
+\degree{Master of Engineering, Software Systems Engineering}{Bangkok, Thailand and Aachen, Germany}
 \begin{itemize}
-  \item \textbf{GPA: 3.84/4.00.} Full DAAD scholarship, funded by the German Academic Exchange Service and the German Federal Foreign Office.
-  \item Selected for the scholarship through a competitive application and interview process open to graduates across Southeast Asia, and spent the second year on a computer vision research stay at RWTH Aachen University \mbox{(Oct 2014 -- Nov 2015)}.
+  \item \textbf{GPA: 3.84/4.00.} Full DAAD scholarship (German Academic Exchange Service), competitively selected across Southeast Asia.
+  \item Spent the second year on computer vision research at RWTH Aachen University (2014--2015).
 \end{itemize}
 
 \school{BINUS University}{Mar 2011 -- Jun 2013}
-\degree{Bachelor of Science (B.S.), Computer Science}{Jakarta, Indonesia}
+\degree{Bachelor of Science, Computer Science}{Jakarta, Indonesia}
 \begin{itemize}
-  \item Top-performing teaching assistant at the Software Laboratory Center, teaching programming and reviewing code for undergraduates.
+  \item Taught programming at the Software Laboratory Center and won Top Performing Assistant.
+  \item Won Top Research Interest Group with a two-person team for an Android app that translates Japanese.
 \end{itemize}
-
 
 \end{document}
