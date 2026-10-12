@@ -28,11 +28,11 @@
 \fancyfoot[C]{\footnotesize\color{muted} Denny Dharmawan \textbar{} Page \thepage{} of \pageref{LastPage}}
 
 \titleformat{\section}
-  {\headfont\large\bfseries\color{heading}}
+  {\headfont\large\bfseries\color{accent}}
   {}
   {0pt}
   {\MakeUppercase}
-  [\vspace{-2pt}{\color{heading}\titlerule[0.8pt]}]
+  [\vspace{-2pt}{\color{accent}\titlerule[0.8pt]}]
 \titlespacing*{\section}{0pt}{16pt}{7pt}
 
 \linespread{1.08}
@@ -81,6 +81,7 @@
 }
 
 \newcommand{\degree}[2]{%
+  \vspace{2pt}
   {\itshape\color{muted}#1\hfill #2\par}
 }
 
@@ -90,17 +91,15 @@
 
 \begin{center}
   {\headfont\fontsize{22}{26}\selectfont\bfseries\color{heading} DENNY DHARMAWAN\par}
-  \vspace{2pt}
-  {\headfont\normalsize\bfseries\color{heading} Senior Full-Stack Engineer\par}
-  \vspace{5pt}
-  {\normalsize\color{heading}
-    Jakarta, Indonesia (UTC+7), open to remote \textbar{}
-    \href{mailto:contact@dennydharmawan.com}{\textcolor{accent}{contact@dennydharmawan.com}} \textbar{}
-    +62 859-5961-0206\par
+  \vspace{4pt}
+  {\normalsize\color{heading}%
+    \newcommand{\sep}{\enspace\textbar\enspace}%
+    \href{mailto:contact@dennydharmawan.com}{contact@dennydharmawan.com}\sep
+    +62 859-5961-0206\sep
+    Jakarta, Indonesia\par
     \vspace{2pt}
-    \href{https://dennydharmawan.com}{\textcolor{accent}{dennydharmawan.com}} \textbar{}
-    \href{https://linkedin.com/in/ddharmawan}{\textcolor{accent}{linkedin.com/in/ddharmawan}} \textbar{}
-    \href{https://github.com/dennydharmawan}{\textcolor{accent}{github.com/dennydharmawan}}
+    \href{https://dennydharmawan.com}{dennydharmawan.com}\sep
+    \href{https://linkedin.com/in/ddharmawan}{linkedin.com/in/ddharmawan}\par
   }
 \end{center}
 \vspace{1pt}
@@ -179,7 +178,7 @@ Senior full-stack engineer with 8+ years of experience building large-scale and 
 \school{BINUS University}{Mar 2011 -- Jun 2013}
 \degree{Bachelor of Science, Computer Science}{Jakarta, Indonesia}
 \begin{itemize}
-  \item Taught programming at the Software Laboratory Center and won Top Performing Assistant.
+  \item Won Top Performing Assistant at the Software Laboratory Center for teaching programming.
   \item Won Top Research Interest Group with a two-person team for an Android app that translates Japanese.
 \end{itemize}
 
