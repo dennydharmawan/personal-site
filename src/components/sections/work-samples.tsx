@@ -1,4 +1,5 @@
 import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { projects, type Project } from '@/components/portfolio-home-data';
 import {
   Reveal,
@@ -6,7 +7,8 @@ import {
   RevealItem,
   pageShellClassName,
   sectionHeaderClassName,
-  sectionPaddingClassName
+  sectionPaddingClassName,
+  spring
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
@@ -19,16 +21,23 @@ const stackedClassName =
 const captionClassName = 'px-1 pt-2.5 text-xs leading-5 text-zinc-500 text-pretty sm:text-sm';
 
 const views = [
-  { id: 'preview', caption: 'Sample screen. People and data are invented.', label: 'Preview' },
+  { id: 'preview', caption: null, label: 'Preview' },
   { id: 'architecture', caption: 'Simplified. Tool names and data are samples.', label: 'Architecture' }
 ] as const;
 
 type View = (typeof views)[number]['id'];
 
+// scripts/encode-screens.sh writes an AVIF and a 1024px copy beside every screen WebP; the WebP stays as the fallback.
+const toAvif = (src: string) => src.replace(/\.webp$/, '.avif');
+const screenSrcSet = (src: string) => `${src.replace(/(\.\w+)$/, '-1024$1')} 1024w, ${src} 1536w`;
+// Side by side the screen fills the wider of two columns, about 660px; stacked it spans the page shell.
+const screenSizes = '(min-width: 1024px) 660px, calc(100vw - 2.5rem)';
+
 function ProjectViews({ project }: { project: Project }) {
   const [view, setView] = useState<View>('preview');
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
+  const shouldReduceMotion = useReducedMotion();
   const panelId = (id: View) => `${baseId}-${id}-panel`;
   const tabId = (id: View) => `${baseId}-${id}-tab`;
   const isPreview = view === 'preview';
@@ -72,11 +81,19 @@ function ProjectViews({ project }: { project: Project }) {
               tabIndex={isSelected ? 0 : -1}
               className={cn(
                 'relative h-8 rounded-full px-3.5 text-sm font-medium transition-colors duration-200 after:absolute after:-inset-1.5 [--focus-offset:2px]',
-                isSelected ? 'bg-white text-zinc-900 ring-1 ring-zinc-900/10' : 'text-zinc-500 hover:text-zinc-900'
+                isSelected ? 'text-zinc-900' : 'text-zinc-600 hover:text-zinc-900'
               )}
               onClick={() => setView(item.id)}
             >
-              {item.label}
+              {isSelected ? (
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-full bg-white ring-1 ring-zinc-900/10"
+                  layoutId={`${baseId}-tab-pill`}
+                  transition={shouldReduceMotion ? { duration: 0 } : spring}
+                />
+              ) : null}
+              <span className="relative">{item.label}</span>
             </button>
           );
         })}
@@ -95,6 +112,14 @@ function ProjectViews({ project }: { project: Project }) {
             <source
               height={screen.phone.height}
               media="(max-width: 639px)"
+              srcSet={toAvif(screen.phone.src)}
+              type="image/avif"
+              width={screen.phone.width}
+            />
+            <source sizes={screenSizes} srcSet={screenSrcSet(toAvif(screen.src))} type="image/avif" />
+            <source
+              height={screen.phone.height}
+              media="(max-width: 639px)"
               srcSet={screen.phone.src}
               width={screen.phone.width}
             />
@@ -104,7 +129,9 @@ function ProjectViews({ project }: { project: Project }) {
               decoding="async"
               height={1024}
               loading="lazy"
+              sizes={screenSizes}
               src={screen.src}
+              srcSet={screenSrcSet(screen.src)}
               style={{ '--phone-aspect': `${screen.phone.width} / ${screen.phone.height}` } as CSSProperties}
               width={1536}
             />
@@ -130,16 +157,18 @@ function ProjectViews({ project }: { project: Project }) {
         </div>
       </div>
       <div className="grid">
-        {views.map((item) => (
-          <p
-            key={item.id}
-            aria-hidden={item.id !== view}
-            className={cn(captionClassName, stackedClassName)}
-            data-hidden={item.id !== view}
-          >
-            {item.caption}
-          </p>
-        ))}
+        {views.map((item) =>
+          item.caption ? (
+            <p
+              key={item.id}
+              aria-hidden={item.id !== view}
+              className={cn(captionClassName, stackedClassName)}
+              data-hidden={item.id !== view}
+            >
+              {item.caption}
+            </p>
+          ) : null
+        )}
       </div>
     </div>
   );
