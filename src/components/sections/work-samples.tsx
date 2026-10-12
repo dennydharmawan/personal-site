@@ -1,14 +1,5 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { Pause, Play } from 'lucide-react';
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-  type MotionValue
-} from 'motion/react';
-import { projects, type Chapter, type Project } from '@/components/portfolio-home-data';
+import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { projects, type Project } from '@/components/portfolio-home-data';
 import {
   Reveal,
   RevealGroup,
@@ -19,156 +10,29 @@ import {
 } from '@/components/sections/shared';
 import { cn } from '@/lib/utils';
 
-// One frame for all four clips: same inset, radius, ring, and backing, so they read as one body of work.
-const clipFrameClassName = 'rounded-2xl bg-zinc-100 p-1.5 ring-1 ring-zinc-900/5';
-const clipClassName = 'block aspect-[3/2] w-full rounded-xl object-cover ring-1 ring-zinc-900/10';
-// The clip and the diagram share one grid cell, so switching views never changes the row's height.
+// One frame for every sample: same inset, radius, ring, and backing, so they read as one body of work.
+const frameClassName = 'rounded-2xl bg-zinc-100 p-1.5 ring-1 ring-zinc-900/5';
+const imageClassName = 'block aspect-[3/2] w-full rounded-xl bg-white object-contain ring-1 ring-zinc-900/10';
+// The screen and the diagram share one grid cell, so switching views never changes the row's height.
 const stackedClassName =
   '[grid-area:1/1] transition-opacity duration-200 motion-reduce:transition-none data-[hidden=true]:pointer-events-none data-[hidden=true]:opacity-0';
+const captionClassName = 'px-1 pt-2.5 text-xs leading-5 text-zinc-500 text-pretty sm:text-sm';
 
 const views = [
-  { id: 'walkthrough', label: 'Walkthrough' },
-  { id: 'architecture', label: 'How it’s built' }
+  { id: 'preview', caption: 'Sample screen. People and data are invented.', label: 'Preview' },
+  { id: 'architecture', caption: 'Simplified. Tool names and data are samples.', label: 'Architecture' }
 ] as const;
 
 type View = (typeof views)[number]['id'];
 
-function chapterIndexAt(chapters: readonly Chapter[], seconds: number) {
-  let index = 0;
-  chapters.forEach((chapter, i) => {
-    if (seconds >= chapter.at) {
-      index = i;
-    }
-  });
-  return index;
-}
-
-function playMuted(video: HTMLVideoElement) {
-  // React sets `muted` as a property only; mobile autoplay policy checks the attribute.
-  video.muted = true;
-  video.defaultMuted = true;
-  video.play().catch(() => {});
-}
-
-function ChapterButton({
-  chapter,
-  end,
-  isActive,
-  onSelect,
-  time
-}: {
-  chapter: Chapter;
-  end: number;
-  isActive: boolean;
-  onSelect: () => void;
-  time: MotionValue<number>;
-}) {
-  const fill = useTransform(time, [chapter.at, end], [0, 1], { clamp: true });
-
-  return (
-    <li className="min-w-0">
-      <button
-        type="button"
-        aria-current={isActive ? 'step' : undefined}
-        className={cn(
-          'grid min-h-11 w-full content-start gap-2 rounded-md pb-1 text-left text-xs leading-5 transition-colors duration-200 h-full hover:text-zinc-900 [--focus-offset:4px] sm:text-sm',
-          isActive ? 'text-zinc-900' : 'text-zinc-500'
-        )}
-        onClick={onSelect}
-      >
-        <span aria-hidden="true" className="relative block h-0.5 w-full overflow-hidden rounded-full bg-zinc-200">
-          <motion.span className="absolute inset-0 origin-left bg-sky-600" style={{ scaleX: fill }} />
-        </span>
-        <span className="text-pretty">{chapter.label}</span>
-      </button>
-    </li>
-  );
-}
-
-function ProjectClip({ project }: { project: Project }) {
-  const shouldReduceMotion = useReducedMotion();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const isInView = useInView(videoRef, { amount: 0.4 });
-  // Posters are about 160 KB each; a `poster` attribute loads with the page, so it waits until the clip is close.
-  const isNear = useInView(videoRef, { margin: '800px 0px', once: true });
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isUserPaused, setIsUserPaused] = useState(false);
-  const time = useMotionValue(0);
-  const activeIndexRef = useRef(0);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [duration, setDuration] = useState<number | null>(null);
-  const [view, setView] = useState<View>('walkthrough');
+function ProjectViews({ project }: { project: Project }) {
+  const [view, setView] = useState<View>('preview');
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
-  const { chapters } = project;
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video) {
-      return;
-    }
-
-    let frameId = 0;
-
-    const sync = () => {
-      time.set(video.currentTime);
-      const next = chapterIndexAt(chapters, video.currentTime);
-
-      if (next !== activeIndexRef.current) {
-        activeIndexRef.current = next;
-        setActiveIndex(next);
-      }
-    };
-    const tick = () => {
-      sync();
-      frameId = requestAnimationFrame(tick);
-    };
-    const start = () => {
-      cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(tick);
-    };
-    const stop = () => {
-      cancelAnimationFrame(frameId);
-      sync();
-    };
-    const readDuration = () => {
-      setDuration(Number.isFinite(video.duration) ? video.duration : null);
-    };
-
-    readDuration();
-
-    if (!video.paused) {
-      start();
-    }
-
-    video.addEventListener('durationchange', readDuration);
-    video.addEventListener('playing', start);
-    video.addEventListener('pause', stop);
-    video.addEventListener('seeking', sync);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      video.removeEventListener('durationchange', readDuration);
-      video.removeEventListener('playing', start);
-      video.removeEventListener('pause', stop);
-      video.removeEventListener('seeking', sync);
-    };
-  }, [chapters, time]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video) {
-      return;
-    }
-
-    if (view === 'walkthrough' && isInView && !shouldReduceMotion && !isUserPaused) {
-      playMuted(video);
-    } else {
-      video.pause();
-    }
-  }, [isInView, isUserPaused, shouldReduceMotion, view]);
+  const panelId = (id: View) => `${baseId}-${id}-panel`;
+  const tabId = (id: View) => `${baseId}-${id}-tab`;
+  const isPreview = view === 'preview';
+  const { architecture, screen } = project;
 
   // Arrow keys move between the two tabs and select as they go, the WAI-ARIA tabs pattern.
   function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -183,52 +47,6 @@ function ProjectClip({ project }: { project: Project }) {
     setView(views[index].id);
     tabRefs.current[index]?.focus();
   }
-
-  function togglePlayback() {
-    const video = videoRef.current;
-
-    if (!video) {
-      return;
-    }
-
-    if (video.paused) {
-      setIsUserPaused(false);
-      playMuted(video);
-    } else {
-      setIsUserPaused(true);
-      video.pause();
-    }
-  }
-
-  function selectChapter(chapter: Chapter) {
-    const video = videoRef.current;
-
-    if (!video) {
-      return;
-    }
-
-    const seek = () => {
-      video.currentTime = chapter.at;
-
-      if (!shouldReduceMotion && !isUserPaused) {
-        playMuted(video);
-      }
-    };
-
-    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
-      seek();
-      return;
-    }
-
-    // `preload="none"` holds the file back until something asks for it; a paused seek has to ask.
-    video.addEventListener('loadedmetadata', seek, { once: true });
-    video.preload = 'auto';
-    video.load();
-  }
-
-  const panelId = (id: View) => `${baseId}-${id}-panel`;
-  const tabId = (id: View) => `${baseId}-${id}-tab`;
-  const isWalkthrough = view === 'walkthrough';
 
   return (
     <div className="grid content-start gap-3">
@@ -263,97 +81,73 @@ function ProjectClip({ project }: { project: Project }) {
           );
         })}
       </div>
-      <div className={cn(clipFrameClassName, 'grid')}>
+      <div className={cn(frameClassName, 'grid')}>
         <div
-          aria-labelledby={tabId('walkthrough')}
+          aria-labelledby={tabId('preview')}
           className={stackedClassName}
-          data-hidden={!isWalkthrough}
-          id={panelId('walkthrough')}
-          inert={!isWalkthrough}
+          data-hidden={!isPreview}
+          id={panelId('preview')}
+          inert={!isPreview}
           role="tabpanel"
         >
-          <video
-            ref={videoRef}
-            aria-label={`${project.title}, animated walkthrough with sample data`}
-            className={clipClassName}
-            disablePictureInPicture
-            disableRemotePlayback
-            loop
-            muted
-            playsInline
-            poster={isNear ? project.preview : undefined}
-            preload="none"
-            src={project.video}
-            onPause={() => setIsPlaying(false)}
-            onPlaying={() => setIsPlaying(true)}
-          />
+          {/* A phone gets the one card that tells the story; the full screen's text would land at 3 px. */}
+          <picture>
+            <source
+              height={screen.phone.height}
+              media="(max-width: 639px)"
+              srcSet={screen.phone.src}
+              width={screen.phone.width}
+            />
+            <img
+              alt={screen.alt}
+              className={cn(imageClassName, 'aspect-(--phone-aspect) sm:aspect-[3/2]')}
+              decoding="async"
+              height={1024}
+              loading="lazy"
+              src={screen.src}
+              style={{ '--phone-aspect': `${screen.phone.width} / ${screen.phone.height}` } as CSSProperties}
+              width={1536}
+            />
+          </picture>
         </div>
         <div
           aria-labelledby={tabId('architecture')}
-          className={stackedClassName}
-          data-hidden={isWalkthrough}
+          className={cn(stackedClassName, 'self-center')}
+          data-hidden={isPreview}
           id={panelId('architecture')}
-          inert={isWalkthrough}
+          inert={isPreview}
           role="tabpanel"
         >
           <img
-            alt={project.architecture.alt}
-            className={cn(clipClassName, 'bg-white object-contain')}
+            alt={architecture.alt}
+            className={imageClassName}
             decoding="async"
             height={960}
             loading="lazy"
-            src={project.architecture.src}
+            src={architecture.src}
             width={1440}
           />
         </div>
       </div>
       <div className="grid">
-        <div
-          className={cn('flex items-start gap-3 px-1 sm:gap-4', stackedClassName)}
-          data-hidden={!isWalkthrough}
-          inert={!isWalkthrough}
-        >
-          <ol aria-label={`${project.title} chapters`} className="grid min-w-0 flex-1 grid-cols-3 gap-3 sm:gap-4">
-            {chapters.map((chapter, index) => (
-              <ChapterButton
-                key={chapter.label}
-                chapter={chapter}
-                end={chapters[index + 1]?.at ?? duration ?? Number.POSITIVE_INFINITY}
-                isActive={index === activeIndex}
-                onSelect={() => selectChapter(chapter)}
-                time={time}
-              />
-            ))}
-          </ol>
-          {/* Beside the chapters, not over the clip: on a phone it covered the clip's last line. */}
-          <button
-            type="button"
-            aria-label={`${isPlaying ? 'Pause' : 'Play'} ${project.title} walkthrough`}
-            className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 ring-1 ring-zinc-900/10 transition-colors duration-200 after:absolute after:-inset-1 hover:bg-zinc-100"
-            onClick={togglePlayback}
+        {views.map((item) => (
+          <p
+            key={item.id}
+            aria-hidden={item.id !== view}
+            className={cn(captionClassName, stackedClassName)}
+            data-hidden={item.id !== view}
           >
-            {isPlaying ? (
-              <Pause aria-hidden="true" className="size-3.5 fill-current" />
-            ) : (
-              <Play aria-hidden="true" className="size-3.5 translate-x-px fill-current" />
-            )}
-          </button>
-        </div>
-        <p
-          aria-hidden={isWalkthrough}
-          className={cn('px-1 pt-2.5 text-xs leading-5 text-zinc-500 text-pretty sm:text-sm', stackedClassName)}
-          data-hidden={isWalkthrough}
-        >
-          Simplified. Tool names and data are samples.
-        </p>
+            {item.caption}
+          </p>
+        ))}
       </div>
     </div>
   );
 }
 
-// Rows alternate the clip's side so four samples read as a sequence of stories, not a stack of cards.
-// Stacked, the title leads so the clip below it has a subject. Side by side, the clip spans all four
-// rows and the two 1fr rows around the text center it against the clip.
+// Rows alternate the screen's side so the samples read as a sequence of stories, not a stack of cards.
+// Stacked, the title leads so the screen below it has a subject. Side by side, the screen spans all four
+// rows and the two 1fr rows around the text center it against the screen.
 function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
   const textColumn = flip ? 'lg:col-start-1' : 'lg:col-start-2';
 
@@ -369,16 +163,13 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
             : 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]'
         )}
       >
-        <header className={cn('grid gap-4 px-1 lg:row-start-2', textColumn)}>
-          <p className="text-sm font-medium text-sky-800">{project.role}</p>
-          <div className="grid gap-2">
-            <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
-              {project.title}
-            </h3>
-            <p className="font-heading text-xl font-normal leading-snug tracking-tight text-zinc-500 text-pretty sm:text-2xl">
-              {project.problem}
-            </p>
-          </div>
+        <header className={cn('grid gap-2 px-1 lg:row-start-2', textColumn)}>
+          <h3 className="font-heading text-3xl font-normal leading-tight tracking-tight text-zinc-900 text-balance sm:text-4xl">
+            {project.title}
+          </h3>
+          <p className="font-heading text-xl font-normal leading-snug tracking-tight text-zinc-500 text-pretty sm:text-2xl">
+            {project.problem}
+          </p>
         </header>
         <div
           className={cn(
@@ -386,7 +177,7 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
             flip ? 'lg:col-start-2' : 'lg:col-start-1'
           )}
         >
-          <ProjectClip project={project} />
+          <ProjectViews project={project} />
         </div>
         <div className={cn('grid gap-4 px-1 lg:row-start-3 lg:pt-4', textColumn)}>
           <dl className="grid gap-4 border-t border-zinc-200 pt-5">
@@ -395,16 +186,10 @@ function ProjectRow({ flip, project }: { flip: boolean; project: Project }) {
               <dd className="text-base leading-7 text-zinc-700 text-pretty">{project.built}</dd>
             </div>
           </dl>
-          <ul aria-label={`${project.title} stack`} className="flex flex-wrap gap-1.5 pt-1">
-            {project.stack.map((item) => (
-              <li
-                key={item}
-                className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 ring-1 ring-zinc-900/10"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+          <p className="text-sm leading-6 text-zinc-500 text-pretty">
+            <span className="sr-only">Stack: </span>
+            {project.stack.join(' · ')}
+          </p>
         </div>
       </article>
     </Reveal>

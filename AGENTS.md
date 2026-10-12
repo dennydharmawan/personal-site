@@ -56,9 +56,21 @@ Loop keyframes animate `transform` or `opacity` strings (`'translateY(-4px)'`, n
 Motion hands them to WAAPI on the compositor; independent `x`, `y`, `scale` tick on the
 main thread.
 
-The Work samples clips are rendered video, built in the separate Remotion package
-`clips/`. Read `clips/AGENTS.md` before you change anything under `clips/` or a
-chapter's `at` in `src/components/portfolio-home-data.ts`.
+## Work samples
+
+Each entry in `projects` (`src/components/portfolio-home-data.ts`) shows an app screen
+under Preview and an architecture diagram under Architecture.
+
+- Screens are generated images. Invent every person, record, and number, and name only
+  tools and invented people: no employer, past or present, and no real company standing
+  in for the invented one, in any screen, diagram, alt text, or copy.
+- A screen ships as two WebPs: the full 1536×1024 screen for `sm` and up, and a crop of
+  the one card that tells the story for phones, with that crop's pixel size in `phone`.
+- `scripts/architecture/generate.mjs` builds the three diagram SVGs in
+  `public/portfolio-previews/architecture/` from the single-colour marks in
+  `scripts/architecture/logos/`. Change a diagram in the generator and rerun it; it
+  writes nothing when its layout check fails. A diagram's `desc` and its
+  `architecture.alt` carry the same text.
 
 ## Portfolio copy
 

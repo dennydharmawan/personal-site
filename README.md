@@ -20,7 +20,7 @@ pnpm preview
 - `src/components/sections/` holds one file per section.
 - `src/components/portfolio-home-data.ts` stores homepage content data.
 - `public/` contains static images, logos, resume, and favicons.
-- `clips/` is a Remotion package that renders the work-sample videos.
+- `scripts/architecture/` generates the work-sample architecture diagrams.
 
 ## Notes
 

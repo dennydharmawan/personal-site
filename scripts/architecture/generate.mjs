@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Usage: node scripts/architecture/generate.mjs [--sheet out.png]
-// Builds the three Work samples architecture diagrams into ../public/portfolio-previews/architecture/.
+// Builds the three Work samples architecture diagrams into public/portfolio-previews/architecture/.
 // Text is measured in Chrome with the site's embedded font, so every box is sized to what it holds.
 // Before writing, it fails if a text escapes its box or an arrow label crowds a box, another label, or the edge.
 // --sheet renders each diagram at 1440 and at 338 px (the phone frame) into one PNG to look at.
 import fs from 'node:fs';
 import path from 'node:path';
-import { CLIPS_DIR, REPO_DIR, fail, launchBrowser, tempDir } from '../lib.mjs';
+import { DIAGRAM_DIR, REPO_DIR, fail, launchBrowser, tempDir } from './lib.mjs';
 
 const args = process.argv.slice(2);
 let sheet = '';
@@ -17,7 +17,7 @@ if (sheetAt !== -1) {
 }
 
 const OUT = path.join(REPO_DIR, 'public/portfolio-previews/architecture');
-const LOGO_DIR = path.join(CLIPS_DIR, 'public/logos');
+const LOGO_DIR = path.join(DIAGRAM_DIR, 'logos');
 const FONT = fs
   .readFileSync(path.join(REPO_DIR, 'node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2'))
   .toString('base64');
@@ -44,7 +44,7 @@ const C = {
   rose700: '#c70036',
 };
 
-// ---------- logos: path data from clips/public/logos ----------
+// ---------- logos: path data from scripts/architecture/logos ----------
 const read = (name) => fs.readFileSync(path.join(LOGO_DIR, `${name}.svg`), 'utf8');
 const pathsOf = (text) => [...text.matchAll(/\sd="([^"]+)"/g)].map((m) => m[1].replace(/\s+/g, ' '));
 const viewBoxOf = (text) => text.match(/viewBox="([^"]+)"/)[1];
@@ -248,7 +248,7 @@ async function hris() {
     arrow([[1300, r2 + 180], [1300, strip.y - 2]]),
     arrow([[1220, r2], [1220, r1 + 182]], 'zinc'),
     // The retry leaves the worker, drops under the row, and comes back up into the queue.
-    arrow([[1070, 524], [990, 524], [990, 620], [690, 620], [690, r2 + 182]], 'rose'),
+    arrow([[1070, 524], [990, 524], [990, 620], [690, 620], [690, r2 + 182]], 'zinc'),
   ];
   const labels = [
     await label({ x: 490, y: mid1, side: 'above', lines: [['webhook']] }),
@@ -256,7 +256,7 @@ async function hris() {
     await label({ x: 989, y: mid2, side: 'above', lines: [['run job']] }),
     await label({ x: 1300, y: 650, side: 'left', lines: [['create, remove']] }),
     await label({ x: 1220, y: 318, side: 'right', kind: 'zinc', lines: [['record']] }),
-    await label({ x: 830, y: 620, side: 'below', kind: 'rose', lines: [['retry with backoff'], ['resumes at the failed step', C.rose700, 500]] }),
+    await label({ x: 830, y: 620, side: 'below', kind: 'zinc', lines: [['retry with backoff'], ['resumes at the failed step', C.zinc500, 500]] }),
   ];
   const nodes = [
     await node({ id: 'zoho', x: 48, y: r1, w: 352, name: 'Zoho People', sub: 'hire, rehire, offboard', logos: ['zoho'] }),
@@ -322,7 +322,7 @@ async function loans() {
   s.push(`<text data-in="timeline" x="${tl.x + PAD}" y="${tl.y + 124}" font-size="${NAME}" font-weight="600" fill="${C.zinc900}">Timeline</text>`);
   s.push(`<text data-in="timeline" x="${tl.x + PAD}" y="${tl.y + 160}" font-size="${SUB}" font-weight="500" fill="${C.emerald700}">one per loan</text>`);
   const chips = [
-    ['Call, no answer', C.white, C.zinc200, C.zinc700],
+    ['Call answered', C.white, C.zinc200, C.zinc700],
     ['Reminder read', C.sky100, C.sky100, C.sky700],
     ['Promise to pay', C.emerald600, C.emerald600, C.white],
   ];
@@ -336,7 +336,7 @@ async function loans() {
   return frame({
     slug: 'arch-loans',
     title: 'Multi-channel loan collections architecture',
-    desc: "A collector sets each loan's next step in a Next.js console, which sends it to the collections API (Node.js with a Redis queue). The API places browser calls through Vonage Voice and sends template reminders through WhatsApp. Call status from Vonage and replies from WhatsApp land on one MySQL timeline per loan, with entries such as a call with no answer, a reminder read, and a promise to pay.",
+    desc: "A collector sets each loan's next step in a Next.js console, which sends it to the collections API (Node.js with a Redis queue). The API places browser calls through Vonage Voice and sends template reminders through WhatsApp. Call status from Vonage and replies from WhatsApp land on one MySQL timeline per loan, with entries such as an answered call, a reminder read, and a promise to pay.",
     body: [...arrows, ...labels, ...nodes, ...s].join('\n'),
   });
 }

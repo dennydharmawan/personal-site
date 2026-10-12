@@ -29,7 +29,7 @@ Readers arrive from a resume PDF, LinkedIn, job application forms, and recruiter
 - One page. Astro 7 with React 19 islands, Tailwind CSS v4, `motion/react`.
 - Primary actions: download `public/resume.pdf` and contact by email or LinkedIn.
 - NDA: no internal codenames, internal tool names, colleagues, tickets, or Slack threads. Employer systems are described at the pattern level.
-- Four work-sample clips are Remotion animations with sample data (`clips/`). They are walkthroughs, not screen recordings.
+- Each work sample shows a generated app screen with sample data and an architecture diagram. The screens are illustrations, not screenshots of employer systems.
 - The PR reviewer runs in production at Krom Bank. The access, loan collection, and checkout samples are NDA-safe builds.
 
 ## Brand Commitments
@@ -55,7 +55,7 @@ Readers arrive from a resume PDF, LinkedIn, job application forms, and recruiter
   - At Iverson, he integrated data warehouse, enterprise portal, and point-of-sale systems.
   - He started out teaching programming labs at university.
   - Stack by employer. Krom Bank: TypeScript, React, Next.js, Node.js, PostgreSQL, MySQL, MongoDB, DocumentDB, Redis, BullMQ, AWS, Datadog. Jenius: Node.js, GraphQL, Kafka.
-- Assets: four clips and preview images in `public/portfolio-previews/`, employer logos in `public/company-logos/`, `resume.pdf`.
+- Assets: work-sample screens, architecture diagrams, and preview images in `public/portfolio-previews/`, employer logos in `public/company-logos/`, `resume.pdf`.
 - Absent, never to be fabricated: access scale beyond the 8 tools, PR reviewer usage, the method behind a 37% API speedup, Go experience, Kubernetes or Terraform ownership, testimonials. The two incident write-ups stay private by the owner's decision.
 
 ## Product Principles

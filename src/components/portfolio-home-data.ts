@@ -29,8 +29,6 @@ export const expertiseItems: ExpertiseItem[] = [
   }
 ];
 
-export type Chapter = { at: number; label: string };
-
 const evidenceTargets = ['krom-access', 'krom-shared-package', 'jenius-lending'] as const;
 
 export type EvidenceTarget = (typeof evidenceTargets)[number];
@@ -73,18 +71,18 @@ export const aboutParagraph: AboutSegment[] = [
   " for three years. Next, I want a senior full-stack or backend role in fintech or digital banking, with a path to tech lead."
 ];
 
+/** A generated screen of the app with sample data, and the crop of it that phones get. */
+export type ProjectScreen = { alt: string; phone: { height: number; src: string; width: number }; src: string };
+
 export type Project = {
-  /** A simplified diagram of the system, shown behind the clip's "How it's built" tab. */
+  /** A simplified diagram of the system, shown under the "Architecture" tab. */
   architecture: { alt: string; src: string };
   built: string;
-  chapters: readonly [Chapter, Chapter, Chapter];
-  preview: string;
+  screen: ProjectScreen;
   problem: string;
-  role: string;
   stack: string[];
   target?: EvidenceTarget;
   title: string;
-  video: string;
 };
 
 export const projects: Project[] = [
@@ -94,38 +92,32 @@ export const projects: Project[] = [
       src: '/portfolio-previews/architecture/hris-automation.svg'
     },
     built:
-      'When HR hires, rehires, or offboards someone, the system creates or removes their accounts in each tool automatically. If a step fails, the retry picks up where it stopped without creating duplicates, and every change is recorded for audit.',
-    chapters: [
-      { at: 0, label: 'Setup fails halfway' },
-      { at: 4, label: 'Retry, no duplicates' },
-      { at: 9, label: 'Ready on day one' }
-    ],
-    preview: '/portfolio-previews/work-sample-auth-access.webp',
+      "HR changes in Zoho People now set up and remove each person's accounts in 8 tools automatically. IT sees every hire, offboarding, and rehire in one place, with role templates deciding who gets what and an audit log of every change. Every sync is safe to run twice, so no one ends up with duplicate accounts.",
+    screen: {
+      alt: "Sample screen of the HRIS automation app. A Lifecycle events table lists hires, an offboarding, and a rehire, each with the tools the person gets and a status. A panel shows one new hire's 8 accounts, from JumpCloud to Tailscale, with their account names. Below are access templates by role and an audit log of accounts created and removed.",
+      phone: { height: 466, src: '/portfolio-previews/work-sample-hris-app-phone.webp', width: 584 },
+      src: '/portfolio-previews/work-sample-hris-app.webp'
+    },
     problem:
       'Every new hire needs accounts in 8 company tools on day one, and every leaver needs them removed.',
-    role: 'Identity and access governance',
-    stack: ['Node.js', 'TypeScript', 'BullMQ', 'Redis', 'MySQL', 'Access control management'],
-    title: 'HRIS automation workflow',
-    video: '/portfolio-previews/motion/work-sample-auth-access.mp4'
+    stack: ['Node.js', 'TypeScript', 'BullMQ', 'Redis', 'MySQL'],
+    title: 'HRIS automation workflow'
   },
   {
     architecture: {
-      alt: "Simplified architecture. A collector sets each loan's next step in a Next.js console, which sends it to the collections API (Node.js with a Redis queue). The API places browser calls through Vonage Voice and sends template reminders through WhatsApp. Call status from Vonage and replies from WhatsApp land on one MySQL timeline per loan, with entries such as a call with no answer, a reminder read, and a promise to pay.",
+      alt: "Simplified architecture. A collector sets each loan's next step in a Next.js console, which sends it to the collections API (Node.js with a Redis queue). The API places browser calls through Vonage Voice and sends template reminders through WhatsApp. Call status from Vonage and replies from WhatsApp land on one MySQL timeline per loan, with entries such as an answered call, a reminder read, and a promise to pay.",
       src: '/portfolio-previews/architecture/loan-collection.svg'
     },
     built:
       'Each overdue loan gets an owner and a next step: a call, a WhatsApp message, or a field visit. Collectors call from the browser through Vonage and send WhatsApp reminders from templates. Every contact and promise to pay lands on one timeline.',
-    chapters: [
-      { at: 0, label: 'No single record' },
-      { at: 2.5, label: 'Call, then WhatsApp' },
-      { at: 8, label: 'Promise to pay logged' }
-    ],
-    preview: '/portfolio-previews/work-sample-loan-collection.webp',
+    screen: {
+      alt: "Sample screen of the loan collections console. A collector's queue lists five overdue loans with days overdue, amount due, next step, and any promise to pay. The selected loan shows its owner, Call and Send WhatsApp buttons, and a contact timeline: an answered call, a WhatsApp reminder, the borrower's reply, and a promise to pay logged for 18 Oct.",
+      phone: { height: 678, src: '/portfolio-previews/work-sample-loan-collection-app-phone.webp', width: 638 },
+      src: '/portfolio-previews/work-sample-loan-collection-app.webp'
+    },
     problem: 'Collectors chase each overdue loan by phone, WhatsApp, and field visits, with no single record of who was contacted or what they promised.',
-    role: 'Collections operations',
     stack: ['Next.js', 'Node.js', 'MySQL', 'Redis', 'Vonage', 'WhatsApp API'],
-    title: 'Multi-channel loan collections',
-    video: '/portfolio-previews/motion/work-sample-loan-collection.mp4'
+    title: 'Multi-channel loan collections'
   },
   {
     architecture: {
@@ -134,17 +126,14 @@ export const projects: Project[] = [
     },
     built:
       'Every order moves through clear stages, from awaiting payment to paid. The payment provider confirms each payment directly, and a regular check matches every order to the money received.',
-    chapters: [
-      { at: 0, label: 'Paid, order waits' },
-      { at: 4, label: 'Provider confirms' },
-      { at: 7, label: 'Every order matched' }
-    ],
-    preview: '/portfolio-previews/work-sample-ecommerce-payment.webp',
+    screen: {
+      alt: "Sample screen of the payments operations console. An orders table shows each order's amount, payment method, Midtrans reference, and status. The selected order's tracker runs from created to awaiting payment to paid, confirmed by Midtrans. Below, a webhook events log and a reconciliation card show the 11 Oct settlement report with all orders matched.",
+      phone: { height: 409, src: '/portfolio-previews/work-sample-ecommerce-payment-app-phone.webp', width: 509 },
+      src: '/portfolio-previews/work-sample-ecommerce-payment-app.webp'
+    },
     problem: "After a customer pays, the store can't always tell whether the payment went through, so the order waits with no clear status.",
-    role: 'Checkout and payments',
-    stack: ['Next.js', 'Microservices', 'Kafka', 'Payment API', 'Webhooks', 'SQL'],
-    title: 'E-commerce payments',
-    video: '/portfolio-previews/motion/work-sample-ecommerce-payment.mp4'
+    stack: ['Next.js', 'Node.js', 'Kafka', 'Midtrans', 'SQL'],
+    title: 'E-commerce payments'
   }
 ];
 
