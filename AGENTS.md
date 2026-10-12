@@ -66,6 +66,8 @@ under Preview and an architecture diagram under Architecture.
   in for the invented one, in any screen, diagram, alt text, or copy.
 - A screen ships as two WebPs: the full 1536×1024 screen for `sm` and up, and a crop of
   the one card that tells the story for phones, with that crop's pixel size in `phone`.
+  After adding or changing a WebP, run `scripts/encode-screens.sh`. It writes the AVIF
+  twins and the 1024px copies that 1x displays load; never edit those by hand.
 - `scripts/architecture/generate.mjs` builds the three diagram SVGs in
   `public/portfolio-previews/architecture/` from the single-colour marks in
   `scripts/architecture/logos/`. Change a diagram in the generator and rerun it; it
