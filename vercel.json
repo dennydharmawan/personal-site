@@ -13,6 +13,10 @@
       ]
     },
     {
+      "source": "/resume.pdf",
+      "headers": [{ "key": "Content-Disposition", "value": "inline; filename=\"Denny_Dharmawan_Resume.pdf\"" }]
+    },
+    {
       "source": "/intro(.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
