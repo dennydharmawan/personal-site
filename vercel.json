@@ -14,7 +14,7 @@
     },
     {
       "source": "/resume.pdf",
-      "headers": [{ "key": "Content-Disposition", "value": "inline; filename=\"Denny_Dharmawan_Resume.pdf\"" }]
+      "headers": [{ "key": "Content-Disposition", "value": "inline; filename=\"Denny-Dharmawan-Resume.pdf\"" }]
     },
     {
       "source": "/intro(.*)",

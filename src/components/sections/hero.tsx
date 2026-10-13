@@ -57,7 +57,7 @@ function HeroActions({ className = '' }: { className?: string }) {
         size="lg"
         className="min-h-11 w-full px-3 min-[420px]:w-auto sm:px-4"
       >
-        <a href="/resume.pdf" download="Denny_Dharmawan_Resume.pdf">
+        <a href="/resume.pdf" download="Denny-Dharmawan-Resume.pdf">
           <Download
             data-icon="inline-start"
             className="transition-transform duration-200 group-hover/button:translate-y-0.5"

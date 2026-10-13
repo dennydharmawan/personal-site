@@ -22,7 +22,7 @@ const footerTakeaways = [
     label: 'Resume',
     meta: 'PDF, 71 KB',
     icon: ArrowDown,
-    download: 'Denny_Dharmawan_Resume.pdf'
+    download: 'Denny-Dharmawan-Resume.pdf'
   },
   {
     href: profileLinks.linkedIn,
